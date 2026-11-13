@@ -19,7 +19,7 @@ theorem isLocallyConstant_iff_clopen_fibers {f : X → Y} :
     IsLocallyConstant f ↔ ∀ y, IsClopen (f ⁻¹' {y}) :=
   ⟨fun h y => h.isClopen_fiber y, fun h s =>
     by
-    rw [← bUnion_of_singleton s, preimage_Union₂]
+    rw [← Set.biUnion_of_singleton s, Set.preimage_iUnion₂]
     exact isOpen_biUnion fun x _ => (h x).1⟩
 
 end
@@ -40,11 +40,11 @@ def IndexedPartition.discreteQuotient {ι : Type _} {s : ι → Set X} (h_part :
 
 variable {ι : Type _} {s : ι → Set X} (h_cl : ∀ i, IsClopen <| s i) (h_part : IndexedPartition s)
 
-def IndexedPartition.discreteQuotientEquiv : ι ≃ h_part.DiscreteQuotient h_cl :=
+def IndexedPartition.discreteQuotientEquiv : ι ≃ h_part.discreteQuotient h_cl :=
   h_part.equivQuotient
 
-theorem IndexedPartition.discreteQuotient_fiber (x : h_part.DiscreteQuotient h_cl) :
-    (h_part.DiscreteQuotient h_cl).proj ⁻¹' {x} = s ((h_part.discreteQuotientEquiv h_cl).symm x) :=
+theorem IndexedPartition.discreteQuotient_fiber (x : h_part.discreteQuotient h_cl) :
+    (h_part.discreteQuotient h_cl).proj ⁻¹' {x} = s ((h_part.discreteQuotientEquiv h_cl).symm x) :=
   h_part.proj_fiber _
 
 end

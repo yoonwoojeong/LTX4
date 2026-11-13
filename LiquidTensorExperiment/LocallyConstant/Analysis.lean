@@ -29,7 +29,7 @@ section ForMathlib
 theorem Real.sSup_hMul (r : ℝ) (s : Set ℝ) (hr : 0 < r) :
     sSup {x | ∃ y ∈ s, r * y = x} = r * sSup s :=
   by
-  by_cases hs : s.nonempty; swap
+  by_cases hs : s.Nonempty; swap
   · rw [not_nonempty_iff_eq_empty] at hs ; simp [hs]
   have H : Set.Nonempty {x : ℝ | ∃ (y : ℝ) (H : y ∈ s), r * y = x} := by obtain ⟨x, hx⟩ := hs;
     exact ⟨r * x, x, hx, rfl⟩

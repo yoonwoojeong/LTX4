@@ -28,14 +28,14 @@ variable [HasZeroMorphisms V] (F : J ⥤ HomologicalComplex V c)
 @[simps]
 def liftOfIsLimitEval (t : Cone F) (h : ∀ i, IsLimit <| (eval V c i).mapCone t) (s : Cone F) :
     s.pt ⟶ t.pt := by
-  refine' ⟨fun i => is_limit.lift (h i) ⟨_, _⟩, _⟩
+  refine' ⟨fun i => CategoryTheory.Limits.IsLimit.lift (h i) ⟨_, _⟩, _⟩
   refine' ⟨fun x => (s.π.app x).f i, _⟩
-  · intro x y f; dsimp; rw [category.id_comp, ← comp_f]; congr; exact (cone.w s f).symm
+  · intro x y f; dsimp; rw [CategoryTheory.Category.id_comp, ← comp_f]; congr; exact (CategoryTheory.Limits.Cone.w s f).symm
   · intro i j r
     apply (h j).hom_ext
     intro x
     dsimp
-    rw [category.assoc, category.assoc]
+    rw [CategoryTheory.Category.assoc, CategoryTheory.Category.assoc]
     erw [← (t.π.app x).comm, (h j).fac _ x, (h i).fac_assoc _ x, (s.π.app x).comm]
     rfl
 
@@ -43,9 +43,9 @@ def liftOfIsLimitEval (t : Cone F) (h : ∀ i, IsLimit <| (eval V c i).mapCone t
 def isLimitOfIsLimitEval (t : Cone F) (h : ∀ i, IsLimit <| (eval V c i).mapCone t) : IsLimit t
     where
   lift := liftOfIsLimitEval F t h
-  fac := by intro s j; ext; dsimp; exact (h x).fac _ j
+  fac := by intro s j; ext; dsimp; exact (h Pell.Solution₁.x).fac _ j
   uniq := by
-    intro s m w; ext; apply (h x).hom_ext
+    intro s m w; ext; apply (h Pell.Solution₁.x).hom_ext
     intro j; dsimp; erw [(h x).fac _ j]; exact congr_f (w j) x
 
 variable [∀ i : ι, HasLimit (F ⋙ eval V c i)]
@@ -57,7 +57,7 @@ def limitComplex : HomologicalComplex V c :=
   refine' ⟨fun k => limit.π (F ⋙ eval V c i) k ≫ (F.obj k).d i j, _⟩
   · intro x y f
     dsimp
-    rw [category.id_comp, category.assoc, ← hom.comm, ← category.assoc]
+    rw [CategoryTheory.Category.id_comp, category.assoc, ← hom.comm, ← category.assoc]
     congr 1
     exact (limit.w _ _).symm
   · intro i j r
@@ -113,9 +113,9 @@ variable [HasZeroMorphisms V] (F : J ⥤ HomologicalComplex V c)
 def descOfIsColimitEval (t : Cocone F) (h : ∀ i, IsColimit <| (eval V c i).mapCocone t)
     (s : Cocone F) : t.pt ⟶ s.pt :=
   by
-  refine' ⟨fun i => is_colimit.desc (h i) ⟨_, _⟩, _⟩
+  refine' ⟨fun i => CategoryTheory.Limits.IsColimit.desc (h i) ⟨_, _⟩, _⟩
   refine' ⟨fun x => (s.ι.app x).f i, _⟩
-  · intro x y f; dsimp; rw [category.comp_id, ← comp_f]; congr; exact cocone.w s f
+  · intro x y f; dsimp; rw [CategoryTheory.Category.comp_id, ← comp_f]; congr; exact CategoryTheory.Limits.Cocone.w s f
   · intro i j r
     apply (h i).hom_ext
     intro x
@@ -126,9 +126,9 @@ def descOfIsColimitEval (t : Cocone F) (h : ∀ i, IsColimit <| (eval V c i).map
 def isColimitOfIsColimitEval (t : Cocone F) (h : ∀ i, IsColimit <| (eval V c i).mapCocone t) :
     IsColimit t where
   desc := descOfIsColimitEval F t h
-  fac := by intro s j; ext; dsimp; exact (h x).fac _ j
+  fac := by intro s j; ext; dsimp; exact (h Pell.Solution₁.x).fac _ j
   uniq := by
-    intro s m w; ext; apply (h x).hom_ext
+    intro s m w; ext; apply (h Pell.Solution₁.x).hom_ext
     intro j; dsimp; erw [(h x).fac _ j]; exact congr_f (w j) x
 
 variable [∀ i : ι, HasColimit (F ⋙ eval V c i)]
@@ -140,7 +140,7 @@ def colimitComplex : HomologicalComplex V c :=
   refine' ⟨fun x => (F.obj x).d i j ≫ colimit.ι (F ⋙ eval V c j) x, _⟩
   · intro x y f
     dsimp
-    rw [category.comp_id, hom.comm_assoc]
+    rw [CategoryTheory.Category.comp_id, Hom.comm_assoc]
     congr 1
     exact colimit.w (F ⋙ eval V c j) _
   · intro i j r
@@ -194,7 +194,7 @@ variable [HasZeroMorphisms V] [HasBinaryBiproducts V] {X Y Z : HomologicalComple
 @[simps]
 def biproduct (X Y : HomologicalComplex V c) : HomologicalComplex V c
     where
-  pt i := X.pt i ⊞ Y.pt i
+  X i := X.pt i ⊞ Y.pt i
   d i j := biprod.map (X.d i j) (Y.d i j)
   shape' i j r := by ext <;> simp [X.shape _ _ r, Y.shape _ _ r]
 
@@ -234,17 +234,17 @@ attribute [local tidy] tactic.case_bash
 def biproductBiconeIsProd : IsLimit (biproductBicone X Y).toCone
     where
   lift := fun Z : BinaryFan _ _ => biproduct.lift Z.fst Z.snd
-  uniq := by intros; delta binary_fan.fst binary_fan.snd; ext <;> simp [← w]
+  uniq := by intros; delta CategoryTheory.Limits.BinaryFan.fst CategoryTheory.Limits.BinaryFan.snd; ext <;> simp [← W]
 
 def biproductBiconeIsCoprod : IsColimit (biproductBicone X Y).toCocone
     where
   desc := fun Z : BinaryCofan _ _ => biproduct.desc Z.inl Z.inr
-  uniq := by intros; delta binary_cofan.inl binary_cofan.inr; ext <;> simp [← w]
+  uniq := by intros; delta CategoryTheory.Limits.BinaryCofan.inl CategoryTheory.Limits.BinaryCofan.inr; ext <;> simp [← W]
 
 def biproductIsBiprod : BinaryBiproductData X Y
     where
-  Bicone := biproductBicone X Y
-  IsBilimit := ⟨biproductBiconeIsProd X Y, biproductBiconeIsCoprod X Y⟩
+  bicone := biproductBicone X Y
+  isBilimit := ⟨biproductBiconeIsProd X Y, biproductBiconeIsCoprod X Y⟩
 
 instance : HasBinaryBiproducts (HomologicalComplex V c) :=
   ⟨fun X Y => ⟨⟨biproductIsBiprod X Y⟩⟩⟩
@@ -292,7 +292,7 @@ variable (f : X ⟶ Y) [∀ i, HasKernel (f.f i)]
 @[simps]
 def kernelComplex : HomologicalComplex V c
     where
-  pt i := kernel (f.f i)
+  X i := kernel (f.f i)
   d i j := kernel.map _ _ _ _ (f.comm i j)
   shape' := by introv r; ext; simp [X.shape _ _ r]
 
@@ -305,11 +305,11 @@ def kernelComplexFork : KernelFork f :=
 
 @[simps]
 def kernelComplexLift (s : KernelFork f) : s.pt ⟶ kernelComplex f
-    where f i := kernel.lift _ (s.ι.f i) (by rw [← comp_f, kernel_fork.condition]; rfl)
+    where f i := kernel.lift _ (s.ι.f i) (by rw [← comp_f, CategoryTheory.Limits.KernelFork.condition]; rfl)
 
 def kernelComplexIsKernel : IsLimit (kernelComplexFork f) :=
   by
-  apply is_limit_aux (kernel_complex_fork f) (kernel_complex_lift f)
+  apply isLimitAux (HomologicalComplex.kernelComplexFork f) (HomologicalComplex.kernelComplexLift f)
   · intro s; ext; delta fork.ι; dsimp; simp only [kernel.lift_ι]
   · intro s m h; ext; apply_fun fun f => hom.f f x at h 
     delta fork.ι at h ; dsimp at h ⊢; simp [h, kernel.lift_ι]
@@ -330,7 +330,7 @@ variable (f : X ⟶ Y) [∀ i, HasCokernel (f.f i)]
 @[simps]
 def cokernelComplex : HomologicalComplex V c
     where
-  pt i := cokernel (f.f i)
+  X i := cokernel (f.f i)
   d i j := cokernel.map _ _ _ _ (f.comm i j)
   shape' := by introv r; ext; simp [Y.shape _ _ r]
 
@@ -343,11 +343,11 @@ def cokernelComplexCofork : CokernelCofork f :=
 
 @[simps]
 def cokernelComplexDesc (s : CokernelCofork f) : cokernelComplex f ⟶ s.pt
-    where f i := cokernel.desc _ (s.π.f i) (by rw [← comp_f, cokernel_cofork.condition]; rfl)
+    where f i := cokernel.desc _ (s.π.f i) (by rw [← comp_f, CategoryTheory.Limits.CokernelCofork.condition]; rfl)
 
 def cokernelComplexIsCokernel : IsColimit (cokernelComplexCofork f) :=
   by
-  apply is_colimit_aux (cokernel_complex_cofork f) (cokernel_complex_desc f)
+  apply isColimitAux (HomologicalComplex.cokernelComplexCofork f) (HomologicalComplex.cokernelComplexDesc f)
   · intro s; ext; delta cofork.π; dsimp; simp only [cokernel.π_desc]
   · intro s m h; ext; apply_fun fun f => hom.f f x at h 
     delta cofork.π at h ; dsimp at h ⊢; simp only [h, cokernel.π_desc]
@@ -368,7 +368,7 @@ variable (f : X ⟶ Y)
 def isKernelOfEval (g : Y ⟶ Z) (w : f ≫ g = 0)
     (h : ∀ i, IsLimit (KernelFork.ofι (f.f i) (congr_f w i))) : IsLimit (KernelFork.ofι f w) :=
   by
-  refine' is_limit.of_iso_limit (kernel_complex_is_kernel g) _
+  refine' CategoryTheory.Limits.IsLimit.ofIsoLimit (HomologicalComplex.kernelComplexIsKernel g) _
   fapply cones.ext
   fapply hom.iso_of_components
   intro i; exact limit.iso_limit_cone ⟨_, h i⟩
@@ -381,7 +381,7 @@ def isCokernelOfEval (g : Y ⟶ Z) (w : f ≫ g = 0)
     (h : ∀ i, IsColimit (CokernelCofork.ofπ (g.f i) (congr_f w i))) :
     IsColimit (CokernelCofork.ofπ g w) :=
   by
-  refine' is_colimit.of_iso_colimit (cokernel_complex_is_cokernel f) _
+  refine' CategoryTheory.Limits.IsColimit.ofIsoColimit (HomologicalComplex.cokernelComplexIsCokernel f) _
   fapply cocones.ext
   fapply hom.iso_of_components
   intro i; exact colimit.iso_colimit_cocone ⟨_, h i⟩
@@ -392,7 +392,7 @@ def isCokernelOfEval (g : Y ⟶ Z) (w : f ≫ g = 0)
 
 instance [Mono f] (i : ι) : Mono (f.f i) :=
   by
-  change mono ((eval V c i).map f)
+  change Mono ((eval V c i).map f)
   infer_instance
 
 theorem mono_of_eval [∀ i, Mono (f.f i)] : Mono f :=
@@ -408,7 +408,7 @@ theorem mono_iff_eval : Mono f ↔ ∀ i, Mono (f.f i) :=
 
 instance [Epi f] (i : ι) : Epi (f.f i) :=
   by
-  change epi ((eval V c i).map f)
+  change Epi ((eval V c i).map f)
   infer_instance
 
 theorem epi_of_eval [∀ i, Epi (f.f i)] : Epi f :=
@@ -424,11 +424,11 @@ theorem epi_iff_eval : Epi f ↔ ∀ i, Epi (f.f i) :=
 
 def normalMono [Mono f] : NormalMono f
     where
-  z := cokernelComplex f
+  Z := cokernelComplex f
   g := cokernelComplexπ f
   w := by ext; simp
-  IsLimit := by
-    apply is_kernel_of_eval
+  isLimit := by
+    apply HomologicalComplex.isKernelOfEval
     intro i
     exact abelian.mono_is_kernel_of_cokernel _ (colimit.is_colimit _)
 
@@ -436,7 +436,7 @@ def normalEpi [Epi f] : NormalEpi f where
   w := kernelComplex f
   g := kernelComplexι f
   w := by ext; simp
-  IsColimit := by
+  isColimit := by
     apply is_cokernel_of_eval
     intro i
     exact abelian.epi_is_cokernel_of_kernel _ (limit.is_limit _)

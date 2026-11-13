@@ -32,7 +32,7 @@ namespace IsBiprod
 @[simps]
 noncomputable def isoBiprod [HasBinaryBiproduct A B] (h : IsBiprod C inl inr fst snd) : C ≅ A ⊞ B
     where
-  Hom := biprod.lift fst snd
+  hom := biprod.lift fst snd
   inv := biprod.desc inl inr
   hom_inv_id' := by rw [biprod.lift_desc, h.total]
   inv_hom_id' := by

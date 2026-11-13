@@ -28,7 +28,7 @@ instance : AddCommGroup (K ⋙ CategoryTheory.forget _).sections
   zero :=
     ⟨0, fun i j f =>
       by
-      dsimp only [functor.comp_map, Pi.zero_apply, forget_map_eq_coe]
+      dsimp only [CategoryTheory.Functor.comp_map, Pi.zero_apply, forget_map_eq_coe]
       rw [map_zero]⟩
   zero_add a := by ext; simp only [Subtype.coe_mk, zero_add]
   add_zero a := by ext; simp only [Subtype.coe_mk, add_zero]
@@ -36,10 +36,10 @@ instance : AddCommGroup (K ⋙ CategoryTheory.forget _).sections
     ⟨-t, by
       intro i j f
       have t2 := t.2 f
-      dsimp only [functor.comp_map, Pi.neg_apply, forget_map_eq_coe, Subtype.val_eq_coe] at t2 ⊢
+      dsimp only [CategoryTheory.Functor.comp_map, Pi.neg_apply, forget_map_eq_coe, Subtype.val_eq_coe] at t2 ⊢
       simp only [map_neg, t2]⟩
-  add_left_neg a := by ext; change -a.1 x + a.1 x = 0; simp only [add_left_neg]
-  add_comm a b := by ext; change a.1 x + b.1 x = b.1 x + a.1 x; rw [add_comm]
+  add_left_neg a := by ext; change -a.1 Pell.Solution₁.x + a.1 Pell.Solution₁.x = 0; simp only [add_left_neg]
+  add_comm a b := by ext; change a.1 Pell.Solution₁.x + b.1 Pell.Solution₁.x = b.1 Pell.Solution₁.x + a.1 Pell.Solution₁.x; rw [add_comm]
 
 def explicitLimitCone : Cone K
     where
@@ -80,8 +80,8 @@ noncomputable def barx : PreservesLimit K (forget Ab.{max u v}) :=
 noncomputable instance foo {K : J ⥤ Ab.{u}} : PreservesLimit K (forget Ab.{u}) :=
   barx.{u, u} K
 
-theorem is_limit_ext {K : J ⥤ Ab.{u}} (C : LimitCone K) (x y : C.Cone.pt)
-    (h : ∀ j : J, C.Cone.π.app j x = C.Cone.π.app j y) : x = y :=
+theorem is_limit_ext {K : J ⥤ Ab.{u}} (C : LimitCone K) (x y : C.cone.pt)
+    (h : ∀ j : J, C.cone.π.app j x = C.cone.π.app j y) : x = y :=
   Limits.Concrete.isLimit_ext K C.2 _ _ h
 
 noncomputable instance forgetCreatesLimit (J : Type u) [SmallCategory J] (K : J ⥤ Ab.{max u v}) :

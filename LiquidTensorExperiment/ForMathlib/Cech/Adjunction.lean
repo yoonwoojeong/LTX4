@@ -18,7 +18,7 @@ namespace SimplicialObject
 
 variable
   [∀ (n : ℕ) (f : Arrow C),
-      HasWidePullback.{0} f.right (fun i : Fin (n + 1) => f.left) fun i => f.Hom]
+      HasWidePullback.{0} f.right (fun i : Fin (n + 1) => f.left) fun i => f.hom]
 
 section
 
@@ -41,7 +41,7 @@ theorem hom_ext (X : SimplicialObject.Augmented C) (F : Arrow C) (f g : X ⟶ F.
 def augmentedCechNerve.leftObjZeroIso (F : Arrow C) :
     F.augmentedCechNerve.left.obj (op [0]) ≅ F.left
     where
-  Hom := π _ 0
+  hom := π _ 0
   inv := lift F.Hom (fun _ => 𝟙 _) fun _ => Category.id_comp _
   hom_inv_id' := by
     ext
@@ -56,7 +56,7 @@ theorem augmentedCechNerve.left_map_comp_obj_zero_iso (F : Arrow C) (n : Simplex
     F.augmentedCechNerve.left.map (n.const i).op ≫ (augmentedCechNerve.leftObjZeroIso F).Hom =
       WidePullback.π _ i :=
   by
-  rw [← iso.eq_comp_inv]
+  rw [← CategoryTheory.Iso.eq_comp_inv]
   dsimp only [arrow.augmented_cech_nerve_left, arrow.cech_nerve_map,
     augmented_cech_nerve.left_obj_zero_iso_inv]
   ext1 ⟨j⟩

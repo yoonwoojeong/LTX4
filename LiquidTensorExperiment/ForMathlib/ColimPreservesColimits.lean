@@ -60,7 +60,7 @@ noncomputable instance colimPreservesColimits : PreservesColimits (colim : (J те
   intro F
   constructor
   intro T hT
-  apply is_colimit_colim_map_cocone
+  apply CategoryTheory.Limits.isColimitColimMapCocone
   assumption
 
 end CategoryTheory.Limits

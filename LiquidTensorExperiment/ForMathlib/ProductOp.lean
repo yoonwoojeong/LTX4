@@ -15,7 +15,7 @@ open Opposite
 noncomputable def opProductIso {α : Type v} (X : α → C) [HasProduct X]
     [HasCoproduct fun a => op (X a)] : op (∏ X) ≅ ∐ fun a => op (X a)
     where
-  Hom :=
+  hom :=
     Quiver.Hom.op
         (Pi.lift fun a => Quiver.Hom.unop (Sigma.ι (fun a => op (X a)) a) ≫ eqToHom (unop_op _)) ≫
       eqToHom (op_unop _)

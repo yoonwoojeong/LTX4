@@ -93,11 +93,11 @@ def neg₃Equiv : triangle C ≌ triangle C
 
 --move this (do we want this?)
 instance {C : Type _} [Category C] [Preadditive C] {X Y : C} : Neg (X ≅ Y) :=
-  ⟨fun e => ⟨-e.Hom, -e.inv, by simp, by simp⟩⟩
+  ⟨fun e => ⟨-e.hom, -e.inv, by simp, by simp⟩⟩
 
 @[simp]
 theorem neg_iso_hom {C : Type _} [Category C] [Preadditive C] {X Y : C} {e : X ≅ Y} :
-    (-e).Hom = -e.Hom :=
+    (-e).hom = -e.hom :=
   rfl
 
 @[simp]
@@ -108,12 +108,12 @@ theorem neg_iso_inv {C : Type _} [Category C] [Preadditive C] {X Y : C} {e : X �
 --move this
 @[simps]
 def CategoryTheory.Equivalence.isoEquiv {C D : Type _} [Category C] [Category D] (e : C ≌ D) (X : C)
-    (Y : D) : (e.Functor.obj X ≅ Y) ≃ (X ≅ e.inverse.obj Y)
+    (Y : D) : (e.functor.obj X ≅ Y) ≃ (X ≅ e.inverse.obj Y)
     where
   toFun f := e.unitIso.app X ≪≫ e.inverse.mapIso f
-  invFun f := e.Functor.mapIso f ≪≫ e.counitIso.app Y
+  invFun f := e.functor.mapIso f ≪≫ e.counitIso.app Y
   left_inv f := by
-    ext; dsimp; simp only [iso.inv_hom_id_app, category.assoc, functor.map_comp, e.fun_inv_map]
+    ext; dsimp; simp only [CategoryTheory.Iso.inv_hom_id_app, category.assoc, functor.map_comp, e.fun_inv_map]
     rw [reassoc_of e.functor_unit_iso_comp]; dsimp; simp
   right_inv f := by ext; dsimp; simp
 

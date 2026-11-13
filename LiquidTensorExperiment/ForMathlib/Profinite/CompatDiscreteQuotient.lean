@@ -74,11 +74,11 @@ def make (S : DiscreteQuotient X) : DiscreteQuotient Y
     rw [(Profinite.quotientMap f surj).continuous_iff, S.make_proj_comm f surj]
     exact continuous_bot.comp (proj_continuous S)
 
-theorem makeLeComap (S : DiscreteQuotient X) : LEComap f.Continuous S (S.make f surj) :=
+theorem makeLeComap (S : DiscreteQuotient X) : LEComap f.continuous S (S.make f surj) :=
   makeRelImpl _ _
 
 theorem make_right_le (S : DiscreteQuotient X) (T : DiscreteQuotient Y)
-    (compat : LEComap f.Continuous S T) : S.make f surj ≤ T :=
+    (compat : LEComap f.continuous S T) : S.make f surj ≤ T :=
   by
   intro x y h
   induction' h with a b hab a b c _ _ h1 h2

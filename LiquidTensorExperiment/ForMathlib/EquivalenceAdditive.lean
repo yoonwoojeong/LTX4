@@ -10,7 +10,7 @@ universe v u u'
 
 variable {A : Type u} {B : Type u'} [Category.{v} A] [Category.{v} B] [Abelian A] [Abelian B]
 
-instance additive_equivalence_functor (E : A ≌ B) : E.Functor.Additive :=
+instance additive_equivalence_functor (E : A ≌ B) : E.functor.Additive :=
   by
   apply (config := { instances := false }) functor.additive_of_preserves_binary_biproducts
   infer_instance

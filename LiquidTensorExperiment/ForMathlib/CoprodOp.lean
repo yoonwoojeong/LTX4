@@ -22,7 +22,7 @@ noncomputable def isLimitOpFan {α : Type v} (X : α → A) : IsLimit (opFan X)
     e.op
   fac := by
     intro S j
-    dsimp [op_fan]
+    dsimp [CategoryTheory.Limits.opFan]
     rw [← op_comp, colimit.ι_desc]
     cases j
     rfl
@@ -32,7 +32,7 @@ noncomputable def isLimitOpFan {α : Type v} (X : α → A) : IsLimit (opFan X)
     rw [← m.op_unop]; congr 1
     apply colimit.hom_ext
     intro j
-    simp only [colimit.ι_desc, cofan.mk_ι_app, ← hm]
+    simp only [colimit.ι_desc, CategoryTheory.Limits.Cofan.mk_ι_app, ← hm]
     cases j
     rfl
 

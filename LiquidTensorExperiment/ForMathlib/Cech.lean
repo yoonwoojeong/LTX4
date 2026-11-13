@@ -10,7 +10,7 @@ open CategoryTheory Opposite
 noncomputable def Arrow.cechNerveObj0 {C : Type u} [Category.{v} C] (F : Arrow C)
     [Limits.HasLimits.{v} C] : F.cechNerve.obj (op (SimplexCategory.mk 0)) ≅ F.left
     where
-  Hom := Limits.WidePullback.π _ 0
+  hom := Limits.WidePullback.π _ 0
   inv :=
     Limits.WidePullback.lift F.Hom (fun _ => 𝟙 _) (by simp only [category.id_comp, forall_const])
   hom_inv_id' := by

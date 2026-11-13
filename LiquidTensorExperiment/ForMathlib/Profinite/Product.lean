@@ -51,7 +51,7 @@ def isLimitProdCone : IsLimit (prodCone X Y)
   uniq := by
     rintro S m h
     ext x
-    · specialize h ⟨walking_pair.left⟩
+    · specialize h ⟨CategoryTheory.Limits.WalkingPair.left⟩
       apply_fun fun e => e x at h 
       exact h
     · specialize h ⟨walking_pair.right⟩

@@ -20,7 +20,7 @@ theorem map_associator_hom {X Y Z : C} :
         inv (F.μ X Y ⊗ 𝟙 (F.obj Z)) ≫
           (α_ (F.obj X) (F.obj Y) (F.obj Z)).Hom ≫ (𝟙 (F.obj X) ⊗ F.μ Y Z) ≫ F.μ X (Y ⊗ Z) :=
   by
-  rw [is_iso.eq_inv_comp, is_iso.eq_inv_comp]
+  rw [CategoryTheory.IsIso.eq_inv_comp, is_iso.eq_inv_comp]
   exact F.to_lax_monoidal_functor.associativity X Y Z
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:177:8: unsupported: ambiguous notation -/
@@ -33,7 +33,7 @@ theorem map_associator_inv {X Y Z : C} :
         inv (𝟙 (F.obj X) ⊗ F.μ Y Z) ≫
           (α_ (F.obj X) (F.obj Y) (F.obj Z)).inv ≫ (F.μ X Y ⊗ 𝟙 (F.obj Z)) ≫ F.μ (X ⊗ Y) Z :=
   by
-  rw [is_iso.eq_inv_comp, is_iso.eq_inv_comp]
+  rw [CategoryTheory.IsIso.eq_inv_comp, is_iso.eq_inv_comp]
   exact F.to_lax_monoidal_functor.associativity_inv X Y Z
 
 end CategoryTheory.MonoidalFunctor

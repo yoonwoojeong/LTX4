@@ -92,33 +92,33 @@ def proetalePretopology : Pretopology.{u} Profinite.{u}
     · intro x
       refine' ⟨PUnit.unit, inv f x, _⟩
       change (inv f ≫ f) x = x
-      rw [is_iso.inv_hom_id]
+      rw [CategoryTheory.IsIso.inv_hom_id]
       simp
-    · rw [presieve.of_arrows_punit]
+    · rw [CategoryTheory.Presieve.ofArrows_pUnit]
   pullbacks X Y f S := by
     rintro ⟨ι, hι, Z, g, hg, rfl⟩
     refine' ⟨ι, hι, fun i => pullback (g i) f, fun i => pullback.snd, _, _⟩
     · intro y
       rcases hg (f y) with ⟨i, z, hz⟩
       exact ⟨i, mkPullback hz, mkPullback_snd⟩
-    · rw [presieve.of_arrows_pullback]
+    · rw [CategoryTheory.Presieve.ofArrows_pullback]
   Transitive X S Ti := by
     rintro ⟨ι, hι, Z, g, hY, rfl⟩ hTi
     choose j hj W k hk₁ hk₂ using hTi
     skip
-    refine' ⟨Σ i : ι, j (g i) (presieve.of_arrows.mk _), inferInstance, fun i => W _ _ i.2, _, _, _⟩
+    refine' ⟨Σ i : ι, j (g i) (CategoryTheory.Presieve.ofArrows.mk _), inferInstance, fun i => W _ _ i.2, _, _, _⟩
     · intro ij
       exact k _ _ ij.2 ≫ g ij.1
     · intro x
       obtain ⟨i, y, rfl⟩ := hY x
-      obtain ⟨i', z, rfl⟩ := hk₁ (g i) (presieve.of_arrows.mk _) y
+      obtain ⟨i', z, rfl⟩ := hk₁ (g i) (CategoryTheory.Presieve.ofArrows.mk _) y
       refine' ⟨⟨i, i'⟩, z, rfl⟩
-    · have : Ti = fun Y f H => presieve.of_arrows (W f H) (k f H) :=
+    · have : Ti = fun Y f H => CategoryTheory.Presieve.ofArrows (W f H) (k f H) :=
         by
         ext Y f H : 3
         apply hk₂
       rw [this]
-      apply presieve.of_arrows_bind
+      apply CategoryTheory.Presieve.ofArrows_bind
 
 def proetaleTopology : GrothendieckTopology.{u} Profinite.{u} :=
   proetalePretopology.toGrothendieck _

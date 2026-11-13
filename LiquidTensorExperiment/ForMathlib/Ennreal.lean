@@ -83,7 +83,7 @@ theorem ENNReal.inv_eq_of_hMul_eq_one {a b : ℝ≥0∞} (h : a * b = 1) : a⁻�
     rw [ENNReal.top_mul'] at h 
     split_ifs at h  with ha <;> · revert h; norm_num
   norm_cast at h 
-  have ha : a ≠ 0 := by rintro rfl; rw [MulZeroClass.zero_mul] at h ; revert h; norm_num
+  have ha : A ≠ 0 := by rintro rfl; rw [MulZeroClass.zero_mul] at h ; revert h; norm_num
   rw [← ENNReal.coe_inv ha]
   norm_cast
   rwa [← inv_mul_eq_one₀, inv_inv]
@@ -116,7 +116,7 @@ theorem ENNReal.sub_pos {a b : ℝ≥0∞} : 0 < a - b ↔ b < a :=
 
 theorem ENNReal.top_zpow_of_pos {n : ℤ} (hn : 0 < n) : (⊤ : ℝ≥0∞) ^ n = ⊤ :=
   by
-  let m := n.nat_abs
+  let m := n.natAbs
   have hm : n = m := by rw [Int.natAbs_of_nonneg hn.le]
   rw [hm] at hn ⊢
   apply ENNReal.top_pow

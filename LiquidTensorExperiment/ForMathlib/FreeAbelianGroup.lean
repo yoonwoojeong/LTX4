@@ -75,11 +75,11 @@ theorem support_sum (s : Finset X) (n : X → ℤ) : support (∑ x in s, n x �
 @[simp]
 theorem coeff_of_self (x : X) : coeff x (of x) = 1 := by
   simp only [coeff, AddMonoidHom.coe_comp, Finsupp.applyAddHom_apply, Finsupp.single_eq_same,
-    Function.comp_apply, to_finsupp_of]
+    Function.comp_apply, FreeAbelianGroup.toFinsupp_of]
 
 theorem sum_support_coeff (a : FreeAbelianGroup X) : ∑ x in a.support, coeff x a • of x = a :=
   by
-  apply (equiv_finsupp X).Injective
+  apply (FreeAbelianGroup.equivFinsupp X).Injective
   simp only [equiv_finsupp_apply]
   rw [← Finsupp.sum_single a.to_finsupp, Finsupp.sum]
   simp only [AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, to_finsupp_of]
@@ -152,7 +152,7 @@ def addSubgroup (h : FreePredicate Q) : AddSubgroup (FreeAbelianGroup X)
   neg_mem' a ha := h.neg ha
 
 theorem zsmul (h : FreePredicate Q) (n : ℤ) (ha : Q a) : Q (n • a) :=
-  AddSubgroup.zsmul_mem h.AddSubgroup ha n
+  AddSubgroup.zsmul_mem h.addSubgroup ha n
 
 theorem of_zsmul (h : FreePredicate Q) (n : ℤ) (hn : n ≠ 0) (ha : Q (n • a)) : Q a := by
   rw [h] at ha ⊢; simpa only [support_zsmul n hn] using ha

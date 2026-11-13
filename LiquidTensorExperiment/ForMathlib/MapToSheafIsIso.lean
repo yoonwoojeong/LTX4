@@ -15,8 +15,8 @@ universe w v u
 -- All the classes we need for sheafification
 variable {C : Type u} [Category.{v} C] (J : GrothendieckTopology C) {D : Type w}
   [Category.{max v u} D] [ConcreteCategory.{max v u} D] [PreservesLimits (forget D)]
-  [∀ (P : Cᵒᵖ ⥤ D) (X : C) (S : J.cover X), HasMultiequalizer (S.index P)]
-  [∀ X : C, HasColimitsOfShape (J.cover X)ᵒᵖ D]
+  [∀ (P : Cᵒᵖ ⥤ D) (X : C) (S : J.Cover X), HasMultiequalizer (S.index P)]
+  [∀ X : C, HasColimitsOfShape (J.Cover X)ᵒᵖ D]
   [∀ X : C, PreservesColimitsOfShape (J.cover X)ᵒᵖ (forget D)] [ReflectsIsomorphisms (forget D)]
 
 /- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic tactic.op_induction' -/

@@ -210,7 +210,7 @@ theorem mem_setClopen {x : Set X} :
 theorem setClopen_sub_clopen_set : setClopen ε f ⊆ {s : Set X | IsClopen s} :=
   by
   intro j hj
-  obtain ⟨W, hW, hj⟩ := (mem_set_clopen ε f).1 hj
+  obtain ⟨W, hW, hj⟩ := (LocallyConstant.Density.mem_setClopen ε f).1 hj
   obtain ⟨H, -⟩ :=
     Classical.choose_spec
       (TopologicalSpace.IsTopologicalBasis.open_eq_sUnion
@@ -265,7 +265,7 @@ theorem mem_setClopen_isOpen (i : setClopen ε f) : IsOpen (i : Set X) :=
 
 /-- A restatement of `univ_sub_sUnion_set_clopen`. -/
 theorem cover : (Set.univ : Set X) ⊆ ⋃ i : setClopen ε f, ↑i := by
-  convert univ_sub_sUnion_set_clopen ε f; rw [Set.sUnion_eq_iUnion]
+  convert LocallyConstant.Density.univ_sub_sUnion_setClopen ε f; rw [Set.sUnion_eq_iUnion]
 
 /-- Obtain a finite subcover of `set_clopen` using the compactness of `X`. -/
 noncomputable abbrev s' :=
@@ -284,7 +284,7 @@ theorem isClopen_x {x : Set X} (hx : x ∈ (fin ε f).toFinset) : IsClopen x :=
   by
   simp only [Set.mem_range, SetCoe.exists, Set.Finite.mem_toFinset, Finset.mem_coe] at hx 
   rcases hx with ⟨⟨⟨v, hv⟩, hw⟩, hU⟩
-  convert (set_clopen_sub_clopen_set ε f) hv
+  convert (LocallyConstant.Density.setClopen_sub_clopen_set ε f) hv
   rw [← hU]
   delta s1
   simp
@@ -310,13 +310,13 @@ theorem exists_sub_s {x : Set X} (hx : x ∈ finsetClopen ε f) :
   by
   rcases(Classical.choose_spec
               (IsClopen.clopen_Union_disjoint (Set.Finite.toFinset (Fin ε f)) fun x hx =>
-                is_clopen_x ε f hx)).2.2.1
+                LocallyConstant.Density.isClopen_x ε f hx)).2.2.1
       x hx with
     ⟨z, hz, wz⟩
   simp only [Set.mem_range, SetCoe.exists, Set.Finite.mem_toFinset, Finset.mem_coe] at hz 
   -- `z'` is a lift of `x` in `V`
   rcases hz with ⟨⟨⟨z', h1⟩, h2⟩, h3⟩
-  rcases exists_B_of_mem_clopen ε f h1 with ⟨U, BU, xU⟩
+  rcases LocallyConstant.Density.exists_b_of_mem_clopen ε f h1 with ⟨U, BU, xU⟩
   simp only [exists_prop, exists_exists_eq_and, Set.mem_setOf_eq] at BU 
   cases' BU with U' h4
   refine' ⟨U', h4.1, _⟩; trans Set.image f z
@@ -330,18 +330,18 @@ theorem exists_sub_s {x : Set X} (hx : x ∈ finsetClopen ε f) :
 theorem finsetClopen_prop (a : X) : ∃! (b : _) (_ : b ∈ finsetClopen ε f), a ∈ b :=
   by
   -- proving that every element `a : X` is contained in a unique element `j` of `s`
-  obtain ⟨j, hj, aj⟩ : ∃ j ∈ finset_clopen ε f, a ∈ j :=
+  obtain ⟨j, hj, aj⟩ : ∃ j ∈ LocallyConstant.Density.finsetClopen ε f, a ∈ j :=
     by
     -- `s'` covers `X`
     have ha :=
       Classical.choose_spec
-        (IsCompact.elim_finite_subcover (@compact_univ X _ _) _ (mem_set_clopen_is_open ε f)
+        (IsCompact.elim_finite_subcover (@compact_univ X _ _) _ (LocallyConstant.Density.mem_setClopen_isOpen ε f)
           (cover ε f))
         (Set.mem_univ a)
     have hs :=
       (Classical.choose_spec
             (IsClopen.clopen_Union_disjoint (Set.Finite.toFinset (Fin ε f)) fun x hx =>
-              is_clopen_x ε f hx)).2.1
+              LocallyConstant.Density.isClopen_x ε f hx)).2.1
     delta s1 at hs 
     suffices a ∈ ⋃₀ (finset_clopen ε f : Set (Set X))
       by
@@ -366,7 +366,7 @@ theorem finsetClopen_prop (a : X) : ∃! (b : _) (_ : b ∈ finsetClopen ε f), 
     have disj :=
       (Classical.choose_spec
                 (IsClopen.clopen_Union_disjoint (Set.Finite.toFinset (Fin ε f)) fun x hx =>
-                  is_clopen_x ε f hx)).2.2.2
+                  LocallyConstant.Density.isClopen_x ε f hx)).2.2.2
         j y hj h1
     by_cases h : j = y
     · rw [h.symm]
@@ -388,7 +388,7 @@ noncomputable abbrev c2 (f : C(X, A)) : X → A := fun x =>
         have :=
           exists_prop.1
             (ExistsUnique.exists
-              (Classical.choose_spec (ExistsUnique.exists (finset_clopen_prop ε f x))))
+              (Classical.choose_spec (ExistsUnique.exists (LocallyConstant.Density.finsetClopen_prop ε f x))))
         constructor
         refine' Finset.mem_coe.1 this.1
         apply Set.Nonempty.to_subtype
@@ -396,7 +396,7 @@ noncomputable abbrev c2 (f : C(X, A)) : X → A := fun x =>
 
 /-- Any element of `finset_clopen` is open. -/
 theorem mem_finsetClopen_isOpen {U : Set X} (hU : U ∈ finsetClopen ε f) : IsOpen U := by
-  rw [finset_clopen] at hU ; apply (finset_clopen_is_clopen ε f hU).1
+  rw [LocallyConstant.Density.finsetClopen] at hU ; apply (LocallyConstant.Density.finsetClopen_isClopen ε f hU).1
 
 /-- An equivalent version of `disj`. -/
 theorem mem_finsetClopen_unique' {U V : Set X} {y : X} (hU : U ∈ finsetClopen ε f) (hUy : y ∈ U)
@@ -406,7 +406,7 @@ theorem mem_finsetClopen_unique' {U V : Set X} {y : X} (hU : U ∈ finsetClopen 
   have :=
     (Classical.choose_spec
               (IsClopen.clopen_Union_disjoint (Set.Finite.toFinset (Fin ε f)) fun x hx =>
-                is_clopen_x ε f hx)).2.2.2
+                LocallyConstant.Density.isClopen_x ε f hx)).2.2.2
       _ _ hV hU h
   revert this
   --change (V ∩ U) ≠ ∅,
@@ -418,7 +418,7 @@ theorem mem_finsetClopen_unique {U V : Set X} {x y : X}
     (U_prop : (U ∈ finsetClopen ε f ∧ x ∈ U) ∧ ∀ y : Set X, y ∈ finsetClopen ε f → x ∈ y → y = U)
     (hy : y ∈ U) (hV : V ∈ finsetClopen ε f) : x ∈ V ↔ y ∈ V :=
   by
-  obtain ⟨W, hW⟩ := finset_clopen_prop ε f y
+  obtain ⟨W, hW⟩ := LocallyConstant.Density.finsetClopen_prop ε f y
   simp only [and_imp, exists_prop, exists_unique_iff_exists] at hW 
   constructor <;> intro h
   · rw [U_prop.2 V hV h]; assumption
@@ -428,9 +428,9 @@ theorem mem_finsetClopen_unique {U V : Set X} {x y : X}
 theorem loc_const : IsLocallyConstant (c2 ε f) :=
   by
   rw [IsLocallyConstant.iff_exists_open]; rintro x
-  obtain ⟨U, hU⟩ := finset_clopen_prop ε f x
+  obtain ⟨U, hU⟩ := LocallyConstant.Density.finsetClopen_prop ε f x
   simp only [and_imp, exists_prop, exists_unique_iff_exists] at hU 
-  refine' ⟨U, mem_finset_clopen_is_open ε f hU.1.1, hU.1.2, fun x' hx' => _⟩
+  refine' ⟨U, LocallyConstant.Density.mem_finsetClopen_isOpen ε f hU.1.1, hU.1.2, fun x' hx' => _⟩
   delta c2
   congr
   pick_goal 4; ext y; revert y; rw [← Set.ext_iff]; congr
@@ -465,7 +465,7 @@ theorem loc_const_dense' :
             LocallyConstant.coe_continuousMap] at hy 
           rw [← hy]
           -- reduced to proving ∥f(y) - c2(y)∥ ≤ ε/2
-          obtain ⟨w, wT, hw⟩ := finset_clopen_prop ε f y
+          obtain ⟨w, wT, hw⟩ := LocallyConstant.Density.finsetClopen_prop ε f y
           -- `w` is the unique element of `finset_clopen` to which `y` belongs
           simp only [exists_prop, exists_unique_iff_exists] at wT 
           simp only [and_imp, exists_prop, exists_unique_iff_exists] at hw 

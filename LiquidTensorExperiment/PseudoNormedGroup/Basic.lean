@@ -338,8 +338,8 @@ def mkFromPi {ι : Type _} [Fintype ι] {M : ι → Type _} {M₂} [∀ i, AddMo
 theorem mkFromPi_apply {ι : Type _} [Fintype ι] {M : ι → Type _} [∀ i, AddCommMonoid (M i)]
     (f : ∀ i, M i →+ M₂) (x : ∀ i, M i) : mkFromPi f x = ∑ i, f i (x i) :=
   by
-  show AddMonoidHom.eval x (mk_from_pi f) = _
-  simp only [mk_from_pi, AddMonoidHom.map_sum]
+  show AddMonoidHom.eval x (AddMonoidHom.mkFromPi f) = _
+  simp only [AddMonoidHom.mkFromPi, AddMonoidHom.map_sum]
   rfl
 
 @[simp]

@@ -46,19 +46,19 @@ theorem isZero_iff_id_eq_zero {X : C} : IsZero X ↔ 𝟙 X = 0 :=
     · rw [← cancel_mono (𝟙 _), e, comp_zero, zero_comp]; infer_instance
 
 theorem isZero_of_mono {X Y : C} (f : X ⟶ Y) [Mono f] (h : IsZero Y) : IsZero X := by
-  rw [is_zero_iff_id_eq_zero, ← cancel_mono f, zero_comp, h.eq_of_tgt (𝟙 _ ≫ f)]
+  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero, ← cancel_mono f, zero_comp, h.eq_of_tgt (𝟙 _ ≫ f)]
 
 theorem isZero_of_epi {X Y : C} (f : X ⟶ Y) [Epi f] (h : IsZero X) : IsZero Y := by
-  rw [is_zero_iff_id_eq_zero, ← cancel_epi f, comp_zero, h.eq_of_src (f ≫ 𝟙 Y)]
+  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero, ← cancel_epi f, comp_zero, h.eq_of_src (f ≫ 𝟙 Y)]
 
 theorem isZero_of_top_le_bot [HasZeroObject C] (X : C) (h : (⊤ : Subobject X) ≤ ⊥) : IsZero X :=
   { unique_to := fun Y => by
       use 0; intro f
-      rw [← cancel_epi (⊤ : subobject X).arrow, ← subobject.of_le_arrow h]
-      simp only [subobject.bot_arrow, comp_zero, zero_comp]
+      rw [← cancel_epi (⊤ : CategoryTheory.Subobject X).arrow, ← CategoryTheory.Subobject.ofLE_arrow h]
+      simp only [CategoryTheory.Subobject.bot_arrow, comp_zero, zero_comp]
     unique_from := fun Y => by
       use 0; intro f
-      rw [← subobject.bot_factors_iff_zero]
+      rw [← CategoryTheory.Subobject.bot_factors_iff_zero]
       exact subobject.factors_of_le f h (subobject.top_factors f) }
 
 -- inline this
@@ -70,12 +70,12 @@ theorem isZero_of_exact_zero_zero {C : Type _} [Category C] [Abelian C] {X Y Z :
     (h : Exact (0 : X ⟶ Y) (0 : Y ⟶ Z)) : IsZero Y :=
   isZero_of_top_le_bot _
     (by
-      rw [abelian.exact_iff_image_eq_kernel] at h 
-      rw [← @kernel_subobject_zero _ _ _ Y Z, ← @image_subobject_zero _ _ _ _ X Y, h])
+      rw [CategoryTheory.Abelian.exact_iff_image_eq_kernel] at h 
+      rw [← @CategoryTheory.Limits.kernelSubobject_zero _ _ _ Y Z, ← @CategoryTheory.Limits.imageSubobject_zero _ _ _ _ X Y, h])
 
 theorem exact_of_isZero {C : Type _} [Category C] [Abelian C] {X Y Z : C} (hY : IsZero Y)
     (f : X ⟶ Y) (g : Y ⟶ Z) : Exact f g := by
-  simp only [abelian.exact_iff, is_zero.eq_zero_of_tgt hY f, is_zero.eq_zero_of_tgt hY (kernel.ι g),
+  simp only [CategoryTheory.Abelian.exact_iff, CategoryTheory.Limits.IsZero.eq_zero_of_tgt hY f, CategoryTheory.Limits.IsZero.eq_zero_of_tgt hY (kernel.ι g),
     zero_comp, eq_self_iff_true, and_self_iff]
 
 theorem isZero_iff_exact_zero_zero {C : Type _} [Category C] [Abelian C] {X Y Z : C} :
@@ -93,31 +93,31 @@ theorem isZero_of_exact_isZero_isZero {C : Type _} [Category C] [Abelian C] {X Y
 theorem isZero_cokernel_of_epi {C : Type _} [Category C] [Abelian C] {X Y : C} (f : X ⟶ Y) [Epi f] :
     IsZero (cokernel f) :=
   by
-  have h1 : cokernel.π f = 0 := by rwa [← abelian.epi_iff_cokernel_π_eq_zero]
-  have h2 : exact (cokernel.π f) 0 := CategoryTheory.exact_epi_zero (cokernel.π f)
-  exact is_zero_of_exact_zero_zero' (cokernel.π f) 0 h2 h1 rfl
+  have h1 : cokernel.π f = 0 := by rwa [← CategoryTheory.Abelian.epi_iff_cokernel_π_eq_zero]
+  have h2 : Exact (cokernel.π f) 0 := CategoryTheory.exact_epi_zero (cokernel.π f)
+  exact CategoryTheory.Limits.isZero_of_exact_zero_zero' (cokernel.π f) 0 h2 h1 rfl
 
 theorem epi_iff_isZero_cokernel {C : Type _} [Category C] [Abelian C] {X Y : C} (f : X ⟶ Y) :
     Epi f ↔ IsZero (cokernel f) := by
   constructor
-  · intros; apply is_zero_cokernel_of_epi
+  · intros; apply CategoryTheory.Limits.isZero_cokernel_of_epi
   · intro h
-    rw [abelian.epi_iff_cokernel_π_eq_zero]
+    rw [CategoryTheory.Abelian.epi_iff_cokernel_π_eq_zero]
     apply h.eq_of_tgt
 
 theorem isZero_kernel_of_mono {C : Type _} [Category C] [Abelian C] {X Y : C} (f : X ⟶ Y) [Mono f] :
     IsZero (kernel f) :=
   by
-  have h1 : kernel.ι f = 0 := by rwa [← abelian.mono_iff_kernel_ι_eq_zero]
-  have h2 : exact 0 (kernel.ι f) := CategoryTheory.exact_zero_mono (kernel.ι f)
-  exact is_zero_of_exact_zero_zero' 0 (kernel.ι f) h2 rfl h1
+  have h1 : kernel.ι f = 0 := by rwa [← CategoryTheory.Abelian.mono_iff_kernel_ι_eq_zero]
+  have h2 : Exact 0 (kernel.ι f) := CategoryTheory.exact_zero_mono (kernel.ι f)
+  exact CategoryTheory.Limits.isZero_of_exact_zero_zero' 0 (kernel.ι f) h2 rfl h1
 
 theorem mono_iff_isZero_kernel {C : Type _} [Category C] [Abelian C] {X Y : C} (f : X ⟶ Y) :
     Mono f ↔ IsZero (kernel f) := by
   constructor
-  · intros; apply is_zero_kernel_of_mono
+  · intros; apply CategoryTheory.Limits.isZero_kernel_of_mono
   · intro h
-    rw [abelian.mono_iff_kernel_ι_eq_zero]
+    rw [CategoryTheory.Abelian.mono_iff_kernel_ι_eq_zero]
     apply h.eq_of_src
 
 noncomputable def imageIsoOfEq [Category C] [Abelian C] {A B : C} {f f' : A ⟶ B} (h : f = f') :
@@ -129,26 +129,26 @@ noncomputable def image.isIsoComp {𝓐 : Type _} [Category 𝓐] [Abelian 𝓐]
     where
   hom :=
     image.lift
-      ({  i := _
+      ({  I := _
           m := image.ι _
           m_mono := inferInstance
           e := f ≫ factorThruImage g
-          fac := by simp only [category.assoc, image.fac] } : MonoFactorisation _)
+          fac := by simp only [CategoryTheory.Category.assoc, image.fac] } : MonoFactorisation _)
   inv :=
     image.lift
-      ({  i := _
+      ({  I := _
           m := image.ι _
           m_mono := inferInstance
           e := inv f ≫ factorThruImage (f ≫ g)
-          fac := by simp only [category.assoc, image.fac, is_iso.inv_hom_id_assoc] } :
+          fac := by simp only [CategoryTheory.Category.assoc, image.fac, CategoryTheory.IsIso.inv_hom_id_assoc] } :
         MonoFactorisation _)
 
 theorem isIso_of_isZero_of_isZero {𝓐 : Type _} [Category 𝓐] [Abelian 𝓐] {a b : 𝓐} (ha : IsZero a)
     (hb : IsZero b) (f : a ⟶ b) : IsIso f :=
   by
-  rw [is_zero.eq_zero_of_src ha f]
-  apply (is_iso_zero_equiv a b).symm.toFun
-  exact ⟨is_zero.eq_of_src ha (𝟙 a) 0, is_zero.eq_of_src hb (𝟙 b) 0⟩
+  rw [CategoryTheory.Limits.IsZero.eq_zero_of_src ha f]
+  apply (CategoryTheory.Limits.isIsoZeroEquiv a b).symm.toFun
+  exact ⟨CategoryTheory.Limits.IsZero.eq_of_src ha (𝟙 a) 0, CategoryTheory.Limits.IsZero.eq_of_src hb (𝟙 b) 0⟩
 
 theorem obj_isZero_of_iso {𝓐 : Type _} [Category 𝓐] [Abelian 𝓐] {𝓑 : Type _} [Category 𝓑]
     [Abelian 𝓑] {F G : 𝓐 ⥤ 𝓑} (h : F ≅ G) {a : 𝓐} (ha : IsZero (F.obj a)) : IsZero (G.obj a) :=
@@ -158,8 +158,8 @@ theorem map_isIso_of_iso_of_map_isIso {𝓐 : Type _} [Category 𝓐] [Abelian �
     [Category 𝓑] [Abelian 𝓑] {F G : 𝓐 ⥤ 𝓑} (h : F ≅ G) {a₁ a₂ : 𝓐} (f : a₁ ⟶ a₂)
     (ha : IsIso (F.map f)) : IsIso (G.map f) :=
   by
-  rw [← nat_iso.naturality_1 h]
-  exact is_iso.comp_is_iso
+  rw [← CategoryTheory.NatIso.naturality_1 h]
+  exact CategoryTheory.IsIso.comp_isIso
 
 @[simp]
 theorem epi_comp_iso_iff_epi {V : Type _} [Category V] {A B C : V} (e : A ≅ B) (f : B ⟶ C) :
@@ -190,21 +190,21 @@ theorem epi_iso_comp_iff_epi {V : Type _} [Category V] {A B C : V} (f : A ⟶ B)
   · intro h
     constructor
     intro Z s t h2
-    simp only [category.assoc] at h2 
+    simp only [CategoryTheory.Category.assoc] at h2 
     rw [cancel_epi] at h2 
     rwa [cancel_epi] at h2 
 
 theorem isIso_iff_isIso_comp_left {V : Type _} [Category V] {A B C : V} (f : A ⟶ B) {e : B ⟶ C}
     [IsIso f] : IsIso (f ≫ e) ↔ IsIso e := by
   constructor
-  · intro h; exact is_iso.of_is_iso_comp_left f e
-  · intro h; exact is_iso.comp_is_iso
+  · intro h; exact CategoryTheory.IsIso.of_isIso_comp_left f e
+  · intro h; exact CategoryTheory.IsIso.comp_isIso
 
 theorem isIso_iff_isIso_comp_right {V : Type _} [Category V] {A B C : V} {f : A ⟶ B} (g : B ⟶ C)
     [IsIso g] : IsIso (f ≫ g) ↔ IsIso f := by
   constructor
-  · intro; exact is_iso.of_is_iso_comp_right f g
-  · intro h; exact is_iso_of_op (f ≫ g)
+  · intro; exact CategoryTheory.IsIso.of_isIso_comp_right f g
+  · intro h; exact CategoryTheory.isIso_of_op (f ≫ g)
 
 @[simp]
 theorem epi_comp_isIso_iff_epi {V : Type _} [Category V] {A B C : V} (e : A ⟶ B) (f : B ⟶ C)
@@ -228,8 +228,8 @@ theorem comp_mono_zero_iff {V : Type _} [Category V] [Abelian V] {A B C : V} {f 
 theorem epi_of_epi_of_comp_epi_of_mono {V : Type _} [Category V] [Abelian V] {A B C : V} (f : A ⟶ B)
     (g : B ⟶ C) [Epi (f ≫ g)] [Mono g] : Epi f :=
   by
-  have foo : is_iso g := by
-    rw [is_iso_iff_mono_and_epi]
+  have foo : IsIso g := by
+    rw [CategoryTheory.isIso_iff_mono_and_epi]
     refine' ⟨inferInstance, _⟩
     apply epi_of_epi f
   simp_all
@@ -255,13 +255,13 @@ instance preserves_zero_of_preserves_initial {C : Type u₁} {D : Type u₂} [Ca
     PreservesZeroObjects F :=
   PreservesZeroObjects.mk fun X hX =>
     by
-    have e : X ≅ ⊥_ _ := hX.iso is_zero_initial
-    replace e : F.obj X ≅ F.obj (⊥_ _) := F.map_iso e
-    apply is_zero_of_iso_of_zero _ e.symm
+    have e : X ≅ ⊥_ _ := hX.iso CategoryTheory.Limits.isZero_initial
+    replace e : F.obj X ≅ F.obj (⊥_ _) := F.mapIso e
+    apply CategoryTheory.Limits.isZero_of_iso_of_zero _ e.symm
     have : F.obj (⊥_ _) ≅ ⊥_ _ := by
       apply (config := { instances := false }) limits.preserves_initial.iso; assumption
-    apply is_zero_of_iso_of_zero _ this.symm
-    exact is_zero_initial
+    apply CategoryTheory.Limits.isZero_of_iso_of_zero _ this.symm
+    exact CategoryTheory.Limits.isZero_initial
 
 -- sanity check
 example {C : Type u₁} {D : Type u₂} [Category.{v} C] [Abelian C] [Category.{v} D] [Abelian D]
@@ -273,13 +273,13 @@ instance preserves_zero_of_preserves_terminal {C : Type u₁} {D : Type u₂} [C
     PreservesZeroObjects F :=
   PreservesZeroObjects.mk fun X hX =>
     by
-    have e : X ≅ ⊤_ _ := hX.iso is_zero_terminal
-    replace e : F.obj X ≅ F.obj (⊤_ _) := F.map_iso e
-    apply is_zero_of_iso_of_zero _ e.symm
+    have e : X ≅ ⊤_ _ := hX.iso CategoryTheory.Limits.isZero_terminal
+    replace e : F.obj X ≅ F.obj (⊤_ _) := F.mapIso e
+    apply CategoryTheory.Limits.isZero_of_iso_of_zero _ e.symm
     have : F.obj (⊤_ _) ≅ ⊤_ _ := by
       apply (config := { instances := false }) limits.preserves_terminal.iso; assumption
-    apply is_zero_of_iso_of_zero _ this.symm
-    exact is_zero_terminal
+    apply CategoryTheory.Limits.isZero_of_iso_of_zero _ this.symm
+    exact CategoryTheory.Limits.isZero_terminal
 
 -- sanity check
 example {C : Type u₁} {D : Type u₂} [Category.{v} C] [Abelian C] [Category.{v} D] [Abelian D]

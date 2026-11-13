@@ -28,10 +28,10 @@ variable (A : Type w) [Category.{max v u} A] [HasLimits A]
 variable {J : GrothendieckTopology C} {K : GrothendieckTopology D}
 
 variable [ConcreteCategory.{max v u} A] [PreservesLimits (forget A)]
-  [ReflectsIsomorphisms (forget A)] [∀ X : C, PreservesColimitsOfShape (J.cover X)ᵒᵖ (forget A)]
-  [∀ X : C, HasColimitsOfShape (J.cover X)ᵒᵖ A]
-  [∀ X : D, PreservesColimitsOfShape (K.cover X)ᵒᵖ (forget A)]
-  [∀ X : D, HasColimitsOfShape (K.cover X)ᵒᵖ A]
+  [ReflectsIsomorphisms (forget A)] [∀ X : C, PreservesColimitsOfShape (J.Cover X)ᵒᵖ (forget A)]
+  [∀ X : C, HasColimitsOfShape (J.Cover X)ᵒᵖ A]
+  [∀ X : D, PreservesColimitsOfShape (K.Cover X)ᵒᵖ (forget A)]
+  [∀ X : D, HasColimitsOfShape (K.Cover X)ᵒᵖ A]
 
 namespace CategoryTheory.Sites
 
@@ -51,11 +51,11 @@ def pullbackSheafificationCompatibility {G : C ⥤ D} (Hp : CoverPreserving J K 
 
 theorem toSheafify_pullbackSheafificationCompatibility {G : C ⥤ D} (Hp : CoverPreserving J K G)
     (Hl : CategoryTheory.Functor.IsCocontinuous J K G) (Hc : CompatiblePreserving K G) (F) :
-    J.to_sheafify (G.op ⋙ F) ≫
+    J.toSheafify (G.op ⋙ F) ≫
         ((pullbackSheafificationCompatibility.{w, v, u} A Hp Hl Hc).Hom.app F).val =
-      whiskerLeft _ (K.to_sheafify _) :=
+      whiskerLeft _ (K.toSheafify _) :=
   by
-  dsimp [pullback_sheafification_compatibility, adjunction.left_adjoint_uniq]
+  dsimp [CategoryTheory.Sites.pullbackSheafificationCompatibility, adjunction.left_adjoint_uniq]
   apply Quiver.Hom.op_inj
   apply coyoneda.map_injective; swap; infer_instance
   ext E f : 2
@@ -84,7 +84,7 @@ theorem toSheafify_pullbackSheafificationCompatibility {G : C ⥤ D} (Hp : Cover
 theorem pullbackSheafificationCompatibility_hom_apply_val {G : C ⥤ D} (Hp : CoverPreserving J K G)
     (Hl : CategoryTheory.Functor.IsCocontinuous J K G) (Hc : CompatiblePreserving K G) (F) :
     ((pullbackSheafificationCompatibility.{w, v, u} A Hp Hl Hc).Hom.app F).val =
-      J.sheafify_lift (whiskerLeft _ <| K.to_sheafify _) (Sheaf.cond _) :=
+      J.sheafifyLift (whiskerLeft _ <| K.toSheafify _) (Sheaf.cond _) :=
   by
   apply J.sheafify_lift_unique
   apply to_sheafify_pullback_sheafification_compatibility

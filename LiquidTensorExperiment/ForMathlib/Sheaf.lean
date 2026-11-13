@@ -17,34 +17,34 @@ theorem isSheaf_of_iso {F G : Cᵒᵖ ⥤ D} (η : F ≅ G) (hG : IsSheaf J G) :
   by
   intro T X S hS
   let e : F ⋙ coyoneda.obj (Opposite.op T) ≅ G ⋙ coyoneda.obj (Opposite.op T) :=
-    iso_whisker_right η _
-  apply presieve.is_sheaf_for_iso e.symm
+    CategoryTheory.isoWhiskerRight η _
+  apply CategoryTheory.Presieve.isSheafFor_iso e.symm
   apply hG _ _ hS
 
 variable [ConcreteCategory.{max v u} D]
 
-variable [∀ (P : Cᵒᵖ ⥤ D) (X : C) (S : J.cover X), Limits.HasMultiequalizer (S.index P)]
+variable [∀ (P : Cᵒᵖ ⥤ D) (X : C) (S : J.Cover X), Limits.HasMultiequalizer (S.index P)]
 
 variable [Limits.PreservesLimits (forget D)]
 
-variable [∀ X : C, Limits.HasColimitsOfShape (J.cover X)ᵒᵖ D]
+variable [∀ X : C, Limits.HasColimitsOfShape (J.Cover X)ᵒᵖ D]
 
-variable [∀ X : C, Limits.PreservesColimitsOfShape (J.cover X)ᵒᵖ (forget D)]
+variable [∀ X : C, Limits.PreservesColimitsOfShape (J.Cover X)ᵒᵖ (forget D)]
 
 variable [ReflectsIsomorphisms (forget D)]
 
 theorem CategoryTheory.GrothendieckTopology.isIso_sheafifyLift_of_isIso {F G : Cᵒᵖ ⥤ D} (η : F ⟶ G)
     (hG : IsSheaf J G) [h : IsIso η] : IsIso (J.sheafifyLift η hG) :=
   by
-  have hF : is_sheaf J F := by apply is_sheaf_of_iso _ (as_iso η) hG
+  have hF : IsSheaf J F := by apply is_sheaf_of_iso _ (as_iso η) hG
   constructor
-  use inv η ≫ J.to_sheafify _
+  use inv η ≫ J.toSheafify _
   constructor
   · apply J.sheafify_hom_ext _ _
-    · exact grothendieck_topology.plus.is_sheaf_plus_plus J F
-    simp only [← category.assoc, J.to_sheafify_sheafify_lift, is_iso.hom_inv_id, category.id_comp,
+    · exact CategoryTheory.GrothendieckTopology.Plus.isSheaf_plus_plus J F
+    simp only [← CategoryTheory.Category.assoc, J.to_sheafify_sheafify_lift, is_iso.hom_inv_id, category.id_comp,
       category.comp_id]
-  · simp only [category.assoc, J.to_sheafify_sheafify_lift, is_iso.inv_hom_id]
+  · simp only [CategoryTheory.Category.assoc, J.to_sheafify_sheafify_lift, is_iso.inv_hom_id]
 
 end CategoryTheory.Presheaf
 
@@ -67,7 +67,7 @@ theorem Hom.comp_val {X Y Z : Sheaf J A} (f : X ⟶ Y) (g : Y ⟶ Z) : (f ≫ g)
 
 @[simps]
 def Iso.mk (X Y : Sheaf J A) (e : X.val ≅ Y.val) : X ≅ Y :=
-  ⟨⟨e.Hom⟩, ⟨e.inv⟩, by ext1; simp, by ext1; simp⟩
+  ⟨⟨e.hom⟩, ⟨e.inv⟩, by ext1; simp, by ext1; simp⟩
 
 end Sheaf
 

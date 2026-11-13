@@ -21,23 +21,23 @@ def AddMonoidHom.Pushout (f : A →+ B) (g : A →+ C) : Type _ :=
   (B × C) ⧸ (compareInProd f g).range
 deriving AddCommGroup
 
-abbrev AddMonoidHom.pushoutπ (f : A →+ B) (g : A →+ C) : B × C →+ f.pushout g :=
+abbrev AddMonoidHom.pushoutπ (f : A →+ B) (g : A →+ C) : B × C →+ f.Pushout g :=
   QuotientAddGroup.mk' _
 
-def AddMonoidHom.pushoutInl (f : A →+ B) (g : A →+ C) : B →+ f.pushout g
+def AddMonoidHom.pushoutInl (f : A →+ B) (g : A →+ C) : B →+ f.Pushout g
     where
   toFun b := f.pushoutπ g (b, 0)
   map_zero' := by simp; use 0; simpa
   map_add' x y := by erw [QuotientAddGroup.eq_iff_sub_mem]; simp; use 0; simpa
 
-def AddMonoidHom.pushoutInr (f : A →+ B) (g : A →+ C) : C →+ f.pushout g
+def AddMonoidHom.pushoutInr (f : A →+ B) (g : A →+ C) : C →+ f.Pushout g
     where
   toFun b := f.pushoutπ g (0, b)
   map_zero' := by simp; use 0; simpa
   map_add' x y := by erw [QuotientAddGroup.eq_iff_sub_mem]; simp; use 0; simpa
 
 theorem surjective_of_comp_inl_eq_comp_inr (f : A →+ B)
-    (h : f.range.Subtype.pushoutInl f.range.Subtype = f.range.Subtype.pushoutInr f.range.Subtype) :
+    (h : f.range.subtype.pushoutInl f.range.subtype = f.range.subtype.pushoutInr f.range.subtype) :
     Function.Surjective f := by
   intro b
   apply_fun fun e => e b at h 

@@ -24,18 +24,18 @@ variable (F : C ⥤ D) [Functor.Additive F] (X Y : HomologicalComplex C c)
 def objXPrev (i : M) : F.obj (X.xPrev i) ≅ ((F.mapHomologicalComplex c).obj X).xPrev i :=
   Iso.refl _
 
-theorem objXPrev_hom_eq (i : M) : (F.objXPrev X i).Hom = 𝟙 _ :=
+theorem objXPrev_hom_eq (i : M) : (F.objXPrev X i).hom = 𝟙 _ :=
   rfl
 
 theorem map_prev_iso_hom (j i : M) (hij : c.Rel j i) :
-    F.map (X.xPrevIso hij).Hom = (((F.mapHomologicalComplex c).obj X).xPrevIso hij).Hom := by
+    F.map (X.xPrevIso hij).hom = (((F.mapHomologicalComplex c).obj X).xPrevIso hij).hom := by
   obtain rfl := c.prev_eq' hij; exact F.map_id _
 
 def objXNext {M : Type _} {c : ComplexShape M} (X : HomologicalComplex C c) (i : M) :
     F.obj (X.xNext i) ≅ ((F.mapHomologicalComplex c).obj X).xNext i :=
   Iso.refl _
 
-theorem objXNext_hom_eq (i : M) : (F.objXNext X i).Hom = 𝟙 _ :=
+theorem objXNext_hom_eq (i : M) : (F.objXNext X i).hom = 𝟙 _ :=
   rfl
 
 theorem map_next_iso_inv (i j : M) (hij : c.Rel i j) :

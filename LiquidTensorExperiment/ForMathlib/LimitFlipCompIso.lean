@@ -14,7 +14,7 @@ noncomputable def limitFlipCompLimIsoLimitCompLim' {J : Type _} [Category J] [Ha
     {K : Type _} [Category K] [HasLimitsOfShape K C] (F : J ⥤ K ⥤ C) :
     limit (F.flip ⋙ lim) ≅ limit (F ⋙ lim)
     where
-  Hom :=
+  hom :=
     limit.lift (F ⋙ lim)
       ⟨limit (F.flip ⋙ lim),
         { app := fun j =>
@@ -60,10 +60,10 @@ noncomputable def limitFlipCompLimIsoLimitCompLim' {J : Type _} [Category J] [Ha
 @[simp, reassoc]
 theorem limitFlipCompLimIsoLimitCompLim'_hom_π_π {J : Type _} [Category J] [HasLimitsOfShape J C]
     {K : Type _} [Category K] [HasLimitsOfShape K C] (F : J ⥤ K ⥤ C) (j) (k) :
-    (limitFlipCompLimIsoLimitCompLim' F).Hom ≫ limit.π _ j ≫ limit.π _ k =
+    (limitFlipCompLimIsoLimitCompLim' F).hom ≫ limit.π _ j ≫ limit.π _ k =
       limit.π _ k ≫ limit.π _ j :=
   by
-  dsimp [limit_flip_comp_lim_iso_limit_comp_lim']
+  dsimp [CategoryTheory.Limits.limitFlipCompLimIsoLimitCompLim']
   simp
 
 @[simp, reassoc]
@@ -72,7 +72,7 @@ theorem limitFlipCompLimIsoLimitCompLim'_inv_π_π {J : Type _} [Category J] [Ha
     (limitFlipCompLimIsoLimitCompLim' F).inv ≫ limit.π _ j ≫ limit.π _ k =
       limit.π _ k ≫ limit.π _ j :=
   by
-  dsimp [limit_flip_comp_lim_iso_limit_comp_lim']
+  dsimp [CategoryTheory.Limits.limitFlipCompLimIsoLimitCompLim']
   simp
 
 end CategoryTheory.Limits

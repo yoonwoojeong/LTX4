@@ -64,7 +64,7 @@ structure RecursionData (N : ℕ) (hN : 0 < N) (f : ℕ → ℝ≥0) (hf : ∀ n
   h₂ : ∀ i, partial_sums i ≤ (∑ n in range (k + 1), f n) / N + 1
   [decInst : ∀ i, Decidable (m i)]
 
-attribute [instance] recursion_data.dec_inst
+attribute [instance] CombinatorialLemma.RecursionData.decInst
 
 /-- The starting point for recursively constructing subsequences of a sequence of real numbers
 such that all the subsequences sum to be roughly the same size:
@@ -142,14 +142,14 @@ theorem partition_sums_aux (k : ℕ) (N : ℕ) (hN : 0 < N) (f : ℕ → ℝ≥0
     (partition N hN f hf (k + 1)).partialSums i =
       (partition N hN f hf k).partialSums i +
         if (partition N hN f hf (k + 1)).M i then f (k + 1) else 0 :=
-  by simp [partition, recursion_data_succ]
+  by simp [partition, CombinatorialLemma.recursionDataSucc]
 
 theorem partition_sums (k : ℕ) (N : ℕ) (hN : 0 < N) (f : ℕ → ℝ≥0) (hf : ∀ n, f n ≤ 1) (i : Fin N) :
     (partition N hN f hf k).partialSums i =
       ∑ n in range (k + 1), Set.indicator {k | (partition N hN f hf k).M i} f n :=
   by
   induction' k with k IH
-  · dsimp [partition]; simp; dsimp [partition, recursion_data_zero]; congr
+  · dsimp [partition]; simp; dsimp [partition, CombinatorialLemma.recursionDataZero]; congr
   rw [partition_sums_aux, IH, sum_range_succ _ k.succ, Set.indicator, add_right_inj]
   congr 1
 
@@ -162,13 +162,13 @@ theorem exists_partition (N : ℕ) (hN : 0 < N) (f : ℕ → ℝ≥0) (hf : ∀ 
     by
     rintro ⟨k⟩ i
     · simp [mask]
-    rw [← partition_sums k N hN f hf i]
+    rw [← partition_sums Thm95.UniversalConstants.k N hN f hf i]
     exact (partition N hN f hf k).h₂ i
   refine' ⟨mask, _, _⟩
   · intro n; exact (partition N hN f hf n).hm
   · intro i
     set S₁ : ℝ≥0 := ∑' n : ℕ, f n
-    have hf'' : HasSum f S₁ := hf'.has_sum
+    have hf'' : HasSum f S₁ := hf'.hasSum
     have hf''' : HasSum _ (S₁ / N) := hf''.mul_right (N : ℝ≥0)⁻¹
     have : Set.indicator (mask i) f ≤ f := by
       intro n

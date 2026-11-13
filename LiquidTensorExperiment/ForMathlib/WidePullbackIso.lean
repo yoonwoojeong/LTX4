@@ -28,12 +28,12 @@ def uliftWidePullbackIsoHomAux (i : ℕ) (T B X : C) (f : X ⟶ B) :
     (fun q => uliftFunctor.map <| (yoneda.map <| WidePullback.π _ <| q).app (Opposite.op T))
     (by
       rintro ⟨j⟩
-      rw [← functor.map_comp]
+      rw [← CategoryTheory.Functor.map_comp]
       congr 1
       ext q
       dsimp [yoneda]
-      rw [← wide_pullback.π_arrow]
-      rw [category.assoc])
+      rw [← CategoryTheory.Limits.WidePullback.π_arrow]
+      rw [CategoryTheory.Category.assoc])
 
 def uliftWidePullbackIsoInvAux (i : ℕ) (T B X : C) (f : X ⟶ B) :
     (widePullback (ULift.{u + 1, u} <| T ⟶ B) (fun _ : Fin i => ULift.{u + 1, u} <| T ⟶ X) fun _ =>
@@ -55,14 +55,14 @@ def uliftWidePullbackIsoInvAux (i : ℕ) (T B X : C) (f : X ⟶ B) :
     WidePullback.lift (b t).down (fun q : Fin i => (π q t).down)
       (by
         rintro ⟨j⟩
-        dsimp [b, π]; rw [← wide_pullback.π_arrow]; rfl)
+        dsimp [b, π]; rw [← CategoryTheory.Limits.WidePullback.π_arrow]; rfl)
 
 def uliftWidePullbackIso (i : ℕ) (T B X : C) (f : X ⟶ B) :
     uliftFunctor.{u + 1}.obj (T ⟶ widePullback B (fun _ : Fin i => X) fun _ => f) ≅
       widePullback (ULift.{u + 1, u} <| T ⟶ B) (fun _ : Fin i => ULift.{u + 1, u} <| T ⟶ X) fun _ =>
         uliftFunctor.map <| (yoneda.map f).app (Opposite.op T)
     where
-  Hom := uliftWidePullbackIsoHomAux _ _ _ _ _
+  hom := uliftWidePullbackIsoHomAux _ _ _ _ _
   inv := uliftWidePullbackIsoInvAux _ _ _ _ _
   hom_inv_id' :=
     by

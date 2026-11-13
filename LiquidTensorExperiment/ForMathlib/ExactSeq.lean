@@ -55,7 +55,7 @@ variable {A B C : 𝒜} (f : A ⟶ B) (g : B ⟶ C)
 
 def kernelOpIso : (kernel f.op).unop ≅ cokernel f
     where
-  Hom :=
+  hom :=
     (kernel.lift _ (cokernel.π f).op (by simp [← op_comp, limits.cokernel.condition])).unop ≫
       eqToHom (Opposite.unop_op (cokernel f))
   inv :=
@@ -79,7 +79,7 @@ def kernelOpIso : (kernel f.op).unop ≅ cokernel f
 
 def cokernelOpIso : (cokernel f.op).unop ≅ kernel f
     where
-  Hom :=
+  hom :=
     kernel.lift _ ((cokernel.π f.op).unop ≫ eqToHom (Opposite.unop_op _))
       (by
         simp only [eq_to_hom_refl, category.comp_id]
@@ -104,22 +104,22 @@ def cokernelOpIso : (cokernel f.op).unop ≅ kernel f
 theorem Kernel.ι_op :
     (kernel.ι f.op).unop = eqToHom (Opposite.unop_op _) ≫ cokernel.π f ≫ (kernelOpIso f).inv :=
   by
-  dsimp [kernel_op_iso]
+  dsimp [CategoryTheory.Exact.kernelOpIso]
   simp
 
 @[simp]
 theorem Cokernel.π_op :
     (cokernel.π f.op).unop =
-      (cokernelOpIso f).Hom ≫ kernel.ι f ≫ eqToHom (Opposite.unop_op _).symm :=
+      (cokernelOpIso f).hom ≫ kernel.ι f ≫ eqToHom (Opposite.unop_op _).symm :=
   by
-  dsimp [cokernel_op_iso]
+  dsimp [CategoryTheory.Exact.cokernelOpIso]
   simp
 
 variable {f g}
 
 theorem op (h : Exact f g) : Exact g.op f.op :=
   by
-  rw [abelian.exact_iff]
+  rw [CategoryTheory.Abelian.exact_iff]
   refine' ⟨_, _⟩
   · simp only [← op_comp, h.w, op_zero]
   apply_fun Quiver.Hom.unop
@@ -131,7 +131,7 @@ variable (f g)
 
 def kernelUnopIso {C B : 𝒜ᵒᵖ} (f : C ⟶ B) : Opposite.op (kernel f.unop) ≅ cokernel f
     where
-  Hom :=
+  hom :=
     (kernel.lift _ (cokernel.π f).unop (by simp [← unop_comp])).op ≫
       eqToHom (Opposite.op_unop (cokernel f))
   inv :=
@@ -155,7 +155,7 @@ def kernelUnopIso {C B : 𝒜ᵒᵖ} (f : C ⟶ B) : Opposite.op (kernel f.unop)
 
 def cokernelUnopIso {C B : 𝒜ᵒᵖ} (f : C ⟶ B) : Opposite.op (cokernel f.unop) ≅ kernel f
     where
-  Hom :=
+  hom :=
     kernel.lift _ ((cokernel.π f.unop).op ≫ eqToHom (Opposite.op_unop _))
       (by
         dsimp
@@ -180,21 +180,21 @@ def cokernelUnopIso {C B : 𝒜ᵒᵖ} (f : C ⟶ B) : Opposite.op (cokernel f.u
 @[simp]
 theorem Cokernel.π_unop {C B : 𝒜ᵒᵖ} (f : C ⟶ B) :
     (cokernel.π f.unop).op =
-      (cokernelUnopIso f).Hom ≫ kernel.ι f ≫ eqToHom (Opposite.op_unop _).symm :=
+      (cokernelUnopIso f).hom ≫ kernel.ι f ≫ eqToHom (Opposite.op_unop _).symm :=
   by
-  dsimp [cokernel_unop_iso]
+  dsimp [CategoryTheory.Exact.cokernelUnopIso]
   simp
 
 @[simp]
 theorem Kernel.ι_unop {C B : 𝒜ᵒᵖ} (f : C ⟶ B) :
     (kernel.ι f.unop).op = eqToHom (Opposite.op_unop _) ≫ cokernel.π f ≫ (kernelUnopIso f).inv :=
   by
-  dsimp [kernel_unop_iso]
+  dsimp [CategoryTheory.Exact.kernelUnopIso]
   simp
 
 theorem unop {C B A : 𝒜ᵒᵖ} {g : C ⟶ B} {f : B ⟶ A} (h : Exact g f) : Exact f.unop g.unop :=
   by
-  rw [abelian.exact_iff]
+  rw [CategoryTheory.Abelian.exact_iff]
   refine' ⟨by simp only [← unop_comp, h.w, unop_zero], _⟩
   apply_fun Quiver.Hom.op
   swap; · exact Quiver.Hom.op_inj
@@ -224,7 +224,7 @@ variable {𝒞}
 theorem exact_iff_exactSeq {A B C : 𝒞} (f : A ⟶ B) (g : B ⟶ C) : Exact f g ↔ ExactSeq 𝒞 [f, g] :=
   by
   constructor
-  · intro h; exact exact_seq.cons f g h _ (exact_seq.single _)
+  · intro h; exact CategoryTheory.ExactSeq.cons f g h _ (exact_seq.single _)
   · rintro (_ | _ | ⟨A, B, C, f, g, hfg, _, _ | _ | _⟩); exact hfg
 
 namespace ExactSeq
@@ -286,13 +286,13 @@ variable {C : Type _} [Category C]
 def op (f : Arrow C) : Arrow Cᵒᵖ where
   left := op f.right
   right := op f.left
-  Hom := f.Hom.op
+  hom := f.Hom.op
 
 @[simps]
 def unop (f : Arrow Cᵒᵖ) : Arrow C where
   left := unop f.right
   right := unop f.left
-  Hom := f.Hom.unop
+  hom := f.Hom.unop
 
 @[simp]
 theorem op_unop (f : Arrow C) : f.op.unop = f := by cases f; dsimp [op, unop]; rfl
@@ -329,12 +329,12 @@ theorem unop : ∀ {L : List (Arrow 𝒜ᵒᵖ)}, ExactSeq 𝒜ᵒᵖ L → Exac
     exact cons _ _ hfg.unop _ (single _)
 
 theorem of_op {L : List (Arrow 𝒜)} (h : ExactSeq 𝒜ᵒᵖ (L.reverse.map Arrow.op)) : ExactSeq 𝒜 L := by
-  simpa only [List.map_reverse, List.reverse_reverse, List.map_map, arrow.unop_comp_op,
+  simpa only [List.map_reverse, List.reverse_reverse, List.map_map, CategoryTheory.Arrow.unop_comp_op,
     List.map_id] using h.unop
 
 theorem of_unop {L : List (Arrow 𝒜ᵒᵖ)} (h : ExactSeq 𝒜 (L.reverse.map Arrow.unop)) :
     ExactSeq 𝒜ᵒᵖ L := by
-  simpa only [List.map_reverse, List.reverse_reverse, List.map_map, arrow.op_comp_unop,
+  simpa only [List.map_reverse, List.reverse_reverse, List.map_map, CategoryTheory.Arrow.op_comp_unop,
     List.map_id] using h.op
 
 end ExactSeq

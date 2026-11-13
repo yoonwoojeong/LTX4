@@ -17,7 +17,7 @@ variable {β : Type u} {α : Type v} {α' : Type w} [CommMonoid β]
 
 @[simp, to_additive]
 theorem Finset.prod_comap (s : Finset α') (e : α → α') (f : α' → β) (he : Set.InjOn e (e ⁻¹' ↑s))
-    (hs : (s : Set α') ⊆ Set.range e) : ∏ x in s.Preimage e he, f (e x) = ∏ x in s, f x :=
+    (hs : (s : Set α') ⊆ Set.range e) : ∏ x in s.preimage e he, f (e x) = ∏ x in s, f x :=
   by
   haveI : ∀ x : α', Decidable (x ∈ Set.range e) := fun x => Classical.propDecidable _
   haveI := Classical.typeDecidableEq α'
@@ -73,8 +73,8 @@ theorem lt_of_lt_of_le_unbundled {α : Type u} {r : α → α → Prop} [IsStric
   by
   have t : r b c ∨ b = c ∨ r c b := trichotomous b c
   cases t
-  exact IsTrans.trans a b c hab t
-  cases t
+  exact IsTrans.trans a b c hab T
+  cases T
   rw [← t]
   exact hab
   exact False.elim (hbc t)
@@ -86,8 +86,8 @@ theorem le_unbundled {α : Type u} {r : α → α → Prop} [IsStrictTotalOrder 
   intro h
   cases h
   by_contra h'
-  exact irrefl a (IsTrans.trans _ _ _ h h')
-  rw [h]
+  exact irrefl a (IsTrans.trans _ _ _ H h')
+  rw [H]
   exact irrefl b
   intro h
   have t : r a b ∨ a = b ∨ r b a := trichotomous a b
@@ -120,14 +120,14 @@ theorem support_remove {i : Ordinal} {j_good : { i // a i ≠ 0 }} (hj : succ j_
   intro x hx
   simp only [hl', Finsupp.single_eq_of_ne hx.symm, Finsupp.coe_add, Pi.add_apply, add_zero]
   by_contra
-  have h : ¬x.1.1 < j_good.1.1 := h
+  have h : ¬x.1.1 < j_good.1.1 := H
   have h := eq_or_lt_of_le (not_lt.1 h)
   cases h
-  · have h_1 : j_good = x := by simp at h_1  <;> ext <;> exact h_1
+  · have h_1 : j_good = x := by simp at H1  <;> ext <;> exact h_1
     rw [← h_1] at hx₁ 
     rw [l'.3 j_good] at hx₁ 
     contradiction
-  · have h_1' : j_good.1.1 ≠ x.1.1 := ne_of_lt h_1
+  · have h_1' : j_good.1.1 ≠ x.1.1 := ne_of_lt H1
     have h_1' : j_good ≠ x
     -- todo: can't ext do this?
     simp at h_1' 
@@ -135,7 +135,7 @@ theorem support_remove {i : Ordinal} {j_good : { i // a i ≠ 0 }} (hj : succ j_
     apply mt Subtype.ext_iff.1
     apply mt Subtype.ext_iff.1
     exact h_1'
-    have : l'.to_fun x = l x := hl' x h_1'.symm
+    have : l'.toFun x = l x := hl' x h_1'.symm
     have hx' := hx₁
     rw [l'.3 x] at hx' 
     rw [this] at hx' 
@@ -160,7 +160,7 @@ theorem lin_ind_limit {BB : { i // a i ≠ 0 } → M} {i : Ordinal} (hio : i ≤
     (hl : Finsupp.total { i // a i ≠ 0 } M R BB l = 0) : l = 0 :=
   by
   let good := { i // a i ≠ 0 }
-  by_cases hemp : l.support.nonempty
+  by_cases hemp : l.support.Nonempty
   · let m := l.support.max' hemp
     dsimp at hsupp 
     have hm₀ : ↑↑m < i := by
@@ -192,7 +192,7 @@ theorem span_limit {N : Submodule R M} {BB : { i // a i ≠ 0 } → M} {i : Ordi
     Finsupp.total { i // i < o } M R B l ∈ Submodule.span R (range BB) :=
   by
   let ords := { i // i < o }
-  by_cases hemp : l.support.nonempty
+  by_cases hemp : l.support.Nonempty
   · let m := l.support.max' hemp
     dsimp at hsupp 
     have hm₀ : ↑m < i := by
@@ -340,8 +340,8 @@ theorem span_succ {N : Submodule R M} {BB : { i // a i ≠ 0 } → M} {i : Ordin
     (hBB : ∀ i, ((B.repr (BB i)).support : Set { i // i < o }) ⊆ fun x => x.1 ≤ i)
     (hc :
       ∀ j : { i // i < o },
-        i = succ j.1 → ∃ r : R, (B.Coord j) (Finsupp.total { i // i < o } M R B l) = r • a j)
-    (hBBN : ∀ i, BB i ∈ N) (hBBa : ∀ j : { i // a i ≠ 0 }, (B.Coord j) (BB j) = a j) :
+        i = succ j.1 → ∃ r : R, (B.coord j) (Finsupp.total { i // i < o } M R B l) = r • a j)
+    (hBBN : ∀ i, BB i ∈ N) (hBBa : ∀ j : { i // a i ≠ 0 }, (B.coord j) (BB j) = a j) :
     Finsupp.total { i // i < o } M R B l ∈ Submodule.span R (range BB) :=
   by
   let ords := { i // i < o }
@@ -523,7 +523,7 @@ theorem span_range_codRestrict (N : Submodule R M) {α : Type _} (f : α → M) 
       x ∈ @Submodule.span R N _ _ _ (range (codRestrict f N h)) ↔
         (x : M) ∈ Submodule.span R (range f) :=
   by
-  have hr : range (cod_restrict f N _) = N.carrier.restrict (range f)
+  have hr : range (codRestrict f N _) = N.carrier.restrict (range f)
   ext x
   simp
   constructor
@@ -807,5 +807,5 @@ theorem Submodule.free_of_pid_of_free [IsDomain R] [IsPrincipalIdealRing R] {N :
   by
   have h := (Submodule.nonempty_basis_of_pid' (Module.Free.chooseBasis R M) N).choose_spec
   cases h
-  exact Module.Free.of_basis h
+  exact Module.Free.of_basis H
 

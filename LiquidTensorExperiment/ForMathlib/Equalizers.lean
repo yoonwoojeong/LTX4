@@ -35,27 +35,27 @@ variable {C D : Type _} [Category C] [Category D] (F : C ⥤ D) {X Y : C} (f g :
 /-- The fork given by the kernel of the difference of two maps -/
 @[simps]
 def forkOfKernel [Preadditive C] [HasKernel (f - g)] : Fork f g :=
-  Fork.ofι (kernel.ι (f - g)) (by rw [← sub_eq_zero, ← preadditive.comp_sub, kernel.condition])
+  Fork.ofι (kernel.ι (f - g)) (by rw [← sub_eq_zero, ← CategoryTheory.Preadditive.comp_sub, kernel.condition])
 
 /-- In a preadditive category, an equalizer can be constructed as the kernel of the two maps -/
 @[simps]
 def forkOfKernelIsLimit [Preadditive C] [HasKernel (f - g)] : IsLimit (forkOfKernel f g) :=
   Fork.IsLimit.mk _
-    (fun s => kernel.lift _ s.ι (by rw [preadditive.comp_sub, sub_eq_zero, fork.condition]))
+    (fun s => kernel.lift _ s.ι (by rw [CategoryTheory.Preadditive.comp_sub, sub_eq_zero, CategoryTheory.Limits.Fork.condition]))
     (fun s => by apply kernel.lift_ι) fun s m hm => by ext; simpa only [kernel.lift_ι] using hm
 
 /-- The cofork given by the cokernel of the difference of two maps -/
 @[simps]
 def coforkOfCokernel [Preadditive C] [HasCokernel (f - g)] : Cofork f g :=
   Cofork.ofπ (cokernel.π (f - g))
-    (by rw [← sub_eq_zero, ← preadditive.sub_comp, cokernel.condition])
+    (by rw [← sub_eq_zero, ← CategoryTheory.Preadditive.sub_comp, cokernel.condition])
 
 /-- In a preadditive category, a coequalizer can be constructed as the cokernel of the two maps -/
 @[simps]
 def coforkOfCokernelIsColimit [Preadditive C] [HasCokernel (f - g)] :
     IsColimit (coforkOfCokernel f g) :=
   Cofork.IsColimit.mk _
-    (fun s => cokernel.desc _ s.π (by rw [preadditive.sub_comp, sub_eq_zero, cofork.condition]))
+    (fun s => cokernel.desc _ s.π (by rw [CategoryTheory.Preadditive.sub_comp, sub_eq_zero, CategoryTheory.Limits.Cofork.condition]))
     (fun s => by apply cokernel.π_desc) fun s m hm => by ext; simpa only [cokernel.π_desc] using hm
 
 end CategoryTheory.Limits

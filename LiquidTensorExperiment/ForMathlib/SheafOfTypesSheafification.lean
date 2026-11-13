@@ -26,13 +26,13 @@ def presheafToSheafOfTypes : (Cᵒᵖ ⥤ Type max v u) ⥤ SheafOfTypes J
 
 -- Sanity check
 def presheafToSheafOfTypesIso :
-    presheafToSheafOfTypes J ≅ presheafToSheaf J _ ⋙ (sheafEquivSheafOfTypes J).Functor :=
+    presheafToSheafOfTypes J ≅ presheafToSheaf J _ ⋙ (sheafEquivSheafOfTypes J).functor :=
   eqToIso rfl
 
 -- The adjunction for sheaves of types
 def sheafificationAdjunctionTypes : presheafToSheafOfTypes J ⊣ sheafOfTypesToPresheaf J :=
   show
-    presheafToSheaf J _ ⋙ (sheafEquivSheafOfTypes J).Functor ⊣
+    presheafToSheaf J _ ⋙ (sheafEquivSheafOfTypes J).functor ⊣
       (sheafEquivSheafOfTypes J).inverse ⋙ sheafToPresheaf J _
     from Adjunction.comp (sheafificationAdjunction _ _) <| (sheafEquivSheafOfTypes J).toAdjunction
 
@@ -46,24 +46,24 @@ theorem sheafificationAdjunctionTypes_homEquiv_apply (X : Cᵒᵖ ⥤ Type max v
 theorem sheafificationAdjunctionTypes_homEquiv_symm_apply (X : Cᵒᵖ ⥤ Type max v u)
     (Y : SheafOfTypes J) (e : X ⟶ (sheafOfTypesToPresheaf _).obj Y) :
     (((sheafificationAdjunctionTypes J).homEquiv _ _).symm e).val =
-      J.sheafifyLift e (by rw [is_sheaf_iff_is_sheaf_of_type]; exact Y.2) :=
+      J.sheafifyLift e (by rw [CategoryTheory.isSheaf_iff_isSheaf_of_type]; exact Y.2) :=
   rfl
 
 @[simp]
 theorem sheafificationAdjunctionTypes_unit_app (X : Cᵒᵖ ⥤ Type max v u) :
-    (sheafificationAdjunctionTypes J).Unit.app X = J.toSheafify X :=
+    (sheafificationAdjunctionTypes J).unit.app X = J.toSheafify X :=
   rfl
 
 @[simp]
 theorem sheafificationAdjunctionTypes_counit_app (Y : SheafOfTypes J) :
     ((sheafificationAdjunctionTypes J).counit.app Y).val =
-      J.sheafifyLift (𝟙 _) (by rw [is_sheaf_iff_is_sheaf_of_type]; exact Y.2) :=
+      J.sheafifyLift (𝟙 _) (by rw [CategoryTheory.isSheaf_iff_isSheaf_of_type]; exact Y.2) :=
   rfl
 
 instance isIso_sheafification_types_adjunction_counit_app (X : SheafOfTypes J) :
     IsIso ((sheafificationAdjunctionTypes J).counit.app X) :=
   by
-  apply is_iso_of_reflects_iso _ (Sheaf_equiv_SheafOfTypes J).inverse
+  apply CategoryTheory.isIso_of_reflects_iso _ (Sheaf_equiv_SheafOfTypes J).inverse
   change
     is_iso
       ((sheafification_adjunction J (Type max v u)).counit.app

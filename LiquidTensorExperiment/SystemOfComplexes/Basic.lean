@@ -54,7 +54,7 @@ deriving CategoryTheory.Category, CategoryTheory.Preadditive
 variable {M M' N : SystemOfComplexes.{u}} (f : M ⟶ M') (g : M' ⟶ N)
 
 instance : CoeFun SystemOfComplexes fun C => ℝ≥0 → ℕ → SemiNormedGroupCat :=
-  ⟨fun C c i => (C.obj <| op c).pt i⟩
+  ⟨fun C c i => (C.obj <| op c).X i⟩
 
 /-- `f.apply c i` is application of the natural transformation `f`: $f_c^i : M_c^i ⟶ N_c^i$. -/
 def Quiver.Hom.apply (f : M ⟶ N) {c : ℝ≥0} {i : ℕ} : M c i ⟶ N c i :=
@@ -88,7 +88,7 @@ variable {c₁ c₂ c₃ : ℝ≥0} (i j : ℕ)
 theorem res_comp_res (h₁ : Fact (c₂ ≤ c₁)) (h₂ : Fact (c₃ ≤ c₂)) :
     @res C _ _ i h₁ ≫ @res C _ _ i h₂ = @res C _ _ i ⟨h₂.out.trans h₁.out⟩ :=
   by
-  have := CategoryTheory.Functor.map_comp C (hom_of_le h₁.out).op (hom_of_le h₂.out).op
+  have := CategoryTheory.Functor.map_comp C (homOfLe h₁.out).op (homOfLe h₂.out).op
   rw [← op_comp] at this 
   delta res
   erw [this]
@@ -138,21 +138,21 @@ theorem apply_inv_eq_inv_apply : (ϕ.apply.inv : N c i ⟶ M c i) = ϕ.inv.apply
 
 @[simp]
 theorem hom_apply_comp_inv_apply : (ϕ.hom.apply : M c i ⟶ N c i) ≫ ϕ.inv.apply = 𝟙 _ := by
-  rw [← apply_hom_eq_hom_apply, ← apply_inv_eq_inv_apply, iso.hom_inv_id]
+  rw [← SystemOfComplexes.apply_hom_eq_hom_apply, ← apply_inv_eq_inv_apply, CategoryTheory.Iso.hom_inv_id]
 
 @[simp]
 theorem inv_apply_comp_hom_apply : (ϕ.inv.apply : N c i ⟶ M c i) ≫ ϕ.hom.apply = 𝟙 _ := by
-  rw [← apply_hom_eq_hom_apply, ← apply_inv_eq_inv_apply, iso.inv_hom_id]
+  rw [← SystemOfComplexes.apply_hom_eq_hom_apply, ← apply_inv_eq_inv_apply, CategoryTheory.Iso.inv_hom_id]
 
 @[simp]
 theorem inv_apply_hom_apply (x : M c i) : ϕ.inv.apply (ϕ.hom.apply x) = x :=
   show ((ϕ.hom.apply : M c i ⟶ N c i) ≫ ϕ.inv.apply) x = x by
-    simp only [hom_apply_comp_inv_apply, coe_id, id.def]
+    simp only [SystemOfComplexes.hom_apply_comp_inv_apply, coe_id, id.def]
 
 @[simp]
 theorem hom_apply_inv_apply (x : N c i) : ϕ.hom (ϕ.inv x) = x :=
   show ((ϕ.inv.apply : N c i ⟶ M c i) ≫ ϕ.hom.apply) x = x by
-    simp only [inv_apply_comp_hom_apply, coe_id, id.def]
+    simp only [SystemOfComplexes.inv_apply_comp_hom_apply, coe_id, id.def]
 
 end Iso
 
@@ -290,7 +290,7 @@ theorem iff_of_iso (f : C₁ ≅ C₂)
     (hf : ∀ c i, @Isometry (C₁ c i) (C₂ c i) _ _ (f.hom.apply : C₁ c i ⟶ C₂ c i)) :
     C₁.IsWeakBoundedExact k K m c₀ ↔ C₂.IsWeakBoundedExact k K m c₀ :=
   by
-  refine' ⟨fun h => h.of_iso f hf, fun h => h.of_iso f.symm _⟩
+  refine' ⟨fun h => h.ofIso f hf, fun h => h.ofIso f.symm _⟩
   -- TODO: factor this out into a lemma
   intro c n
   apply AddMonoidHomClass.isometry_of_norm
@@ -390,7 +390,7 @@ def IsQuotient (f : M ⟶ M') : Prop :=
 -- of `M ⟶ M'` to functions.
 theorem IsQuotient.surjective {f : M ⟶ M'} (h : IsQuotient f) {c i} (m' : M' c i) :
     ∃ m : M c i, f m = m' :=
-  (h c i).Surjective m'
+  (h c i).surjective m'
 
 theorem IsQuotient.norm_lift {f : M ⟶ M'} (h : IsQuotient f) {ε : ℝ} (hε : 0 < ε) {c i}
     (n : M' c i) : ∃ m : M c i, f m = n ∧ ‖m‖ < ‖n‖ + ε :=

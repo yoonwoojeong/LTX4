@@ -49,7 +49,7 @@ def NatTrans.kernelFork {F G : C ⥤ D} (η : F ⟶ G) : KernelFork η :=
   Limits.KernelFork.ofι η.kernelι <| by ext; simp
 
 @[simps]
-def NatTrans.isLimitKernelFork {F G : C ⥤ D} (η : F ⟶ G) : IsLimit η.KernelFork :=
+def NatTrans.isLimitKernelFork {F G : C ⥤ D} (η : F ⟶ G) : IsLimit η.kernelFork :=
   isLimitAux _
     (fun S =>
       { app := fun X => kernel.lift _ (S.ι.app X) <| by simp [← nat_trans.comp_app]
@@ -121,7 +121,7 @@ def NatTrans.cokernelCofork {F G : C ⥤ D} (η : F ⟶ G) : CokernelCofork η :
   Limits.CokernelCofork.ofπ η.cokernelπ <| by ext; simp
 
 @[simps]
-def NatTrans.isColimitCokernelCofork {F G : C ⥤ D} (η : F ⟶ G) : IsColimit η.CokernelCofork :=
+def NatTrans.isColimitCokernelCofork {F G : C ⥤ D} (η : F ⟶ G) : IsColimit η.cokernelCofork :=
   isColimitAux _
     (fun S =>
       { app := fun X => cokernel.desc _ (S.π.app X) <| by simp [← nat_trans.comp_app]

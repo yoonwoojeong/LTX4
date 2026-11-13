@@ -29,8 +29,8 @@ def Concrete.equalizerEquivAux {X Y : C} (f g : X ⟶ Y) :
   toFun x :=
     ⟨x.1 WalkingParallelPair.zero,
       by
-      have h1 := x.2 walking_parallel_pair_hom.left
-      have h2 := x.2 walking_parallel_pair_hom.right
+      have h1 := x.2 CategoryTheory.Limits.WalkingParallelPairHom.left
+      have h2 := x.2 CategoryTheory.Limits.WalkingParallelPairHom.right
       dsimp at h1 h2 
       erw [h1, h2]⟩
   invFun x :=
@@ -39,7 +39,7 @@ def Concrete.equalizerEquivAux {X Y : C} (f g : X ⟶ Y) :
         | walking_parallel_pair.zero => x.1
         | walking_parallel_pair.one => f x.1
       property := by
-        dsimp [functor.sections]
+        dsimp [CategoryTheory.Functor.sections]
         rintro (a | a) (b | b) (f | f)
         · simp
         · rfl
@@ -50,7 +50,7 @@ def Concrete.equalizerEquivAux {X Y : C} (f g : X ⟶ Y) :
     ext (a | a)
     · rfl
     · change _ = x _
-      rw [← hx walking_parallel_pair_hom.left]
+      rw [← hx CategoryTheory.Limits.WalkingParallelPairHom.left]
       rfl
   right_inv := by rintro ⟨_, _⟩; ext; rfl
 

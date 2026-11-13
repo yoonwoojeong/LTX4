@@ -6,7 +6,7 @@ open scoped Classical
 
 theorem exists_le_finset {α : Type _} [Inhabited α] [SemilatticeInf α] (G : Finset α) :
     ∃ j : α, ∀ g ∈ G, j ≤ g := by
-  by_cases h : G.nonempty
+  by_cases h : G.Nonempty
   · exact ⟨Finset.inf' G h id, fun g => Finset.inf'_le _⟩
   · exact ⟨default, fun g hg => False.elim <| h ⟨_, hg⟩⟩
 
