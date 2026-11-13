@@ -17,14 +17,11 @@ namespace AddCommGroupCat
 
 variable {M N : AddCommGroupCat.{u}} (f : M ⟶ N)
 
-#print AddCommGroupCat.kernelCone /-
 /-- The kernel cone induced by the concrete kernel. -/
 def kernelCone : KernelFork f :=
   @KernelFork.ofι AddCommGroupCat _ _ M N f (of f.ker) (f.ker.Subtype : of f.ker ⟶ M) <| by ext1;
     cases x; assumption
--/
 
-#print AddCommGroupCat.kernelIsLimit /-
 /-- The kernel of a linear map is a kernel in the categorical sense. -/
 def kernelIsLimit : IsLimit (kernelCone f) :=
   Fork.IsLimit.mk _
@@ -41,9 +38,7 @@ def kernelIsLimit : IsLimit (kernelCone f) :=
         by
         have h₁ : (m ≫ (kernelCone f).π.app zero).toFun = (s.π.app zero).toFun := by congr; exact h
         convert @congr_fun _ _ _ _ h₁ x
--/
 
-#print AddCommGroupCat.cokernelCocone /-
 /-- The cokernel cocone induced by the projection onto the quotient. -/
 def cokernelCocone : CokernelCofork f :=
   @CokernelCofork.ofπ AddCommGroupCat _ _ M N f (of <| N ⧸ f.range)
@@ -51,9 +46,7 @@ def cokernelCocone : CokernelCofork f :=
     by ext1;
     simp only [comp_apply, QuotientAddGroup.mk'_apply, zero_apply, QuotientAddGroup.eq_zero_iff,
       AddMonoidHom.mem_range, exists_apply_eq_apply]
--/
 
-#print AddCommGroupCat.cokernelIsColimit /-
 /-- The projection onto the quotient is a cokernel in the categorical sense. -/
 def cokernelIsColimit : IsColimit (cokernelCocone f) :=
   Cofork.IsColimit.mk _
@@ -73,7 +66,6 @@ def cokernelIsColimit : IsColimit (cokernelCocone f) :=
     apply (cancel_epi g).1
     convert h
     ext; rfl
--/
 
 -- We now show this isomorphism commutes with the inclusion of the kernel into the source.
 -- TODO: the next two already exist: add `elementwise` to those lemmas in mathlib

@@ -36,12 +36,10 @@ noncomputable def objBiprodIso (F : 𝒜 ⥤ ℬ) [F.Additive] (A B : 𝒜) [Has
 instance forget₂_additive (R : Type _) [Ring R] : (forget₂ (ModuleCat R) AddCommGroupCat).Additive
     where map_add' M N f g := rfl
 
-#print CategoryTheory.Functor.map_isZero /-
 theorem map_isZero {X : 𝒜} [F.Additive] (hX : Limits.IsZero X) : Limits.IsZero (F.obj X) :=
   by
   rw [limits.is_zero.iff_id_eq_zero] at hX ⊢
   convert congr_arg (@CategoryTheory.Functor.map _ _ _ _ F _ _) hX <;> simp
--/
 
 end Functor
 

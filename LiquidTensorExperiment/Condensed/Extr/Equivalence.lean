@@ -651,11 +651,9 @@ def colimitTIso : colimit T_functor ≅ CT
 
 /- warning: finite_product_colimit_setup.t clashes with finite_product_colimit_setup.T -> FiniteProductColimitSetup.t
 Case conversion may be inaccurate. Consider using '#align finite_product_colimit_setup.t FiniteProductColimitSetup.tₓ'. -/
-#print FiniteProductColimitSetup.t /-
 -- We want this to be an isomorphism.
 def t : KC.obj (op (ExtrDisc.sigma (X ∘ ULift.down))) ⟶ P₀ :=
   Pi.lift fun i => KC.map (ExtrDisc.sigma.ι (X ∘ ULift.down) ⟨i⟩).op
--/
 
 theorem key_lemma :
     t =

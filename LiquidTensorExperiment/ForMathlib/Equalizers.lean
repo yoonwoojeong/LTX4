@@ -42,7 +42,7 @@ def forkOfKernel [Preadditive C] [HasKernel (f - g)] : Fork f g :=
 def forkOfKernelIsLimit [Preadditive C] [HasKernel (f - g)] : IsLimit (forkOfKernel f g) :=
   Fork.IsLimit.mk _
     (fun s => kernel.lift _ s.ι (by rw [CategoryTheory.Preadditive.comp_sub, sub_eq_zero, CategoryTheory.Limits.Fork.condition]))
-    (fun s => by apply kernel.lift_ι) fun s m hm => by ext; simpa only [kernel.lift_ι] using hm
+    (fun s => by apply kernel.lift_ι) fun s m hm => by apply equalizer.hom_ext; simpa only [kernel.lift_ι] using hm
 
 /-- The cofork given by the cokernel of the difference of two maps -/
 @[simps]
@@ -56,7 +56,7 @@ def coforkOfCokernelIsColimit [Preadditive C] [HasCokernel (f - g)] :
     IsColimit (coforkOfCokernel f g) :=
   Cofork.IsColimit.mk _
     (fun s => cokernel.desc _ s.π (by rw [CategoryTheory.Preadditive.sub_comp, sub_eq_zero, CategoryTheory.Limits.Cofork.condition]))
-    (fun s => by apply cokernel.π_desc) fun s m hm => by ext; simpa only [cokernel.π_desc] using hm
+    (fun s => by apply cokernel.π_desc) fun s m hm => by apply coequalizer.hom_ext; simpa only [cokernel.π_desc] using hm
 
 end CategoryTheory.Limits
 

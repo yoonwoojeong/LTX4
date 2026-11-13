@@ -9,15 +9,13 @@ universe w v u
 
 variable {C : Type u} [Category.{v} C]
 
-#print CategoryTheory.yoneda' /-
 @[simps]
 def yoneda' : C ⥤ Cᵒᵖ ⥤ Type max w v
     where
   obj X := yoneda.obj X ⋙ uliftFunctor.{w}
-  map X Y f := whiskerRight (yoneda.map f) _
-  map_id' X := by erw [Functor.map_id, whisker_right_id]; rfl
-  map_comp' X Y Z f g := by rw [functor.map_comp, whisker_right_comp]
--/
+  map f := whiskerRight (yoneda.map f) _
+  map_id X := by dsimp only; erw [Functor.map_id, whiskerRight_id]; rfl
+  map_comp f g := by dsimp only; rw [Functor.map_comp, whiskerRight_comp]
 
 open Opposite
 
@@ -32,8 +30,8 @@ def yoneda'Equiv (X : C) (F : Cᵒᵖ ⥤ Type max w v) : (yoneda'.{w}.obj X ⟶
     have := (f.naturality t.op).symm
     apply_fun fun e => e ⟨𝟙 _⟩ at this 
     dsimp at t this ⊢
-    rw [this, category.comp_id]
-  right_inv := by tidy
+    rw [this, Category.comp_id]
+  right_inv := by aesop_cat
 
 end CategoryTheory
 

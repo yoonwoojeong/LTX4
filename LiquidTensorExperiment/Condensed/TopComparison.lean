@@ -20,7 +20,6 @@ universe u
 
 open CategoryTheory
 
-#print Profinite.toCondensed /-
 def Profinite.toCondensed (T : Profinite.{u}) : CondensedSet
     where
   val := yoneda'.{u + 1}.obj T
@@ -65,9 +64,7 @@ def Profinite.toCondensed (T : Profinite.{u}) : CondensedSet
         ext : 2
         dsimp
         apply Profinite.π_descend
--/
 
-#print profiniteToCondensed /-
 @[simps]
 def profiniteToCondensed : Profinite ⥤ CondensedSet
     where
@@ -77,7 +74,6 @@ def profiniteToCondensed : Profinite ⥤ CondensedSet
   map_comp' X Y Z f g := by
     ext1; dsimp
     erw [yoneda.map_comp, whisker_right_comp]
--/
 
 def TopCat.toCondensed (T : TopCat.{u}) : CondensedSet
     where

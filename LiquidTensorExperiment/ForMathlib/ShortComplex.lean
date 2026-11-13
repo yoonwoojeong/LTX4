@@ -166,7 +166,6 @@ namespace CategoryTheory
 
 namespace Functor
 
-#print CategoryTheory.Functor.mapShortComplex /-
 @[simps]
 def mapShortComplex [HasZeroMorphisms C] [HasZeroMorphisms D] (F : C ⥤ D)
     [F.PreservesZeroMorphisms] : ShortComplex C ⥤ ShortComplex D :=
@@ -175,7 +174,6 @@ def mapShortComplex [HasZeroMorphisms C] [HasZeroMorphisms D] (F : C ⥤ D)
     have h := X.2
     dsimp [composable_morphisms.zero] at h ⊢
     rw [← F.map_comp, h, F.map_zero]
--/
 
 end Functor
 

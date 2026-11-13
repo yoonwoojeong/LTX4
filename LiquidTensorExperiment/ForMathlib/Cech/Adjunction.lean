@@ -24,7 +24,6 @@ section
 
 open SimplexCategory Opposite Limits.WidePullback
 
-#print CategoryTheory.SimplicialObject.hom_ext /-
 theorem hom_ext (X : SimplicialObject.Augmented C) (F : Arrow C) (f g : X ⟶ F.augmentedCechNerve)
     (hl : f.left.app (op [0]) = g.left.app (op [0])) (hr : f.right = g.right) : f = g :=
   by
@@ -34,7 +33,6 @@ theorem hom_ext (X : SimplicialObject.Augmented C) (F : Arrow C) (f g : X ⟶ F.
   · simp only [equivalence_right_to_left_left]
     rw [hl]
   · exact hr
--/
 
 -- move this
 @[simps]

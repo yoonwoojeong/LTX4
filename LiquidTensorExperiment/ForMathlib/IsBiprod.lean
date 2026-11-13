@@ -23,7 +23,7 @@ structure IsBiprod where
   inr_snd : inr ≫ snd = 𝟙 _
   inl_snd : inl ≫ snd = 0
   inr_fst : inr ≫ fst = 0
-  Total : fst ≫ inl + snd ≫ inr = 𝟙 _
+  total : fst ≫ inl + snd ≫ inr = 𝟙 _
 
 variable {inl inr fst snd}
 
@@ -34,12 +34,12 @@ noncomputable def isoBiprod [HasBinaryBiproduct A B] (h : IsBiprod C inl inr fst
     where
   hom := biprod.lift fst snd
   inv := biprod.desc inl inr
-  hom_inv_id' := by rw [biprod.lift_desc, h.total]
-  inv_hom_id' := by
+  hom_inv_id := by rw [biprod.lift_desc, h.total]
+  inv_hom_id := by
     ext <;>
       simp only [h.inl_fst, h.inl_snd, h.inr_fst, h.inr_snd, biprod.inl_fst, biprod.inl_snd,
-        biprod.inr_fst, biprod.inr_snd, biprod.lift_fst, biprod.lift_snd, category.comp_id,
-        biprod.inl_desc_assoc, biprod.inr_desc_assoc, category.assoc]
+        biprod.inr_fst, biprod.inr_snd, biprod.lift_fst, biprod.lift_snd, CategoryTheory.Category.comp_id,
+        biprod.inl_desc_assoc, biprod.inr_desc_assoc, CategoryTheory.Category.assoc]
 
 end IsBiprod
 
@@ -52,7 +52,7 @@ def mapIsBiprod [F.Additive] (h : IsBiprod C inl inr fst snd) :
   inr_snd := by rw [← F.map_comp, h.inr_snd, F.map_id]
   inl_snd := by rw [← F.map_comp, h.inl_snd, F.map_zero]
   inr_fst := by rw [← F.map_comp, h.inr_fst, F.map_zero]
-  Total := by rw [← F.map_comp, ← F.map_comp, ← F.map_add, h.total, F.map_id]
+  total := by rw [← F.map_comp, ← F.map_comp, ← F.map_add, h.total, F.map_id]
 
 end Functor
 
@@ -69,7 +69,7 @@ def isBiprod [HasBinaryBiproduct A B] : IsBiprod (A ⊞ B) biprod.inl biprod.inr
   inr_snd := biprod.inr_snd
   inl_snd := biprod.inl_snd
   inr_fst := biprod.inr_fst
-  Total := biprod.total
+  total := biprod.total
 
 end Biprod
 

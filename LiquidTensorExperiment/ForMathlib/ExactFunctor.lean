@@ -172,13 +172,10 @@ def homologyNatIso :
     simp only [comp_map, iso.hom_inv_id_assoc,
       ((HomologyMapDatum.tautological' φ).mapExactFunctor F).homology'_map_eq]
 
-#print CategoryTheory.Functor.homology'Iso /-
 def homology'Iso {X Y Z : A} (f : X ⟶ Y) (g : Y ⟶ Z) (w w') :
     F.obj (homology' f g w) ≅ homology' (F.map f) (F.map g) w' :=
   F.homologyNatIso.app (ShortComplex.mk f g w)
--/
 
-#print CategoryTheory.Functor.homology'FunctorIso /-
 def homology'FunctorIso {M : Type _} (c : ComplexShape M) (i : M) :
     homology'Functor A c i ⋙ F ≅ F.mapHomologicalComplex _ ⋙ homology'Functor B c i :=
   by
@@ -211,7 +208,6 @@ def homology'FunctorIso {M : Type _} (c : ComplexShape M) (i : M) :
   · exact iso_whisker_right (ShortComplex.functorHomologicalComplexMap F c i) _
   · apply associator
   · exact iso_whisker_left _ (ShortComplex.homologyFunctorIso B c i).symm
--/
 
 variable {F G}
 

@@ -55,19 +55,15 @@ theorem homology'_isZero {X Y Z : 𝓐} (hY : IsZero Y) (f : X ⟶ Y) (g : Y ⟶
 theorem isIso {X Y : 𝓐} (hX : IsZero X) (hY : IsZero Y) (f : X ⟶ Y) : IsIso f :=
   { out := ⟨0, hX.eq_of_src _ _, hY.eq_of_tgt _ _⟩ }
 
-#print CategoryTheory.Limits.IsZero.op /-
 theorem op {X : 𝓐} (h : IsZero X) : IsZero (op X) :=
   by
   rw [is_zero_iff_id_eq_zero] at h ⊢
   rw [← op_id, h, op_zero]
--/
 
-#print CategoryTheory.Limits.IsZero.unop /-
 theorem unop {X : 𝓐ᵒᵖ} (h : IsZero X) : IsZero (unop X) :=
   by
   rw [is_zero_iff_id_eq_zero] at h ⊢
   rw [← unop_id, h, unop_zero]
--/
 
 end IsZero
 

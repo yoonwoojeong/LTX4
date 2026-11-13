@@ -242,7 +242,6 @@ def h' (n : ℕ) :=
 
 /- warning: thm95.universal_constants.K₁ clashes with thm95.universal_constants.k₁ -> Thm95.UniversalConstants.k₁
 Case conversion may be inaccurate. Consider using '#align thm95.universal_constants.K₁ Thm95.UniversalConstants.k₁ₓ'. -/
-#print Thm95.UniversalConstants.k₁ /-
 /-- `K₁` is a sequence of nonnegative real numbers, defined recursively via
 * `K₁ 0 = 2 + (r + 1) / (r * (1 - r)) * 4`
 * `K₁ (m+1) = max (y (m+1) r) c`, where
@@ -257,7 +256,6 @@ noncomputable def k₁ : ℕ → ℝ≥0
     max (y (m + 1) r)
       (2 * NormedSpectral.k₀ m (K₁ m) *
         (H' m <| Helper.n₂ r' (k' m) (Helper.b r r' (k' m) (NormedSpectral.ε m (K₁ m)))))
--/
 
 /-- For all `m`, the number `K₁ m` is larger than `1`. -/
 instance one_le_k₁ : ∀ m, Fact (1 ≤ K₁ m)
@@ -277,11 +275,9 @@ instance one_le_k₁ : ∀ m, Fact (1 ≤ K₁ m)
 
 /- warning: thm95.universal_constants.K₀ clashes with thm95.universal_constants.k₀ -> Thm95.UniversalConstants.k₀
 Case conversion may be inaccurate. Consider using '#align thm95.universal_constants.K₀ Thm95.UniversalConstants.k₀ₓ'. -/
-#print Thm95.UniversalConstants.k₀ /-
 /-- `K₀ m` is the constant `K₀ m (K m)` used in the proof of `normed_spectral` -/
 abbrev k₀ : ℝ≥0 :=
   NormedSpectral.k₀ m (K₁ m)
--/
 
 /-- `ε m` is the constant `ε m (K m)` used in the proof of `normed_spectral` -/
 abbrev ε : ℝ≥0 :=
@@ -407,16 +403,13 @@ theorem boundBy_h {q : ℕ} (h : q ≤ m) :
 
 /- warning: thm95.universal_constants.K clashes with thm95.universal_constants.k -> Thm95.UniversalConstants.k
 Case conversion may be inaccurate. Consider using '#align thm95.universal_constants.K Thm95.UniversalConstants.kₓ'. -/
-#print Thm95.UniversalConstants.k /-
 /-- `K m` is defined to be `2 * K₀ m (K₁ m) * H m`,
 where `K₀ m (K₁ m)` is one of the constants used in the proof of `normed_spectral`. -/
 def k : ℝ≥0 :=
   2 * NormedSpectral.k₀ m (K₁ m) * H m
--/
 
 /- warning: thm95.universal_constants.one_le_K clashes with thm95.universal_constants.one_le_k -> Thm95.UniversalConstants.one_le_k
 Case conversion may be inaccurate. Consider using '#align thm95.universal_constants.one_le_K Thm95.UniversalConstants.one_le_kₓ'. -/
-#print Thm95.UniversalConstants.one_le_k /-
 instance one_le_k : Fact (1 ≤ K m) :=
   Fact.mk <|
     calc
@@ -426,12 +419,10 @@ instance one_le_k : Fact (1 ≤ K m) :=
         refine' mul_le_mul' (mul_le_mul' one_le_two <| (normed_spectral.one_le_K₀ _ _).1) _
         norm_cast
         apply one_le_H
--/
 
 /- warning: thm95.universal_constants.K_le_K₁ clashes with thm95.universal_constants.k_le_k₁ -> Thm95.UniversalConstants.k_le_k₁
 Case conversion may be inaccurate. Consider using '#align thm95.universal_constants.K_le_K₁ Thm95.UniversalConstants.k_le_k₁ₓ'. -/
 /- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic tactic.unfreeze_local_instances -/
-#print Thm95.UniversalConstants.k_le_k₁ /-
 /-- For all positive `m`, we have `K (m - 1) ≤ K₁ m`. -/
 instance k_le_k₁ [Fact (0 < m)] : Fact (K (m - 1) ≤ K₁ m) :=
   ⟨by
@@ -443,7 +434,6 @@ instance k_le_k₁ [Fact (0 < m)] : Fact (K (m - 1) ≤ K₁ m) :=
     simp only [K₁, Nat.succ_sub_succ_eq_sub, Nat.sub_zero, le_max_iff]
     right
     apply le_refl⟩
--/
 
 theorem k₁_spec : (m + 2 + (r + 1) / (r * (1 - r)) * (m + 2) ^ 2 : ℝ≥0) ≤ K₁ m :=
   by

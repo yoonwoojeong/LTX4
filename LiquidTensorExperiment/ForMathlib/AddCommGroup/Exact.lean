@@ -11,7 +11,6 @@ namespace AddCommGroupCat
 
 variable {A B C : AddCommGroupCat.{u}} (f : A ⟶ B) (g : B ⟶ C)
 
-#print AddCommGroupCat.exact_iff /-
 theorem exact_iff : Exact f g ↔ f.range = g.ker :=
   by
   rw [abelian.exact_iff' f g (kernel_is_limit _) (cokernel_is_colimit _)]
@@ -25,7 +24,6 @@ theorem exact_iff : Exact f g ↔ f.range = g.ker :=
     · ext ⟨x, hx⟩; dsimp [kernel_cone, cokernel_cocone]
       simpa only [comp_apply, AddSubgroup.coeSubtype, AddSubgroup.coe_mk,
         QuotientAddGroup.mk'_apply, QuotientAddGroup.eq_zero_iff, h] using hx
--/
 
 theorem exact_iff' : Exact f g ↔ f ≫ g = 0 ∧ g.ker ≤ f.range :=
   by

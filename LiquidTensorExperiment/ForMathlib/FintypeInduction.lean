@@ -1,4 +1,6 @@
 import Mathlib.Data.Fintype.Basic
+import Mathlib.Data.Fintype.Option
+import Mathlib.Data.Fintype.Sum
 import Mathlib.CategoryTheory.FintypeCat
 
 #align_import for_mathlib.fintype_induction
@@ -15,7 +17,7 @@ theorem FintypeCat.induction_empty_sum {P : FintypeCat.{u} → Prop}
     (α : FintypeCat.{u}) : P α :=
   by
   let Q : ∀ (α : Type u) [Fintype α], Prop := fun a h => P ⟨a, h⟩
-  have H := @Fintype.induction_empty_option Q _ _ _ α α.str
+  have H := @Fintype.induction_empty_option Q ?_ ?_ ?_ α α.str
   · cases α; exact H
   · intro α β _ e h
     haveI : Fintype α := Fintype.ofEquiv _ e.symm

@@ -39,23 +39,19 @@ instance one_le_k₀ : ∀ (m k) [Fact (1 ≤ k)], Fact (1 ≤ k₀ m k)
 
 /- warning: system_of_double_complexes.normed_spectral.K₀ clashes with system_of_double_complexes.normed_spectral.k₀ -> SystemOfDoubleComplexes.NormedSpectral.k₀
 Case conversion may be inaccurate. Consider using '#align system_of_double_complexes.normed_spectral.K₀ SystemOfDoubleComplexes.NormedSpectral.k₀ₓ'. -/
-#print SystemOfDoubleComplexes.NormedSpectral.k₀ /-
 /-- `K₀ m k` is a sequence of nonnegative real constants,
 depending on a natural number `m` and a nonnegative real number `K`.
 It is defined recursively, via `K₀ 0 K = K` and `K₀ (m+1) K = K₀ m (K^3 + K)`. -/
 def k₀ : ∀ (m : ℕ) (K : ℝ≥0), ℝ≥0
   | 0, K => K
   | m + 1, K => K₀ m (K * (K * K + 1))
--/
 
 /- warning: system_of_double_complexes.normed_spectral.one_le_K₀ clashes with system_of_double_complexes.normed_spectral.one_le_k₀ -> SystemOfDoubleComplexes.NormedSpectral.one_le_k₀
 Case conversion may be inaccurate. Consider using '#align system_of_double_complexes.normed_spectral.one_le_K₀ SystemOfDoubleComplexes.NormedSpectral.one_le_k₀ₓ'. -/
-#print SystemOfDoubleComplexes.NormedSpectral.one_le_k₀ /-
 /-- We have `1 ≤ K₀ m K` whenever `1 ≤ K` holds. -/
 instance one_le_k₀ : ∀ (m K) [Fact (1 ≤ K)], Fact (1 ≤ k₀ m K)
   | 0, K, hK => hK
   | m + 1, K, hK => by dsimp [K₀]; exact one_le_K₀ m _
--/
 
 end NormedSpectral
 

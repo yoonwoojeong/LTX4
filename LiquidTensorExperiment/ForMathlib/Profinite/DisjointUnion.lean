@@ -118,7 +118,6 @@ def sigmaCofanIsColimit : Limits.IsColimit (sigmaCofan X)
     convert h ⟨a⟩
     simp
 
-#print Profinite.pullback /-
 def pullback {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : Profinite
     where
   toCompHaus :=
@@ -132,45 +131,31 @@ def pullback {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : Profinite
         change T2Space {a : X × Y | f a.1 = g a.2}
         infer_instance }
   IsTotallyDisconnected := Subtype.totallyDisconnectedSpace
--/
 
-#print Profinite.pullback.fst /-
 def pullback.fst {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : pullback f g ⟶ X
     where toFun a := a.1.1
--/
 
-#print Profinite.pullback.snd /-
 def pullback.snd {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : pullback f g ⟶ Y
     where toFun a := a.1.2
--/
 
-#print Profinite.pullback.condition /-
 @[reassoc]
 theorem pullback.condition {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) :
     pullback.fst f g ≫ f = pullback.snd f g ≫ g := by ext ⟨t, ht⟩; exact ht
--/
 
-#print Profinite.pullback.lift /-
 def pullback.lift {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X) (e₂ : W ⟶ Y)
     (w : e₁ ≫ f = e₂ ≫ g) : W ⟶ pullback f g
     where toFun t := ⟨(e₁ t, e₂ t), by apply_fun fun ee => ee t at w ; exact w⟩
--/
 
-#print Profinite.pullback.lift_fst /-
 @[simp, reassoc]
 theorem pullback.lift_fst {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X)
     (e₂ : W ⟶ Y) (w : e₁ ≫ f = e₂ ≫ g) : pullback.lift f g e₁ e₂ w ≫ pullback.fst f g = e₁ := by
   ext; rfl
--/
 
-#print Profinite.pullback.lift_snd /-
 @[simp, reassoc]
 theorem pullback.lift_snd {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X)
     (e₂ : W ⟶ Y) (w : e₁ ≫ f = e₂ ≫ g) : pullback.lift f g e₁ e₂ w ≫ pullback.snd f g = e₂ := by
   ext; rfl
--/
 
-#print Profinite.pullback.hom_ext /-
 theorem pullback.hom_ext {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B)
     (e₁ e₂ : W ⟶ pullback f g) (w₁ : e₁ ≫ pullback.fst f g = e₂ ≫ pullback.fst f g)
     (w₂ : e₁ ≫ pullback.snd f g = e₂ ≫ pullback.snd f g) : e₁ = e₂ :=
@@ -178,7 +163,6 @@ theorem pullback.hom_ext {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B)
   ext t
   · apply_fun fun e => e t at w₁ ; exact w₁
   · apply_fun fun e => e t at w₂ ; exact w₂
--/
 
 def sigmaPullbackToPullbackSigma {B} (f : ∀ a, X a ⟶ B) :
     (sigma fun a : α × α => pullback (f a.1) (f a.2)) ⟶

@@ -128,10 +128,8 @@ theorem scaleIndexLeft_apply (C : SystemOfComplexes) (κ c : ℝ≥0) (i : ℕ) 
 
 /- warning: system_of_complexes.scale_index_left clashes with system_of_complexes.ScaleIndexLeft -> SystemOfComplexes.scaleIndexLeft
 Case conversion may be inaccurate. Consider using '#align system_of_complexes.scale_index_left SystemOfComplexes.scaleIndexLeftₓ'. -/
-#print SystemOfComplexes.scaleIndexLeft /-
 def scaleIndexLeft (C : SystemOfComplexes) (κ : ℝ≥0) :=
   (scaleIndexLeft κ).obj C
--/
 
 theorem Admissible.scaleIndexLeft {C : SystemOfComplexes} (hC : C.Admissible) (κ : ℝ≥0) :
     (C.scaleIndexLeft κ).Admissible :=
@@ -163,10 +161,8 @@ theorem scaleIndexRight_apply (C : SystemOfComplexes) (κ c : ℝ≥0) (i : ℕ)
 
 /- warning: system_of_complexes.scale_index_right clashes with system_of_complexes.ScaleIndexRight -> SystemOfComplexes.scaleIndexRight
 Case conversion may be inaccurate. Consider using '#align system_of_complexes.scale_index_right SystemOfComplexes.scaleIndexRightₓ'. -/
-#print SystemOfComplexes.scaleIndexRight /-
 def scaleIndexRight (C : SystemOfComplexes) (κ : ℝ≥0) :=
   (scaleIndexRight κ).obj C
--/
 
 theorem Admissible.scaleIndexRight {C : SystemOfComplexes} (hC : C.Admissible) (κ : ℝ≥0) :
     (C.scaleIndexRight κ).Admissible :=

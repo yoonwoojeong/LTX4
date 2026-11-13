@@ -36,15 +36,15 @@ variable [ReflectsIsomorphisms (forget D)]
 theorem CategoryTheory.GrothendieckTopology.isIso_sheafifyLift_of_isIso {F G : Cᵒᵖ ⥤ D} (η : F ⟶ G)
     (hG : IsSheaf J G) [h : IsIso η] : IsIso (J.sheafifyLift η hG) :=
   by
-  have hF : IsSheaf J F := by apply is_sheaf_of_iso _ (as_iso η) hG
+  have hF : IsSheaf J F := (CategoryTheory.Presheaf.isSheaf_of_iso_iff (asIso η)).mpr hG
   constructor
   use inv η ≫ J.toSheafify _
   constructor
   · apply J.sheafify_hom_ext _ _
     · exact CategoryTheory.GrothendieckTopology.Plus.isSheaf_plus_plus J F
-    simp only [← CategoryTheory.Category.assoc, J.to_sheafify_sheafify_lift, is_iso.hom_inv_id, category.id_comp,
-      category.comp_id]
-  · simp only [CategoryTheory.Category.assoc, J.to_sheafify_sheafify_lift, is_iso.inv_hom_id]
+    simp only [← CategoryTheory.Category.assoc, J.toSheafify_sheafifyLift, IsIso.hom_inv_id, Category.id_comp,
+      Category.comp_id]
+  · simp only [CategoryTheory.Category.assoc, J.toSheafify_sheafifyLift, IsIso.inv_hom_id]
 
 end CategoryTheory.Presheaf
 

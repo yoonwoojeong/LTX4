@@ -135,30 +135,24 @@ variable (𝒞)
 
 /- warning: category_theory.short_exact_sequence.Fst clashes with category_theory.short_exact_sequence.fst -> CategoryTheory.ShortExactSequence.fst
 Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Fst CategoryTheory.ShortExactSequence.fstₓ'. -/
-#print CategoryTheory.ShortExactSequence.fst /-
 @[simps]
 def fst : ShortExactSequence 𝒞 ⥤ 𝒞 where
   obj := fst
   map A B f := f.1
--/
 
 /- warning: category_theory.short_exact_sequence.Snd clashes with category_theory.short_exact_sequence.snd -> CategoryTheory.ShortExactSequence.snd
 Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Snd CategoryTheory.ShortExactSequence.sndₓ'. -/
-#print CategoryTheory.ShortExactSequence.snd /-
 @[simps]
 def snd : ShortExactSequence 𝒞 ⥤ 𝒞 where
   obj := snd
   map A B f := f.2
--/
 
 /- warning: category_theory.short_exact_sequence.Trd clashes with category_theory.short_exact_sequence.trd -> CategoryTheory.ShortExactSequence.trd
 Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Trd CategoryTheory.ShortExactSequence.trdₓ'. -/
-#print CategoryTheory.ShortExactSequence.trd /-
 @[simps]
 def trd : ShortExactSequence 𝒞 ⥤ 𝒞 where
   obj := trd
   map A B f := f.3
--/
 
 @[simps]
 def fNat : fst 𝒞 ⟶ snd 𝒞 where
@@ -247,7 +241,6 @@ theorem functorMap_naturality {A B : ShortExactSequence 𝒞} (f : A ⟶ B) :
 
 /- warning: category_theory.short_exact_sequence.Functor clashes with category_theory.short_exact_sequence.functor -> CategoryTheory.ShortExactSequence.functor
 Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Functor CategoryTheory.ShortExactSequence.functorₓ'. -/
-#print CategoryTheory.ShortExactSequence.functor /-
 @[simps]
 def functor : ShortExactSequence 𝒞 ⥤ Fin 3 ⥤ 𝒞
     where
@@ -257,7 +250,6 @@ def functor : ShortExactSequence 𝒞 ⥤ Fin 3 ⥤ 𝒞
       naturality' := fun i j hij => (functorMap_naturality f i j hij.le).symm }
   map_id' A := by ext i; fin_cases i <;> rfl
   map_comp' A B C f g := by ext i; fin_cases i <;> rfl
--/
 
 end ShortExactSequence
 

@@ -27,20 +27,16 @@ universe w v u
 
 variable {C : Type u} [Category.{v} C]
 
-#print CondensedSet /-
 /-- The category of condensed sets. -/
 def CondensedSet : Type (u + 2) :=
   Sheaf proetaleTopology.{u} (Type (u + 1))
 deriving Category
--/
 
-#print Condensed /-
 /-- The category of condensed `A`. Applying this to `A = Type*` is *equivalent* but not the same
 as `CondensedSet`. -/
 def Condensed (C : Type u) [Category.{v} C] :=
   Sheaf proetaleTopology.{w} C
 deriving Category
--/
 
 example : Category.{u + 1} (Condensed.{u} Ab.{u + 1}) :=
   inferInstance

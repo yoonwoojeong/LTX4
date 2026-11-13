@@ -98,7 +98,6 @@ variable {G : C ⥤ D} [Full G] [Faithful G]
 variable (Hd : CategoryTheory.Functor.IsCoverDense K G) (Hp : CoverPreserving J K G)
   (Hl : CategoryTheory.Functor.IsCocontinuous J K G)
 
-#print CategoryTheory.Functor.IsCoverDense.sheafEquivOfCoverPreservingCoverLiftingSheafificationCompatibility /-
 /-- The isomorphism exhibiting the compatibiility of
 `Sheaf_equiv_of_cover_preserving_cover_lifting` with sheafification. -/
 noncomputable abbrev
@@ -108,7 +107,6 @@ noncomputable abbrev
         (CategoryTheory.Functor.IsCoverDense.sheafEquivOfCoverPreservingCoverLifting Hd Hp
             Hl).inverse :=
   CategoryTheory.Sites.pullbackSheafificationCompatibility _ _ Hl _
--/
 
 end CategoryTheory.Functor.IsCoverDense
 
