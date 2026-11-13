@@ -10,22 +10,24 @@
     "leanPath": [
       "./.lake/packages/mathlib/.lake/build/lib",
       "./.lake/packages/Qq/.lake/build/lib",
-      "./.lake/packages/batteries/.lake/build/lib",
+      "./.lake/packages/std/.lake/build/lib",
       "./.lake/packages/aesop/.lake/build/lib",
       "./.lake/packages/proofwidgets/.lake/build/lib",
-      "./.lake/packages/importGraph/.lake/build/lib",
       "./.lake/packages/Cli/.lake/build/lib",
       "./Oneshot/lean4-in/.lake/build/lib",
       "./Outputs/oleans/leanbin",
       "./Outputs/oleans/mathbin",
       "./Outputs/oleans/oneshot",
-      "./Outputs/oleans/liquidTensorExperiment"
+      "./Outputs/oleans/liquidTensorExperiment",
+      "./Outputs/oleans/lteextra"
     ]
   },
   "baseModules": [
     "Mathlib"
   ],
-  "extraModules": [],
+  "extraModules": [
+    "LteAligns"
+  ],
   "stringsToKeep": [
     "_sunfold",
     "equations",
@@ -69,7 +71,7 @@
   ],
   "sorries": [],
   "skipProofs": true,
-  "skipDefEq": false,
+  "skipDefEq": true,
   "replacementStyle": "comment",
   "redundantAlign": false,
   "error2warning": true,

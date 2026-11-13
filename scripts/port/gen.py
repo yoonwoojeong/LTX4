@@ -1,8 +1,8 @@
 import json,os,glob
-NEW='/home/user/src/mathport/sources/mathlib/src'
-OUT='/home/user/src/mathport/Outputs/oleans/mathbin'
-SRC='/home/user/src/shims/src'
-ir=json.load(open('/home/user/src/importRename.json'))
+NEW='/home/user/src/mathport23/sources/mathlib/src'
+OUT='/home/user/src/mathport23/Outputs/oleans/mathbin'
+SRC='/home/user/src/shims23/src'
+ir=json.load(open('/home/user/src/importRename23.json'))
 def s2p(s): 
     r=''.join(x[:1].upper()+x[1:] for x in s.split('_'))
     if s.startswith('_'): r='_'+r
@@ -36,7 +36,7 @@ for m,repl in missing.items():
     if repl is None:
         d=os.path.join(NEW,*m.split('.'))
         repl=sorted(os.path.relpath(f,NEW)[:-6].replace('/','.') for f in glob.glob(d+'/**/*.tlean',recursive=True))
-    imps=['Mathbin.'+ir[r][len('Mathlib.'):] for r in repl if r in ir]
+    imps=['Mathbin.'+'.'.join(s2p(c) for c in r.split('.')) for r in repl]
     mod4='Mathbin.'+'.'.join(s2p(c) for c in m.split('.'))
     p=os.path.join(SRC,*mod4.split('.'))+'.lean'
     os.makedirs(os.path.dirname(p),exist_ok=True)
@@ -44,5 +44,5 @@ for m,repl in missing.items():
     t=os.path.join(NEW,*m.split('.'))+'.tlean'; os.makedirs(os.path.dirname(t),exist_ok=True)
     open(t,'a').close()
     mods.append(mod4)
-open('/home/user/src/shims/mods.txt','w').write('\n'.join(mods)+'\n')
+open('/home/user/src/shims23/mods.txt','w').write('\n'.join(mods)+'\n')
 print(len(mods))

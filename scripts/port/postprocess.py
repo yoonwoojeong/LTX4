@@ -1,6 +1,7 @@
 """Copy mathport synport output into the Lean 4 project, rewriting imports only.
 
-* `import X` (mathlib4 module emitted without prefix)  -> `import Mathlib.X`
+* `import X` (local LTE module) -> `import LiquidTensorExperiment.X`
+* `import X` (mathlib3 module, snake2pascal) -> mathlib4 module from `#align_import`
 * `import Mathbin.Tactic.Default` (Lean 3 `import tactic`) -> `import Mathlib.Tactic`
 * `import Mathbin.<shim>` (mathlib3 modules split/renamed after LTE's pinned
   mathlib3 commit) -> the mathlib4 successors listed in the shim
@@ -8,24 +9,39 @@
 No proof or statement text is modified.
 """
 import os, re, sys, shutil
-SRC, SHIMS, MATHLIB, DST = sys.argv[1:5]
+SRC, SHIMS, MATHLIB, DST, IMPORT_RENAME = sys.argv[1:6]
+import json
+def s2p(x):
+    r = ''.join(c[:1].upper() + c[1:] for c in x.split('_'))
+    return ('_' if x.startswith('_') else '') + r + ('_' if x.endswith('_') and len(x) > 1 else '')
+# mathport (nightly-2023-11-30) names mathlib3 modules by snake2pascal of the mathlib3 path;
+# map those to the real mathlib4 module via mathlib4's `#align_import` table.
+via_align = {'.'.join(s2p(c) for c in k.split('.')): v
+             for k, v in json.load(open(IMPORT_RENAME)).items()}
+local = set()
+for root, _, fs in os.walk(SRC):
+    for f in fs:
+        if f.endswith('.lean'):
+            local.add(os.path.relpath(os.path.join(root, f[:-5]), SRC).replace('/', '.'))
 shim = {}
 for root, _, fs in os.walk(SHIMS):
     for f in fs:
         if f.endswith('.lean'):
             mod = os.path.relpath(os.path.join(root, f[:-5]), SHIMS).replace('/', '.')
             imps = re.findall(r'^import (\S+)', open(os.path.join(root, f)).read(), re.M)
-            shim[mod] = ['Mathlib.' + i[len('Mathbin.'):] for i in imps]
+            shim[mod] = [via_align.get(i[len('Mathbin.'):], 'Mathlib.' + i[len('Mathbin.'):]) for i in imps]
 shim['Mathbin.CategoryTheory.Additive.Basic'] = ['LiquidTensorExperiment.Compat.AdditiveCategory']
 def exists(mod):
     return os.path.exists(os.path.join(MATHLIB, *mod.split('.')) + '.lean')
 unresolved = set()
 def rewrite(m):
     if m.startswith('LiquidTensorExperiment.'): return [m]
+    if m in local: return ['LiquidTensorExperiment.' + m]
     if m.startswith('Leanbin.'): return []
     if m == 'Mathbin.Tactic.Default': return ['Mathlib.Tactic']
     if m in shim: return shim[m]
     if m.startswith('Mathbin.'): m = m[len('Mathbin.'):]
+    if m in via_align: return [via_align[m]]
     if exists('Mathlib.' + m): return ['Mathlib.' + m]
     unresolved.add(m); return ['Mathlib.' + m]
 n = 0

@@ -1,7 +1,7 @@
 import os,re,subprocess,sys,time
 from concurrent.futures import ThreadPoolExecutor
 import threading
-SRC='/home/user/src/lean-liquid/src'; MP='/home/user/src/mathport'; LOG='/home/user/src/portlogs'
+SRC='/home/user/src/lean-liquid/src'; MP='/home/user/src/mathport23'; LOG='/home/user/src/portlogs23'
 J=int(sys.argv[1]) if len(sys.argv)>1 else 3
 def s2p(s):
     r=''.join(x[:1].upper()+x[1:] for x in s.split('_'))
@@ -34,6 +34,9 @@ def olean(m): return os.path.join(MP,'Outputs/oleans/liquidTensorExperiment/Liqu
 status={}; lock=threading.Lock(); cv=threading.Condition(lock)
 def run(m):
     t=time.time()
+    if os.path.exists(olean(m)):
+        with cv: status[m]='ok'; cv.notify_all()
+        return
     with open(os.path.join(LOG,m+'.log'),'w') as lf:
         r=subprocess.run([MP+'/.lake/build/bin/mathport','config-lte.json','LiquidTensorExperiment::'+m],cwd=MP,stdout=lf,stderr=subprocess.STDOUT)
     ok= r.returncode==0 and os.path.exists(olean(m))
