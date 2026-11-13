@@ -9,7 +9,7 @@ carries the `#align` data mathport relies on. Upgrading to a modern mathlib4 is 
 separate, later step (`lake update` after changing the `require` below).
 -/
 
-package «liquid-tensor-experiment» where
+package liquid_tensor_experiment where
   leanOptions := #[⟨`autoImplicit, true⟩, ⟨`relaxedAutoImplicit, true⟩]
 
 require mathlib from git
