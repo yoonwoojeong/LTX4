@@ -39,8 +39,7 @@ theorem support_add_smul_of (a : FreeAbelianGroup X) (n : ℤ) (hn : n ≠ 0) (x
     simp only [Finset.mem_insert]
     rintro (rfl | hya)
     · rw [not_mem_support_iff] at hxa 
-      simp only [coeff, AddMonoidHom.coe_comp, Finsupp.applyAddHom_apply, Function.comp_apply] at
-        hxa 
+      simp only [coeff, AddMonoidHom.coe_comp, Finsupp.applyAddHom_apply, Function.comp_apply] at hxa
       simp only [support, AddMonoidHom.map_add, Pi.add_apply, Finsupp.mem_support_iff, Ne.def,
         Finsupp.coe_add, hxa, zero_add, AddMonoidHom.map_zsmul, FreeAbelianGroup.toFinsupp_of]
       rw [← Finsupp.singleAddHom_apply, ← AddMonoidHom.map_zsmul, zsmul_one]
@@ -57,7 +56,8 @@ theorem support_add_smul_of (a : FreeAbelianGroup X) (n : ℤ) (hn : n ≠ 0) (x
 
 theorem support_sum (s : Finset X) (n : X → ℤ) : support (∑ x in s, n x • of x) ⊆ s :=
   by
-  apply Finset.induction_on s
+  -- Porting note: `apply <eliminator>` needs an expected type in Lean 4
+  refine Finset.induction_on s ?_ ?_
   · simp only [Finset.empty_subset, Finset.sum_empty, support_zero]
   intro x s hxs IH
   rw [Finset.sum_insert hxs]
@@ -81,7 +81,7 @@ theorem sum_support_coeff (a : FreeAbelianGroup X) : ∑ x in a.support, coeff x
   by
   apply (FreeAbelianGroup.equivFinsupp X).injective
   simp only [FreeAbelianGroup.equivFinsupp_apply]
-  rw [← Finsupp.sum_single a.toFinsupp, Finsupp.sum]
+  rw [← Finsupp.sum_single (FreeAbelianGroup.toFinsupp a), Finsupp.sum]
   simp only [AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, FreeAbelianGroup.toFinsupp_of]
   apply Finset.sum_congr rfl
   intro x hx
@@ -99,14 +99,18 @@ protected theorem induction_on'' {P : FreeAbelianGroup X → Prop} (a : FreeAbel
   rw [← sum_support_coeff a]
   generalize hs : a.support = s
   classical
-  apply Finset.induction_on s <;> clear! s
+  -- Porting note: `apply <eliminator>` needs an expected type in Lean 4
+  refine Finset.induction_on s ?_ ?_ <;> clear! s
   · simpa only [Finset.sum_empty]
   intro x s hxs IH
   rw [Finset.sum_insert hxs, add_comm]
   by_cases hxa : coeff x a = 0
   · rw [hxa, zero_smul, add_zero]; exact IH
   apply h2 _ _ hxa _ _ IH
-  · intro n; by_cases hn : n = 0; · rwa [hn, zero_smul]; exact h1 n hn x
+  · intro n
+    by_cases hn : n = 0
+    · rwa [hn, zero_smul]
+    · exact h1 n hn x
   contrapose! hxs
   apply support_sum _ _ hxs
 
@@ -148,11 +152,11 @@ def addSubgroup (h : FreePredicate Q) : AddSubgroup (FreeAbelianGroup X)
     where
   carrier := {a | Q a}
   zero_mem' := h.zero
-  add_mem' a b ha hb := h.add ha hb
-  neg_mem' a ha := h.neg ha
+  add_mem' := fun ha hb => h.add ha hb
+  neg_mem' := fun ha => h.neg ha
 
 theorem zsmul (h : FreePredicate Q) (n : ℤ) (ha : Q a) : Q (n • a) :=
-  AddSubgroup.zsmul_mem h.addSubgroup ha n
+  AddSubgroup.zsmul_mem h.addSubgroup (show a ∈ h.addSubgroup from ha) n
 
 theorem of_zsmul (h : FreePredicate Q) (n : ℤ) (hn : n ≠ 0) (ha : Q (n • a)) : Q a := by
   rw [h] at ha ⊢; simpa only [support_zsmul n hn] using ha
@@ -160,7 +164,8 @@ theorem of_zsmul (h : FreePredicate Q) (n : ℤ) (hn : n ≠ 0) (ha : Q (n • a
 theorem zsmul_iff (h : FreePredicate Q) (n : ℤ) (hn : n ≠ 0) : Q (n • a) ↔ Q a :=
   ⟨h.of_zsmul n hn, h.zsmul n⟩
 
-theorem smul (h : FreePredicate Q) (n : ℤ) (ha : Q a) : Q (n • a) := by rw [← zsmul_eq_smul];
+theorem smul (h : FreePredicate Q) (n : ℤ) (ha : Q a) : Q (n • a) := by
+  rw [← zsmul_eq_smul]
   apply h.zsmul _ ha
 
 theorem of_smul (h : FreePredicate Q) (n : ℤ) (hn : n ≠ 0) (ha : Q (n • a)) : Q a := by
@@ -199,7 +204,8 @@ protected theorem induction_on_freePredicate {P : FreeAbelianGroup X → Prop}
       have hQnx : Q (n • of x) := hQ.smul_nat n hQ1x
       rw [Nat.succ_eq_add_one, add_smul, one_smul]
       apply hadd _ _ hQnx hQ1x (ih hQnx) (hof _ hQ1x)
-  apply FreeAbelianGroup.induction_on'' a
+  -- Porting note: `apply <eliminator>` needs an expected type in Lean 4
+  refine FreeAbelianGroup.induction_on'' a ?_ ?_ ?_
   · intro; exact hP0
   · intro n hn x
     cases' le_or_lt 0 n with h0n hn0
@@ -226,7 +232,8 @@ theorem mem_support_map {X Y : Type _} (f : X → Y) (hf : Function.Injective f)
     (a : FreeAbelianGroup X) (y : Y) : y ∈ (map f a).support ↔ ∃ x, x ∈ a.support ∧ y = f x :=
   by
   revert y
-  apply FreeAbelianGroup.induction_on'' a <;> clear a
+  -- Porting note: `apply <eliminator>` needs an expected type in Lean 4
+  refine FreeAbelianGroup.induction_on'' a ?_ ?_ ?_ <;> clear a
   · intro y
     simp only [Finset.not_mem_empty, exists_false, support_zero, AddMonoidHom.map_zero,
       false_and_iff]

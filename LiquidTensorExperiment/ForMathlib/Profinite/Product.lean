@@ -19,8 +19,9 @@ open CategoryTheory
 /-- An explicit cone for the product of two profinite sets. -/
 @[simps]
 def prodCone : Cone (pair X Y) :=
-  Limits.BinaryFan.mk (⟨Prod.fst⟩ : Profinite.of (X × Y) ⟶ X)
-    (⟨Prod.snd⟩ : Profinite.of (X × Y) ⟶ Y)
+  -- Porting note: the continuity proofs are given explicitly (Lean 3 filled them in automatically)
+  Limits.BinaryFan.mk (⟨Prod.fst, continuous_fst⟩ : Profinite.of (X × Y) ⟶ X)
+    (⟨Prod.snd, continuous_snd⟩ : Profinite.of (X × Y) ⟶ Y)
 
 /-
 { X := Profinite.of (X × Y),
@@ -43,7 +44,10 @@ def prodCone : Cone (pair X Y) :=
 @[simps]
 def isLimitProdCone : IsLimit (prodCone X Y)
     where
-  lift S := { toFun := fun t => ⟨S.π.app ⟨WalkingPair.left⟩ t, S.π.app ⟨WalkingPair.right⟩ t⟩ }
+  lift S := { toFun := fun t => ⟨S.π.app ⟨WalkingPair.left⟩ t, S.π.app ⟨WalkingPair.right⟩ t⟩
+              continuous_toFun := by
+                -- Porting note: explicit continuity proof, `aesop` cannot see through the cone
+                exact Continuous.prod_mk (ContinuousMap.continuous _) (ContinuousMap.continuous _) }
   fac := by
     rintro S (_ | _)
     · ext; rfl
@@ -51,15 +55,17 @@ def isLimitProdCone : IsLimit (prodCone X Y)
   uniq := by
     rintro S m h
     ext x
+    -- Porting note: `ext x` leaves a single `Prod` equality, so split it with `Prod.ext`
+    apply Prod.ext
     · specialize h ⟨CategoryTheory.Limits.WalkingPair.left⟩
-      apply_fun fun e => e x at h 
+      apply_fun fun e => e x at h
       exact h
     · specialize h ⟨WalkingPair.right⟩
-      apply_fun fun e => e x at h 
+      apply_fun fun e => e x at h
       exact h
 
 /-- The isomorphism between the categorical product and the "usual" product. -/
-@[simps Hom inv]
+@[simps hom inv]
 noncomputable def prodIso : X ⨯ Y ≅ Profinite.of (X × Y) :=
   (limit.isLimit _).conePointUniqueUpToIso (isLimitProdCone X Y)
 
