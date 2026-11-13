@@ -41,9 +41,10 @@ theorem isZero_iff_id_eq_zero {X : C} : IsZero X ↔ 𝟙 X = 0 :=
   by
   constructor
   · exact fun h => h.eq_of_src _ _
-  · intro e; constructor <;> intro Y <;> use 0 <;> intro f
-    · rw [← cancel_epi (𝟙 _), e, comp_zero, zero_comp]; infer_instance
-    · rw [← cancel_mono (𝟙 _), e, comp_zero, zero_comp]; infer_instance
+  -- Porting note: Lean 3 `use 0, intro f` built the `unique` from `0`; done explicitly here.
+  · intro e; constructor <;> intro Y <;> refine ⟨⟨⟨0⟩, fun f => (?_ : f = 0)⟩⟩
+    · rw [← cancel_epi (𝟙 _), e, comp_zero, zero_comp]
+    · rw [← cancel_mono (𝟙 _), e, comp_zero, zero_comp]
 
 theorem isZero_of_mono {X Y : C} (f : X ⟶ Y) [Mono f] (h : IsZero Y) : IsZero X := by
   rw [CategoryTheory.Limits.isZero_iff_id_eq_zero, ← cancel_mono f, zero_comp, h.eq_of_tgt (𝟙 _ ≫ f)]
@@ -53,13 +54,13 @@ theorem isZero_of_epi {X Y : C} (f : X ⟶ Y) [Epi f] (h : IsZero X) : IsZero Y 
 
 theorem isZero_of_top_le_bot [HasZeroObject C] (X : C) (h : (⊤ : Subobject X) ≤ ⊥) : IsZero X :=
   { unique_to := fun Y => by
-      use 0; intro f
+      refine ⟨⟨⟨0⟩, fun f => (?_ : f = 0)⟩⟩
       rw [← cancel_epi (⊤ : CategoryTheory.Subobject X).arrow, ← CategoryTheory.Subobject.ofLE_arrow h]
       simp only [CategoryTheory.Subobject.bot_arrow, comp_zero, zero_comp]
     unique_from := fun Y => by
-      use 0; intro f
+      refine ⟨⟨⟨0⟩, fun f => (?_ : f = 0)⟩⟩
       rw [← CategoryTheory.Subobject.bot_factors_iff_zero]
-      exact subobject.factors_of_le f h (subobject.top_factors f) }
+      exact CategoryTheory.Subobject.factors_of_le f h (CategoryTheory.Subobject.top_factors f) }
 
 -- inline this
 theorem isZero_of_iso_of_zero {C : Type _} [Category C] [HasZeroMorphisms C] {X : C} (hX : IsZero X)
@@ -83,8 +84,9 @@ theorem isZero_iff_exact_zero_zero {C : Type _} [Category C] [Abelian C] {X Y Z 
   ⟨fun h => exact_of_isZero h 0 0, isZero_of_exact_zero_zero⟩
 
 theorem isZero_of_exact_zero_zero' {C : Type _} [Category C] [Abelian C] {X Y Z : C} (f : X ⟶ Y)
-    (g : Y ⟶ Z) (h : Exact f g) (hf : f = 0) (hg : g = 0) : IsZero Y := by rw [hf, hg] at h ;
-  exact is_zero_of_exact_zero_zero h
+    (g : Y ⟶ Z) (h : Exact f g) (hf : f = 0) (hg : g = 0) : IsZero Y := by
+  rw [hf, hg] at h
+  exact CategoryTheory.Limits.isZero_of_exact_zero_zero h
 
 theorem isZero_of_exact_isZero_isZero {C : Type _} [Category C] [Abelian C] {X Y Z : C} (f : X ⟶ Y)
     (g : Y ⟶ Z) (h : Exact f g) (hX : IsZero X) (hZ : IsZero Z) : IsZero Y :=
@@ -259,7 +261,8 @@ instance preserves_zero_of_preserves_initial {C : Type u₁} {D : Type u₂} [Ca
     replace e : F.obj X ≅ F.obj (⊥_ _) := F.mapIso e
     apply CategoryTheory.Limits.isZero_of_iso_of_zero _ e.symm
     have : F.obj (⊥_ _) ≅ ⊥_ _ := by
-      apply (config := { instances := false }) limits.preserves_initial.iso; assumption
+      -- Porting note: Lean 3 `apply_with preserves_initial.iso {instances := ff}, assumption`
+      exact CategoryTheory.Limits.PreservesInitial.iso F
     apply CategoryTheory.Limits.isZero_of_iso_of_zero _ this.symm
     exact CategoryTheory.Limits.isZero_initial
 
@@ -277,7 +280,7 @@ instance preserves_zero_of_preserves_terminal {C : Type u₁} {D : Type u₂} [C
     replace e : F.obj X ≅ F.obj (⊤_ _) := F.mapIso e
     apply CategoryTheory.Limits.isZero_of_iso_of_zero _ e.symm
     have : F.obj (⊤_ _) ≅ ⊤_ _ := by
-      apply (config := { instances := false }) limits.preserves_terminal.iso; assumption
+      exact CategoryTheory.Limits.PreservesTerminal.iso F
     apply CategoryTheory.Limits.isZero_of_iso_of_zero _ this.symm
     exact CategoryTheory.Limits.isZero_terminal
 
@@ -295,8 +298,8 @@ theorem isZero_biprod {C : Type u₁} [Category.{v} C] [Abelian C] (X Y : C) (hX
     (hY : IsZero Y) : IsZero (biprod X Y) :=
   by
   constructor
-  · intro W; use 0; intro f; ext; simp; apply hX.eq_of_src; simp; apply hY.eq_of_src
-  · intro W; use 0; intro f; ext; simp; apply hX.eq_of_tgt; simp; apply hY.eq_of_tgt
+  · intro W; refine ⟨⟨⟨0⟩, fun f => (?_ : f = 0)⟩⟩; ext; simp; apply hX.eq_of_src; simp; apply hY.eq_of_src
+  · intro W; refine ⟨⟨⟨0⟩, fun f => (?_ : f = 0)⟩⟩; ext; simp; apply hX.eq_of_tgt; simp; apply hY.eq_of_tgt
 
 end Limits
 
