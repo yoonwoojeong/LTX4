@@ -112,6 +112,14 @@ manual change made so far:
 * **Restored LTE definitions** that mathport had commented out (see step 7), e.g.
   `QuotientMap.homeomorph`, `CategoryTheory.yoneda'`.
 * Tactic substitutions where the Lean 3 tactic does not exist: `tidy` → `aesop_cat`.
+* **Lean 3 metaprograms**: mathport cannot translate `meta def` tactics and stubs them as
+  `unsafe def … := sorry`. These are being rewritten as Lean 4 macros/elaborators that run
+  the same tactic script (`hom_tac`, `map_tac`, `aux_simp`, `aux_tac`, `fact_arith`); the
+  rest are listed in `PORTING_STATUS.md`. In particular `ChallengeNotations.lean` (part of
+  the challenge statement) had its `by fact_arith` replaced by a no-op `trace` by mathport;
+  this is restored.
+* Naming: mathport lowercases definitions, so LTE's `Ext'`/`liquid_tensor_experiment.Ext`
+  are `ext'`/`LiquidTensorExperiment.ext` (consistently across the project).
 
 Every such change was checked against the Lean 3 statement; where coercion placement was
 in doubt it was checked with Lean 3 itself (e.g. `nnreal.fact_two_pow_inv_le_two_pow_inv`).

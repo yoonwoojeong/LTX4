@@ -196,25 +196,22 @@ def functorMap {A B : ShortExactSequence 𝒞} (f : A ⟶ B) : ∀ i, A.Functor.
   | ⟨2, h⟩ => f.3
   | ⟨i + 3, hi⟩ => by exfalso; revert hi; decide
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:337:4: warning: unsupported (TODO): `[tacs] -/
-unsafe def aux_tac : tactic Unit :=
-  sorry
+-- Porting note: Lean 3 `meta def aux_tac` was
+-- `simp only [hom_of_le_refl, functor.map_id, category.id_comp, category.comp_id]`;
+-- re-expressed as a Lean 4 macro.
+macro "aux_tac" : tactic =>
+  `(tactic| simp only [CategoryTheory.homOfLE_refl, CategoryTheory.Functor.map_id,
+    CategoryTheory.Category.id_comp, CategoryTheory.Category.comp_id])
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.short_exact_sequence.aux_tac -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.short_exact_sequence.aux_tac -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.short_exact_sequence.aux_tac -/
 theorem functorMap_naturality {A B : ShortExactSequence 𝒞} (f : A ⟶ B) :
     ∀ (i j : Fin 3) (hij : i ≤ j),
       functorMap f i ≫ B.Functor.map hij.hom = A.Functor.map hij.hom ≫ functorMap f j
   | ⟨0, hi⟩, ⟨0, hj⟩, hij => by
-    run_tac
-      aux_tac
+    aux_tac
   | ⟨1, hi⟩, ⟨1, hj⟩, hij => by
-    run_tac
-      aux_tac
+    aux_tac
   | ⟨2, hi⟩, ⟨2, hj⟩, hij => by
-    run_tac
-      aux_tac
+    aux_tac
   | ⟨0, hi⟩, ⟨1, hj⟩, hij => f.sq1
   | ⟨1, hi⟩, ⟨2, hj⟩, hij => f.sq2
   | ⟨i + 3, hi⟩, _, _ => by exfalso; revert hi; decide

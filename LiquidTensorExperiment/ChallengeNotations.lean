@@ -21,28 +21,38 @@ variable (p' p : ℝ≥0) [Fact (0 < p')] [Fact (p' ≤ 1)] [Fact (p' < p)]
 
 section
 
-open Tactic
+open Lean Elab Tactic Meta
 
-unsafe def tactic.extract_facts : tactic Unit := do
-  let ctx ← local_context
-  ctx fun hyp => do
-      let hyp_tp ← infer_type hyp
-      when (hyp_tp `fact) <| (mk_app `fact.out [hyp] >>= note_anon none) >> skip
+-- Porting note: Lean 3 `meta def tactic.extract_facts` / `tactic.interactive.fact_arith`
+-- re-expressed in Lean 4 (mathport cannot translate Lean 3 metaprograms). Same behaviour:
+-- add `h.out` for every hypothesis `h : Fact p`, then try
+-- `norm_cast at *; simp only [← NNReal.coe_lt_coe, ← NNReal.coe_le_coe] at *;
+--  refine Fact.mk ?_; linarith`, falling back to instance search.
+/-- Add `h.out : p` to the context for each local hypothesis `h : Fact p`. -/
+elab "extract_facts" : tactic => withMainContext do
+  for h in (← getLCtx) do
+    if h.isImplementationDetail then continue
+    if (← instantiateMVars h.type).isAppOf ``Fact then
+      let pf ← mkAppOptM ``Fact.out #[none, some h.toExpr]
+      let g ← getMainGoal
+      let (_, g') ← (← g.assert `this (← inferType pf) pf).intro1P
+      replaceMainGoal [g']
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:337:4: warning: unsupported (TODO): `[tacs] -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:337:4: warning: unsupported (TODO): `[tacs] -/
-unsafe def tactic.interactive.fact_arith : tactic Unit :=
-  tactic.extract_facts >> sorry <|> sorry
+macro "fact_arith" : tactic =>
+  `(tactic| first
+    | (extract_facts
+       norm_cast at *
+       simp only [← NNReal.coe_lt_coe, ← NNReal.coe_le_coe] at *
+       refine Fact.mk ?_
+       linarith)
+    | infer_instance)
 
 end
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `fact_arith #[] -/
 scoped[LiquidTensorExperiment]
   notation "ℳ_{" p' "}" S =>
     (@RealMeasures.condensed p' _
-          (by
-            trace
-              "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `fact_arith #[]")).obj
+          (by fact_arith)).obj
       S
 
 abbrev LiquidTensorExperiment.ext (i : ℤ) (A B : Condensed.{u} Ab.{u + 1}) :=

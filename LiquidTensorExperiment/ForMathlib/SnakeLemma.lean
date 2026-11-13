@@ -93,15 +93,16 @@ def o (i : Fin 4) (j : Fin 3) : SnakeDiagram :=
 theorem o_le_o (i j : Fin 4) (k l : Fin 3) : o i k ≤ o j l ↔ i ≤ j ∧ k ≤ l :=
   Iff.rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:337:4: warning: unsupported (TODO): `[tacs] -/
-unsafe def hom_tac : tactic Unit :=
-  sorry
+-- Porting note: Lean 3 `meta def hom_tac` was the tactic block
+-- `simp only [o_le_o, o_fst, o_snd, prod.le_def, and_true, true_and, le_refl], dec_trivial!`;
+-- mathport cannot translate Lean 3 metaprograms, so it is re-expressed as a Lean 4 macro.
+macro "hom_tac" : tactic =>
+  `(tactic| (simp only [CategoryTheory.SnakeDiagram.o_le_o, CategoryTheory.SnakeDiagram.o_fst,
+    CategoryTheory.SnakeDiagram.o_snd, Prod.le_def, and_true, true_and, le_refl]; decide))
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic hom_tac -/
 def hom (i j : SnakeDiagram)
     (hij : i ≤ j := by
-      run_tac
-        hom_tac) :
+      hom_tac) :
     i ⟶ j :=
   homOfLE hij
 
@@ -109,9 +110,17 @@ theorem hom_ext {i j : SnakeDiagram} (f g : i ⟶ j) : f = g := by ext
 
 section
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:337:4: warning: unsupported (TODO): `[tacs] -/
-unsafe def map_tac : tactic Unit :=
-  sorry
+-- Porting note: Lean 3 `meta def map_tac` was
+-- `dsimp only [mk_functor, mk_functor.map', eq_to_hom_refl, hom_of_le_refl, true_and, le_refl],
+--  simp only [category.id_comp, category.comp_id, functor.map_id], refl`;
+-- re-expressed as a Lean 4 macro (hygiene off: the lemmas are declared after this point).
+set_option hygiene false in
+macro "map_tac" : tactic =>
+  `(tactic| (dsimp only [CategoryTheory.SnakeDiagram.mkFunctor, CategoryTheory.SnakeDiagram.MkFunctor.map', CategoryTheory.eqToHom_refl,
+      CategoryTheory.homOfLE_refl, true_and, le_refl]
+    simp only [CategoryTheory.Category.id_comp, CategoryTheory.Category.comp_id,
+      CategoryTheory.Functor.map_id]
+    rfl))
 
 parameter {C : Type u} [Category.{v} C]
 
@@ -327,107 +336,73 @@ def mkFunctor : SnakeDiagram ⥤ C where
   map_id' x := MkFunctor.map'_id F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 x
   map_comp' x y z hxy hyz := by rw [mk_functor.map'_comp] <;> assumption
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_f0 : mk_functor.map (hom (0, 0) (0, 1)) = f0 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_g0 : mk_functor.map (hom (0, 1) (0, 2)) = g0 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_a0 : mk_functor.map (hom (0, 0) (1, 0)) = a0 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_b0 : mk_functor.map (hom (0, 1) (1, 1)) = b0 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_c0 : mk_functor.map (hom (0, 2) (1, 2)) = c0 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_f1 : mk_functor.map (hom (1, 0) (1, 1)) = f1 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_g1 : mk_functor.map (hom (1, 1) (1, 2)) = g1 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_a1 : mk_functor.map (hom (1, 0) (2, 0)) = a1 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_b1 : mk_functor.map (hom (1, 1) (2, 1)) = b1 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_c1 : mk_functor.map (hom (1, 2) (2, 2)) = c1 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_f2 : mk_functor.map (hom (2, 0) (2, 1)) = f2 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_g2 : mk_functor.map (hom (2, 1) (2, 2)) = g2 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_a2 : mk_functor.map (hom (2, 0) (3, 0)) = a2 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_b2 : mk_functor.map (hom (2, 1) (3, 1)) = b2 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_c2 : mk_functor.map (hom (2, 2) (3, 2)) = c2 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_f3 : mk_functor.map (hom (3, 0) (3, 1)) = f3 := by
-  run_tac
-    map_tac
+  map_tac
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.snake_diagram.map_tac -/
 @[simp]
 theorem mkFunctor_map_g3 : mk_functor.map (hom (3, 1) (3, 2)) = g3 := by
-  run_tac
-    map_tac
+  map_tac
 
 end
 
@@ -601,11 +576,9 @@ theorem map_eq (hD : IsSnakeInput D) {x y : SnakeDiagram} (f g : x ⟶ y) : D.ma
 theorem map_eq_id (hD : IsSnakeInput D) {x : SnakeDiagram} (f : x ⟶ x) : D.map f = 𝟙 _ := by
   rw [snake_diagram.hom_ext f (𝟙 x), D.map_id]
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic snake_diagram.hom_tac -/
 theorem hom_eq_zero₁ (hD : IsSnakeInput D) {x y : SnakeDiagram} (f : x ⟶ y)
     (h : x.1 < 2 ∧ x.1 + 1 < y.1 := by
-      run_tac
-        snake_diagram.hom_tac) :
+      hom_tac) :
     D.map f = 0 := by
   cases' x with i j; cases' y with k l; cases' h with h₀ h₁; rcases f with ⟨⟨⟨hik, hjl⟩⟩⟩
   dsimp at h₀ h₁ hik hjl 
@@ -624,9 +597,13 @@ theorem hom_eq_zero₁ (hD : IsSnakeInput D) {x y : SnakeDiagram} (f : x ⟶ y)
 
 open SnakeDiagram
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:337:4: warning: unsupported (TODO): `[tacs] -/
-unsafe def aux_simp : tactic Unit :=
-  sorry
+-- Porting note: Lean 3 `meta def aux_simp` was
+-- `dsimp only [snake_diagram.mk_of_short_exact_sequence_hom], simp only [mk_functor_map_f0, …]`;
+-- re-expressed as a Lean 4 macro.
+set_option hygiene false in
+macro "aux_simp" : tactic =>
+  `(tactic| (dsimp only [CategoryTheory.SnakeDiagram.mkOfShortExactSequenceHom]
+    simp only [CategoryTheory.SnakeDiagram.mkFunctor_map_f0, CategoryTheory.SnakeDiagram.mkFunctor_map_g0, CategoryTheory.SnakeDiagram.mkFunctor_map_a0, CategoryTheory.SnakeDiagram.mkFunctor_map_b0, CategoryTheory.SnakeDiagram.mkFunctor_map_c0, CategoryTheory.SnakeDiagram.mkFunctor_map_f1, CategoryTheory.SnakeDiagram.mkFunctor_map_g1, CategoryTheory.SnakeDiagram.mkFunctor_map_a1, CategoryTheory.SnakeDiagram.mkFunctor_map_b1, CategoryTheory.SnakeDiagram.mkFunctor_map_c1, CategoryTheory.SnakeDiagram.mkFunctor_map_f2, CategoryTheory.SnakeDiagram.mkFunctor_map_g2, CategoryTheory.SnakeDiagram.mkFunctor_map_a2, CategoryTheory.SnakeDiagram.mkFunctor_map_b2, CategoryTheory.SnakeDiagram.mkFunctor_map_c2, CategoryTheory.SnakeDiagram.mkFunctor_map_f3, CategoryTheory.SnakeDiagram.mkFunctor_map_g3]))
 
 /- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
 /- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
@@ -639,40 +616,32 @@ unsafe def aux_simp : tactic Unit :=
 theorem mkOfShortExactSequenceHom {𝒜 : Type _} [Category 𝒜] [Abelian 𝒜] (A B : ShortExactSequence 𝒜)
     (f : A ⟶ B) : IsSnakeInput (SnakeDiagram.mkOfShortExactSequenceHom A B f) :=
   { row_exact₁ := by
-      run_tac
-        aux_simp;
+      aux_simp;
       exact A.exact'
     row_exact₂ := by
-      run_tac
-        aux_simp;
+      aux_simp;
       exact B.exact'
     col_exact₁ := fun j => by
       fin_cases j <;>
-        run_tac
-          aux_simp;
+        aux_simp;
       all_goals apply exact_kernel_ι_self
     col_exact₂ := fun j => by
       fin_cases j <;>
-        run_tac
-          aux_simp;
+        aux_simp;
       all_goals apply exact_self_cokernel_π
     col_mono := fun j => by
       fin_cases j <;>
-        run_tac
-          aux_simp;
+        aux_simp;
       all_goals infer_instance
     col_epi := fun j => by
       fin_cases j <;>
-        run_tac
-          aux_simp;
+        aux_simp;
       all_goals infer_instance
     row_mono := by
-      run_tac
-        aux_simp;
+      aux_simp;
       exact B.mono'
     row_epi := by
-      run_tac
-        aux_simp;
+      aux_simp;
       exact A.epi' }
 
 end IsSnakeInput
@@ -832,11 +801,9 @@ theorem row_exact₃ (hD : IsSnakeInput D) : Exact ((3, 0)⟶[D](3, 1)) ((3, 1)�
 theorem row_exact (hD : IsSnakeInput D) (i : Fin 4) : Exact ((i, 0)⟶[D](i, 1)) ((i, 1)⟶[D](i, 2)) :=
   by fin_cases i; exacts [hD.row_exact₀, hD.row_exact₁, hD.row_exact₂, hD.row_exact₃]
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic snake_diagram.hom_tac -/
 theorem hom_eq_zero₂ (hD : IsSnakeInput D) {x y : SnakeDiagram} (f : x ⟶ y)
     (h : x.2 = 0 ∧ y.2 = 2 := by
-      run_tac
-        snake_diagram.hom_tac) :
+      hom_tac) :
     D.map f = 0 := by
   cases' x with i j; cases' y with k l; rcases f with ⟨⟨⟨hik, hjl⟩⟩⟩
   dsimp at h hik hjl ; rcases h with ⟨rfl, rfl⟩
