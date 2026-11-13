@@ -21,7 +21,6 @@ profinitely filtered pseudo-normed groups equipped with an action of T⁻¹.
 
 
 --import for_mathlib.concrete
---import for_mathlib.concrete
 universe u
 
 open CategoryTheory
@@ -38,16 +37,28 @@ def CompHausFiltPseuNormGrp : Type (u + 1) :=
 
 namespace CompHausFiltPseuNormGrp
 
-def bundledHom : BundledHom @ComphausFilteredPseudoNormedGroupHom :=
-  ⟨@ComphausFilteredPseudoNormedGroupHom.toFun, @ComphausFilteredPseudoNormedGroupHom.id,
-    @ComphausFilteredPseudoNormedGroupHom.comp, @ComphausFilteredPseudoNormedGroupHom.coe_inj⟩
+-- Porting note: mathlib4's `BundledHom` also asks for `id_toFun` and `comp_toFun`, which
+-- Lean 3 discharged automatically; here they hold by `rfl`.
+def bundledHom : BundledHom @ComphausFilteredPseudoNormedGroupHom where
+  toFun _ _ f := f
+  id _ := ComphausFilteredPseudoNormedGroupHom.id
+  comp _ _ _ g f := g.comp f
+  hom_ext _ _ _ _ h := ComphausFilteredPseudoNormedGroupHom.coe_inj h
+  id_toFun _ := rfl
+  comp_toFun _ _ _ _ _ := rfl
 
-attribute [local instance] bundled_hom
+attribute [local instance] bundledHom
 
-deriving instance LargeCategory, ConcreteCategory for CompHausFiltPseuNormGrp
+-- Porting note: Lean 3 used `attribute [derive [large_category, concrete_category]]`; the
+-- instances it derived are written out (with the names Lean 3 gave them)
+instance largeCategory : LargeCategory CompHausFiltPseuNormGrp :=
+  BundledHom.category @ComphausFilteredPseudoNormedGroupHom
 
-instance : CoeSort CompHausFiltPseuNormGrp (Type _) :=
-  Bundled.hasCoeToSort
+instance concreteCategory : ConcreteCategory CompHausFiltPseuNormGrp :=
+  BundledHom.concreteCategory @ComphausFilteredPseudoNormedGroupHom
+
+instance : CoeSort CompHausFiltPseuNormGrp (Type _) where
+  coe X := X.α
 
 instance (M : CompHausFiltPseuNormGrp) : ComphausFilteredPseudoNormedGroup M :=
   M.str
