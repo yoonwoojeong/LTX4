@@ -376,7 +376,7 @@ theorem homeoFiltrationϖBall_preimage {c ε : ℝ≥0} (h : ε ^ (p : ℝ) ≤ 
 --   continuous_inv_fun := admit
 -- }
 -- lemma homeo_filtration_ϖ_Icc_apply (c c': ℝ≥0) (h : c ≤ c') :
--- (homeo_filtration_ϖ_Icc c').to_fun '' (set.range (set.inclusion (@pseudo_normed_group.filtration_mono (ℳ p ϖ) _ _ _ h)))
+-- (homeo_filtration_ϖ_Icc c').toFun '' (set.range (set.inclusion (@pseudo_normed_group.filtration_mono (ℳ p ϖ) _ _ _ h)))
 --   = ⊥ := --set.Icc ((- c ^ (p⁻¹ : ℝ)) : ℝ) ((c ^ (p⁻¹ : ℝ) : ℝ)) :=
 -- begin
 --   admit,

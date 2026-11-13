@@ -50,8 +50,8 @@ section NewStuff
 structure Slm (r : ℝ≥0) (S : FintypeCat) where
   toFun : S → ℤ → ℤ
   d : ℤ
-  summable' : ∀ s, Summable fun n : ℕ => ‖to_fun s n‖₊ * r ^ n
-  zero_lt_d : ∀ s n, n < d → to_fun s n = 0
+  summable' : ∀ s, Summable fun n : ℕ => ‖toFun s n‖₊ * r ^ n
+  zero_lt_d : ∀ s n, n < d → toFun s n = 0
 
 /-- A "usual" Laurent Measure `F : ℒ S` gives rise to a Simple Laurent Measure of type `slm S`. -/
 def LaurentMeasures.toSlm (F : ℒ S) : Slm r S
@@ -61,7 +61,7 @@ def LaurentMeasures.toSlm (F : ℒ S) : Slm r S
   zero_lt_d n s := lt_d_eq_zero F _ _
   summable' := by
     refine' fun s => summable_coe.mp _
-    convert ((@int_summable_iff _ _ _ _ _ fun n : ℤ => ‖F.to_fun s n‖ * r ^ n).mp _).1
+    convert ((@int_summable_iff _ _ _ _ _ fun n : ℤ => ‖F.toFun s n‖ * r ^ n).mp _).1
     exact summable_coe.mpr (F.summable' s)
 
 --  The "main" input is `int_summable_iff`, proving that a series over `ℤ` is summable if and only
@@ -72,10 +72,10 @@ def Slm.toLaurentMeasures {r : ℝ≥0} (F : Slm r S) : LaurentMeasures r S
   toFun := F.toFun
   summable' := by
     refine' fun s => summable_coe.mp _
-    convert (@int_summable_iff _ _ _ _ _ fun n : ℤ => ‖F.to_fun s n‖ * r ^ n).mpr _
+    convert (@int_summable_iff _ _ _ _ _ fun n : ℤ => ‖F.toFun s n‖ * r ^ n).mpr _
     refine'
       ⟨_,
-        summable_of_eventually_zero (fun n : ℤ => ‖F.to_fun s n‖ * ↑r ^ n) F.d fun n nd =>
+        summable_of_eventually_zero (fun n : ℤ => ‖F.toFun s n‖ * ↑r ^ n) F.d fun n nd =>
           _⟩
     · convert summable_coe.mpr (F.summable' s)
     · simp [F.zero_lt_d s n nd]

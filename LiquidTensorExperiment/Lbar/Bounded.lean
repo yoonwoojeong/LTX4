@@ -48,8 +48,8 @@ open Set
 This is an auxiliary object used to define the profinite topology on `Lbar r' S`. -/
 structure LbarBdd (r : ℝ≥0) (S : FintypeCat) (c : ℝ≥0) (M : ℕ) where
   toFun : S → Fin (M + 1) → ℤ
-  coeff_zero' : ∀ s, to_fun s 0 = 0
-  sum_le' : ∑ (s) (i), ↑(to_fun s i).natAbs * r ^ (i : ℕ) ≤ c
+  coeff_zero' : ∀ s, toFun s 0 = 0
+  sum_le' : ∑ (s) (i), ↑(toFun s i).natAbs * r ^ (i : ℕ) ≤ c
 
 namespace LbarBdd
 

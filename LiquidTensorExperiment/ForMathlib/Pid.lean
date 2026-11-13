@@ -73,8 +73,8 @@ theorem lt_of_lt_of_le_unbundled {α : Type u} {r : α → α → Prop} [IsStric
   by
   have t : r b c ∨ b = c ∨ r c b := trichotomous b c
   cases t
-  exact IsTrans.trans a b c hab T
-  cases T
+  exact IsTrans.trans a b c hab t
+  cases t
   rw [← t]
   exact hab
   exact False.elim (hbc t)
@@ -86,8 +86,8 @@ theorem le_unbundled {α : Type u} {r : α → α → Prop} [IsStrictTotalOrder 
   intro h
   cases h
   by_contra h'
-  exact irrefl a (IsTrans.trans _ _ _ H h')
-  rw [H]
+  exact irrefl a (IsTrans.trans _ _ _ h h')
+  rw [h]
   exact irrefl b
   intro h
   have t : r a b ∨ a = b ∨ r b a := trichotomous a b
@@ -120,7 +120,7 @@ theorem support_remove {i : Ordinal} {j_good : { i // a i ≠ 0 }} (hj : succ j_
   intro x hx
   simp only [hl', Finsupp.single_eq_of_ne hx.symm, Finsupp.coe_add, Pi.add_apply, add_zero]
   by_contra
-  have h : ¬x.1.1 < j_good.1.1 := H
+  have h : ¬x.1.1 < j_good.1.1 := h
   have h := eq_or_lt_of_le (not_lt.1 h)
   cases h
   · have h_1 : j_good = x := by simp at H1  <;> ext <;> exact h_1
@@ -807,5 +807,5 @@ theorem Submodule.free_of_pid_of_free [IsDomain R] [IsPrincipalIdealRing R] {N :
   by
   have h := (Submodule.nonempty_basis_of_pid' (Module.Free.chooseBasis R M) N).choose_spec
   cases h
-  exact Module.Free.of_basis H
+  exact Module.Free.of_basis h
 

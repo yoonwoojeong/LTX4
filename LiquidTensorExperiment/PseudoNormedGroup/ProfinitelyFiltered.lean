@@ -40,22 +40,23 @@ theorem Int.induction_nonneg_or_nonpos {P : ℤ → Prop} (n : ℤ) (h₁ : ∀ 
 
 Morphisms are continuous and bounded homomorphisms. -/
 class ComphausFilteredPseudoNormedGroup (M : Type _) extends PseudoNormedGroup M where
-  [topology : ∀ c, TopologicalSpace (filtration c)]
-  [t2 : ∀ c, T2Space (filtration c)]
-  --[td : ∀ c, totally_disconnected_space (filtration c)]
-  [compact : ∀ c, CompactSpace (filtration c)]
+  [topology : ∀ c, TopologicalSpace (filtration M c)]
+  [t2 : ∀ c, T2Space (filtration M c)]
+  --[td : ∀ c, totally_disconnected_space (filtration M c)]
+  [compact : ∀ c, CompactSpace (filtration M c)]
   continuous_add' :
-    ∀ c₁ c₂, Continuous (add' : filtration c₁ × filtration c₂ → filtration (c₁ + c₂))
-  continuous_neg' : ∀ c, Continuous (neg' : filtration c → filtration c)
+    ∀ c₁ c₂, Continuous (add' : filtration M c₁ × filtration M c₂ → filtration M (c₁ + c₂))
+  continuous_neg' : ∀ c, Continuous (neg' : filtration M c → filtration M c)
   continuous_castLe :
-    ∀ (c₁ c₂) [h : Fact (c₁ ≤ c₂)], Continuous (castLe : filtration c₁ → filtration c₂)
+    ∀ (c₁ c₂) [h : Fact (c₁ ≤ c₂)], Continuous (castLe : filtration M c₁ → filtration M c₂)
 
 /-- A *profinitely filtered pseudo-normed topological group* is a *complete Hausdorff filtered
 pseudo-normed topological group* with the additional requirement that
 * `filtration M c` is a profinite set. -/
 class ProfinitelyFilteredPseudoNormedGroup (M : Type _) extends
     ComphausFilteredPseudoNormedGroup M where
-  [td : ∀ c, TotallyDisconnectedSpace (filtration c)]
+  -- Porting note: Lean 3 wrote the parent's field `filtration c`; here `filtration M c`
+  [td : ∀ c, TotallyDisconnectedSpace (filtration M c)]
 
 namespace ComphausFilteredPseudoNormedGroup
 
@@ -81,7 +82,7 @@ instance (c : ℝ≥0) : CompactSpace (filtration M c) :=
 
 theorem isClosedMap_castLe (c₁ c₂) [h : Fact (c₁ ≤ c₂)] :
     IsClosedMap (@PseudoNormedGroup.castLe M _ _ _ h) :=
-  (continuous_castLe c₁ c₂).IsClosedMap
+  (continuous_castLe c₁ c₂).isClosedMap
 
 theorem closedEmbedding_castLe (c₁ c₂) [h : Fact (c₁ ≤ c₂)] :
     ClosedEmbedding (@PseudoNormedGroup.castLe M _ _ _ h) :=
@@ -110,14 +111,15 @@ theorem continuous_nsmul {X : Type _} [TopologicalSpace X] (n : ℕ) (c : ℝ≥
       (fun x => ⟨n • f x, nat_smul_mem_filtration n _ _ (f x).2⟩ : X → filtration M (n * c)) :=
   by
   induction' n with n ih
-  · simp only [zero_smul]
-    exact @continuous_const _ { x // x ∈ filtration M (↑0 * c) } _ _ ⟨0, zero_mem_filtration _⟩
+  · simp only [Nat.zero_eq, zero_smul]
+    -- Porting note: the codomain `filtration M (↑0 * c)` has to be given explicitly
+    exact @continuous_const X (filtration M (↑Nat.zero * c)) _ _ ⟨0, zero_mem_filtration (M := M) _⟩
   · simp only [Nat.succ_eq_add_one, succ_nsmul']
     haveI aux1 : Fact (↑n * c ≤ n • c) := ⟨by simp only [le_refl, nsmul_eq_mul]⟩
     haveI aux2 : Fact (n • c + c ≤ ↑n.succ * c) := ⟨by simp [le_refl, nsmul_eq_mul, add_mul]⟩
     exact
-      (continuous_cast_le (n • c + c) (n.succ * c)).comp
-        (continuous_add (n • c) c _ ((continuous_cast_le _ _).comp ih) _ hf)
+      (continuous_castLe (n • c + c) (n.succ * c)).comp
+        (continuous_add (n • c) c _ ((continuous_castLe _ _).comp ih) _ hf)
 
 theorem continuous_zsmul {X : Type _} [TopologicalSpace X] (n : ℤ) (c : ℝ≥0)
     (f : X → filtration M c) (hf : Continuous f) :
@@ -125,16 +127,18 @@ theorem continuous_zsmul {X : Type _} [TopologicalSpace X] (n : ℤ) (c : ℝ≥
       (fun x => ⟨n • f x, int_smul_mem_filtration n _ _ (f x).2⟩ :
         X → filtration M (n.natAbs * c)) :=
   by
-  induction n using Int.induction_nonneg_or_nonpos
-  · simp only [coe_nat_zsmul]; exact continuous_nsmul n c f hf
-  · simp only [neg_smul]
-    haveI : Fact (↑n * c ≤ (-n : ℤ).natAbs * c) := ⟨by simp only [Int.natAbs_ofNat, Int.natAbs_neg]⟩
+  -- Porting note: Lean 4 `induction ... using` names the cases
+  induction n using Int.induction_nonneg_or_nonpos with
+  | h₁ n => simp only [coe_nat_zsmul]; exact continuous_nsmul n c f hf
+  | h₂ n =>
+    simp only [neg_smul]
+    haveI : Fact (↑n * c ≤ (-n : ℤ).natAbs * c) := ⟨by simp only [Int.natAbs_ofNat, Int.natAbs_neg, le_refl]⟩
     convert
       continuous_neg _ _
-        ((continuous_cast_le (n * c) ((-n : ℤ).natAbs * c)).comp (continuous_nsmul n c f hf)) using
+        ((continuous_castLe (n * c) ((-n : ℤ).natAbs * c)).comp (continuous_nsmul n c f hf)) using
       1
     ext x
-    simp only [coe_cast_le, coe_nat_zsmul, Subtype.coe_mk]
+    simp only [Function.comp_apply, coe_castLe, coe_nat_zsmul, Subtype.coe_mk]
 
 end ComphausFilteredPseudoNormedGroup
 
@@ -156,9 +160,9 @@ section
 structure ComphausFilteredPseudoNormedGroupHom (M₁ M₂ : Type _)
     [ComphausFilteredPseudoNormedGroup M₁] [ComphausFilteredPseudoNormedGroup M₂] extends
     M₁ →+ M₂ where
-  bound' : ∃ C, ∀ c x, x ∈ filtration M₁ c → to_fun x ∈ filtration M₂ (C * c)
+  bound' : ∃ C, ∀ c x, x ∈ filtration M₁ c → toFun x ∈ filtration M₂ (C * c)
   continuous' :
-    ∀ ⦃c₁ c₂⦄ (f₀ : filtration M₁ c₁ → filtration M₂ c₂) (h : ∀ x, to_fun ↑x = f₀ x), Continuous f₀
+    ∀ ⦃c₁ c₂⦄ (f₀ : filtration M₁ c₁ → filtration M₂ c₂) (h : ∀ x : filtration M₁ c₁, toFun ↑x = f₀ x), Continuous f₀
 
 /-- A `strict_comphaus_filtered_pseudo_normed_group_hom` is a strict morphism between compact
   hausdorff filtered pseudo-normed groups. It is an additive group homomorphism which is bounded
@@ -167,13 +171,11 @@ structure ComphausFilteredPseudoNormedGroupHom (M₁ M₂ : Type _)
 structure StrictComphausFilteredPseudoNormedGroupHom (M₁ M₂ : Type _)
     [ComphausFilteredPseudoNormedGroup M₁] [ComphausFilteredPseudoNormedGroup M₂] extends
     M₁ →+ M₂ where
-  strict' : ∀ c x, x ∈ filtration M₁ c → to_fun x ∈ filtration M₂ c
-  continuous' : ∀ c, Continuous (PseudoNormedGroup.level to_fun strict' c)
+  strict' : ∀ c x, x ∈ filtration M₁ c → toFun x ∈ filtration M₂ c
+  continuous' : ∀ c, Continuous (PseudoNormedGroup.level toFun strict' c)
 
 end
 
-attribute [nolint doc_blame] ComphausFilteredPseudoNormedGroupHom.mk
-  ComphausFilteredPseudoNormedGroupHom.toAddMonoidHom
 
 namespace ComphausFilteredPseudoNormedGroupHom
 
@@ -192,17 +194,24 @@ variable [ComphausFilteredPseudoNormedGroup M₃]
 variable (f g : ComphausFilteredPseudoNormedGroupHom M₁ M₂)
 
 instance : CoeFun (ComphausFilteredPseudoNormedGroupHom M₁ M₂) fun _ => M₁ → M₂ :=
-  ⟨ComphausFilteredPseudoNormedGroupHom.toFun⟩
+  -- Porting note: Lean 4 has no projection constant for the inherited field `toFun`
+  ⟨fun f => f.toFun⟩
+
+-- Porting note: a custom `simps` projection for the coercion; without it `@[simps]` loops
+/-- See Note [custom simps projection]. -/
+def Simps.apply (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) : M₁ → M₂ := f
+
+initialize_simps_projections ComphausFilteredPseudoNormedGroupHom (toFun → apply)
 
 @[simp]
 theorem coe_mk (f) (h₁) (h₂) (h₃) (h₄) :
-    ⇑(⟨f, h₁, h₂, h₃, h₄⟩ : ComphausFilteredPseudoNormedGroupHom M₁ M₂) = f :=
+    ⇑(⟨⟨⟨f, h₁⟩, h₂⟩, h₃, h₄⟩ : ComphausFilteredPseudoNormedGroupHom M₁ M₂) = f :=
   rfl
 
 @[simp]
 theorem mk_to_monoid_hom (f) (h₁) (h₂) (h₃) (h₄) :
-    (⟨f, h₁, h₂, h₃, h₄⟩ : ComphausFilteredPseudoNormedGroupHom M₁ M₂).toAddMonoidHom =
-      ⟨f, h₁, h₂⟩ :=
+    (⟨⟨⟨f, h₁⟩, h₂⟩, h₃, h₄⟩ : ComphausFilteredPseudoNormedGroupHom M₁ M₂).toAddMonoidHom =
+      ⟨⟨f, h₁⟩, h₂⟩ :=
   rfl
 
 @[simp]
@@ -242,7 +251,7 @@ def mkOfBound (f : M₁ →+ M₂) (C : ℝ≥0)
           @Continuous (filtration M₁ c) (filtration M₂ (C * c)) _ _ fun x => ⟨f x, H x x.2⟩) :
     ComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
   { f with
-    bound' := ⟨C, fun c => (hC c).some⟩
+    bound' := ⟨C, fun c => (hC c).choose⟩
     continuous' := fun c₁ c₂ f₀ hf₀ => by
       obtain ⟨_, H⟩ := hC c₁
       haveI : Fact (C * c₁ ≤ max (C * c₁) c₂) := ⟨le_max_left _ _⟩
@@ -275,7 +284,7 @@ noncomputable def mk' (f : M₁ →+ M₂)
           ∃ H : ∀ x, x ∈ filtration M₁ c → f x ∈ filtration M₂ (C * c),
             @Continuous (filtration M₁ c) (filtration M₂ (C * c)) _ _ fun x => ⟨f x, H x x.2⟩) :
     ComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
-  mkOfBound f h.some h.choose_spec
+  mkOfBound f h.choose h.choose_spec
 
 @[simp]
 theorem coe_mkOfBound (f : M₁ →+ M₂) (C) (h) : ⇑(mkOfBound f C h) = f :=
@@ -294,17 +303,17 @@ def Strict : Prop :=
 def BoundBy (C : ℝ≥0) : Prop :=
   ∀ ⦃c x⦄, x ∈ filtration M₁ c → f x ∈ filtration M₂ (C * c)
 
-theorem strict_iff_boundBy_one : f.strict ↔ f.BoundBy 1 := by simp only [strict, bound_by, one_mul]
+theorem strict_iff_boundBy_one : f.Strict ↔ f.BoundBy 1 := by simp only [Strict, BoundBy, one_mul]
 
 variable {f}
 
 theorem BoundBy.mono {C₁} (hf : f.BoundBy C₁) (C₂ : ℝ≥0) (H : C₁ ≤ C₂) : f.BoundBy C₂ :=
   fun c x hx => filtration_mono (mul_le_mul' H le_rfl) (hf hx)
 
-theorem Strict.boundByOne (hf : f.strict) : f.BoundBy 1 :=
+theorem Strict.boundByOne (hf : f.Strict) : f.BoundBy 1 :=
   f.strict_iff_boundBy_one.1 hf
 
-theorem BoundBy.strict (hf : f.BoundBy 1) : f.strict :=
+theorem BoundBy.strict (hf : f.BoundBy 1) : f.Strict :=
   f.strict_iff_boundBy_one.2 hf
 
 variable (f)
@@ -312,12 +321,12 @@ variable (f)
 theorem bound : ∃ C, f.BoundBy C :=
   f.bound'
 
-theorem mkOfBoundBoundBy (f : M₁ →+ M₂) (C) (h) : (mkOfBound f C h).BoundBy C := fun c => (h c).some
+theorem mkOfBoundBoundBy (f : M₁ →+ M₂) (C) (h) : (mkOfBound f C h).BoundBy C := fun c => (h c).choose
 
-theorem mkOfStrictStrict (f : M₁ →+ M₂) (h) : (mkOfStrict f h).strict := fun c => (h c).some
+theorem mkOfStrictStrict (f : M₁ →+ M₂) (h) : (mkOfStrict f h).Strict := fun c => (h c).choose
 
 protected theorem continuous ⦃c₁ c₂⦄ (f₀ : filtration M₁ c₁ → filtration M₂ c₂)
-    (h : ∀ x, f ↑x = f₀ x) : Continuous f₀ :=
+    (h : ∀ x : filtration M₁ c₁, f ↑x = f₀ x) : Continuous f₀ :=
   f.continuous' f₀ h
 
 -- /-- `f.level c` is the function `filtration M₁ c → filtration M₂ c`
@@ -327,7 +336,9 @@ protected theorem continuous ⦃c₁ c₂⦄ (f₀ : filtration M₁ c₁ → fi
 variable {f g}
 
 @[ext]
-theorem ext (H : ∀ x, f x = g x) : f = g := by cases f <;> cases g <;> congr <;> exact funext H
+-- Porting note: Lean 4 does not flatten the `AddMonoidHom` parent, so use its `ext`
+theorem ext (H : ∀ x, f x = g x) : f = g := by
+  cases f; cases g; congr; exact AddMonoidHom.ext H
 
 instance : Zero (ComphausFilteredPseudoNormedGroupHom M₁ M₂) :=
   ⟨mkOfBound (0 : M₁ →+ M₂) 0 fun c =>
@@ -340,7 +351,8 @@ theorem zeroBoundByZero : (0 : ComphausFilteredPseudoNormedGroupHom M₁ M₂).B
   mkOfBoundBoundBy _ _ _
 
 theorem coe_inj ⦃f g : ComphausFilteredPseudoNormedGroupHom M₁ M₂⦄ (h : (f : M₁ → M₂) = g) :
-    f = g := by cases f <;> cases g <;> cases h <;> rfl
+    f = g :=
+  ext (congrFun h)
 
 /-- The identity function as `profinitely_filtered_pseudo_normed_group_hom`. -/
 @[simps]
@@ -350,10 +362,11 @@ def id : ComphausFilteredPseudoNormedGroupHom M M :=
     · intros; rwa [one_mul]
     haveI : Fact (1 * c ≤ c) := by rw [one_mul]; exact ⟨le_rfl⟩
     rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe (1 * c) c).continuous_iff]
-    convert continuous_id; ext; rfl
+    convert continuous_id
 
+-- Porting note: `@[simps]` must unfold `mk'` (as Lean 3's did), hence `rhsMd := .default`
 /-- The composition of `profinitely_filtered_pseudo_normed_group_hom`s. -/
-@[simps]
+@[simps (config := { rhsMd := .default })]
 noncomputable def comp (g : ComphausFilteredPseudoNormedGroupHom M₂ M₃)
     (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) : ComphausFilteredPseudoNormedGroupHom M₁ M₃ :=
   mk' (g.toAddMonoidHom.comp f.toAddMonoidHom) <|
@@ -401,17 +414,24 @@ variable [ComphausFilteredPseudoNormedGroup M₃]
 variable (f g : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂)
 
 instance : CoeFun (StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) fun _ => M₁ → M₂ :=
-  ⟨StrictComphausFilteredPseudoNormedGroupHom.toFun⟩
+  -- Porting note: Lean 4 has no projection constant for the inherited field `toFun`
+  ⟨fun f => f.toFun⟩
+
+-- Porting note: a custom `simps` projection for the coercion; without it `@[simps]` loops
+/-- See Note [custom simps projection]. -/
+def Simps.apply (f : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) : M₁ → M₂ := f
+
+initialize_simps_projections StrictComphausFilteredPseudoNormedGroupHom (toFun → apply)
 
 @[simp]
 theorem coe_mk (f) (h₁) (h₂) (h₃) (h₄) :
-    ⇑(⟨f, h₁, h₂, h₃, h₄⟩ : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) = f :=
+    ⇑(⟨⟨⟨f, h₁⟩, h₂⟩, h₃, h₄⟩ : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) = f :=
   rfl
 
 @[simp]
 theorem mk_to_monoid_hom (f) (h₁) (h₂) (h₃) (h₄) :
-    (⟨f, h₁, h₂, h₃, h₄⟩ : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂).toAddMonoidHom =
-      ⟨f, h₁, h₂⟩ :=
+    (⟨⟨⟨f, h₁⟩, h₂⟩, h₃, h₄⟩ : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂).toAddMonoidHom =
+      ⟨⟨f, h₁⟩, h₂⟩ :=
   rfl
 
 @[simp]
@@ -451,7 +471,7 @@ def mk' (f : M₁ →+ M₂)
           @Continuous (filtration M₁ c) (filtration M₂ c) _ _ fun x => ⟨f x, H x x.2⟩) :
     StrictComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
   { f with
-    strict' := fun c x hh => (h c).some x hh
+    strict' := fun c x hh => (h c).choose x hh
     continuous' := fun c => (h c).choose_spec }
 
 @[simp]
@@ -504,7 +524,9 @@ theorem coe_level {c} (x : filtration M₁ c) : (f.level x : M₂) = f x :=
 variable {f g}
 
 @[ext]
-theorem ext (H : ∀ x, f x = g x) : f = g := by cases f <;> cases g <;> congr <;> exact funext H
+-- Porting note: Lean 4 does not flatten the `AddMonoidHom` parent, so use its `ext`
+theorem ext (H : ∀ x, f x = g x) : f = g := by
+  cases f; cases g; congr; exact AddMonoidHom.ext H
 
 instance : Zero (StrictComphausFilteredPseudoNormedGroupHom M₁ M₂)
     where zero :=
@@ -522,35 +544,39 @@ instance : Inhabited (StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) :=
   ⟨0⟩
 
 theorem coe_inj ⦃f g : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂⦄ (h : (f : M₁ → M₂) = g) :
-    f = g := by cases f <;> cases g <;> cases h <;> rfl
+    f = g :=
+  ext (congrFun h)
 
 /-- The identity function as `profinitely_filtered_pseudo_normed_group_hom`. -/
 @[simps]
 def id : StrictComphausFilteredPseudoNormedGroupHom M M :=
-  { AddMonoidHom.id M with
+  -- Porting note: the `AddMonoidHom` parent is given by name instead of as a `with` source
+  { toAddMonoidHom := AddMonoidHom.id M
     strict' := fun c x h => h
     continuous' := fun c => by
-      convert continuous_id
-      ext; rfl }
+      convert continuous_id }
 
 /-- The composition of `profinitely_filtered_pseudo_normed_group_hom`s. -/
-@[simps]
+@[simps (config := { rhsMd := .default })]
 def comp (g : StrictComphausFilteredPseudoNormedGroupHom M₂ M₃)
     (f : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) :
     StrictComphausFilteredPseudoNormedGroupHom M₁ M₃ :=
-  {
-    g.toAddMonoidHom.comp
-      f.toAddMonoidHom with
+  { toAddMonoidHom := g.toAddMonoidHom.comp f.toAddMonoidHom
     strict' := fun c x h => g.strict <| f.strict h
     continuous' := fun c => (g.level_continuous c).comp (f.level_continuous c) }
 
 /-- If `f` is a strict morphism between compact hausdorff filtered pseudo-normed groups
   then `f.to_chfpsng_hom` is the corresponding morphism where we forget strictness.  -/
-@[simps]
 def toChfpsngHom (f : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) :
     ComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
   ComphausFilteredPseudoNormedGroupHom.mkOfStrict f.toAddMonoidHom fun c =>
     ⟨fun x h => f.strict h, f.level_continuous _⟩
+
+-- Porting note: `@[simps]` cannot see through `mkOfStrict` here, so the lemma is stated by hand
+@[simp]
+theorem toChfpsngHom_apply (f : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) (x : M₁) :
+    toChfpsngHom f x = f x :=
+  rfl
 
 theorem toChfpsngHom.boundByOne (f : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) :
     (toChfpsngHom f).BoundBy 1 := fun c m hmc =>
@@ -568,7 +594,7 @@ variable [ComphausFilteredPseudoNormedGroup M₁]
 
 variable [ComphausFilteredPseudoNormedGroup M₂]
 
-def Strict.toSchfpsngHom {f : ComphausFilteredPseudoNormedGroupHom M₁ M₂} (h : f.strict) :
+def Strict.toSchfpsngHom {f : ComphausFilteredPseudoNormedGroupHom M₁ M₂} (h : f.Strict) :
     StrictComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
   { f.toAddMonoidHom with
     strict' := h
@@ -632,7 +658,7 @@ Implementation detail: to avoid diamonds of topologies on `filtration M c`
 we avoid `topological_space M`.
 We therefore give a hands on definition of continuity. -/
 def PfpngCtu (f : M₁ → M₂) : Prop :=
-  ∀ ⦃c₁ c₂⦄ (f₀ : filtration M₁ c₁ → filtration M₂ c₂) (h : ∀ x, f ↑x = f₀ x), Continuous f₀
+  ∀ ⦃c₁ c₂⦄ (f₀ : filtration M₁ c₁ → filtration M₂ c₂) (h : ∀ x : filtration M₁ c₁, f ↑x = f₀ x), Continuous f₀
 
 section PfpngCtu
 
@@ -642,6 +668,7 @@ theorem pfpngCtuConst (y : M₂) : PfpngCtu fun x : M₁ => y :=
   suffices f₀ = fun x => f₀ ⟨0, zero_mem_filtration _⟩ by rw [this]; exact continuous_const
   ext1 x
   apply Subtype.coe_injective
+  dsimp only
   rw [← h, ← h]
 
 theorem PfpngCtu.neg {f : M₁ → M₂} (hf : PfpngCtu f) : PfpngCtu (-f) :=
@@ -653,7 +680,7 @@ theorem PfpngCtu.neg {f : M₁ → M₂} (hf : PfpngCtu f) : PfpngCtu (-f) :=
   refine' (continuous_neg' c₂).comp (hf g _)
   intro x
   specialize h x
-  simp only [g, ← h, neg_neg, Pi.neg_apply, neg'_eq]
+  simp only [g, Function.comp_apply, ← h, neg_neg, Pi.neg_apply, neg'_eq]
 
 theorem PfpngCtu.add {f g : M₁ → M₂} (hf : PfpngCtu f) (hg : PfpngCtu g)
     (H : ∀ c₁, ∃ c₂, ∀ x : filtration M₁ c₁, f x ∈ filtration M₂ c₂) : PfpngCtu (f + g) :=
@@ -661,7 +688,7 @@ theorem PfpngCtu.add {f g : M₁ → M₂} (hf : PfpngCtu f) (hg : PfpngCtu g)
   intro c₁ c₂ fg₀ hfg₀
   obtain ⟨cf, hcf⟩ := H c₁
   let f₀ : filtration M₁ c₁ → filtration M₂ cf := fun x => ⟨f x, hcf x⟩
-  have hf₀ : ∀ x, f ↑x = f₀ x := fun x => rfl
+  have hf₀ : ∀ x : filtration M₁ c₁, f ↑x = f₀ x := fun x => rfl
   have f₀_ctu : Continuous f₀ := hf f₀ hf₀
   let cg := cf + c₂
   haveI : Fact (c₂ ≤ cf + cg) :=
@@ -677,7 +704,7 @@ theorem PfpngCtu.add {f g : M₁ → M₂} (hf : PfpngCtu f) (hg : PfpngCtu g)
     rw [hfg₀]
     exact (fg₀ x).2
   let g₀ : filtration M₁ c₁ → filtration M₂ cg := fun x => ⟨g x, hcg x⟩
-  have hg₀ : ∀ x, g ↑x = g₀ x := fun x => rfl
+  have hg₀ : ∀ x : filtration M₁ c₁, g ↑x = g₀ x := fun x => rfl
   have g₀_ctu : Continuous g₀ := hg g₀ hg₀
   have aux := f₀_ctu.prod_mk g₀_ctu
   rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe c₂ (cf + cg)).continuous_iff]
@@ -694,7 +721,7 @@ theorem pfpngCtuId : PfpngCtu (@id M) := by
   intro c₁ c₂ f₀ h
   haveI : Fact (c₁ ≤ max c₁ c₂) := ⟨le_max_left _ _⟩
   haveI : Fact (c₂ ≤ max c₁ c₂) := ⟨le_max_right _ _⟩
-  have : @cast_le M _ c₂ (max c₁ c₂) _ ∘ f₀ = cast_le := by ext; dsimp; rw [← h]; rfl
+  have : @castLe M _ c₂ (max c₁ c₂) _ ∘ f₀ = castLe := by ext; dsimp; rw [← h]; rfl
   rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe c₂ (max c₁ c₂)).continuous_iff, this]
   exact (ComphausFilteredPseudoNormedGroup.embedding_castLe _ _).continuous
 
@@ -706,7 +733,7 @@ theorem pfpngCtuSmulNat : ∀ n : ℕ, PfpngCtu fun x : M => n • x
 
 theorem pfpngCtuSmulInt : ∀ n : ℤ, PfpngCtu fun x : M => n • x
   | (n : ℕ) => by simpa only [coe_nat_zsmul] using pfpngCtuSmulNat M n
-  | -[n+1] => by simpa only [negSucc_zsmul] using (pfpngCtuSmulNat M (n + 1)).neg
+  | .negSucc n => by simpa only [negSucc_zsmul] using (pfpngCtuSmulNat M (n + 1)).neg
 
 end PfpngCtu
 
@@ -771,21 +798,21 @@ def nsmul (n : ℕ) (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) :
   (f.nsmul' n).copy (n • f)
     (by
       induction' n with n ih
-      · rw [zero_smul]; rfl
+      · rw [Nat.zero_eq, zero_smul]; rfl
       · rw [succ_nsmul, ih]; rfl)
 
 def zsmul' :
     ∀ (n : ℤ) (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂),
       ComphausFilteredPseudoNormedGroupHom M₁ M₂
   | (n : ℕ), f => f.nsmul n
-  | -[n+1], f => (f.nsmul n.succ).neg
+  | .negSucc n, f => (f.nsmul n.succ).neg
 
 def zsmul (n : ℤ) (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) :
     ComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
   (f.zsmul' n).copy (n • f)
     (by
       cases n
-      · rw [ofNat_zsmul]; rfl
+      · rw [Int.ofNat_eq_coe, ofNat_zsmul]; rfl
       · rw [negSucc_zsmul]; rfl)
 
 instance : Add (ComphausFilteredPseudoNormedGroupHom M₁ M₂) :=
@@ -805,7 +832,7 @@ instance hasZsmul : SMul ℤ (ComphausFilteredPseudoNormedGroupHom M₁ M₂) :=
 
 instance : AddCommGroup (ComphausFilteredPseudoNormedGroupHom M₁ M₂) :=
   Function.Injective.addCommGroup ComphausFilteredPseudoNormedGroupHom.toAddMonoidHom
-    (fun f g h => by ext; rw [AddMonoidHom.ext_iff] at h ; exact h x) rfl (fun _ _ => rfl)
+    (fun f g h => by ext x; rw [AddMonoidHom.ext_iff] at h ; exact h x) rfl (fun _ _ => rfl)
     (fun _ => rfl) (fun _ _ => rfl) (fun _ _ => rfl) fun _ _ => rfl
 
 @[simps]
@@ -851,9 +878,10 @@ theorem sub_apply (f g : ComphausFilteredPseudoNormedGroupHom M₁ M₂) (x : M�
 theorem sum_apply {ι : Type _} (s : Finset ι) (f : ι → ComphausFilteredPseudoNormedGroupHom M₁ M₂)
     (x : M₁) : (∑ i in s, f i) x = ∑ i in s, f i x := by
   classical
-  apply Finset.induction_on s
-  · simp only [Finset.sum_empty]; rfl
-  · intro i s his IH
+  -- Porting note: `apply Finset.induction_on s` is written with `induction ... using`
+  induction s using Finset.induction_on with
+  | empty => simp only [Finset.sum_empty]; rfl
+  | @insert i s his IH =>
     simp only [Finset.sum_insert his, add_apply, IH]
 
 theorem sumBoundBy {ι : Type _} (s : Finset ι) (f : ι → ComphausFilteredPseudoNormedGroupHom M₁ M₂)
@@ -861,9 +889,10 @@ theorem sumBoundBy {ι : Type _} (s : Finset ι) (f : ι → ComphausFilteredPse
   by
   classical
   revert hf
-  apply Finset.induction_on s
-  · intro; simp only [Finset.sum_empty]; exact zero_bound_by_zero
-  · intro i s his IH hf
+  induction s using Finset.induction_on with
+  | empty => intro; simp only [Finset.sum_empty]; exact zeroBoundByZero
+  | @insert i s his IH =>
+    intro hf
     simp only [Finset.sum_insert his]
     apply (hf _ (s.mem_insert_self i)).add (IH fun j hj => hf _ <| Finset.mem_insert_of_mem hj)
 
@@ -909,29 +938,31 @@ def filtrationPiHomeo (c : ℝ≥0) : filtration (∀ i, M i) c ≃ₜ ∀ i, fi
   continuous_invFun := by
     rw [continuous_def]
     rintro s ⟨t, ht, s_eq⟩
-    simpa [← s_eq] using continuous_def.1 _ t ht
-    · rw [PseudoNormedGroup.filtrationPiEquiv, continuous_def]
-      intro U hU
-      simp only [*, Equiv.coe_fn_mk, Set.preimage_id', Subtype.coe_eta, Subtype.coe_mk]
+    -- Porting note: Lean 3's `continuous_def.1 _` left the continuity of this map (which is
+    -- the identity) as a side goal; it is given explicitly
+    have : Continuous fun x : (∀ i, filtration (M i) c) =>
+        filtrationPiEquiv M c ⟨fun i => x i, fun i => (x i).2⟩ :=
+      continuous_id
+    simpa [← s_eq] using continuous_def.1 this t ht
 
 instance pi_t2 (c : ℝ≥0) : T2Space (filtration (∀ i, M i) c) :=
   by
   have : T2Space (∀ i, filtration (M i) c) := inferInstance
   apply
-    @Embedding.t2Space _ _ _ _ this (filtration_pi_homeo M c) (filtration_pi_homeo M c).Embedding
+    @Embedding.t2Space _ _ _ _ this (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c) (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c).embedding
 
 /-
 instance pi_td (c : ℝ≥0) : totally_disconnected_space (filtration (Π i, M i) c) :=
 begin
   obtain ⟨H⟩ : totally_disconnected_space (Π i, filtration (M i) c) := infer_instance,
-  rw [← homeomorph.range_coe (filtration_pi_homeo M c), ← set.image_univ] at H,
-  exact ⟨embedding.is_totally_disconnected (filtration_pi_homeo M c).embedding H⟩,
+  rw [← homeomorph.range_coe (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c), ← set.image_univ] at H,
+  exact ⟨embedding.is_totally_disconnected (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c).embedding H⟩,
 end
 -/
 instance pi_compact (c : ℝ≥0) : CompactSpace (filtration (∀ i, M i) c) :=
   by
   obtain ⟨H⟩ : CompactSpace (∀ i, filtration (M i) c) := inferInstance
-  rw [← homeomorph.compact_image (filtration_pi_homeo M c).symm, Set.image_univ,
+  rw [← Homeomorph.isCompact_image (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c).symm, Set.image_univ,
     Homeomorph.range_coe] at H 
   exact ⟨H⟩
 
@@ -941,38 +972,41 @@ def prodPiHomeoPiProd [∀ i, ComphausFilteredPseudoNormedGroup (M i)] (c₁ c�
     where
   toFun x i := ⟨⟨x.1.1 i, x.1.2 i⟩, ⟨x.2.1 i, x.2.2 i⟩⟩
   invFun x := ⟨⟨fun i => (x i).1.1, fun i => (x i).1.2⟩, ⟨fun i => (x i).2.1, fun i => (x i).2.2⟩⟩
-  left_inv := by rintro ⟨x, hx⟩; simp only [Subtype.coe_eta, Subtype.val_eq_coe]
+  left_inv := by rintro ⟨x, hx⟩; simp only [Subtype.coe_eta]
   right_inv := by intro x; ext <;> rfl
   continuous_toFun := by
     apply continuous_pi
     intro i
     apply Continuous.prod_mk
-    have h₁ := (Homeomorph.comp_continuous_iff (filtration_pi_homeo M c₁)).mpr continuous_fst
+    have h₁ := (Homeomorph.comp_continuous_iff (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c₁)).mpr
+      (continuous_fst : Continuous (Prod.fst : filtration (∀ i, M i) c₁ × filtration (∀ i, M i) c₂ → _))
     exact (continuous_apply i).comp h₁
-    have h₂ := (Homeomorph.comp_continuous_iff (filtration_pi_homeo M c₂)).mpr continuous_snd
+    -- Porting note: the domain of `Prod.snd` has to be given in Lean 4
+    have h₂ := (Homeomorph.comp_continuous_iff (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c₂)).mpr
+      (continuous_snd : Continuous (Prod.snd : filtration (∀ i, M i) c₁ × filtration (∀ i, M i) c₂ → _))
     exact (continuous_apply i).comp h₂
   continuous_invFun := by
     apply Continuous.prod_mk
     let f₁ : (∀ i, filtration (M i) c₁ × filtration (M i) c₂) → filtration (∀ i, M i) c₁ := fun x =>
-      ⟨fun i : ι => (x i).fst.val, fun i => (x i).fst.Prop⟩
-    have : Continuous (filtration_pi_homeo M c₁ ∘ f₁) :=
+      ⟨fun i : ι => (x i).fst.val, fun i => (x i).fst.prop⟩
+    have : Continuous (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c₁ ∘ f₁) :=
       by
       apply continuous_pi
       intro i
-      dsimp [filtration_pi_homeo, f₁]
+      dsimp [ComphausFilteredPseudoNormedGroup.filtrationPiHomeo, f₁]
       simp only [Subtype.coe_eta]
       exact continuous_fst.comp (continuous_apply i)
-    exact (Homeomorph.comp_continuous_iff (filtration_pi_homeo M c₁)).mp this
+    exact (Homeomorph.comp_continuous_iff (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c₁)).mp this
     let f₂ : (∀ i, filtration (M i) c₁ × filtration (M i) c₂) → filtration (∀ i, M i) c₂ := fun x =>
-      ⟨fun i : ι => (x i).snd.val, fun i => (x i).snd.Prop⟩
-    have : Continuous (filtration_pi_homeo M c₂ ∘ f₂) :=
+      ⟨fun i : ι => (x i).snd.val, fun i => (x i).snd.prop⟩
+    have : Continuous (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c₂ ∘ f₂) :=
       by
       apply continuous_pi
       intro i
-      dsimp [filtration_pi_homeo, f₂]
+      dsimp [ComphausFilteredPseudoNormedGroup.filtrationPiHomeo, f₂]
       simp only [Subtype.coe_eta]
       exact continuous_snd.comp (continuous_apply i)
-    exact (Homeomorph.comp_continuous_iff (filtration_pi_homeo M c₂)).mp this
+    exact (Homeomorph.comp_continuous_iff (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c₂)).mp this
 
 instance pi : ComphausFilteredPseudoNormedGroup (∀ i, M i) :=
   {
@@ -980,26 +1014,25 @@ instance pi : ComphausFilteredPseudoNormedGroup (∀ i, M i) :=
       M with
     continuous_add' := by
       intro c₁ c₂
-      rw [← Homeomorph.comp_continuous_iff (filtration_pi_homeo M (c₁ + c₂)), ←
+      rw [← Homeomorph.comp_continuous_iff (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M (c₁ + c₂)), ←
         Homeomorph.comp_continuous_iff' (ComphausFilteredPseudoNormedGroup.prodPiHomeoPiProd M c₁ c₂).symm]
       apply continuous_pi
       intro i
       exact (continuous_add' c₁ c₂).comp (continuous_apply i)
     continuous_neg' := by
       intro c
-      rw [← Homeomorph.comp_continuous_iff (filtration_pi_homeo M c), ←
-        Homeomorph.comp_continuous_iff' (filtration_pi_homeo M c).symm]
+      rw [← Homeomorph.comp_continuous_iff (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c), ←
+        Homeomorph.comp_continuous_iff' (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c).symm]
       apply continuous_pi
       intro i
       exact (continuous_neg' c).comp (continuous_apply i)
     continuous_castLe := by
       intro c₁ c₂ h
-      rw [← Homeomorph.comp_continuous_iff (filtration_pi_homeo M c₂), ←
-        Homeomorph.comp_continuous_iff' (filtration_pi_homeo M c₁).symm]
+      rw [← Homeomorph.comp_continuous_iff (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c₂), ←
+        Homeomorph.comp_continuous_iff' (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c₁).symm]
       apply continuous_pi
       intro i
-      have := @continuous_cast_le _ _ _ _ h
-      exact this.comp (continuous_apply i) }
+      exact (continuous_castLe (M := M i) c₁ c₂).comp (continuous_apply i) }
 
 variable {M}
 
@@ -1008,10 +1041,11 @@ def piProj (i : ι) : ComphausFilteredPseudoNormedGroupHom (∀ i, M i) (M i) :=
   ComphausFilteredPseudoNormedGroupHom.mkOfBound (Pi.evalAddMonoidHom M i) 1 <|
     by
     refine' fun c => ⟨fun x hx => by rw [one_mul]; exact hx i, _⟩
-    have := (continuous_apply i).comp (filtration_pi_homeo M c).continuous
+    have hc := (continuous_apply i).comp (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c).continuous
     haveI : Fact (c ≤ 1 * c) := by rw [one_mul]; exact ⟨le_rfl⟩
-    rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe c (1 * c)).continuous_iff] at this 
-    convert this using 0
+    -- Porting note: the continuity hypothesis is named, since `haveI` shadows `this`
+    rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe (M := M i) c (1 * c)).continuous_iff] at hc
+    convert hc using 0
 
 theorem piProjBoundBy (i : ι) : (@piProj _ M _ i).BoundBy 1 :=
   ComphausFilteredPseudoNormedGroupHom.mkOfBoundBoundBy _ _ _
@@ -1031,7 +1065,7 @@ def piLift {N : Type _} [ComphausFilteredPseudoNormedGroup N]
       rw [continuous_induced_rng]
       apply continuous_pi
       intro i
-      let g := Function.eval i ∘ filtration_pi_homeo M c₂ ∘ f₀
+      let g := Function.eval i ∘ ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c₂ ∘ f₀
       refine' (f i).continuous g fun x => _
       specialize hf₀ x; rw [Function.funext_iff] at hf₀ 
       exact hf₀ i }
@@ -1064,8 +1098,8 @@ variable {ι : Type _} (M : ι → Type _) [∀ i, ProfinitelyFilteredPseudoNorm
 instance pi_td (c : ℝ≥0) : TotallyDisconnectedSpace (filtration (∀ i, M i) c) :=
   by
   obtain ⟨H⟩ : TotallyDisconnectedSpace (∀ i, filtration (M i) c) := inferInstance
-  rw [← Homeomorph.range_coe (filtration_pi_homeo M c), ← Set.image_univ] at H 
-  exact ⟨Embedding.isTotallyDisconnected (filtration_pi_homeo M c).Embedding H⟩
+  rw [← Homeomorph.range_coe (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c), ← Set.image_univ] at H 
+  exact ⟨Embedding.isTotallyDisconnected (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo M c).embedding H⟩
 
 instance pi : ProfinitelyFilteredPseudoNormedGroup (∀ i, M i) :=
   { (inferInstance : ComphausFilteredPseudoNormedGroup _) with }

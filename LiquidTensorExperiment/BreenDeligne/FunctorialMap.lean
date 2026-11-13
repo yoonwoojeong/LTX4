@@ -109,7 +109,7 @@ open free_abelian_group
 -- this is now on `free-abelian-group-equivs` branch
 def punit_equiv : ℤ[punit] ≃+ ℤ :=
 { inv_fun := λ n, n • of (punit.star),
-  to_fun := free_abelian_group.lift (λ _, (1 : ℤ)),
+  toFun := free_abelian_group.lift (λ _, (1 : ℤ)),
   left_inv := λ z, free_abelian_group.induction_on z
     (by {dsimp only, rw [add_monoid_hom.map_zero, zero_smul]})
     (λ x, punit.cases_on x (by simp))
@@ -120,7 +120,7 @@ def punit_equiv : ℤ[punit] ≃+ ℤ :=
 
 -- this is now on `free-abelian-group-equivs` branch
 def equiv_of_equiv {α β : Type*} (f : α ≃ β) : free_abelian_group α ≃+ free_abelian_group β :=
-{ to_fun := free_abelian_group.lift $ free_abelian_group.of ∘ f,
+{ toFun := free_abelian_group.lift $ free_abelian_group.of ∘ f,
   inv_fun := free_abelian_group.lift $ free_abelian_group.of ∘ f.symm,
   left_inv := begin
     intros x,
@@ -153,7 +153,7 @@ lemma lift_smul_eq_lift {A : Type*} [add_comm_group A] (a : A) (c : ℤ[punit]) 
   (free_abelian_group.lift (λ _, (1 : ℤ))) c • a = free_abelian_group.lift (λ _, a) c :=
 begin
   rw ← punit_equiv.left_inv c,
-  generalize : punit_equiv.to_fun c = d,
+  generalize : punit_equiv.toFun c = d,
   delta punit_equiv, dsimp only,
   apply int.induction_on d,
   { simp },
@@ -308,7 +308,7 @@ end
 @[simps]
 def universal_map_equiv_functorial_map (m n : ℕ) : universal_map m n ≃+ functorial_map.{u} m n :=
 { -- The construction of a functorial map from a universal map.
-  to_fun := λ U, to_functorial_map U,
+  toFun := λ U, to_functorial_map U,
   -- The construction of a universal map from a functorial map
   inv_fun := λ F, from_functorial_map F,
   -- We check that given a universal map, constructing a functorial map and then

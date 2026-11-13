@@ -100,8 +100,8 @@ end PolyhedralLattice
 /-- A morphism of polyhedral lattices is a norm-nonincreasing group homomorphism. -/
 structure PolyhedralLatticeHom (Λ₁ Λ₂ : Type _) [PolyhedralLattice Λ₁] [PolyhedralLattice Λ₂] where
   toFun : Λ₁ → Λ₂
-  map_add' : ∀ l₁ l₂, to_fun (l₁ + l₂) = to_fun l₁ + to_fun l₂
-  strict' : ∀ l, ‖to_fun l‖ ≤ ‖l‖
+  map_add' : ∀ l₁ l₂, toFun (l₁ + l₂) = toFun l₁ + toFun l₂
+  strict' : ∀ l, ‖toFun l‖ ≤ ‖l‖
 
 namespace AddMonoidHom
 

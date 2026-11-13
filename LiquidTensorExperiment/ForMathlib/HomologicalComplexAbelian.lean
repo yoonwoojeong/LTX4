@@ -43,9 +43,9 @@ def liftOfIsLimitEval (t : Cone F) (h : ∀ i, IsLimit <| (eval V c i).mapCone t
 def isLimitOfIsLimitEval (t : Cone F) (h : ∀ i, IsLimit <| (eval V c i).mapCone t) : IsLimit t
     where
   lift := liftOfIsLimitEval F t h
-  fac := by intro s j; ext; dsimp; exact (h Pell.Solution₁.x).fac _ j
+  fac := by intro s j; ext; dsimp; exact (h x).fac _ j
   uniq := by
-    intro s m w; ext; apply (h Pell.Solution₁.x).hom_ext
+    intro s m w; ext; apply (h x).hom_ext
     intro j; dsimp; erw [(h x).fac _ j]; exact congr_f (w j) x
 
 variable [∀ i : ι, HasLimit (F ⋙ eval V c i)]
@@ -126,9 +126,9 @@ def descOfIsColimitEval (t : Cocone F) (h : ∀ i, IsColimit <| (eval V c i).map
 def isColimitOfIsColimitEval (t : Cocone F) (h : ∀ i, IsColimit <| (eval V c i).mapCocone t) :
     IsColimit t where
   desc := descOfIsColimitEval F t h
-  fac := by intro s j; ext; dsimp; exact (h Pell.Solution₁.x).fac _ j
+  fac := by intro s j; ext; dsimp; exact (h x).fac _ j
   uniq := by
-    intro s m w; ext; apply (h Pell.Solution₁.x).hom_ext
+    intro s m w; ext; apply (h x).hom_ext
     intro j; dsimp; erw [(h x).fac _ j]; exact congr_f (w j) x
 
 variable [∀ i : ι, HasColimit (F ⋙ eval V c i)]
@@ -234,12 +234,12 @@ attribute [local tidy] tactic.case_bash
 def biproductBiconeIsProd : IsLimit (biproductBicone X Y).toCone
     where
   lift := fun Z : BinaryFan _ _ => biproduct.lift Z.fst Z.snd
-  uniq := by intros; delta CategoryTheory.Limits.BinaryFan.fst CategoryTheory.Limits.BinaryFan.snd; ext <;> simp [← W]
+  uniq := by intros; delta CategoryTheory.Limits.BinaryFan.fst CategoryTheory.Limits.BinaryFan.snd; ext <;> simp [← w]
 
 def biproductBiconeIsCoprod : IsColimit (biproductBicone X Y).toCocone
     where
   desc := fun Z : BinaryCofan _ _ => biproduct.desc Z.inl Z.inr
-  uniq := by intros; delta CategoryTheory.Limits.BinaryCofan.inl CategoryTheory.Limits.BinaryCofan.inr; ext <;> simp [← W]
+  uniq := by intros; delta CategoryTheory.Limits.BinaryCofan.inl CategoryTheory.Limits.BinaryCofan.inr; ext <;> simp [← w]
 
 def biproductIsBiprod : BinaryBiproductData X Y
     where

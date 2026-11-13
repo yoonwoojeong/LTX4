@@ -499,7 +499,7 @@ variables (r' c)
 def Fintype_functor [fact (0 < r')] : Fintype.{u} ⥤ Profinite.{u} :=
 { obj := λ S, Profinite.of $ Lbar_le r' S c,
   map := λ S T f,
-  { to_fun := map f,
+  { toFun := map f,
     continuous_to_fun := map_continuous _ },
   map_id' := λ S, begin
     ext1,
@@ -568,7 +568,7 @@ def Fintype_bifunctor [fact (0 < r')] : ℝ≥0 ⥤ Fintype.{u} ⥤ Profinite.{u
 { obj := λ c, Fintype_functor r' c,
   map := λ c₁ c₂ f,
   { app := λ S,
-    { to_fun := @Lbar_le.cast_le r' S _ c₁ c₂ ⟨le_of_hom f⟩,
+    { toFun := @Lbar_le.cast_le r' S _ c₁ c₂ ⟨le_of_hom f⟩,
       continuous_to_fun := by apply continuous_cast_le } },
   map_id' := λ c, by { ext, refl },
   map_comp' := λ a b c f g, by { ext, refl } }

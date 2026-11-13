@@ -43,8 +43,8 @@ section Defs
 `∑_n |a_{s,n}|r^n` converges. ) -/
 structure Lbar (r' : ℝ≥0) (S : Type u) [Fintype S] where
   toFun : S → ℕ → ℤ
-  coeff_zero' : ∀ s, to_fun s 0 = 0
-  summable' : ∀ s, Summable fun n => ↑(to_fun s n).natAbs * r' ^ n
+  coeff_zero' : ∀ s, toFun s 0 = 0
+  summable' : ∀ s, Summable fun n => ↑(toFun s n).natAbs * r' ^ n
 
 end Defs
 

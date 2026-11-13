@@ -77,9 +77,9 @@ with an action of T⁻¹. -/
 structure ComphausFilteredPseudoNormedGroupWithTinvHom (r' : ℝ≥0) (M₁ M₂ : Type _)
     [ComphausFilteredPseudoNormedGroupWithTinv r' M₁]
     [ComphausFilteredPseudoNormedGroupWithTinv r' M₂] extends M₁ →+ M₂ where
-  strict' : ∀ ⦃c x⦄, x ∈ filtration M₁ c → to_fun x ∈ filtration M₂ c
-  continuous' : ∀ c, Continuous (PseudoNormedGroup.level to_fun strict' c)
-  map_Tinv' : ∀ x, to_fun (tinv x) = tinv (to_fun x)
+  strict' : ∀ ⦃c x⦄, x ∈ filtration M₁ c → toFun x ∈ filtration M₂ c
+  continuous' : ∀ c, Continuous (PseudoNormedGroup.level toFun strict' c)
+  map_Tinv' : ∀ x, toFun (tinv x) = tinv (toFun x)
 
 end
 

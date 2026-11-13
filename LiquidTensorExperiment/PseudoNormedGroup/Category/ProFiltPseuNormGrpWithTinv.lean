@@ -44,7 +44,7 @@ attribute [local instance] bundled_hom
 has_coe_to_sort[has_coe_to_sort] α (Sort*) -/
 /-
 instance bundled_hom : bundled_hom (@comphaus_filtered_pseudo_normed_group_with_Tinv_hom r') :=
-⟨@comphaus_filtered_pseudo_normed_group_with_Tinv_hom.to_fun r',
+⟨@comphaus_filtered_pseudo_normed_group_with_Tinv_hom.toFun r',
  @comphaus_filtered_pseudo_normed_group_with_Tinv_hom.id r',
  @comphaus_filtered_pseudo_normed_group_with_Tinv_hom.comp r',
  @comphaus_filtered_pseudo_normed_group_with_Tinv_hom.coe_inj r'⟩

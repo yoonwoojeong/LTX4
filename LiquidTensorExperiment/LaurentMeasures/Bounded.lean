@@ -20,7 +20,7 @@ open Set
   Note that this is a finite type.  -/
 structure LaurentMeasuresBdd (r : ℝ≥0) (S : FintypeCat) (T : Finset ℤ) (c : ℝ≥0) where
   toFun : S → T → ℤ
-  bound' : ∑ (s) (i), ‖to_fun s i‖₊ * r ^ (i : ℤ) ≤ c
+  bound' : ∑ (s) (i), ‖toFun s i‖₊ * r ^ (i : ℤ) ≤ c
 
 namespace LaurentMeasuresBdd
 

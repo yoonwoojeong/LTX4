@@ -598,7 +598,7 @@ eq_to_iso (if_pos h)
 def Ext_compute_with_acyclic_inv_eq_aux (B) (i) :
   AddCommGroup.of (C ⟶ (homological_complex.single _ _ (-i)).obj B) ⟶
   ((Ext i).obj (op (of' C))).obj ((single 𝓐 0).obj B) :=
-{ to_fun := λ f, (of' C).π ≫ begin
+{ toFun := λ f, (of' C).π ≫ begin
     refine (homotopy_category.quotient _ _).map _,
     refine _ ≫ (homological_complex.single_shift _ _).inv.app _,
     refine (f : C ⟶ (homological_complex.single 𝓐 (complex_shape.up ℤ) (-i)).obj B) ≫ _,
@@ -633,7 +633,7 @@ kernel ((((preadditive_yoneda.obj B).map_homological_complex _).obj
   ⟶ AddCommGroup.of (
   -- from C to B j
   C ⟶ (homological_complex.single 𝓐 (complex_shape.up ℤ) j).obj B) :=
-{ to_fun := λ f, { f := λ k,
+{ toFun := λ f, { f := λ k,
   if hk : k = j then
     (eq_to_hom (by rw hk) : C.X k ⟶ C.X j) ≫
     (kernel.ι ((((preadditive_yoneda.obj B).map_homological_complex _).obj

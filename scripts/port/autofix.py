@@ -77,6 +77,10 @@ def field_candidates(field, owner):
 
 
 def ident_candidates(x):
+    # only Lean 3 style names (snake_case or dotted); an unknown short name such as `x` is
+    # usually a local variable and must never be resolved to some unrelated declaration
+    if '_' not in x.strip('_') and '.' not in x:
+        return []
     if x in ALIGN and known(ALIGN[x]):
         return [ALIGN[x]]
     if x in ALIGN_SUFFIX:

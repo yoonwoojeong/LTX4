@@ -162,7 +162,7 @@ theorem exists_partition (N : ℕ) (hN : 0 < N) (f : ℕ → ℝ≥0) (hf : ∀ 
     by
     rintro ⟨k⟩ i
     · simp [mask]
-    rw [← partition_sums Thm95.UniversalConstants.k N hN f hf i]
+    rw [← partition_sums k N hN f hf i]
     exact (partition N hN f hf k).h₂ i
   refine' ⟨mask, _, _⟩
   · intro n; exact (partition N hN f hf n).hm

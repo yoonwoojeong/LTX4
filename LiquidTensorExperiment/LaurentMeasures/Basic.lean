@@ -22,16 +22,16 @@ open scoped BigOperators NNReal Classical
 
 /-
 structure c_measures (r : ℝ≥0) (c : ℝ≥0) (S : Fintype) :=
-(to_fun     : S → ℤ → ℤ)
-(summable   : ∀ s, summable (λ n, (∥ to_fun s n ∥₊ * r ^ n)))
-(bdd        : ∀ s, tsum (λ n, (∥ to_fun s n ∥₊ * r ^ n)) ≤ c)
+(toFun     : S → ℤ → ℤ)
+(summable   : ∀ s, summable (λ n, (∥ toFun s n ∥₊ * r ^ n)))
+(bdd        : ∀ s, tsum (λ n, (∥ toFun s n ∥₊ * r ^ n)) ≤ c)
 -/
 /-- A term of type `laurent_measures r S` is, for each `s : S`, a function `φ : ℤ → ℤ`
   (typically thought of as a power series `∑ φ(n)Tⁿ`) such that `∑ |φ(n)|rⁿ` converges.
   Note that if `0<r<1` then the support of φ can only contain finitely many negative integers.  -/
 structure LaurentMeasures (r : ℝ≥0) (S : FintypeCat) where
   toFun : S → ℤ → ℤ
-  summable' : ∀ s, Summable fun n => ‖to_fun s n‖₊ * r ^ n
+  summable' : ∀ s, Summable fun n => ‖toFun s n‖₊ * r ^ n
 
 variable {r : ℝ≥0} {S S' : FintypeCat.{u}}
 
@@ -656,7 +656,7 @@ end ProfiniteStructure
 /-
 --should this be a coercion?
 def c_measures_to_oc (r : ℝ≥0) (c : ℝ≥0) (S : Type*) (hS : fintype S) :
-  c_measures r c S hS → ℒ S hS := λ f, ⟨f.to_fun, f.summable⟩
+  c_measures r c S hS → ℒ S hS := λ f, ⟨f.toFun, f.summable⟩
 
 lemma laurent_measures_are_c (r : ℝ≥0) (S : Type*) (hS : fintype S) (F : ℒ S hS) :
   ∃ (c : ℝ≥0) (f : c_measures r c S hS),
