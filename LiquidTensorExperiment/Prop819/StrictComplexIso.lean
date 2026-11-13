@@ -5,23 +5,17 @@ import Mathlib.Algebra.Homology.Additive
 
 namespace SemiNormedGroupCat
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 protected class StrictIso {A B : SemiNormedGroupCat} (f : A ≅ B) where
-  strict_hom' : ∀ a : A, «expr∥ ∥₊» (f.hom a) = «expr∥ ∥₊» a
+  strict_hom' : ∀ a : A, ‖f.hom a‖₊ = ‖a‖₊
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
 theorem strictIso_hom {A B : SemiNormedGroupCat} (f : A ≅ B) [StrictIso f] (a : A) :
-    «expr∥ ∥₊» (f.hom a) = «expr∥ ∥₊» a :=
+    ‖f.hom a‖₊ = ‖a‖₊ :=
   StrictIso.strict_hom' _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
 theorem strictIso_inv {A B : SemiNormedGroupCat} (f : A ≅ B) [StrictIso f] (b : B) :
-    «expr∥ ∥₊» (f.inv b) = «expr∥ ∥₊» b :=
+    ‖f.inv b‖₊ = ‖b‖₊ :=
   by
   have : b = f.hom (f.inv b) := by change b = (f.inv ≫ f.hom) b; simp
   conv_rhs => rw [this]

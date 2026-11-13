@@ -69,34 +69,23 @@ First, we break off the main term `∥res m - (M.d i' i) m₁∥` into a sum of 
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_sub_le_split {k' c c₁ : ℝ≥0} {i i' i'' : ℕ} [hk' : Fact (1 ≤ k')] [fc : Fact (c ≤ c₁)]
-    (hfnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : M c i), «expr∥ ∥» (f.apply x) = «expr∥ ∥» x)
+    (hfnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : M c i), ‖f.apply x‖ = ‖x‖)
     {n₁ : N (k' * c) i'} {n₂ : N c i''} {nnew₁ : N c i'} {m₁ : M c i'} {m : M c₁ i}
     (hm₁ : f m₁ = res n₁ - (N.d i'' i') n₂ - nnew₁) :
-    «expr∥ ∥» (res m - (M.d i' i) m₁) ≤
-      «expr∥ ∥» ((res (f m) : N c i) - N.d i' i (res n₁)) +
-        «expr∥ ∥» (N.d i' i ((N.d i'' i') n₂ + nnew₁) : N c i) :=
+    ‖(res m - (M.d i' i) m₁)‖ ≤
+      ‖((res (f m) : N c i) - N.d i' i (res n₁))‖ +
+        ‖(N.d i' i ((N.d i'' i') n₂ + nnew₁) : N c i)‖ :=
   calc
-    «expr∥ ∥» (res m - (M.d i' i) m₁) = «expr∥ ∥» (f (res m - (M.d i' i) m₁)) := (hfnorm _ _ _).symm
-    _ = «expr∥ ∥» (res (f m) - (N.d i' i (res n₁) - N.d i' i ((N.d i'' i') n₂ + nnew₁))) := by
+    ‖(res m - (M.d i' i) m₁)‖ = ‖(f (res m - (M.d i' i) m₁))‖ := (hfnorm _ _ _).symm
+    _ = ‖(res (f m) - (N.d i' i (res n₁) - N.d i' i ((N.d i'' i') n₂ + nnew₁)))‖ := by
       rw [hom_apply, _root_.map_sub, ← hom_apply, ← hom_apply, ← res_apply, ← d_apply, hm₁, sub_sub,
         _root_.map_sub]
-    _ = «expr∥ ∥» (res (f m) - N.d i' i (res n₁) + N.d i' i ((N.d i'' i') n₂ + nnew₁)) := by
+    _ = ‖(res (f m) - N.d i' i (res n₁) + N.d i' i ((N.d i'' i') n₂ + nnew₁))‖ := by
       rw [sub_eq_add_neg, neg_sub, sub_eq_neg_add, ← add_assoc, ← sub_eq_add_neg]
     _ ≤
-        «expr∥ ∥» (res (f m) - N.d i' i (res n₁)) +
-          «expr∥ ∥» (N.d i' i ((N.d i'' i') n₂ + nnew₁)) :=
+        ‖(res (f m) - N.d i' i (res n₁))‖ +
+          ‖(N.d i' i ((N.d i'' i') n₂ + nnew₁))‖ :=
       norm_add_le _ _
 
 /-!
@@ -110,24 +99,17 @@ producing the inequality
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_sub_le_hMul_norm_add_lhs {k' K c c₁ : ℝ≥0} {ε₁ : ℝ} {i i' : ℕ} [hk' : Fact (1 ≤ k')]
     [fc₁ : Fact (k' * c ≤ c₁)] [fc : Fact (c ≤ c₁)] {n₁ : N (k' * c) i'} {m : M c₁ i}
     (hN_adm : N.Admissible)
-    (hn₁ : «expr∥ ∥» (res (f m) - (N.d i' i) n₁) ≤ K * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + ε₁) :
-    «expr∥ ∥» ((res (f m) : N c i) - N.d i' i (res n₁)) ≤
-      K * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + ε₁ :=
+    (hn₁ : ‖(res (f m) - (N.d i' i) n₁)‖ ≤ K * ‖((N.d i (i + 1)) (f m))‖ + ε₁) :
+    ‖((res (f m) : N c i) - N.d i' i (res n₁))‖ ≤
+      K * ‖((N.d i (i + 1)) (f m))‖ + ε₁ :=
   calc
-    «expr∥ ∥» ((res (f m) : N c i) - N.d i' i (res n₁)) =
-        «expr∥ ∥» (res (res (f m) - (N.d i' i) n₁)) :=
+    ‖((res (f m) : N c i) - N.d i' i (res n₁))‖ =
+        ‖(res (res (f m) - (N.d i' i) n₁))‖ :=
       by rw [_root_.map_sub, d_res, ← res_res]
-    _ ≤ K * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + ε₁ := trans (hN_adm.res_normNoninc _ c _ _ _) hn₁
+    _ ≤ K * ‖((N.d i (i + 1)) (f m))‖ + ε₁ := trans (hN_adm.res_normNoninc _ c _ _ _) hn₁
 
 /-!
 And we also massage the right-hand side.  Here, the factor `K' * r₁ * r₂` appears.
@@ -137,55 +119,34 @@ producing the inequality `(dis : ∥(N.d i' i) nnew₁∥ ≤ ∥nnew₁∥)`.)
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_sub_le_hMul_norm_add_rhs {k' K K' r₁ r₂ c c₁ : ℝ≥0} {ε₁ ε₂ : ℝ} {i i' i'' : ℕ}
     (hii' : i' + 1 = i) [hk' : Fact (1 ≤ k')] [fc₁ : Fact (k' * c ≤ c₁)]
-    (hgnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : N c i), «expr∥ ∥» (g x) ≤ ↑r₁ * «expr∥ ∥» x)
+    (hgnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : N c i), ‖g x‖ ≤ ↑r₁ * ‖x‖)
     {n₁ : N (k' * c) i'} {n₂ : N c i''} {nnew₁ : N c i'} {m : M c₁ i} (hN_adm : N.Admissible)
-    (hn₁ : «expr∥ ∥» (res (f m) - (N.d i' i) n₁) ≤ K * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + ε₁)
+    (hn₁ : ‖(res (f m) - (N.d i' i) n₁)‖ ≤ K * ‖((N.d i (i + 1)) (f m))‖ + ε₁)
     (hp₂ :
-      «expr∥ ∥» (res (g n₁) - (P.d i'' i') (g n₂)) ≤ K' * «expr∥ ∥» ((P.d i' (i' + 1)) (g n₁)) + ε₂)
-    (hnormnnew₁ : «expr∥ ∥» nnew₁ ≤ r₂ * «expr∥ ∥» (g (res n₁ - (N.d i'' i') n₂)))
-    (hfm : «expr∥ ∥» (g ((N.d i' i) n₁)) = «expr∥ ∥» (g (res (f m) - (N.d i' i) n₁))) :
-    «expr∥ ∥» (N.d i' i ((N.d i'' i') n₂ + nnew₁) : N c i) ≤
-      K * K' * r₁ * r₂ * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + K' * r₁ * r₂ * ε₁ + r₂ * ε₂ :=
+      ‖(res (g n₁) - (P.d i'' i') (g n₂))‖ ≤ K' * ‖((P.d i' (i' + 1)) (g n₁))‖ + ε₂)
+    (hnormnnew₁ : ‖nnew₁‖ ≤ r₂ * ‖(g (res n₁ - (N.d i'' i') n₂))‖)
+    (hfm : ‖(g ((N.d i' i) n₁))‖ = ‖(g (res (f m) - (N.d i' i) n₁))‖) :
+    ‖(N.d i' i ((N.d i'' i') n₂ + nnew₁) : N c i)‖ ≤
+      K * K' * r₁ * r₂ * ‖((N.d i (i + 1)) (f m))‖ + K' * r₁ * r₂ * ε₁ + r₂ * ε₂ :=
   calc
-    «expr∥ ∥» (N.d i' i ((N.d i'' i') n₂ + nnew₁) : N c i) = «expr∥ ∥» (N.d i' i nnew₁) := by
+    ‖(N.d i' i ((N.d i'' i') n₂ + nnew₁) : N c i)‖ = ‖N.d i' i nnew₁‖ := by
       simp only [map_add, zero_add, d_d]
-    _ ≤ r₂ * «expr∥ ∥» (g (res n₁ - (N.d i'' i') n₂)) :=
+    _ ≤ r₂ * ‖(g (res n₁ - (N.d i'' i') n₂))‖ :=
       (trans (hN_adm.d_normNoninc _ _ i' i nnew₁) hnormnnew₁)
-    _ = r₂ * «expr∥ ∥» (res (g n₁) - P.d i'' i' (g n₂)) := by
+    _ = r₂ * ‖(res (g n₁) - P.d i'' i' (g n₂))‖ := by
       rw [hom_apply, _root_.map_sub, ← hom_apply, ← hom_apply, ← res_apply _ _ g, ← d_apply]
-    _ ≤ r₂ * (K' * «expr∥ ∥» (P.d i' (i' + 1) (g n₁)) + ε₂) :=
+    _ ≤ r₂ * (K' * ‖(P.d i' (i' + 1) (g n₁))‖ + ε₂) :=
       (mul_le_mul_of_nonneg_left hp₂ r₂.coe_nonneg)
-    _ = r₂ * (K' * «expr∥ ∥» (g (res (f m) - N.d i' i n₁)) + ε₂) := by
+    _ = r₂ * (K' * ‖(g (res (f m) - N.d i' i n₁))‖ + ε₂) := by
       rw [d_apply _ _ g _, hii', hfm]
-    _ ≤ r₂ * (K' * (r₁ * «expr∥ ∥» (res (f m) - N.d i' i n₁)) + ε₂) :=
+    _ ≤ r₂ * (K' * (r₁ * ‖(res (f m) - N.d i' i n₁)‖) + ε₂) :=
       (mul_le_mul_of_nonneg_left
           (add_le_add_right (mul_le_mul_of_nonneg_left (hgnorm _ _ _) K'.coe_nonneg) _) <|
         r₂.coe_nonneg)
-    _ = r₂ * (K' * r₁ * «expr∥ ∥» (res (f m) - N.d i' i n₁) + ε₂) := by rw [mul_assoc]
-    _ ≤ r₂ * (K' * r₁ * (K * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + ε₁) + ε₂) :=
+    _ = r₂ * (K' * r₁ * ‖(res (f m) - N.d i' i n₁)‖ + ε₂) := by rw [mul_assoc]
+    _ ≤ r₂ * (K' * r₁ * (K * ‖((N.d i (i + 1)) (f m))‖ + ε₁) + ε₂) :=
       (mul_le_mul_of_nonneg_left
         (add_le_add_right (mul_le_mul_of_nonneg_left hn₁ <| mul_nonneg K'.coe_nonneg r₁.coe_nonneg)
           _)
@@ -203,66 +164,42 @@ The rest is simple manipulations of real numbers.
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_sub_le_hMul_norm_add {k' K K' r₁ r₂ c c₁ : ℝ≥0} {ε ε₁ ε₂ : ℝ} {i i' i'' : ℕ}
     (hii' : i' + 1 = i) [hk' : Fact (1 ≤ k')] [fc₁ : Fact (k' * c ≤ c₁)] [fc : Fact (c ≤ c₁)]
     (hN_adm : N.Admissible)
-    (hgnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : N c i), «expr∥ ∥» (g x) ≤ ↑r₁ * «expr∥ ∥» x)
-    (hfnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : M c i), «expr∥ ∥» (f.apply x) = «expr∥ ∥» x)
+    (hgnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : N c i), ‖g x‖ ≤ ↑r₁ * ‖x‖)
+    (hfnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : M c i), ‖f.apply x‖ = ‖x‖)
     {n₁ : N (k' * c) i'} {n₂ : N c i''} {nnew₁ : N c i'} {m₁ : M c i'} {m : M c₁ i}
     (hmulε₁ : ε₁ * (1 + K' * r₁ * r₂) = ε / 2) (hle : (r₂ : ℝ) * ε₂ ≤ ε / 2)
-    (hn₁ : «expr∥ ∥» (res (f m) - (N.d i' i) n₁) ≤ K * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + ε₁)
+    (hn₁ : ‖(res (f m) - (N.d i' i) n₁)‖ ≤ K * ‖((N.d i (i + 1)) (f m))‖ + ε₁)
     (hp₂ :
-      «expr∥ ∥» (res (g n₁) - (P.d i'' i') (g n₂)) ≤ K' * «expr∥ ∥» ((P.d i' (i' + 1)) (g n₁)) + ε₂)
-    (hnormnnew₁ : «expr∥ ∥» nnew₁ ≤ r₂ * «expr∥ ∥» (g (res n₁ - (N.d i'' i') n₂)))
+      ‖(res (g n₁) - (P.d i'' i') (g n₂))‖ ≤ K' * ‖((P.d i' (i' + 1)) (g n₁))‖ + ε₂)
+    (hnormnnew₁ : ‖nnew₁‖ ≤ r₂ * ‖(g (res n₁ - (N.d i'' i') n₂))‖)
     (hm₁ : f m₁ = res n₁ - (N.d i'' i') n₂ - nnew₁)
-    (hfm : «expr∥ ∥» (g ((N.d i' i) n₁)) = «expr∥ ∥» (g (res (f m) - (N.d i' i) n₁))) :
-    «expr∥ ∥» (res m - (M.d i' i) m₁) ≤
-      (K + r₁ * r₂ * K * K') * «expr∥ ∥» ((M.d i (i + 1)) m) + ε :=
+    (hfm : ‖(g ((N.d i' i) n₁))‖ = ‖(g (res (f m) - (N.d i' i) n₁))‖) :
+    ‖(res m - (M.d i' i) m₁)‖ ≤
+      (K + r₁ * r₂ * K * K') * ‖((M.d i (i + 1)) m)‖ + ε :=
   calc
-    «expr∥ ∥» (res m - (M.d i' i) m₁) ≤
-        «expr∥ ∥» (res (f m) - N.d i' i (res n₁)) +
-          «expr∥ ∥» (N.d i' i ((N.d i'' i') n₂ + nnew₁)) :=
+    ‖(res m - (M.d i' i) m₁)‖ ≤
+        ‖(res (f m) - N.d i' i (res n₁))‖ +
+          ‖(N.d i' i ((N.d i'' i') n₂ + nnew₁))‖ :=
       norm_sub_le_split hfnorm hm₁
     _ ≤
-        K * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + ε₁ +
-          (K * K' * r₁ * r₂ * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + K' * r₁ * r₂ * ε₁ + r₂ * ε₂) :=
+        K * ‖((N.d i (i + 1)) (f m))‖ + ε₁ +
+          (K * K' * r₁ * r₂ * ‖((N.d i (i + 1)) (f m))‖ + K' * r₁ * r₂ * ε₁ + r₂ * ε₂) :=
       (add_le_add (norm_sub_le_hMul_norm_add_lhs hN_adm hn₁)
         (norm_sub_le_hMul_norm_add_rhs hii' hgnorm hN_adm hn₁ hp₂ hnormnnew₁ hfm))
     _ =
-        (K + r₁ * r₂ * K * K') * «expr∥ ∥» (N.d i (i + 1) (f m)) + ε₁ * (1 + K' * r₁ * r₂) +
+        (K + r₁ * r₂ * K * K') * ‖(N.d i (i + 1) (f m))‖ + ε₁ * (1 + K' * r₁ * r₂) +
           r₂ * ε₂ :=
       by ring
-    _ = (K + r₁ * r₂ * K * K') * «expr∥ ∥» (N.d i (i + 1) (f m)) + ε / 2 + r₂ * ε₂ :=
+    _ = (K + r₁ * r₂ * K * K') * ‖(N.d i (i + 1) (f m))‖ + ε / 2 + r₂ * ε₂ :=
       (congr_arg
-        (fun e => (↑K + ↑r₁ * ↑r₂ * ↑K * ↑K') * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + e + ↑r₂ * ε₂)
+        (fun e => (↑K + ↑r₁ * ↑r₂ * ↑K * ↑K') * ‖((N.d i (i + 1)) (f m))‖ + e + ↑r₂ * ε₂)
         hmulε₁)
-    _ ≤ (K + r₁ * r₂ * K * K') * «expr∥ ∥» (N.d i (i + 1) (f m)) + ε / 2 + ε / 2 :=
+    _ ≤ (K + r₁ * r₂ * K * K') * ‖(N.d i (i + 1) (f m))‖ + ε / 2 + ε / 2 :=
       (add_le_add_left hle _)
-    _ = (K + r₁ * r₂ * K * K') * «expr∥ ∥» ((M.d i (i + 1)) m) + ε := by
+    _ = (K + r₁ * r₂ * K * K') * ‖((M.d i (i + 1)) m)‖ + ε := by
       rw [add_assoc, add_halves', d_apply, hom_apply, hfnorm]
 
 /-!
@@ -270,20 +207,16 @@ We shall apply this lemma with `ρ = K + r₁ * r₂ * K * K' = K * (1 + K' * r�
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem exists_norm_sub_le_hMul_add {k k' c ρ : ℝ≥0} {i : ℕ} [hk : Fact (1 ≤ k)]
     [hk' : Fact (1 ≤ k')] (hM_adm : M.Admissible)
     (ex_le :
       ∀ (m : M (k * (k' * c)) i) (ε : ℝ),
         0 < ε →
           ∃ (i₀ : ℕ) (hi₀ : i₀ = i - 1) (y : M c i₀),
-            «expr∥ ∥» (res m - (M.d i₀ i) y) ≤ ↑ρ * «expr∥ ∥» ((M.d i (i + 1)) m) + ε)
+            ‖(res m - (M.d i₀ i) y)‖ ≤ ↑ρ * ‖((M.d i (i + 1)) m)‖ + ε)
     {m₁ : M (k * k' * c) i} {ε : ℝ} (hε : 0 < ε) :
     ∃ (i₀ j : ℕ) (hi₀ : i₀ = i - 1) (hj : i + 1 = j) (y : M c i₀),
-      «expr∥ ∥» (res m₁ - (M.d i₀ i) y) ≤ ↑ρ * «expr∥ ∥» ((M.d i j) m₁) + ε :=
+      ‖(res m₁ - (M.d i₀ i) y)‖ ≤ ↑ρ * ‖((M.d i j) m₁)‖ + ε :=
   by
   haveI : Fact (k * (k' * c) ≤ k * k' * c) := { out := (mul_assoc _ _ _).symm.le }
   rcases ex_le (res m₁) ε hε with ⟨i₀, rfl, y, hy⟩
@@ -297,21 +230,13 @@ This argument proves the main inequality in the case where the indices are `0` o
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_sub_le_hMul_hMul_norm_add {M N : SystemOfComplexes} {f : M ⟶ N} {k k' K c : ℝ≥0}
     (mK : ℝ≥0) {ε ε₁ : ℝ} {m : M (k * (k' * c)) 0} {n₁ : N (k' * c) 0} {m₁ : M c 0} (ee1 : ε₁ ≤ ε)
     [hk : Fact (1 ≤ k)] [hk' : Fact (1 ≤ k')]
-    (hfnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : M c i), «expr∥ ∥» (f.apply x) = «expr∥ ∥» x)
-    (inadm : «expr∥ ∥» (res (res m : M (k' * c) 0) : M c 0) ≤ «expr∥ ∥» (res m : M (k' * c) 0))
-    (hn₁ : «expr∥ ∥» (res (f m) - (N.d 0 0) n₁) ≤ ↑K * «expr∥ ∥» ((N.d 0 (0 + 1)) (f m)) + ε₁) :
-    «expr∥ ∥» (res m - (M.d 0 0) m₁) ≤ K * (1 + mK) * «expr∥ ∥» ((M.d 0 (0 + 1)) m) + ε :=
+    (hfnorm : ∀ (c : ℝ≥0) (i : ℕ) (x : M c i), ‖f.apply x‖ = ‖x‖)
+    (inadm : ‖(res (res m : M (k' * c) 0) : M c 0)‖ ≤ ‖(res m : M (k' * c) 0)‖)
+    (hn₁ : ‖(res (f m) - (N.d 0 0) n₁)‖ ≤ ↑K * ‖((N.d 0 (0 + 1)) (f m))‖ + ε₁) :
+    ‖(res m - (M.d 0 0) m₁)‖ ≤ K * (1 + mK) * ‖((M.d 0 (0 + 1)) m)‖ + ε :=
   by
   simp only [d_self_apply, sub_zero, NNReal.coe_add, NNReal.coe_mul] at hn₁ ⊢
   rw [res_apply, hom_apply f (res m), hfnorm] at hn₁ 
@@ -330,37 +255,25 @@ normed snake dual lemma uses `ε = 0`.
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem exist_norm_sub_le_hMul_norm_add {k k' K K' r₁ r₂ c₀ c : ℝ≥0} {a i : ℕ} {ε : ℝ} (hε : 0 ≤ ε)
     [hk : Fact (1 ≤ k)] [hk' : Fact (1 ≤ k')] (hN_adm : N.Admissible)
-    (hgnrm : ∀ (c : ℝ≥0) (i : ℕ) (x : N c i), «expr∥ ∥» (g x) ≤ r₁ * «expr∥ ∥» x)
+    (hgnrm : ∀ (c : ℝ≥0) (i : ℕ) (x : N c i), ‖g x‖ ≤ r₁ * ‖x‖)
     (Hg :
       ∀ (c : ℝ≥0) [_inst_1 : Fact (c₀ ≤ c)] (i : ℕ),
-        i ≤ a + 1 + 1 → ∀ y : P c i, ∃ x : N c i, g x = y ∧ «expr∥ ∥» x ≤ r₂ * «expr∥ ∥» y)
+        i ≤ a + 1 + 1 → ∀ y : P c i, ∃ x : N c i, g x = y ∧ ‖x‖ ≤ r₂ * ‖y‖)
     (hg : ∀ (c : ℝ≥0) (i : ℕ), (range f.apply : AddSubgroup (N c i)) = ker g.apply)
     (hf : ∀ (c : ℝ≥0) (i : ℕ), (Isometry (f.apply : M c i ⟶ N c i) : _)) (hc : Fact (c₀ ≤ c))
     (hi : i ≤ a) {m : M (k * (k' * c)) i} {n₁ : N (k' * c) (i - 1)}
     (hn₁ :
-      «expr∥ ∥» (res (f m) - (N.d (i - 1) i) n₁) ≤
-        K * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + ε / 2 * (1 + K' * r₁ * r₂)⁻¹)
+      ‖(res (f m) - (N.d (i - 1) i) n₁)‖ ≤
+        K * ‖((N.d i (i + 1)) (f m))‖ + ε / 2 * (1 + K' * r₁ * r₂)⁻¹)
     (Hi' : i - 1 ≤ a + 1) (p₂ : P c (i - 1 - 1))
     (hp₂ :
-      «expr∥ ∥» (res (g n₁) - (P.d (i - 1 - 1) (i - 1)) p₂) ≤
-        K' * «expr∥ ∥» ((P.d (i - 1) (i - 1 + 1)) (g n₁)) + ite (r₂ = 0) 1 (ε / 2 * r₂⁻¹)) :
+      ‖(res (g n₁) - (P.d (i - 1 - 1) (i - 1)) p₂)‖ ≤
+        K' * ‖((P.d (i - 1) (i - 1 + 1)) (g n₁))‖ + ite (r₂ = 0) 1 (ε / 2 * r₂⁻¹)) :
     ∃ (i₀ : ℕ) (hi₀ : i₀ = i - 1) (y : M c i₀),
-      «expr∥ ∥» (res m - (M.d i₀ i) y) ≤
-        (K + r₁ * r₂ * K * K') * «expr∥ ∥» ((M.d i (i + 1)) m) + ε :=
+      ‖(res m - (M.d i₀ i) y)‖ ≤
+        (K + r₁ * r₂ * K * K') * ‖((M.d i (i + 1)) m)‖ + ε :=
   by
   obtain ⟨n₂, rfl, hnormn₂⟩ :=
     Hg c (i - 1 - 1) (trans (Nat.pred_le _) (trans Hi' (Nat.le_succ _))) p₂
@@ -371,7 +284,7 @@ theorem exist_norm_sub_le_hMul_norm_add {k k' K K' r₁ r₂ c₀ c : ℝ≥0} {
   rw [← hg] at hker 
   obtain ⟨m₁, hm₁ : f m₁ = res n₁ - n₁' - nnew₁⟩ := (mem_range _ _).1 hker
   refine' ⟨i - 1, rfl, m₁, _⟩
-  have hfnrm : ∀ (c i) (x : M c i), «expr∥ ∥» (f.apply x) = «expr∥ ∥» x := fun c i x =>
+  have hfnrm : ∀ (c i) (x : M c i), ‖f.apply x‖ = ‖x‖ := fun c i x =>
     (AddMonoidHomClass.isometry_iff_norm _).1 (hf c i) x
   by_cases hizero : i = 0
   · subst hizero
@@ -398,19 +311,15 @@ We apply this lemma with `ρ = K + r₁ * r₂ * K * K'`.
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem exists_norm_sub_le_hMul {M : SystemOfComplexes} {k k' c ρ : ℝ≥0} {i : ℕ} [hk : Fact (1 ≤ k)]
     [hk' : Fact (1 ≤ k')] (hM_adm : M.Admissible)
     (ex_le :
       ∀ m : M (k * (k' * c)) i,
         ∃ (i₀ : ℕ) (hi₀ : i₀ = i - 1) (y : M c i₀),
-          «expr∥ ∥» (res m - (M.d i₀ i) y) ≤ ↑ρ * «expr∥ ∥» ((M.d i (i + 1)) m))
+          ‖(res m - (M.d i₀ i) y)‖ ≤ ↑ρ * ‖((M.d i (i + 1)) m)‖)
     (m₁ : M (k * k' * c) i) :
     ∃ (i₀ j : ℕ) (hi₀ : i₀ = i - 1) (hj : i + 1 = j) (y : M c i₀),
-      «expr∥ ∥» (res m₁ - (M.d i₀ i) y) ≤ ↑ρ * «expr∥ ∥» ((M.d i j) m₁) :=
+      ‖(res m₁ - (M.d i₀ i) y)‖ ≤ ↑ρ * ‖((M.d i j) m₁)‖ :=
   by
   haveI : Fact (k * (k' * c) ≤ k * k' * c) := { out := (mul_assoc _ _ _).symm.le }
   rcases ex_le (res m₁) with ⟨i₀, rfl, y, hy⟩
@@ -426,17 +335,13 @@ Finally, we state and prove the weak normed snake dual lemma.
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem weakNormedSnakeDual (k k' K K' r₁ r₂ : ℝ≥0) [hk : Fact (1 ≤ k)] [hk' : Fact (1 ≤ k')]
     {a : ℕ} {c₀ : ℝ≥0} (hN : N.IsWeakBoundedExact k K (a + 1) c₀)
     (hP : P.IsWeakBoundedExact k' K' (a + 1) c₀) (hN_adm : N.Admissible)
-    (hgnrm : ∀ (c i) (x : N c i), «expr∥ ∥» (g x) ≤ r₁ * «expr∥ ∥» x)
+    (hgnrm : ∀ (c i) (x : N c i), ‖g x‖ ≤ r₁ * ‖x‖)
     (Hg :
       ∀ (c : ℝ≥0) [Fact (c₀ ≤ c)] (i : ℕ) (hi : i ≤ a + 1 + 1) (y : P c i),
-        ∃ x : N c i, g x = y ∧ «expr∥ ∥» x ≤ r₂ * «expr∥ ∥» y)
+        ∃ x : N c i, g x = y ∧ ‖x‖ ≤ r₂ * ‖y‖)
     (hg : ∀ c i, (f.apply : M c i ⟶ N c i).range = g.apply.ker)
     (hf : ∀ c i, @Isometry (M c i) (N c i) _ _ f.apply) :
     M.IsWeakBoundedExact (k * k') (K + r₁ * r₂ * K * K') a c₀ :=
@@ -465,19 +370,12 @@ And also the normed snake dual lemma.
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem normedSnakeDual {k k' K K' r₁ r₂ : ℝ≥0} [hk : Fact (1 ≤ k)] [hk' : Fact (1 ≤ k')] {a : ℕ}
     {c₀ : ℝ≥0} (hN : N.IsBoundedExact k K (a + 1) c₀) (hP : P.IsBoundedExact k' K' (a + 1) c₀)
-    (hN_adm : N.Admissible) (hgnorm : ∀ (c i) (x : N c i), «expr∥ ∥» (g x) ≤ r₁ * «expr∥ ∥» x)
+    (hN_adm : N.Admissible) (hgnorm : ∀ (c i) (x : N c i), ‖g x‖ ≤ r₁ * ‖x‖)
     (Hg :
       ∀ (c : ℝ≥0) [Fact (c₀ ≤ c)] (i : ℕ) (hi : i ≤ a + 1 + 1) (y : P c i),
-        ∃ x : N c i, g x = y ∧ «expr∥ ∥» x ≤ r₂ * «expr∥ ∥» y)
+        ∃ x : N c i, g x = y ∧ ‖x‖ ≤ r₂ * ‖y‖)
     (hg : ∀ c i, (f.apply : M c i ⟶ N c i).range = g.apply.ker)
     (hf : ∀ c i, @Isometry (M c i) (N c i) _ _ f.apply) :
     M.IsBoundedExact (k * k') (K + r₁ * r₂ * K * K') a c₀ :=
@@ -489,10 +387,10 @@ theorem normedSnakeDual {k k' K K' r₁ r₂ : ℝ≥0} [hk : Fact (1 ≤ k)] [h
     hN _ ⟨hc.out.trans <| le_mul_of_one_le_left' hk'.out⟩ _ (trans hi a.le_succ) (f m)
   have Hi' : i - 1 ≤ a + 1 := trans i.pred_le (trans hi a.le_succ)
   obtain ⟨_, _, rfl, rfl, p₂, hp₂⟩ := hP _ hc _ Hi' (g n₁)
-  rw [← add_zero (_ * «expr∥ ∥» _)]
+  rw [← add_zero (_ * ‖_‖)]
   have hn₁₁ :
-    «expr∥ ∥» (res (f m) - (N.d (i - 1) i) n₁) ≤
-      K * «expr∥ ∥» ((N.d i (i + 1)) (f m)) + 0 / 2 * (1 + K' * r₁ * r₂)⁻¹
+    ‖(res (f m) - (N.d (i - 1) i) n₁)‖ ≤
+      K * ‖((N.d i (i + 1)) (f m))‖ + 0 / 2 * (1 + K' * r₁ * r₂)⁻¹
   rwa [zero_div, MulZeroClass.zero_mul, add_zero]
   obtain F := exist_norm_sub_le_hMul_norm_add rfl.le hN_adm hgnorm Hg hg hf hc hi hn₁₁ Hi' p₂
   by_cases hr : r₂ = 0

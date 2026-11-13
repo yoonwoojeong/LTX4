@@ -21,23 +21,10 @@ namespace SystemOfComplexes
 
 variable (C : SystemOfComplexes)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def NormExactComplex (D : CochainComplex SemiNormedGroupCat ℕ) : Prop :=
   ∀ (m : ℕ) (ε : ℝ≥0) (hε : 0 < ε) (x : D.pt m) (hx : D.d _ (m + 1) x = 0),
-    ∃ y : D.pt (m - 1), D.d _ _ y = x ∧ «expr∥ ∥₊» y ≤ (1 + ε) * «expr∥ ∥₊» x
+    ∃ y : D.pt (m - 1), D.d _ _ y = x ∧ ‖y‖₊ ≤ (1 + ε) * ‖x‖₊
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem weakExactOfFactorExact (k : ℝ≥0) [Fact (1 ≤ k)] (m : ℕ) (c₀ : ℝ≥0)
     (D : ℝ≥0 → CochainComplex SemiNormedGroupCat ℕ) (hD : ∀ c, c₀ ≤ c → NormExactComplex (D c))
     (f : ∀ c, C.obj (op <| k * c) ⟶ D c) (g : ∀ c, D c ⟶ C.obj (op c))
@@ -58,7 +45,7 @@ theorem weakExactOfFactorExact (k : ℝ≥0) [Fact (1 ≤ k)] (m : ℕ) (c₀ : 
       _ = 0 := by rw [(D c).d_comp_d _ _ _]; rfl
   let ε : ℝ≥0 := ⟨ε', hε'.le⟩
   have hε : 0 < ε := hε'
-  let δ : ℝ≥0 := ε / («expr∥ ∥₊» dx + 1)
+  let δ : ℝ≥0 := ε / (‖dx‖₊ + 1)
   have hδ : 0 < δ := by
     rw [← NNReal.coe_lt_coe]
     exact div_pos hε (lt_of_le_of_lt (NNReal.coe_nonneg _) (lt_add_one _))
@@ -81,15 +68,15 @@ theorem weakExactOfFactorExact (k : ℝ≥0) [Fact (1 ≤ k)] (m : ℕ) (c₀ : 
       _ = gx' := by rw [← _root_.map_sub, hdy, sub_sub_cancel]
     rw [gdy_dgy, ← comp_apply, ← HomologicalComplex.comp_f, hfg _ hc.1]; rfl
   rw [hxdgy]
-  change («expr∥ ∥₊» gx' : ℝ) ≤ «expr∥ ∥₊» dx + ε
+  change (‖gx'‖₊ : ℝ) ≤ ‖dx‖₊ + ε
   simp only [← NNReal.coe_add, NNReal.coe_le_coe]
   calc
-    «expr∥ ∥₊» gx' ≤ «expr∥ ∥₊» x' := hg _ _ _
-    _ ≤ (1 + δ) * «expr∥ ∥₊» fdx := hnorm_x'
-    _ ≤ (1 + δ) * «expr∥ ∥₊» dx := (mul_le_mul' le_rfl (hf _ _ _))
-    _ ≤ «expr∥ ∥₊» dx + δ * «expr∥ ∥₊» dx := by rw [add_mul, one_mul]
-    _ ≤ «expr∥ ∥₊» dx + ε * 1 := (add_le_add le_rfl _)
-    _ ≤ «expr∥ ∥₊» dx + ε := by rw [mul_one]
+    ‖gx'‖₊ ≤ ‖x'‖₊ := hg _ _ _
+    _ ≤ (1 + δ) * ‖fdx‖₊ := hnorm_x'
+    _ ≤ (1 + δ) * ‖dx‖₊ := (mul_le_mul' le_rfl (hf _ _ _))
+    _ ≤ ‖dx‖₊ + δ * ‖dx‖₊ := by rw [add_mul, one_mul]
+    _ ≤ ‖dx‖₊ + ε * 1 := (add_le_add le_rfl _)
+    _ ≤ ‖dx‖₊ + ε := by rw [mul_one]
   dsimp only [δ]
   rw [div_eq_mul_inv, mul_assoc]
   refine' mul_le_mul' le_rfl _

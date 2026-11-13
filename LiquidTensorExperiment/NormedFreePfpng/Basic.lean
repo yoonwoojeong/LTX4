@@ -39,21 +39,17 @@ noncomputable section
 
 open scoped Classical
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance : NNNorm (NormedFreePfpng p S) :=
-  ⟨fun f => ∑ s, «expr∥ ∥₊» (f s) ^ (p : ℝ)⟩
+  ⟨fun f => ∑ s, ‖f s‖₊ ^ (p : ℝ)⟩
 
 namespace NormedFreePfpng
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 protected theorem nnnorm_def (f : NormedFreePfpng p S) :
-    «expr∥ ∥₊» f = ∑ s, «expr∥ ∥₊» (f s) ^ (p : ℝ) :=
+    ‖f‖₊ = ∑ s, ‖f s‖₊ ^ (p : ℝ) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_zero [Fact (0 < p)] : «expr∥ ∥₊» (0 : NormedFreePfpng p S) = 0 :=
+theorem nnnorm_zero [Fact (0 < p)] : ‖0 : NormedFreePfpng p S‖₊ = 0 :=
   by
   change ∑ _, _ = _;
   simp only [Pi.zero_apply, nnnorm_zero, Finset.sum_const, nsmul_eq_mul, mul_eq_zero,
@@ -61,22 +57,12 @@ theorem nnnorm_zero [Fact (0 < p)] : «expr∥ ∥₊» (0 : NormedFreePfpng p S
     NNReal.coe_eq_zero, true_and_iff]
   right; have : 0 < p := Fact.out _; exact this.ne'
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_neg (f : NormedFreePfpng p S) : «expr∥ ∥₊» (-f) = «expr∥ ∥₊» f := by
+theorem nnnorm_neg (f : NormedFreePfpng p S) : ‖-f‖₊ = ‖f‖₊ := by
   change ∑ _, _ = _; simpa
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem nnnorm_add [Fact (0 ≤ p)] [Fact (p ≤ 1)] (f₁ f₂ : NormedFreePfpng p S) :
-    «expr∥ ∥₊» (f₁ + f₂) ≤ «expr∥ ∥₊» f₁ + «expr∥ ∥₊» f₂ :=
+    ‖f₁ + f₂‖₊ ≤ ‖f₁‖₊ + ‖f₂‖₊ :=
   by
   change ∑ _, _ ≤ ∑ _, _ + ∑ _, _
   rw [← Finset.sum_add_distrib]
@@ -85,35 +71,28 @@ theorem nnnorm_add [Fact (0 ≤ p)] [Fact (p ≤ 1)] (f₁ f₂ : NormedFreePfpn
   have h0p : 0 ≤ p := Fact.out _
   have hp1 : p ≤ 1 := Fact.out _
   calc
-    «expr∥ ∥₊» ((f₁ + f₂) s) ^ ↑p ≤ («expr∥ ∥₊» (f₁ s) + «expr∥ ∥₊» (f₂ s)) ^ ↑p :=
+    ‖((f₁ + f₂) s)‖₊ ^ ↑p ≤ (‖f₁ s‖₊ + ‖f₂ s‖₊) ^ ↑p :=
       NNReal.rpow_le_rpow (nnnorm_add_le _ _) h0p
-    _ ≤ «expr∥ ∥₊» (f₁ s) ^ ↑p + «expr∥ ∥₊» (f₂ s) ^ ↑p := NNReal.rpow_add_le_add_rpow _ _ h0p hp1
+    _ ≤ ‖f₁ s‖₊ ^ ↑p + ‖f₂ s‖₊ ^ ↑p := NNReal.rpow_add_le_add_rpow _ _ h0p hp1
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance (c) : TopologicalSpace {f : NormedFreePfpng p S | «expr∥ ∥₊» f ≤ c} :=
+instance (c) : TopologicalSpace {f : NormedFreePfpng p S | ‖f‖₊ ≤ c} :=
   ⊥
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance (c) : DiscreteTopology {f : NormedFreePfpng p S | «expr∥ ∥₊» f ≤ c} :=
+instance (c) : DiscreteTopology {f : NormedFreePfpng p S | ‖f‖₊ ≤ c} :=
   ⟨rfl⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem norm_eval_le {c : NNReal} (s : S) (f : NormedFreePfpng p S) (hf : «expr∥ ∥₊» f ≤ c) :
-    «expr∥ ∥₊» (f s) ^ (p : ℝ) ≤ c :=
+theorem norm_eval_le {c : NNReal} (s : S) (f : NormedFreePfpng p S) (hf : ‖f‖₊ ≤ c) :
+    ‖f s‖₊ ^ (p : ℝ) ≤ c :=
   le_trans
     (by
-      apply @Finset.single_le_sum S NNReal _ (fun t => «expr∥ ∥₊» (f t) ^ (p : ℝ)) Finset.univ
+      apply @Finset.single_le_sum S NNReal _ (fun t => ‖f t‖₊ ^ (p : ℝ)) Finset.univ
       · intro _ _; apply zero_le
       · exact Finset.mem_univ s)
     hf
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance [Fact (0 < p)] (c) : Fintype {f : NormedFreePfpng p S | «expr∥ ∥₊» f ≤ c} :=
+instance [Fact (0 < p)] (c) : Fintype {f : NormedFreePfpng p S | ‖f‖₊ ≤ c} :=
   by
-  let A := {f : NormedFreePfpng p S | «expr∥ ∥₊» f ≤ c}
+  let A := {f : NormedFreePfpng p S | ‖f‖₊ ≤ c}
   let N := ⌈c ^ (p⁻¹ : ℝ)⌉₊
   have hN := @Nat.le_ceil ℝ≥0 _ _ (c ^ (p⁻¹ : ℝ))
   have h0p : 0 < p := Fact.out _
@@ -136,14 +115,13 @@ instance [Fact (0 < p)] (c) : Fintype {f : NormedFreePfpng p S | «expr∥ ∥�
 
 variable [Fact (0 < p)] [Fact (p ≤ 1)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance : ProfinitelyFilteredPseudoNormedGroup (NormedFreePfpng p S) :=
   {
     (inferInstance :
       AddCommGroup
         (NormedFreePfpng p
           S)) with
-    filtration := fun c => {f | «expr∥ ∥₊» f ≤ c}
+    filtration := fun c => {f | ‖f‖₊ ≤ c}
     filtration_mono := fun c₁ c₂ h f hf => le_trans hf h
     zero_mem_filtration := fun c => by simp
     neg_mem_filtration := fun c f hf => by simpa
@@ -152,8 +130,6 @@ instance : ProfinitelyFilteredPseudoNormedGroup (NormedFreePfpng p S) :=
     continuous_neg' := fun c => continuous_of_discreteTopology
     continuous_castLe := fun _ _ _ => continuous_of_discreteTopology }
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def map {S₁ S₂ : FintypeCat.{u}} (g : S₁ ⟶ S₂) :
     StrictComphausFilteredPseudoNormedGroupHom (NormedFreePfpng p S₁) (NormedFreePfpng p S₂)
     where
@@ -167,8 +143,8 @@ def map {S₁ S₂ : FintypeCat.{u}} (g : S₁ ⟶ S₂) :
     refine' le_trans _ hf
     simp only [NormedFreePfpng.nnnorm_def]
     have :
-      ∑ s₂, «expr∥ ∥₊» (∑ t in finset.univ.filter fun w => g w = s₂, f t) ^ (p : ℝ) ≤
-        ∑ s₂ : S₂, ∑ t in finset.univ.filter fun w => g w = s₂, «expr∥ ∥₊» (f t) ^ (p : ℝ) :=
+      ∑ s₂, ‖∑ t in finset.univ.filter fun w => g w = s₂, f t‖₊ ^ (p : ℝ) ≤
+        ∑ s₂ : S₂, ∑ t in finset.univ.filter fun w => g w = s₂, ‖f t‖₊ ^ (p : ℝ) :=
       by
       apply Finset.sum_le_sum
       intro i _
@@ -229,7 +205,6 @@ end NormedFreePfpng
 
 variable [Fact (0 < p)] [Fact (p ≤ 1)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- The functor represented by ℤ, i.e., sending a finite type `S` to
   `normed_free_pfpng p S`, otherwise known as `S → ℤ`,
   equipped with the "p-norm" sending `s ↦ f(s)` to `∑ₛ∥f(s)∥₊ᵖ`. This norm
@@ -239,7 +214,7 @@ def normedFreePfpngFunctor : FintypeCat ⥤ ProFiltPseuNormGrp₁
     where
   obj S :=
     { M := NormedFreePfpng p S
-      exhaustive' := fun f => ⟨«expr∥ ∥₊» f, le_refl _⟩ }
+      exhaustive' := fun f => ⟨‖f‖₊, le_refl _⟩ }
   map S₁ S₂ f := NormedFreePfpng.map p f
   map_id' S := NormedFreePfpng.map_id p S
   map_comp' _ _ _ g₁ g₂ := NormedFreePfpng.map_comp p g₁ g₂

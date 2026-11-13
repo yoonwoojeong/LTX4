@@ -39,10 +39,6 @@ open CategoryTheory
 
 variable {r' : ℝ≥0} [Fact (0 < r')]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- Like `polyhedral_lattice.Hom` but functorial in the first entry.
 Unfortunately, this means that the entries are now swapped.
 So `(PolyhedralLattice.Hom M).obj (op Λ) = Λ →+ M`. -/
@@ -58,10 +54,10 @@ def hom (M : ProFiltPseuNormGrpWithTinv r') : PolyhedralLatticeCatᵒᵖ ⥤ Pro
       continuous' := fun c => by
         rw [add_monoid_hom.continuous_iff]
         intro l
-        haveI : Fact («expr∥ ∥₊» (f.unop l) ≤ «expr∥ ∥₊» l) := ⟨f.unop.strict_nnnorm l⟩
+        haveI : Fact (‖f.unop l‖₊ ≤ ‖l‖₊) := ⟨f.unop.strict_nnnorm l⟩
         have aux :=
           (continuous_apply (f.unop l)).comp (add_monoid_hom.incl_continuous Λ₁.unop r' M c)
-        rwa [(embedding_cast_le (c * «expr∥ ∥₊» (f.unop l)) (c * «expr∥ ∥₊» l)).continuous_iff] at
+        rwa [(embedding_cast_le (c * ‖f.unop l‖₊) (c * ‖l‖₊)).continuous_iff] at
           aux 
       map_Tinv' := fun g => by ext l; rfl }
   map_id' Λ := by ext; rfl
@@ -104,15 +100,13 @@ theorem homZMapEquiv_strict (c : ℝ≥0) (f : hom ℤ M) :
       smulAddHom_apply, mul_comm]
     exact PseudoNormedGroup.filtration_mono (mul_le_mul_right' hn c) aux
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem homZMapEquiv_ctu (c : ℝ≥0) :
     Continuous (level (homZMapEquiv M) (fun c x => (homZMapEquiv_strict M c x).1) c) :=
   by
-  haveI : Fact (c * «expr∥ ∥₊» (1 : ℤ) ≤ c) := ⟨by rw [nnnorm_one, mul_one]⟩
+  haveI : Fact (c * ‖1 : ℤ‖₊ ≤ c) := ⟨by rw [nnnorm_one, mul_one]⟩
   have aux := add_monoid_hom.incl_continuous ℤ r' M c
   have aux2 := (continuous_apply 1).comp aux
-  rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * «expr∥ ∥₊» (1 : ℤ))
+  rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖1 : ℤ‖₊)
         c).continuous_iff] at
     aux2 
 

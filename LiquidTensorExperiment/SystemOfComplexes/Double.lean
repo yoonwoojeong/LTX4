@@ -55,11 +55,9 @@ theorem res_refl : @res C c c p q _ = 𝟙 _ :=
   have := CategoryTheory.Functor.map_id C (op <| c)
   delta res; erw [this]; rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
 theorem norm_res_of_eq (h : c₂ = c₁) (x : C.pt c₁ p q) :
-    «expr∥ ∥» (@res C _ _ p q ⟨h.le⟩ x) = «expr∥ ∥» x := by cases h; rw [res_refl]; rfl
+    ‖@res C _ _ p q ⟨h.le⟩ x‖ = ‖x‖ := by cases h; rw [res_refl]; rfl
 
 @[simp]
 theorem res_comp_res (h₁ : Fact (c₂ ≤ c₁)) (h₂ : Fact (c₃ ≤ c₂)) :

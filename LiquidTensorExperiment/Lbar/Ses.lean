@@ -74,7 +74,6 @@ theorem toLaurentMeasuresFun_nonpos (F : Invpoly r' S) (s : S) (n : ℕ) :
   · exact to_laurent_measures_fun_zero r' S F s
   · exact to_laurent_measures_fun_neg r' S F s n
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- The natural inclusion from an S-indexed set of polynomials `Fₛ : ℤ[T⁻¹]` to
 the corresponding power series `Fₛ : ℤ[[T]][T⁻¹]`. -/
 @[simps]
@@ -89,7 +88,7 @@ def toLaurentMeasures (F : Invpoly r' S) : LaurentMeasures r' S
       rw [← NNReal.summable_coe] at this 
       convert (Equiv.summable_iff (equiv.nonpos_ge_zero ℤ)).mpr _
       rotate_left
-      · exact fun a => («expr∥ ∥₊» ((F s).coeff (Int.toNat a)) * r' ^ (-a.1) : ℝ)
+      · exact fun a => (‖((F s).coeff (Int.toNat a))‖₊ * r' ^ (-a.1) : ℝ)
       rotate_left
       · apply funext
         rintro ⟨x, hx⟩
@@ -153,10 +152,8 @@ theorem Polynomial.sum_range_int_hMul_x_pow_coeff (f : ℕ → ℤ) (d n : ℕ) 
     (∑ i in range d, (f i : Polynomial ℤ) * X ^ i).coeff n = if n < d then f n else 0 :=
   Polynomial.sum_range_const_hMul_x_pow_coeff f d n
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem ofLaurentMeasures_strict [Fact (r' < 1)] (F : LaurentMeasures r' S) :
-    «expr∥ ∥₊» (ofLaurentMeasures r' S F) ≤ «expr∥ ∥₊» F :=
+    ‖ofLaurentMeasures r' S F‖₊ ≤ ‖F‖₊ :=
   by
   unfold NNNorm.nnnorm
   apply Finset.sum_le_sum; rintro s -
@@ -229,10 +226,8 @@ def toLaurentMeasuresAddhom : Invpoly r' S →+ LaurentMeasures r' S :=
       simp only [to_laurent_measures_fun, add_apply, to_laurent_measures_to_fun,
         LaurentMeasures.add_apply, Polynomial.coeff_add]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem toLaurentMeasuresAddhom_isometry (p : Invpoly r' S) :
-    «expr∥ ∥₊» ((toLaurentMeasuresAddhom r' S) p) = «expr∥ ∥₊» p :=
+    ‖((toLaurentMeasuresAddhom r' S) p)‖₊ = ‖p‖₊ :=
   by
   unfold nnnorm
   congr
@@ -375,7 +370,6 @@ theorem tsum_nat_eq_tsum_int {α : Type _} [AddCommMonoid α] [TopologicalSpace 
   have hx2 : ¬(x : ℤ) < 0 := fun h => Nat.not_lt_zero x (Int.ofNat_lt.1 h)
   simp [hx2]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem toLbarSection_mem_filtration (G : Lbar r' S) (c : ℝ≥0)
     (hG : G ∈ PseudoNormedGroup.filtration (Lbar r' S) c) :
     toLbarSection r' S G ∈ PseudoNormedGroup.filtration (LaurentMeasures r' S) c :=
@@ -385,7 +379,7 @@ theorem toLbarSection_mem_filtration (G : Lbar r' S) (c : ℝ≥0)
   change finset.univ.sum _ = finset.univ.sum _
   congr 1; ext s; norm_cast
   symm
-  convert tsum_nat_eq_tsum_int fun n => «expr∥ ∥₊» (G s n.toNat) * r' ^ n
+  convert tsum_nat_eq_tsum_int fun n => ‖G s n.toNat‖₊ * r' ^ n
   · ext n
     simp only [Int.natAbs, Nonneg.coe_mul, NNReal.coe_nat_cast, NNReal.coe_pow, Int.toNat_coe_nat,
       zpow_ofNat, coe_nnnorm, mul_eq_mul_right_iff, Int.natAbs, _root_.coe_nnnorm, Int.norm_eq_abs,
@@ -400,9 +394,7 @@ theorem toLbarSection_mem_filtration (G : Lbar r' S) (c : ℝ≥0)
 theorem toLbar_surjective : Function.Surjective (toLbar r' S) := fun G =>
   ⟨toLbarSection r' S G, toLbarSection_toLbar r' S G⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_toLbar (F : LaurentMeasures r' S) : «expr∥ ∥₊» (toLbar r' S F) ≤ «expr∥ ∥₊» F :=
+theorem nnnorm_toLbar (F : LaurentMeasures r' S) : ‖toLbar r' S F‖₊ ≤ ‖F‖₊ :=
   by
   rw [nnnorm_def, Lbar.nnnorm_def]
   refine' Finset.sum_le_sum fun s hs => _
@@ -414,7 +406,6 @@ theorem nnnorm_toLbar (F : LaurentMeasures r' S) : «expr∥ ∥₊» (toLbar r'
   simp only [NNReal.coe_natAbs, to_Lbar_to_fun, Function.comp_apply, zpow_ofNat]
   split_ifs; · rw [nnnorm_zero, MulZeroClass.zero_mul]; exact zero_le'; · rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- `to_Lbar_hom` is the `comphaus_filtered_pseudo_normed_group_with_Tinv_hom` version
 of `to_Lbar r S`, the function which truncates a Laurent power series in `ℤ[[T]][1/T]`
 to its positive terms in `Tℤ[[T]]`. -/
@@ -428,7 +419,7 @@ def toLbarHom : ComphausFilteredPseudoNormedGroupWithTinvHom r' (LaurentMeasures
   map_add' F G := by
     ext; simp only [to_Lbar_to_fun, add_apply, Lbar.coe_add, Pi.add_apply]
     split_ifs; · rw [add_zero]; · rfl
-  strict' c F (hF : «expr∥ ∥₊» F ≤ c) := (nnnorm_toLbar r' S F).trans hF
+  strict' c F (hF : ‖F‖₊ ≤ c) := (nnnorm_toLbar r' S F).trans hF
   continuous' c := by
     let f : _ := _; show Continuous f
     rw [LbarLe.continuous_iff]
@@ -482,8 +473,6 @@ namespace Lbar
 
 open CategoryTheory ProFiltPseuNormGrpWithTinv₁
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem shortExact (S : Profinite) [Fact (r' < 1)] :
     ShortExact
       ((condensifyMap
@@ -507,8 +496,8 @@ theorem shortExact (S : Profinite) [Fact (r' < 1)] :
         (show (0 : ℝ) < r' by norm_cast <;> exact Fact.elim inferInstance)
         (by norm_cast <;> exact Fact.elim inferInstance) F
     refine' ⟨Invpoly.ofLaurentMeasures r' S F, _, _⟩
-    · change «expr∥ ∥₊» _ ≤ c
-      change «expr∥ ∥₊» _ ≤ c at hF2 
+    · change ‖_‖₊ ≤ c
+      change ‖_‖₊ ≤ c at hF2 
       exact le_trans (Invpoly.ofLaurentMeasures_strict r' S F) hF2
     · ext s n
       change Invpoly.toLaurentMeasuresFun r' S _ s _ = _

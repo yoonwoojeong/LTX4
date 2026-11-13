@@ -59,14 +59,6 @@ def linearMap (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) : Locally
 
 variable [Fact (p ≤ 1)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- An auxiliary definition to be used in the constructions below. -/
 def weakDual (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) :
     WeakDual ℝ (LocallyConstant X ℝ) :=
@@ -74,14 +66,14 @@ def weakDual (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) :
     (by
       use c ^ (1 / (p : ℝ))
       intro e
-      suffices «expr∥ ∥₊» (LinearMap X p c S t e) ≤ c ^ (1 / (p : ℝ)) * «expr∥ ∥₊» e by
+      suffices ‖LinearMap X p c S t e‖₊ ≤ c ^ (1 / (p : ℝ)) * ‖e‖₊ by
         exact_mod_cast this
       have hp : 0 < (p : ℝ) := by exact_mod_cast Fact.out (0 < p)
       have hp' : (p : ℝ) ≠ 0 := ne_of_gt hp
       rw [← NNReal.rpow_le_rpow_iff hp, NNReal.mul_rpow, ← NNReal.rpow_mul]
       rw [show 1 / (p : ℝ) * p = 1 by field_simp, NNReal.rpow_one]
       have H := ((S.π.app e.discrete_quotient) t).2 ⊥
-      replace H := mul_le_mul H (le_refl («expr∥ ∥₊» e ^ (p : ℝ))) (zero_le _) (zero_le _)
+      replace H := mul_le_mul H (le_refl (‖e‖₊ ^ (p : ℝ))) (zero_le _) (zero_le _)
       refine' le_trans _ H
       rw [mul_comm, Finset.mul_sum]
       nth_rw 1 [e.eq_sum]
@@ -89,14 +81,13 @@ def weakDual (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) :
       refine' le_trans (Real.pow_nnnorm_sum_le _ _ _) _
       have :
         ∑ x : (⊥ : DiscreteQuotient e.discrete_quotient),
-            «expr∥ ∥₊» e ^ (p : ℝ) *
-              «expr∥ ∥₊»
-                  (((S.π.app e.discrete_quotient) t).val
-                    ((⊥ : DiscreteQuotient e.discrete_quotient).fibre x).indicatorLC) ^
+            ‖e‖₊ ^ (p : ℝ) *
+              ‖(((S.π.app e.discrete_quotient) t).val
+                    ((⊥ : DiscreteQuotient e.discrete_quotient).fibre x).indicatorLC)‖₊ ^
                 (p : ℝ) =
           ∑ x : e.discrete_quotient,
-            «expr∥ ∥₊» e ^ (p : ℝ) *
-              «expr∥ ∥₊» ((LinearMap X p c S t) (e.discrete_quotient.fibre x).indicatorLC) ^
+            ‖e‖₊ ^ (p : ℝ) *
+              ‖((LinearMap X p c S t) (e.discrete_quotient.fibre x).indicatorLC)‖₊ ^
                 (p : ℝ) :=
         by
         fapply Finset.sum_bij'
@@ -129,7 +120,7 @@ def weakDual (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) :
       refine' mul_le_mul _ (le_refl _) (zero_le _) (zero_le _)
       apply NNReal.rpow_le_rpow _ (le_of_lt hp)
       obtain ⟨x, rfl⟩ := DiscreteQuotient.proj_surjective _ x
-      change «expr∥ ∥₊» (e x) ≤ _
+      change ‖e x‖₊ ≤ _
       apply LocallyConstant.nnnorm_apply_le_nnnorm)
 
 /-- An auxiliary definition to be used in the constructions below. -/

@@ -20,7 +20,6 @@ noncomputable section
 
 open scoped BigOperators NNReal Classical
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-
 structure c_measures (r : ℝ≥0) (c : ℝ≥0) (S : Fintype) :=
 (to_fun     : S → ℤ → ℤ)
@@ -32,7 +31,7 @@ structure c_measures (r : ℝ≥0) (c : ℝ≥0) (S : Fintype) :=
   Note that if `0<r<1` then the support of φ can only contain finitely many negative integers.  -/
 structure LaurentMeasures (r : ℝ≥0) (S : FintypeCat) where
   toFun : S → ℤ → ℤ
-  summable' : ∀ s, Summable fun n => «expr∥ ∥₊» (to_fun s n) * r ^ n
+  summable' : ∀ s, Summable fun n => ‖to_fun s n‖₊ * r ^ n
 
 variable {r : ℝ≥0} {S S' : FintypeCat.{u}}
 
@@ -53,37 +52,30 @@ theorem ext (F G : ℒ S) : (F : S → ℤ → ℤ) = G → F = G := by intro h;
 theorem ext_iff (F G : ℒ S) : F = G ↔ ∀ s n, F s n = G s n :=
   ⟨fun h => by intros <;> rw [h], fun h => LaurentMeasures.ext F G <| by ext <;> apply h⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 protected theorem nNReal_summable (F : ℒ S) (s : S) :
-    Summable fun n => «expr∥ ∥₊» (F s n) * r ^ n :=
+    Summable fun n => ‖F s n‖₊ * r ^ n :=
   F.2 _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-protected theorem summable (F : ℒ S) (s : S) : Summable fun n => «expr∥ ∥» (F s n) * r ^ n := by
+protected theorem summable (F : ℒ S) (s : S) : Summable fun n => ‖F s n‖ * r ^ n := by
   simpa only [← NNReal.summable_coe, NNReal.coe_mul, coe_nnnorm, NNReal.coe_zpow] using
     F.nnreal_summable s
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- Move me
-theorem nonneg_of_norm_hMul_zpow (k n : ℤ) (r : ℝ≥0) : 0 ≤ «expr∥ ∥» k * (r : ℝ) ^ n :=
+theorem nonneg_of_norm_hMul_zpow (k n : ℤ) (r : ℝ≥0) : 0 ≤ ‖k‖ * (r : ℝ) ^ n :=
   mul_nonneg (norm_nonneg _) (zpow_nonneg (NNReal.coe_nonneg _) _)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def map (f : S ⟶ S') : ℒ S → ℒ S' := fun F =>
   { toFun := fun s' k => ∑ s in Finset.univ.filterₓ fun t => f t = s', F s k
     summable' := by
       intro s'
       have :
         ∀ n : ℤ,
-          «expr∥ ∥₊» (∑ s in finset.univ.filter fun t => f t = s', F s n) * r ^ n ≤
-            ∑ s in finset.univ.filter fun t => f t = s', «expr∥ ∥₊» (F s n) * r ^ n :=
+          ‖∑ s in finset.univ.filter fun t => f t = s', F s n‖₊ * r ^ n ≤
+            ∑ s in finset.univ.filter fun t => f t = s', ‖F s n‖₊ * r ^ n :=
         fun n =>
         calc
-          «expr∥ ∥₊» (∑ s in finset.univ.filter fun t => f t = s', F s n) * r ^ n ≤
-              (∑ s in finset.univ.filter fun t => f t = s', «expr∥ ∥₊» (F s n)) * r ^ n :=
+          ‖∑ s in finset.univ.filter fun t => f t = s', F s n‖₊ * r ^ n ≤
+              (∑ s in finset.univ.filter fun t => f t = s', ‖F s n‖₊) * r ^ n :=
             mul_le_mul' (nnnorm_sum_le _ _) le_rfl
           _ = _ := by rw [Finset.sum_mul]
       exact NNReal.summable_of_le this (summable_sum fun (s : S) _ => F.nnreal_summable s) }
@@ -181,32 +173,24 @@ instance : ContinuousSMul ℕ ℝ≥0
     have hf : Continuous f := Continuous.prod_map continuous_bot continuous_id
     simpa only [nsmul_eq_mul] using continuous_mul.comp hf
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- move me
 @[simp]
-theorem Int.norm_hMul (m n : ℤ) : «expr∥ ∥» (m * n) = «expr∥ ∥» m * «expr∥ ∥» n := by
+theorem Int.norm_hMul (m n : ℤ) : ‖m * n‖ = ‖m‖ * ‖n‖ := by
   simp only [Int.norm_eq_abs, Int.cast_mul, abs_mul]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- move me
 @[simp]
-theorem Int.nnnorm_hMul (m n : ℤ) : «expr∥ ∥₊» (m * n) = «expr∥ ∥₊» m * «expr∥ ∥₊» n := by
+theorem Int.nnnorm_hMul (m n : ℤ) : ‖m * n‖₊ = ‖m‖₊ * ‖n‖₊ := by
   ext <;> simp only [coe_nnnorm, Int.norm_hMul, Nonneg.coe_mul]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- move me
 @[simp]
-theorem Nat.norm_coe_int (n : ℕ) : «expr∥ ∥» (n : ℤ) = n := by
+theorem Nat.norm_coe_int (n : ℕ) : ‖n : ℤ‖ = n := by
   simp only [Int.norm_eq_abs, Int.cast_ofNat, Nat.abs_cast]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- move me
 @[simp]
-theorem Nat.nnnorm_coe_int (n : ℕ) : «expr∥ ∥₊» (n : ℤ) = n := by
+theorem Nat.nnnorm_coe_int (n : ℕ) : ‖n : ℤ‖₊ = n := by
   ext <;> simp only [coe_nnnorm, Nat.norm_coe_int, NNReal.coe_nat_cast]
 
 instance : AddCommMonoid (ℒ S) :=
@@ -255,47 +239,32 @@ instance : AddCommGroup (ℒ S) :=
     add_left_neg := fun F => by ext; simp only [zero_apply, add_apply, neg_apply, add_left_neg]
     add_comm := fun a b => by ext; dsimp; rw [add_comm] }
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 instance : Norm (ℒ S) :=
-  ⟨fun F => ∑ s, ∑' n, «expr∥ ∥» (F s n) * (r : ℝ) ^ n⟩
+  ⟨fun F => ∑ s, ∑' n, ‖F s n‖ * (r : ℝ) ^ n⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_def (F : ℒ S) : «expr∥ ∥» F = ∑ s, ∑' n, «expr∥ ∥» (F s n) * (r : ℝ) ^ n :=
+theorem norm_def (F : ℒ S) : ‖F‖ = ∑ s, ∑' n, ‖F s n‖ * (r : ℝ) ^ n :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance : NNNorm (ℒ S) :=
-  ⟨fun F => ∑ s, ∑' n, «expr∥ ∥₊» (F s n) * r ^ n⟩
+  ⟨fun F => ∑ s, ∑' n, ‖F s n‖₊ * r ^ n⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_def (F : ℒ S) : «expr∥ ∥₊» F = ∑ s, ∑' n, «expr∥ ∥₊» (F s n) * r ^ n :=
+theorem nnnorm_def (F : ℒ S) : ‖F‖₊ = ∑ s, ∑' n, ‖F s n‖₊ * r ^ n :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
-theorem coe_nnnorm (F : ℒ S) : («expr∥ ∥₊» F : ℝ) = «expr∥ ∥» F := by
+theorem coe_nnnorm (F : ℒ S) : (‖F‖₊ : ℝ) = ‖F‖ := by
   simp only [nnnorm_def, norm_def, NNReal.coe_sum, NNReal.coe_tsum, Nonneg.coe_mul, coe_nnnorm,
     NNReal.coe_zpow]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
-theorem LaurentMeasures.norm_nonneg (F : ℒ S) : 0 ≤ «expr∥ ∥» F := by
-  rw [← coe_nnnorm] <;> exact («expr∥ ∥₊» F).coe_nonneg
+theorem LaurentMeasures.norm_nonneg (F : ℒ S) : 0 ≤ ‖F‖ := by
+  rw [← coe_nnnorm] <;> exact (‖F‖₊).coe_nonneg
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_neg (F : ℒ S) : «expr∥ ∥₊» (-F) = «expr∥ ∥₊» F := by
+theorem nnnorm_neg (F : ℒ S) : ‖-F‖₊ = ‖F‖₊ := by
   simp only [nnnorm_def, neg_apply, nnnorm_neg]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_add (F G : ℒ S) : «expr∥ ∥₊» (F + G) ≤ «expr∥ ∥₊» F + «expr∥ ∥₊» G :=
+theorem nnnorm_add (F G : ℒ S) : ‖F + G‖₊ ≤ ‖F‖₊ + ‖G‖₊ :=
   by
   simp only [nnnorm_def, ← Finset.sum_add_distrib]
   apply Finset.sum_le_sum
@@ -307,10 +276,7 @@ theorem nnnorm_add (F G : ℒ S) : «expr∥ ∥₊» (F + G) ≤ «expr∥ ∥�
   simp [← add_mul]
   refine' mul_le_mul' (nnnorm_add_le _ _) le_rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_add (F G : ℒ S) : «expr∥ ∥» (F + G) ≤ «expr∥ ∥» F + «expr∥ ∥» G := by
+theorem norm_add (F G : ℒ S) : ‖F + G‖ ≤ ‖F‖ + ‖G‖ := by
   simpa only [← coe_nnnorm, ← NNReal.coe_add, NNReal.coe_le_coe] using nnnorm_add F G
 
 @[simp]
@@ -325,35 +291,26 @@ section
 
 open Finset
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem map_bound (f : S ⟶ S') (F : ℒ S) : «expr∥ ∥₊» (map f F) ≤ «expr∥ ∥₊» F :=
+theorem map_bound (f : S ⟶ S') (F : ℒ S) : ‖map f F‖₊ ≤ ‖F‖₊ :=
   calc
-    «expr∥ ∥₊» (map f F) =
-        ∑ s', ∑' n, «expr∥ ∥₊» (∑ s in univ.filterₓ fun t => f t = s', F s n) * _ :=
+    ‖map f F‖₊ =
+        ∑ s', ∑' n, ‖∑ s in univ.filterₓ fun t => f t = s', F s n‖₊ * _ :=
       rfl
-    _ ≤ ∑ s', ∑' n, ∑ s in univ.filterₓ fun t => f t = s', «expr∥ ∥₊» (F s n) * r ^ n :=
+    _ ≤ ∑ s', ∑' n, ∑ s in univ.filterₓ fun t => f t = s', ‖F s n‖₊ * r ^ n :=
       by
       apply sum_le_sum
       rintro s' -
       have h1 :
         Summable fun n : ℤ =>
-          ∑ s : S.α in univ.filter fun t => f t = s', «expr∥ ∥₊» (F s n) * r ^ n :=
+          ∑ s : S.α in univ.filter fun t => f t = s', ‖F s n‖₊ * r ^ n :=
         summable_sum fun s _ => F.nnreal_summable s
       have h2 :
         ∀ b : ℤ,
-          «expr∥ ∥₊» (∑ s : S.α in univ.filter fun t => f t = s', F s b) * r ^ b ≤
-            ∑ s : S.α in univ.filter fun t => f t = s', «expr∥ ∥₊» (F s b) * r ^ b :=
+          ‖∑ s : S.α in univ.filter fun t => f t = s', F s b‖₊ * r ^ b ≤
+            ∑ s : S.α in univ.filter fun t => f t = s', ‖F s b‖₊ * r ^ b :=
         by intro b; rw [← sum_mul]; exact mul_le_mul' (nnnorm_sum_le _ _) le_rfl
       apply tsum_le_tsum h2 (NNReal.summable_of_le h2 h1) h1
-    _ = ∑ s', ∑ s in univ.filterₓ fun t => f t = s', ∑' n, «expr∥ ∥₊» (F s n) * r ^ n :=
+    _ = ∑ s', ∑ s in univ.filterₓ fun t => f t = s', ∑' n, ‖F s n‖₊ * r ^ n :=
       (sum_congr rfl fun s' _ => tsum_sum fun s _ => F.nNReal_summable _)
     _ = _ := by
       rw [← sum_bUnion]
@@ -368,16 +325,9 @@ theorem map_bound (f : S ⟶ S') (F : ℒ S) : «expr∥ ∥₊» (map f F) ≤ 
 
 end
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem map_bound' (f : S ⟶ S') (F : ℒ S) : «expr∥ ∥» (map f F) ≤ «expr∥ ∥» F := by
+theorem map_bound' (f : S ⟶ S') (F : ℒ S) : ‖map f F‖ ≤ ‖F‖ := by
   simpa only [← coe_nnnorm, ← NNReal.coe_add, NNReal.coe_le_coe] using map_bound f F
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-
 lemma exists_c (F : ℒ S) : ∃ (c : ℝ≥0),
   ∀ s : S, ∑' n, ∥ F s n ∥ * r ^ n ≤ c :=
@@ -394,15 +344,15 @@ end
 -/
 /-- This lemma puts bounds on where `F s n` can be nonzero. -/
 theorem eq_zero_of_filtration (F : ℒ S) (c : ℝ≥0) :
-    «expr∥ ∥₊» F ≤ c → ∀ (s : S) (n : ℤ), c < r ^ n → F s n = 0 :=
+    ‖F‖₊ ≤ c → ∀ (s : S) (n : ℤ), c < r ^ n → F s n = 0 :=
   by
   intro hF s n h
-  suffices «expr∥ ∥₊» (F s n) < 1
+  suffices ‖F s n‖₊ < 1
     by
     change abs (F s n : ℝ) < 1 at this 
     norm_cast at this 
     rwa [← Int.abs_lt_one_iff]
-  have : «expr∥ ∥₊» (F s n) * r ^ n ≤ ∑' k, «expr∥ ∥₊» (F s k) * r ^ k :=
+  have : ‖F s n‖₊ * r ^ n ≤ ∑' k, ‖F s k‖₊ * r ^ k :=
     le_tsum (F.nnreal_summable s) _ fun k _ => zero_le'
   replace this := lt_of_le_of_lt (this.trans _) h
   · have hr₁ : 0 < r ^ n := lt_of_le_of_lt zero_le' h
@@ -412,7 +362,7 @@ theorem eq_zero_of_filtration (F : ℒ S) (c : ℝ≥0) :
     · exact (mul_inv_cancel hr₂).symm
     · rwa [nnreal.inv_pos]
   · refine' le_trans _ hF
-    apply @Finset.single_le_sum S ℝ≥0 _ fun s => ∑' n, «expr∥ ∥₊» (F s n) * r ^ n
+    apply @Finset.single_le_sum S ℝ≥0 _ fun s => ∑' n, ‖F s n‖₊ * r ^ n
     · rintro s -; exact zero_le'
     · exact Finset.mem_univ _
 
@@ -427,28 +377,17 @@ theorem zpow_strictAnti {K : Type} [LinearOrderedField K] {x : K} (hx₀ : 0 < x
 
 open Real
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 --For every F, d F is a bound whose existence is established in `eq_zero_of_filtration`
 theorem exists_bdd_filtration {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : (r : ℝ) < 1) (F : ℒ S) :
     ∃ d : ℤ, ∀ s : S, ∀ n : ℤ, n < d → F s n = 0 :=
   by
   have h_logr : log r < 0 := log_neg hr₀ hr₁
-  let d := if log («expr∥ ∥» F) ≥ 0 then ⌊log («expr∥ ∥» F) / log (r : ℝ)⌋ - 1 else -1
+  let d := if log (‖F‖) ≥ 0 then ⌊log (‖F‖) / log (r : ℝ)⌋ - 1 else -1
   use d
   intro s n hn
   have H1 := zpow_strictAnti hr₀ hr₁ hn
-  suffices H2 : «expr∥ ∥₊» F < r ^ d
-  · refine' eq_zero_of_filtration F («expr∥ ∥₊» F) le_rfl s n (H2.trans _)
+  suffices H2 : ‖F‖₊ < r ^ d
+  · refine' eq_zero_of_filtration F (‖F‖₊) le_rfl s n (H2.trans _)
     rw [← NNReal.coe_lt_coe, NNReal.coe_zpow, NNReal.coe_zpow]
     exact zpow_strictAnti hr₀ hr₁ hn
   have hd1 : 0 < -(d : ℝ) :=
@@ -460,20 +399,20 @@ theorem exists_bdd_filtration {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : 
     · rw [tsub_le_iff_right, sub_add, sub_self, sub_zero]
       exact Int.floor_nonpos (div_nonpos_of_nonneg_of_nonpos h (le_of_lt h_logr))
     · simp only [zero_sub]
-  have hFd1 : log («expr∥ ∥» F) < d * log (r : ℝ) :=
+  have hFd1 : log (‖F‖) < d * log (r : ℝ) :=
     by
     rw [← zsmul_eq_mul]
     rw [ite_smul]
     split_ifs
     · rw [zsmul_eq_mul]
       calc
-        log («expr∥ ∥» F) = log («expr∥ ∥» F) / log r * log r :=
-          (div_mul_cancel (log («expr∥ ∥» F)) (ne_of_lt h_logr)).symm
-        _ ≤ ⌊log («expr∥ ∥» F) / log r⌋ * log r :=
+        log (‖F‖) = log (‖F‖) / log r * log r :=
+          (div_mul_cancel (log (‖F‖)) (ne_of_lt h_logr)).symm
+        _ ≤ ⌊log (‖F‖) / log r⌋ * log r :=
           ((mul_le_mul_right_of_neg h_logr).mpr (Int.floor_le _))
-        _ < (⌊log («expr∥ ∥» F) / log r⌋ - 1) * log r :=
+        _ < (⌊log (‖F‖) / log r⌋ - 1) * log r :=
           ((mul_lt_mul_right_of_neg h_logr).mpr (sub_one_lt _))
-        _ = ↑(⌊log («expr∥ ∥» F) / log r⌋ - 1) * log r := by simp only [Int.cast_one, Int.cast_sub]
+        _ = ↑(⌊log (‖F‖) / log r⌋ - 1) * log r := by simp only [Int.cast_one, Int.cast_sub]
     · rw [neg_smul, one_smul]
       rw [ge_iff_le, not_le] at h 
       apply h.trans
@@ -491,9 +430,8 @@ def bddFiltration_spec {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : (r : �
 
 section ProfiniteStructure
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simps]
-def truncate {c : ℝ≥0} (A : Finset ℤ) : {F : ℒ S | «expr∥ ∥₊» F ≤ c} → LaurentMeasuresBdd r S A c :=
+def truncate {c : ℝ≥0} (A : Finset ℤ) : {F : ℒ S | ‖F‖₊ ≤ c} → LaurentMeasuresBdd r S A c :=
   fun F =>
   { toFun := fun s i => F s i
     bound' := by
@@ -502,8 +440,7 @@ def truncate {c : ℝ≥0} (A : Finset ℤ) : {F : ℒ S | «expr∥ ∥₊» F 
       · conv_rhs => rw [← Finset.sum_attach]; rfl
       · intro b hb; exact zero_le' }
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem eq_iff_truncate_eq (c : ℝ≥0) (F G : {F : ℒ S | «expr∥ ∥₊» F ≤ c}) :
+theorem eq_iff_truncate_eq (c : ℝ≥0) (F G : {F : ℒ S | ‖F‖₊ ≤ c}) :
     (∀ k, truncate k F = truncate k G) → F = G :=
   by
   intro h
@@ -514,16 +451,14 @@ theorem eq_iff_truncate_eq (c : ℝ≥0) (F G : {F : ℒ S | «expr∥ ∥₊» 
 
 def finsetMap {A B : Finset ℤ} (h : B ≤ A) : B → A := fun i => ⟨i, h i.2⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def transition {c : ℝ≥0} {A B : Finset ℤ} (h : B ≤ A) :
     LaurentMeasuresBdd r S A c → LaurentMeasuresBdd r S B c := fun F =>
   ⟨fun s i => F s (finsetMap h i),
     by
     refine' (Finset.sum_le_sum fun s _ => _).trans F.2
     have :
-      ∑ i : B, «expr∥ ∥₊» (F s (finset_map h i)) * r ^ (i : ℤ) =
-        ∑ i in finset.univ.image (finset_map h), «expr∥ ∥₊» (F s i) * r ^ (i : ℤ) :=
+      ∑ i : B, ‖(F s (finset_map h i))‖₊ * r ^ (i : ℤ) =
+        ∑ i in finset.univ.image (finset_map h), ‖F s i‖₊ * r ^ (i : ℤ) :=
       by
       rw [Finset.sum_image]
       · rfl
@@ -550,11 +485,9 @@ theorem mkSeq_compat {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
   ext
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem mkSeq_compat_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
     (compat : ∀ (A B : Finset ℤ) (h : B ≤ A), transition h (F _) = F _) (s : S) :
-    Summable fun k : ℤ => «expr∥ ∥» (mkSeq F s k) * (r : ℝ) ^ k :=
+    Summable fun k : ℤ => ‖mkSeq F s k‖ * (r : ℝ) ^ k :=
   by
   apply summable_of_sum_le
   · intro k
@@ -566,30 +499,27 @@ theorem mkSeq_compat_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r 
     simp_rw [mk_seq_compat _ compat]
     simp only [LaurentMeasuresBdd.nnnorm_def, Finset.univ_eq_attach, NNReal.coe_sum, NNReal.coe_mul,
       NNReal.coe_zpow]
-    apply @Finset.single_le_sum S ℝ _ fun s => ∑ i : A, «expr∥ ∥» (F A s i) * (r : ℝ) ^ (i : ℤ)
+    apply @Finset.single_le_sum S ℝ _ fun s => ∑ i : A, ‖F A s i‖ * (r : ℝ) ^ (i : ℤ)
     swap; · simp
     rintro s -
     apply Finset.sum_nonneg
     rintro a -
     refine' mul_nonneg (norm_nonneg _) (zpow_nonneg (NNReal.coe_nonneg _) _)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem mkSeq_compat_nNReal_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
     (compat : ∀ (A B : Finset ℤ) (h : B ≤ A), transition h (F _) = F _) (s : S) :
-    Summable fun k : ℤ => «expr∥ ∥₊» (mkSeq F s k) * r ^ k :=
+    Summable fun k : ℤ => ‖mkSeq F s k‖₊ * r ^ k :=
   by
   rw [← NNReal.summable_coe]
   simpa only [Nonneg.coe_mul, coe_nnnorm, NNReal.coe_zpow] using mk_seq_compat_summable F compat s
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem mkSeq_compat_sum_le {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
     (compat : ∀ (A B : Finset ℤ) (h : B ≤ A), transition h (F _) = F _) :
-    ∑ s : S, ∑' k : ℤ, «expr∥ ∥₊» (mkSeq F s k) * r ^ k ≤ c :=
+    ∑ s : S, ∑' k : ℤ, ‖mkSeq F s k‖₊ * r ^ k ≤ c :=
   by
   rw [← tsum_sum]
   swap; · intro s hs; apply mk_seq_compat_nnreal_summable _ compat
-  have : ∀ A : Finset ℤ, ∑ b : A, ∑ s : S, «expr∥ ∥₊» (F A s b) * r ^ (b : ℤ) ≤ c :=
+  have : ∀ A : Finset ℤ, ∑ b : A, ∑ s : S, ‖F A s b‖₊ * r ^ (b : ℤ) ≤ c :=
     by
     intro A
     rw [Finset.sum_comm]
@@ -609,10 +539,9 @@ theorem mkSeq_compat_sum_le {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S 
   rintro i -
   simp_rw [mk_seq_compat _ compat]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem exists_of_compat {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
     (compat : ∀ (A B : Finset ℤ) (h : B ≤ A), transition h (F _) = F _) :
-    ∃ G : {H : ℒ S | «expr∥ ∥₊» H ≤ c}, ∀ k : Finset ℤ, truncate k G = F k :=
+    ∃ G : {H : ℒ S | ‖H‖₊ ≤ c}, ∀ k : Finset ℤ, truncate k G = F k :=
   by
   let G : ℒ S := ⟨mk_seq F, mk_seq_compat_nnreal_summable _ compat⟩
   use G
@@ -639,11 +568,10 @@ def laurentMeasuresBddFunctor (c : ℝ≥0) [Fact (0 < r)] : (AsSmall (Finset �
   obj A := FintypeCat.of <| LaurentMeasuresBdd r S (ULift.down A.unop) c
   map A B f := transition (leOfHom <| ULift.down f.unop)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- The `equiv` between Laurent measures with norm at most `c` and the projective limit
 over `T : finset ℤ` of the finite types `laurent_measures_bdd r S T c`. -/
 def laurentMeasuresBddEquiv (c : ℝ≥0) [Fact (0 < r)] :
-    {F : ℒ S | «expr∥ ∥₊» F ≤ c} ≃
+    {F : ℒ S | ‖F‖₊ ≤ c} ≃
       (Profinite.limitCone (laurentMeasuresBddFunctor r S c ⋙ FintypeCat.toProfinite)).X :=
   Equiv.ofBijective (fun F => ⟨fun A => truncate (ULift.down A.unop) F, fun A B f => by ext; rfl⟩)
     (by
@@ -671,14 +599,12 @@ def laurentMeasuresBddEquiv (c : ℝ≥0) [Fact (0 < r)] :
             Quiver.Hom.op (as_small.up.map (hom_of_le h))
           exact hF e)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- The profinite topology on the Laurent measures with norm at most `c`. -/
-instance (c : ℝ≥0) [Fact (0 < r)] : TopologicalSpace {F : ℒ S | «expr∥ ∥₊» F ≤ c} :=
+instance (c : ℝ≥0) [Fact (0 < r)] : TopologicalSpace {F : ℒ S | ‖F‖₊ ≤ c} :=
   TopologicalSpace.induced (laurentMeasuresBddEquiv r S c) inferInstance
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def laurentMeasuresBddHomeo (c : ℝ≥0) [Fact (0 < r)] :
-    {F : ℒ S | «expr∥ ∥₊» F ≤ c} ≃ₜ
+    {F : ℒ S | ‖F‖₊ ≤ c} ≃ₜ
       (Profinite.limitCone (laurentMeasuresBddFunctor r S c ⋙ FintypeCat.toProfinite)).X :=
   {
     laurentMeasuresBddEquiv _ _
@@ -692,16 +618,13 @@ def laurentMeasuresBddHomeo (c : ℝ≥0) [Fact (0 < r)] :
       simp only [Equiv.self_comp_symm]
       exact continuous_id }
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance (c : ℝ≥0) [Fact (0 < r)] : T2Space {F : ℒ S | «expr∥ ∥₊» F ≤ c} :=
+instance (c : ℝ≥0) [Fact (0 < r)] : T2Space {F : ℒ S | ‖F‖₊ ≤ c} :=
   (laurentMeasuresBddHomeo r S c).symm.T2Space
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance (c : ℝ≥0) [Fact (0 < r)] : TotallyDisconnectedSpace {F : ℒ S | «expr∥ ∥₊» F ≤ c} :=
+instance (c : ℝ≥0) [Fact (0 < r)] : TotallyDisconnectedSpace {F : ℒ S | ‖F‖₊ ≤ c} :=
   (laurentMeasuresBddHomeo r S c).symm.TotallyDisconnectedSpace
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance (c : ℝ≥0) [Fact (0 < r)] : CompactSpace {F : ℒ S | «expr∥ ∥₊» F ≤ c} :=
+instance (c : ℝ≥0) [Fact (0 < r)] : CompactSpace {F : ℒ S | ‖F‖₊ ≤ c} :=
   (laurentMeasuresBddHomeo r S c).symm.CompactSpace
 
 @[continuity]
@@ -715,9 +638,8 @@ theorem truncate_continuous (c : ℝ≥0) [Fact (0 < r)] (A : Finset ℤ) :
   change Continuous (g₁ ∘ g₂)
   continuity
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem continuous_iff (c : ℝ≥0) [Fact (0 < r)] {α : Type _} [TopologicalSpace α]
-    (f : α → {F : ℒ S | «expr∥ ∥₊» F ≤ c}) :
+    (f : α → {F : ℒ S | ‖F‖₊ ≤ c}) :
     Continuous f ↔ ∀ A : Finset ℤ, Continuous (truncate A ∘ f) :=
   by
   constructor
@@ -731,7 +653,6 @@ theorem continuous_iff (c : ℝ≥0) [Fact (0 < r)] {α : Type _} [TopologicalSp
 
 end ProfiniteStructure
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-
 --should this be a coercion?
 def c_measures_to_oc (r : ℝ≥0) (c : ℝ≥0) (S : Type*) (hS : fintype S) :
@@ -744,16 +665,15 @@ lemma laurent_measures_are_c (r : ℝ≥0) (S : Type*) (hS : fintype S) (F : ℒ
 --needed?
 instance : PseudoNormedGroup (ℒ S)
     where
-  filtration c := {F | «expr∥ ∥₊» F ≤ c}
+  filtration c := {F | ‖F‖₊ ≤ c}
   filtration_mono c₁ c₂ h F hF := by dsimp at *; exact le_trans hF h
   zero_mem_filtration c := by simp [nnnorm_def]
   neg_mem_filtration c F h := (nnnorm_neg F).le.trans h
   add_mem_filtration c₁ c₂ F₁ F₂ h₁ h₂ := (nnnorm_add _ _).trans (add_le_add h₁ h₂)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
 theorem mem_filtration_iff (F : ℒ S) (c : ℝ≥0) :
-    F ∈ PseudoNormedGroup.filtration (ℒ S) c ↔ «expr∥ ∥₊» F ≤ c :=
+    F ∈ PseudoNormedGroup.filtration (ℒ S) c ↔ ‖F‖₊ ≤ c :=
   Iff.rfl
 
 instance [Fact (0 < r)] : ProfinitelyFilteredPseudoNormedGroup (ℒ S) :=
@@ -848,7 +768,6 @@ theorem Finset.prod_attach' {α M : Type _} [CommMonoid M] (s : Finset α) (f : 
   rw [eq_comm, ← Finset.prod_attach, Finset.prod_congr rfl]
   intros; simp only [Finset.coe_mem, Finset.mk_coe, dite_eq_ite, if_true]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simps]
 def shift [hr : Fact (0 < r)] (k : ℤ) : ComphausFilteredPseudoNormedGroupHom (ℒ S) (ℒ S) :=
   ComphausFilteredPseudoNormedGroupHom.mkOfBound (shiftAddMonoidHom k) (r ^ (-k))
@@ -883,7 +802,7 @@ def shift [hr : Fact (0 < r)] (k : ℤ) : ComphausFilteredPseudoNormedGroupHom (
           refine' le_trans _ (mul_le_mul' hF le_rfl)
           simp only [nnnorm_def, Finset.sum_mul]
           refine' Finset.sum_le_sum fun s _ => le_of_eq _
-          trans ∑' n, «expr∥ ∥₊» (F s n) * r ^ n * r ^ (-k)
+          trans ∑' n, ‖F s n‖₊ * r ^ n * r ^ (-k)
           · refine' ((Equiv.addLeft (-k : ℤ)).tsum_eq _).symm.trans _
             simp only [Equiv.coe_addLeft, shift_add_monoid_hom_apply_to_fun, neg_add_cancel_comm,
               zpow_add₀ hr.out.ne', zpow_neg_one, mul_comm (r ^ (-k)), mul_assoc]
@@ -911,8 +830,6 @@ variable {α : Type _}
 
 open PseudoNormedGroup ProfinitelyFilteredPseudoNormedGroup ComphausFilteredPseudoNormedGroup
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simps]
 def mapHom [Fact (0 < r)] (f : S ⟶ S') : ComphausFilteredPseudoNormedGroupWithTinvHom r (ℒ S) (ℒ S')
     where
@@ -920,12 +837,12 @@ def mapHom [Fact (0 < r)] (f : S ⟶ S') : ComphausFilteredPseudoNormedGroupWith
   map_zero' := by ext; simp only [map_apply, zero_apply, Finset.sum_const_zero]
   map_add' F G := by ext s i; simp only [← Finset.sum_add_distrib, map_apply, add_apply]
   map_Tinv' F := by ext s i; simp only [map_apply, Tinv_apply, shift_to_fun_to_fun]
-  strict' c F (hF : «expr∥ ∥₊» F ≤ c) := (map_bound _ _).trans hF
+  strict' c F (hF : ‖F‖₊ ≤ c) := (map_bound _ _).trans hF
   continuous' c := by
     rw [continuous_iff]
     intro T
     let f₀ : filtration (LaurentMeasures r S) c → filtration (LaurentMeasures r S') c :=
-      level (map f) (fun c F (hF : «expr∥ ∥₊» F ≤ c) => (map_bound f F).trans hF) c
+      level (map f) (fun c F (hF : ‖F‖₊ ≤ c) => (map_bound f F).trans hF) c
     have : truncate T ∘ f₀ = LaurentMeasuresBdd.map f ∘ truncate T := by ext F s' t; rfl
     rw [this]
     exact continuous_of_discrete_topology.comp (truncate_continuous r S _ T)

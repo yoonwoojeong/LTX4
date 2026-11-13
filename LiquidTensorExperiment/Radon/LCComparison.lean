@@ -111,8 +111,6 @@ def radonLCComparisonComponentEquivAux (X : Profinite.{0}) (p : ℝ≥0) (T : Di
       exact hs
     · intro h; exact False.elim (h (Finset.mem_univ _))
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem bddLC_iff_comparison (X : Profinite.{0}) (T : DiscreteQuotient X) (p c : ℝ≥0) [Fact (0 < p)]
     [Fact (p ≤ 1)] (f : WeakDual ℝ (LocallyConstant (X.diagram.obj T) ℝ)) :
     f.BddLC p c ↔
@@ -167,14 +165,12 @@ theorem bddLC_iff_comparison (X : Profinite.{0}) (T : DiscreteQuotient X) (p c :
     simp_rw [this, f.map_sum]; clear this
     have :
       ∑ x : ↥E,
-          «expr∥ ∥₊»
-              (∑ i : ↥T in Finset.filter (fun t : ↥T => E.proj t = x) Finset.univ,
-                f ((⊥ : DiscreteQuotient T).fibre (DiscreteQuotient.equivBot i)).indicatorLC) ^
+          ‖(∑ i : ↥T in Finset.filter (fun t : ↥T => E.proj t = x) Finset.univ,
+                f ((⊥ : DiscreteQuotient T).fibre (DiscreteQuotient.equivBot i)).indicatorLC)‖₊ ^
             (p : ℝ) ≤
         ∑ x : E,
           ∑ i : T in Finset.filter (fun t : ↥T => E.proj t = x) Finset.univ,
-            «expr∥ ∥₊»
-                (f ((⊥ : DiscreteQuotient T).fibre (DiscreteQuotient.equivBot i)).indicatorLC) ^
+            ‖(f ((⊥ : DiscreteQuotient T).fibre (DiscreteQuotient.equivBot i)).indicatorLC)‖₊ ^
               (p : ℝ) :=
       by
       apply Finset.sum_le_sum

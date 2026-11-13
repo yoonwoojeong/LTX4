@@ -67,9 +67,8 @@ def nSHH {M : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ} (q q' : ℕ) (c : ℝ≥0) 
         _ = k' κ' m * c * κ q' := (mul_assoc _ _ _).symm
   else 0
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_nSHH_le {M : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ} (q : ℕ) (hqm : q ≤ m) (c : ℝ≥0) :
-    «expr∥ ∥» (@nSHH BD r r' _ _ _ _ V _ κ κ' _ m _ M q (q + 1) c) ≤ h r r' BD κ' m :=
+    ‖(@nSHH BD r r' _ _ _ _ V _ κ κ' _ m _ M q (q + 1) c)‖ ≤ h r r' BD κ' m :=
   by
   rw [nSHH, dif_pos (Nat.succ_le_succ hqm)]
   apply universal_map.norm_eval_CLCFPTinv₂_le
@@ -114,9 +113,8 @@ def nSHδ {M : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ} (c : ℝ≥0) :
         (op (k' κ' m * c)) :=
   nSHδRes κ' (n₂ r r' BD κ' m) _ ≫ (bDMap (BD.data.proj (2 ^ n₂ r r' BD κ' m)) _ _ r V _).app M
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_nSHδ_le {M : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ} (c : ℝ≥0) (q : ℕ) :
-    «expr∥ ∥» ((@nSHδ BD r r' _ _ _ _ V _ κ κ' _ m M c).f q) ≤ ε r r' BD κ' m :=
+    ‖((@nSHδ BD r r' _ _ _ _ V _ κ κ' _ m M c).f q)‖ ≤ ε r r' BD κ' m :=
   by
   refine'
     le_trans

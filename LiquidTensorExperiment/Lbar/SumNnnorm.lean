@@ -12,16 +12,10 @@ section FamiliesOfAddCommGroups
 
 variable {S : FintypeCat} {α β : Type _}
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 --  Not needed anymore: the `seminormed_add_comm_group` instance has been removed
 theorem sumNnnorm_add_le [SeminormedAddCommGroup α] (F G : S → α) :
-    «expr∥ ∥₊» (F + G) ≤ «expr∥ ∥₊» F + «expr∥ ∥₊» G :=
-  show ∑ s, «expr∥ ∥₊» (F s + G s) ≤ ∑ s, «expr∥ ∥₊» (F s) + ∑ s, «expr∥ ∥₊» (G s) from
+    ‖F + G‖₊ ≤ ‖F‖₊ + ‖G‖₊ :=
+  show ∑ s, ‖F s + G s‖₊ ≤ ∑ s, ‖F s‖₊ + ∑ s, ‖G s‖₊ from
     le_trans (sum_le_sum fun i hi => nnnorm_add_le _ _) sum_add_distrib.le
 
 --  Not needed anymore: this was a helper lemma for the triangle inequality

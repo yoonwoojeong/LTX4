@@ -246,11 +246,9 @@ theorem Nnreal.summable_iff_on_nat_less {f : ℤ → ℝ≥0} (d : ℤ) (h : ∀
   NNReal.summable_coe.symm.trans <|
     (summable_iff_on_nat_less d fun n nd => (f n).val_eq_zero.mpr (h nd)).trans NNReal.summable_coe
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem Int.summable_iff_on_nat {f : ℤ → ℤ} {ρ : ℝ≥0} (d : ℤ) (h : ∀ n : ℤ, n < d → f n = 0) :
-    (Summable fun n => «expr∥ ∥» (f n) * ρ ^ n) ↔
-      Summable fun n : ℕ => «expr∥ ∥» (f n) * ρ ^ (n : ℤ) :=
+    (Summable fun n => ‖f n‖ * ρ ^ n) ↔
+      Summable fun n : ℕ => ‖f n‖ * ρ ^ (n : ℤ) :=
   summable_iff_on_nat_less d fun n nd => by simp [h _ nd]
 
 theorem Nnreal.summable_iff_on_nat_less_shift {f : ℤ → ℝ≥0} (d : ℤ) (h : ∀ {n : ℤ}, n < d → f n = 0)
@@ -272,27 +270,23 @@ theorem Nnreal.summable_iff_on_nat_less_shift {f : ℤ → ℝ≥0} (d : ℤ) (h
       dsimp only
       rw [h]; norm_num; linarith
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- nnreal.summable_coe.symm.trans $ (summable_iff_on_nat_less d (λ n nd,
 --   ((f n).coe_eq_zero.mpr (h nd)))).trans nnreal.summable_coe
 theorem summable_smaller_radius_norm {f : ℤ → ℤ} {ρ : ℝ≥0} (d : ℤ) (ρ_half : 2⁻¹ < ρ)
-    (hf : Summable fun n : ℤ => «expr∥ ∥» (f n) * ρ ^ n)
+    (hf : Summable fun n : ℤ => ‖f n‖ * ρ ^ n)
     (hd : ∀ n : ℤ, n < d → f n = 0) :--(F : ℒ S) (s : S) :
       Summable
-      fun n => «expr∥ ∥» (f n) * 2⁻¹ ^ n :=
+      fun n => ‖f n‖ * 2⁻¹ ^ n :=
   by
   refine' int_summable_iff.mpr ⟨_, _⟩
   · apply (int_summable_iff.mp hf).1.smaller_radius ρ_half.le (by simp)
   ·
     apply
-      summable_of_eventually_zero (fun n => «expr∥ ∥» (f n) * 2⁻¹ ^ n) d fun n nd => by
+      summable_of_eventually_zero (fun n => ‖f n‖ * 2⁻¹ ^ n) d fun n nd => by
         simp [hd _ nd]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem summable_smaller_radius {f : ℤ → ℤ} {ρ : ℝ≥0} (d : ℤ)
-    (hf : Summable fun n : ℤ => «expr∥ ∥» (f n) * ρ ^ n) (hd : ∀ n : ℤ, n < d → f n = 0)
+    (hf : Summable fun n : ℤ => ‖f n‖ * ρ ^ n) (hd : ∀ n : ℤ, n < d → f n = 0)
     (hρ : 2⁻¹ < ρ) : Summable fun n => (f n : ℝ) * 2⁻¹ ^ n :=
   by
   refine' Summable.of_norm _
@@ -303,19 +297,15 @@ theorem summable_smaller_radius {f : ℤ → ℤ} {ρ : ℝ≥0} (d : ℤ)
   · simpa using (int_summable_iff.mp hf).1
   · exact fun n nd => by simp [hd _ nd]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem prod_nat_summable {f : ℤ → ℤ} {r : ℝ≥0} (half_lt_r : 2⁻¹ < r)
-    (hf : Summable fun n : ℤ => «expr∥ ∥» (f n) * r ^ n) :
+    (hf : Summable fun n : ℤ => ‖f n‖ * r ^ n) :
     Summable fun lj : ℕ × ℕ =>
-      (2⁻¹ : ℝ) * «expr∥ ∥» ((f (lj.fst + 1 + lj.snd) : ℝ) * 2⁻¹ ^ lj.snd) * r ^ lj.fst :=
+      (2⁻¹ : ℝ) * ‖((f (lj.fst + 1 + lj.snd) : ℝ) * 2⁻¹ ^ lj.snd)‖ * r ^ lj.fst :=
   by
   have r0 : r ≠ 0 := by rintro rfl; simpa only [not_lt_zero'] using half_lt_r
-  have : Summable fun n : ℤ => «expr∥ ∥» ((f n : ℝ) * (2 * r)⁻¹) * r ^ n :=
+  have : Summable fun n : ℤ => ‖((f n : ℝ) * (2 * r)⁻¹)‖ * r ^ n :=
     by
-    convert_to Summable fun z : ℤ => (2⁻¹ * r⁻¹ : ℝ) • («expr∥ ∥» (f z) * ↑r ^ z)
+    convert_to Summable fun z : ℤ => (2⁻¹ * r⁻¹ : ℝ) • (‖f z‖ * ↑r ^ z)
     · ext
       field_simp
       congr 0

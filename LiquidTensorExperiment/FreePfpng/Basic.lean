@@ -34,25 +34,18 @@ noncomputable section
 
 open scoped Classical
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance : NNNorm (FreePfpng S) :=
-  ⟨fun f => ∑ s, «expr∥ ∥₊» (f s)⟩
+  ⟨fun f => ∑ s, ‖f s‖₊⟩
 
 namespace FreePfpng
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_zero : «expr∥ ∥₊» (0 : FreePfpng S) = 0 := by change ∑ _, _ = _; simp
+theorem nnnorm_zero : ‖0 : FreePfpng S‖₊ = 0 := by change ∑ _, _ = _; simp
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_neg (f : FreePfpng S) : «expr∥ ∥₊» (-f) = «expr∥ ∥₊» f := by change ∑ _, _ = _; simpa
+theorem nnnorm_neg (f : FreePfpng S) : ‖-f‖₊ = ‖f‖₊ := by change ∑ _, _ = _; simpa
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_add (f₁ f₂ : FreePfpng S) : «expr∥ ∥₊» (f₁ + f₂) ≤ «expr∥ ∥₊» f₁ + «expr∥ ∥₊» f₂ :=
+theorem nnnorm_add (f₁ f₂ : FreePfpng S) : ‖f₁ + f₂‖₊ ≤ ‖f₁‖₊ + ‖f₂‖₊ :=
   by
   change ∑ _, _ ≤ ∑ _, _ + ∑ _, _
   rw [← Finset.sum_add_distrib]
@@ -60,39 +53,30 @@ theorem nnnorm_add (f₁ f₂ : FreePfpng S) : «expr∥ ∥₊» (f₁ + f₂) 
   intro s _
   apply nnnorm_add_le
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance (c) : TopologicalSpace {f : FreePfpng S | «expr∥ ∥₊» f ≤ c} :=
+instance (c) : TopologicalSpace {f : FreePfpng S | ‖f‖₊ ≤ c} :=
   ⊥
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance (c) : DiscreteTopology {f : FreePfpng S | «expr∥ ∥₊» f ≤ c} :=
+instance (c) : DiscreteTopology {f : FreePfpng S | ‖f‖₊ ≤ c} :=
   ⟨rfl⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem norm_eval_le {c : NNReal} {s : S} (f : FreePfpng S) (hf : «expr∥ ∥₊» f ≤ c) :
-    «expr∥ ∥₊» (f s) ≤ c :=
+theorem norm_eval_le {c : NNReal} {s : S} (f : FreePfpng S) (hf : ‖f‖₊ ≤ c) :
+    ‖f s‖₊ ≤ c :=
   le_trans
     (by
-      apply @Finset.single_le_sum S NNReal _ (fun t => «expr∥ ∥₊» (f t)) Finset.univ
+      apply @Finset.single_le_sum S NNReal _ (fun t => ‖f t‖₊) Finset.univ
       · intro _ _; apply zero_le
       · exact Finset.mem_univ s)
     hf
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance (c) : Fintype {f : FreePfpng S | «expr∥ ∥₊» f ≤ c} :=
+instance (c) : Fintype {f : FreePfpng S | ‖f‖₊ ≤ c} :=
   by
-  let A := {f : FreePfpng S | «expr∥ ∥₊» f ≤ c}
+  let A := {f : FreePfpng S | ‖f‖₊ ≤ c}
   have h : ∃ N : ℕ, c ≤ N := ⟨Nat.ceil c, Nat.le_ceil c⟩
   let N := h.some; let hN : c ≤ N := h.some_spec
   let ι : A → S → Set.Icc (-(N : ℤ)) N := fun a s => ⟨a.1 s, _, _⟩
   rotate_left
   · -- I'm sure there is a more efficient way to do this...
-    have : -«expr∥ ∥» (a.val s) ≤ a.val s := neg_abs_le_self ↑(a.val s)
+    have : -‖a.val s‖ ≤ a.val s := neg_abs_le_self ↑(a.val s)
     replace this : -(c : ℝ) ≤ a.val s := le_trans _ this
     swap
     · simp only [Subtype.val_eq_coe, neg_le_neg_iff]
@@ -101,7 +85,7 @@ instance (c) : Fintype {f : FreePfpng S | «expr∥ ∥₊» f ≤ c} :=
     swap
     · rw [neg_le_neg_iff]; exact_mod_cast hN
     exact_mod_cast this
-  · have : ↑(a.val s) ≤ «expr∥ ∥» (a.val s) := le_max_left _ _
+  · have : ↑(a.val s) ≤ ‖a.val s‖ := le_max_left _ _
     replace this : ↑(a.val s) ≤ (c : ℝ) := le_trans this _
     swap; · exact_mod_cast norm_eval_le S a.val a.2
     replace this := le_trans this hN
@@ -114,13 +98,12 @@ instance (c) : Fintype {f : FreePfpng S | «expr∥ ∥₊» f ≤ c} :=
     assumption
   apply Fintype.ofInjective ι this
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance : ProfinitelyFilteredPseudoNormedGroup (FreePfpng S) :=
   {
     (inferInstance :
       AddCommGroup
         (FreePfpng S)) with
-    filtration := fun c => {f | «expr∥ ∥₊» f ≤ c}
+    filtration := fun c => {f | ‖f‖₊ ≤ c}
     filtration_mono := fun c₁ c₂ h f hf => le_trans hf h
     zero_mem_filtration := fun c => by simp
     neg_mem_filtration := fun c f hf => by simpa
@@ -129,9 +112,6 @@ instance : ProfinitelyFilteredPseudoNormedGroup (FreePfpng S) :=
     continuous_neg' := fun c => continuous_of_discreteTopology
     continuous_castLe := fun _ _ _ => continuous_of_discreteTopology }
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def map {S₁ S₂ : FintypeCat.{u}} (g : S₁ ⟶ S₂) :
     StrictComphausFilteredPseudoNormedGroupHom (FreePfpng S₁) (FreePfpng S₂)
     where
@@ -141,10 +121,10 @@ def map {S₁ S₂ : FintypeCat.{u}} (g : S₁ ⟶ S₂) :
   strict' := by
     intro c f hf
     refine' le_trans _ hf
-    change ∑ s₂, «expr∥ ∥₊» (∑ t in finset.univ.filter fun w => g w = s₂, f t) ≤ ∑ s₁, _
+    change ∑ s₂, ‖∑ t in finset.univ.filter fun w => g w = s₂, f t‖₊ ≤ ∑ s₁, _
     have :
-      ∑ s₂, «expr∥ ∥₊» (∑ t in finset.univ.filter fun w => g w = s₂, f t) ≤
-        ∑ s₂ : S₂, ∑ t in finset.univ.filter fun w => g w = s₂, «expr∥ ∥₊» (f t) :=
+      ∑ s₂, ‖∑ t in finset.univ.filter fun w => g w = s₂, f t‖₊ ≤
+        ∑ s₂ : S₂, ∑ t in finset.univ.filter fun w => g w = s₂, ‖f t‖₊ :=
       by
       apply Finset.sum_le_sum
       intro i _
@@ -200,13 +180,12 @@ theorem map_comp {S₁ S₂ S₃ : FintypeCat.{u}} (g₁ : S₁ ⟶ S₂) (g₂ 
 
 end FreePfpng
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simps]
 def freePfpngFunctor : FintypeCat ⥤ ProFiltPseuNormGrp₁
     where
   obj S :=
     { M := FreePfpng S
-      exhaustive' := fun f => ⟨«expr∥ ∥₊» f, le_refl _⟩ }
+      exhaustive' := fun f => ⟨‖f‖₊, le_refl _⟩ }
   map S₁ S₂ f := FreePfpng.map f
   map_id' := FreePfpng.map_id
   map_comp' _ _ _ g₁ g₂ := FreePfpng.map_comp g₁ g₂

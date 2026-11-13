@@ -27,7 +27,7 @@ protected theorem totallyDisconnectedSpace : TotallyDisconnectedSpace β :=
   obtain ⟨h⟩ := (inferInstance : TotallyDisconnectedSpace α)
   apply h
   · tauto
-  · exact IsPreconnected.image hA _ e.symm.continuous.continuous_on
+  · exact IsPreconnected.image hA _ e.symm.continuous.continuousOn
 
 end Homeomorph
 

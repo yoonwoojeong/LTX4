@@ -33,29 +33,6 @@ variable (C C₁ C₂ : SystemOfComplexes.{u})
 
 variable {k k' K K' : ℝ≥0} {m m' : ℕ} {c₀ c₀' : ℝ≥0}
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- === We don't need the following two lemmas anytime soon
 -- lemma controlled_y (hC : C.is_weak_bounded_exact k K m c₀) :
 -- ∀ c ≥ c₀, ∀ i < m,
@@ -114,7 +91,7 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
     dsimp [ε]
     field_simp
     apply one_div_le_one_div_of_le <;> norm_num [hK', pow_succ]
-  have seq : ∀ j : ℕ, ∃ w : C (k * c) i, «expr∥ ∥» (res x - C.d i (i + 1) w) ≤ ε j :=
+  have seq : ∀ j : ℕ, ∃ w : C (k * c) i, ‖(res x - C.d i (i + 1) w)‖ ≤ ε j :=
     by
     intro j
     specialize hC (k * c) ⟨hc₀kc⟩ _ hi (res x) (ε j) (ε_pos j)
@@ -148,8 +125,8 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
   have seq :
     ∀ j : ℕ,
       ∃ z : C c i₀,
-        «expr∥ ∥» (res (w (j + 1) - w j) - C.d i₀ i z) ≤
-          K * «expr∥ ∥» (C.d i (i + 1) (w (j + 1) - w j)) + δ j :=
+        ‖(res (w (j + 1) - w j) - C.d i₀ i z)‖ ≤
+          K * ‖(C.d i (i + 1) (w (j + 1) - w j))‖ + δ j :=
     by
     intro j
     have : i ≤ m := i.le_succ.trans hi
@@ -161,27 +138,26 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
     by
     apply cauchySeq_of_le_geometric (2⁻¹ : ℝ) 1 nnreal.two_inv_lt_one
     intro j
-    have fact : «expr∥ ∥» (C.d _ (i + 1) (w (j + 1) - w j)) ≤ 2 * ε j :=
+    have fact : ‖(C.d _ (i + 1) (w (j + 1) - w j))‖ ≤ 2 * ε j :=
       calc
-        «expr∥ ∥» (C.d _ (i + 1) (w (j + 1) - w j)) =
-            «expr∥ ∥» (C.d _ _ (w (j + 1)) - res x + (res x - C.d _ _ (w j))) :=
+        ‖(C.d _ (i + 1) (w (j + 1) - w j))‖ =
+            ‖(C.d _ _ (w (j + 1)) - res x + (res x - C.d _ _ (w j)))‖ :=
           by simp only [sub_add_sub_cancel, _root_.map_sub]
-        _ ≤ «expr∥ ∥» (C.d _ _ (w (j + 1)) - res x) + «expr∥ ∥» (res x - C.d _ _ (w j)) :=
+        _ ≤ ‖(C.d _ _ (w (j + 1)) - res x)‖ + ‖(res x - C.d _ _ (w j))‖ :=
           (norm_add_le _ _)
-        _ = «expr∥ ∥» (res x - C.d _ _ (w (j + 1))) + «expr∥ ∥» (res x - C.d _ _ (w j)) := by
+        _ = ‖(res x - C.d _ _ (w (j + 1)))‖ + ‖(res x - C.d _ _ (w j))‖ := by
           rw [norm_sub_rev]
         _ ≤ ε (j + 1) + ε j := (add_le_add (hw <| j + 1) (hw j))
         _ ≤ 2 * ε j := by linarith [ε_decr j]
     calc
-      dist (y j) (y (j + 1)) = «expr∥ ∥» (y (j + 1) - y j) := by rw [dist_eq_norm']
+      dist (y j) (y (j + 1)) = ‖(y (j + 1) - y j)‖ := by rw [dist_eq_norm']
       _ =
-          «expr∥ ∥»
-            (res (w (j + 1)) - res (w j) -
-              (∑ l : ℕ in range (j + 1), C.d _ _ (z l) - ∑ l : ℕ in range j, C.d _ _ (z l))) :=
+          ‖(res (w (j + 1)) - res (w j) -
+              (∑ l : ℕ in range (j + 1), C.d _ _ (z l) - ∑ l : ℕ in range j, C.d _ _ (z l)))‖ :=
         by dsimp [y]; congr 1; abel
-      _ = «expr∥ ∥» (res (w (j + 1) - w j) - C.d _ _ (z j)) := by
+      _ = ‖(res (w (j + 1) - w j) - C.d _ _ (z j))‖ := by
         simp [_root_.map_sub, sum_range_succ]
-      _ ≤ K * «expr∥ ∥» (C.d _ _ (w (j + 1) - w j)) + δ j := (hz j)
+      _ ≤ K * ‖(C.d _ _ (w (j + 1) - w j))‖ + δ j := (hz j)
       _ ≤ K * (2 * ε j) + δ j := by apply add_le_add_right;
         apply mul_le_mul_of_nonneg_left Fact (NNReal.coe_nonneg K)
       _ ≤ 1 * 2⁻¹ ^ j := hεδ j
@@ -193,23 +169,23 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
       _ = C.d _ _ (res (w j)) - ∑ l in range j, C.d i (i + 1) (C.d _ _ (z l)) := by
         rw [_root_.map_sub, map_sum]
       _ = res (C.d _ _ (w j)) := by simp only [d_res, d_d, sum_const_zero, sub_zero]
-  have hblop : ∀ j, «expr∥ ∥» (res x - C.d _ _ (y j)) ≤ ε j :=
+  have hblop : ∀ j, ‖(res x - C.d _ _ (y j))‖ ≤ ε j :=
     by
     intro j
     calc
-      «expr∥ ∥» (res x - C.d _ _ (y j)) = «expr∥ ∥» (res x - res (C.d _ _ <| w j)) := by rw [hdyj]
-      _ = «expr∥ ∥» (res (res x : C (k * c) (i + 1)) - res (C.d _ _ <| w j) : C c _) := by
+      ‖(res x - C.d _ _ (y j))‖ = ‖(res x - res (C.d _ _ <| w j))‖ := by rw [hdyj]
+      _ = ‖(res (res x : C (k * c) (i + 1)) - res (C.d _ _ <| w j) : C c _)‖ := by
         rw [C.res_res]
-      _ = «expr∥ ∥» (res (res x - (C.d _ _ <| w j))) := by simp only [_root_.map_sub]
-      _ ≤ «expr∥ ∥» (res x - C.d _ _ (w j)) := by apply hC'.res_norm_noninc
+      _ = ‖(res (res x - (C.d _ _ <| w j)))‖ := by simp only [_root_.map_sub]
+      _ ≤ ‖(res x - C.d _ _ (w j))‖ := by apply hC'.res_norm_noninc
       _ ≤ ε j := hw _
   rcases cauchySeq_tendsto_of_complete cau_y with ⟨y₀, hy₀⟩
   refine' ⟨_, rfl, y₀, _⟩
   refine' sub_eq_zero.1 (norm_le_zero_iff'.1 _)
   have lim_norm :
-    tendsto (fun j => «expr∥ ∥» (res x - C.d _ _ (y j))) at_top
-      (𝓝 («expr∥ ∥» (res x - C.d _ _ y₀))) :=
-    haveI cont : Continuous fun y : C c i => «expr∥ ∥» (res x - C.d _ _ y) :=
+    tendsto (fun j => ‖(res x - C.d _ _ (y j))‖) at_top
+      (𝓝 (‖res x - C.d _ _ y₀‖)) :=
+    haveI cont : Continuous fun y : C c i => ‖res x - C.d _ _ y‖ :=
       continuous_norm.comp (continuous_const.sub <| NormedAddGroupHom.continuous _)
     (cont.tendsto y₀).comp hy₀
   have lim_ε : tendsto ε at_top (𝓝 0) :=

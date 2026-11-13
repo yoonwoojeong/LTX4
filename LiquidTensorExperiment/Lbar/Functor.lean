@@ -44,14 +44,13 @@ end Lbar
 
 open Lbar
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- `Fintype_Lbar r' S` is functorial in the finite type `S`. -/
 @[simps]
 def fintypeLbar : FintypeCat ⥤ ProFiltPseuNormGrpWithTinv₁ r'
     where
   obj S :=
     { M := Lbar r' S
-      exhaustive' := fun x => ⟨«expr∥ ∥₊» x, by rw [Lbar.mem_filtration_iff]⟩ }
+      exhaustive' := fun x => ⟨‖x‖₊, by rw [Lbar.mem_filtration_iff]⟩ }
   map S₁ S₂ f :=
     { toFun := map f
       map_zero' := map_zero r' f

@@ -37,7 +37,6 @@ variable (Λ : PolyhedralLatticeCat.{u}) (N : ℕ) [hN : Fact (0 < N)]
 def rescaledPower : PolyhedralLatticeCat :=
   of (Rescale N <| Fin N →₀ Λ)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 def diagonalEmbedding : Λ ⟶ rescaledPower Λ N
     where
   toFun l := @Rescale.of N (Fin N →₀ Λ) <| ∑ i, singleAddHom i l
@@ -52,7 +51,7 @@ def diagonalEmbedding : Λ ⟶ rescaledPower Λ N
     · norm_cast; exact hN.out.ne'
     simp only [← apply_add_hom_apply, AddMonoidHom.map_sum]
     simp only [apply_add_hom_apply, single_add_hom_apply, single_apply]
-    convert Finset.sum_const («expr∥ ∥» l : ℝ)
+    convert Finset.sum_const (‖l‖ : ℝ)
     · ext i; simp only [Finset.sum_ite_eq', Finset.mem_univ, if_true]
     rw [mul_comm, nsmul_eq_mul, Finset.card_univ, Fintype.card_fin]
 

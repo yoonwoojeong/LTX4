@@ -20,12 +20,6 @@ open scoped NNReal
 
 variable (α : Type _) [NNNorm α]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- A typeclass for an additive monoid `α` with a nnnorm.
 Its fields `nnn_zero, nnn_neg, nnn_add_le` assert that
 * `∥0∥₊ = 0`;
@@ -34,9 +28,9 @@ Its fields `nnn_zero, nnn_neg, nnn_add_le` assert that
 
 The class only assumes that `α` has `0, +, -`. -/
 class NnnormAddClass [Zero α] [Add α] [Neg α] : Prop where
-  nnn_zero : «expr∥ ∥₊» (0 : α) = 0
-  nnn_neg : ∀ ⦃x : α⦄, «expr∥ ∥₊» (-x) = «expr∥ ∥₊» x
-  nnn_add_le : ∀ ⦃x y : α⦄, «expr∥ ∥₊» (x + y) ≤ «expr∥ ∥₊» x + «expr∥ ∥₊» y
+  nnn_zero : ‖0 : α‖₊ = 0
+  nnn_neg : ∀ ⦃x : α⦄, ‖-x‖₊ = ‖x‖₊
+  nnn_add_le : ∀ ⦃x y : α⦄, ‖x + y‖₊ ≤ ‖x‖₊ + ‖y‖₊
 
 namespace NnnormAddClass
 
@@ -46,36 +40,25 @@ section DefLemmas
 
 variable [Zero α] [Add α] [Neg α] [NnnormAddClass α]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_zero : «expr∥ ∥₊» (0 : α) = 0 :=
+theorem nnnorm_zero : ‖0 : α‖₊ = 0 :=
   nnn_zero
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_neg (x : α) : «expr∥ ∥₊» (-x) = «expr∥ ∥₊» x := by apply nnn_neg
+theorem nnnorm_neg (x : α) : ‖-x‖₊ = ‖x‖₊ := by apply nnn_neg
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_add_le (x y : α) : «expr∥ ∥₊» (x + y) ≤ «expr∥ ∥₊» x + «expr∥ ∥₊» y := by
+theorem nnnorm_add_le (x y : α) : ‖x + y‖₊ ≤ ‖x‖₊ + ‖y‖₊ := by
   apply nnn_add_le
 
 end DefLemmas
 
 variable [AddGroup α] [NnnormAddClass α]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_sub (x y : α) : «expr∥ ∥₊» (x - y) = «expr∥ ∥₊» (y - x) :=
+theorem nnnorm_sub (x y : α) : ‖x - y‖₊ = ‖y - x‖₊ :=
   (nnnorm_neg _).symm.trans (congr_arg _ (neg_sub _ _))
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem nnnorm_triangle (x y z : α) :
-    «expr∥ ∥₊» (x - z) ≤ «expr∥ ∥₊» (x - y) + «expr∥ ∥₊» (y - z) :=
+    ‖x - z‖₊ ≤ ‖x - y‖₊ + ‖y - z‖₊ :=
   (le_of_eq (by simp only [sub_add_sub_cancel])).trans (nnnorm_add_le _ _)
 
 end NnnormAddClass

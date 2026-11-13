@@ -21,14 +21,12 @@ variable (p : ℝ≥0)
 
 instance : CoeFun (lpType p) fun f => ℕ → ℝ := by dsimp [lp_type]; infer_instance
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance : NNNorm (lpType p) :=
-  NNNorm.mk fun f => ∑' n : ℕ, «expr∥ ∥₊» (f n) ^ (p : ℝ)
+  NNNorm.mk fun f => ∑' n : ℕ, ‖f n‖₊ ^ (p : ℝ)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simps]
 instance : Norm (lpType p) :=
-  Norm.mk fun f => ∑' n : ℕ, «expr∥ ∥» (f n) ^ (p : ℝ)
+  Norm.mk fun f => ∑' n : ℕ, ‖f n‖ ^ (p : ℝ)
 
 variable {p} [Fact (0 < p)]
 
@@ -42,20 +40,14 @@ theorem lpType.summable (f : lpType p) : Summable fun n => |f n| ^ (p : ℝ) :=
 
 variable [Fact (p ≤ 1)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem lpType.triangle (f g : lpType p) : «expr∥ ∥» (f + g) ≤ «expr∥ ∥» f + «expr∥ ∥» g :=
+theorem lpType.triangle (f g : lpType p) : ‖f + g‖ ≤ ‖f‖ + ‖g‖ :=
   by
   dsimp
   have : ∀ n, |f n + g n| ^ (p : ℝ) ≤ |f n| ^ (p : ℝ) + |g n| ^ (p : ℝ) :=
     by
     intro n
     suffices
-      «expr∥ ∥₊» (f n + g n) ^ (p : ℝ) ≤ «expr∥ ∥₊» (f n) ^ (p : ℝ) + «expr∥ ∥₊» (g n) ^ (p : ℝ) by
+      ‖f n + g n‖₊ ^ (p : ℝ) ≤ ‖f n‖₊ ^ (p : ℝ) + ‖g n‖₊ ^ (p : ℝ) by
       exact_mod_cast this
     refine' le_trans _ (NNReal.rpow_add_le_add_rpow _ _ _ _)
     apply NNReal.rpow_le_rpow; apply nnnorm_add_le
@@ -71,10 +63,9 @@ theorem lpType.triangle (f g : lpType p) : «expr∥ ∥» (f + g) ≤ «expr∥
   exact lp_type.summable f
   exact lp_type.summable g
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 instance : PseudoMetricSpace (lpType p)
     where
-  dist f g := «expr∥ ∥» (f - g)
+  dist f g := ‖f - g‖
   dist_self :=
     by
     have : (p : ℝ) ≠ (0 : ℝ) := by refine' ne_of_gt _; exact_mod_cast Fact.out (0 < p)
@@ -255,16 +246,12 @@ theorem has_continuous_smul_δ_aux (p : ℝ≥0) [Fact (0 < p)] (A B ε : ℝ) (
       · assumption
       · apply Real.rpow_nonneg_of_nonneg; apply le_of_lt; assumption
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 instance : ContinuousSMul ℝ (lpType p) := by
   constructor
   rw [Metric.continuous_iff]
   rintro ⟨a, f⟩ ε hε
   obtain ⟨δ, hδ, Hδ⟩ :
-    ∃ (δ : ℝ) (hδ : 0 < δ), |a| ^ (p : ℝ) * δ + δ ^ (p : ℝ) * (δ + «expr∥ ∥» f) < ε :=
+    ∃ (δ : ℝ) (hδ : 0 < δ), |a| ^ (p : ℝ) * δ + δ ^ (p : ℝ) * (δ + ‖f‖) < ε :=
     by
     apply has_continuous_smul_δ_aux
     apply Real.rpow_nonneg_of_nonneg; exact abs_nonneg _
@@ -274,7 +261,7 @@ instance : ContinuousSMul ℝ (lpType p) := by
   rintro ⟨b, g⟩ (h : max _ _ < _); dsimp only [Dist.dist] at h ⊢
   refine' lt_trans _ Hδ
   rw [← norm_neg, neg_sub]
-  have : «expr∥ ∥» (a • f - b • g) ≤ «expr∥ ∥» (a • f - a • g) + «expr∥ ∥» (a • g - b • g) :=
+  have : ‖a • f - b • g‖ ≤ ‖a • f - a • g‖ + ‖a • g - b • g‖ :=
     by
     refine' le_trans (le_of_eq _) (norm_add_le _ _)
     congr 1; abel
@@ -308,7 +295,6 @@ instance : ContinuousSMul ℝ (lpType p) := by
       exact hδ
       exact_mod_cast Fact.out (0 < p)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem uniformContinuous_coe : UniformContinuous (fun f n => f n : lpType p → ℕ → ℝ) :=
   by
   rw [uniformContinuous_pi]; intro i
@@ -317,7 +303,7 @@ theorem uniformContinuous_coe : UniformContinuous (fun f n => f n : lpType p →
   intro ε hε; dsimp
   refine' ⟨ε ^ (p : ℝ), _, _⟩
   · apply Real.rpow_pos_of_pos; assumption
-  rintro f g (hfg : «expr∥ ∥» (f - g) < ε ^ _)
+  rintro f g (hfg : ‖f - g‖ < ε ^ _)
   suffices |f i - g i| ^ (p : ℝ) < ε ^ (p : ℝ)
     by
     rw [Real.rpow_lt_rpow_iff] at this ; assumption; exact abs_nonneg _; exact le_of_lt hε
@@ -326,22 +312,19 @@ theorem uniformContinuous_coe : UniformContinuous (fun f n => f n : lpType p →
   apply le_tsum (lp_type.summable (f - g)) i
   intro j _; apply Real.rpow_nonneg_of_nonneg; exact abs_nonneg _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem sum_rpow_le_norm (p : ℝ≥0) [Fact (0 < p)] (F : lpType p) (S : Finset ℕ) :
-    ∑ i in S, |F i| ^ (p : ℝ) ≤ «expr∥ ∥» F :=
+    ∑ i in S, |F i| ^ (p : ℝ) ≤ ‖F‖ :=
   by
   apply sum_le_tsum
   intro i hi; apply Real.rpow_nonneg_of_nonneg; exact abs_nonneg _
   exact lp_type.summable _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem sum_rpow_le_of_tendsto (p : ℝ≥0) [Fact (0 < p)] {C : ℝ} {F : ℕ → lpType p}
-    (hCF : ∀ᶠ k in Filter.atTop, «expr∥ ∥» (F k) ≤ C) {f : ℕ → ℝ}
+    (hCF : ∀ᶠ k in Filter.atTop, ‖F k‖ ≤ C) {f : ℕ → ℝ}
     (hf : Filter.Tendsto (fun i j => F i j) (Filter.atTop : Filter ℕ) (𝓝 f)) (s : Finset ℕ) :
     ∑ i in s, |f i| ^ (p : ℝ) ≤ C :=
   by
-  let G : (∀ a, ℝ) → ℝ := fun f => ∑ a in s, «expr∥ ∥» (f a) ^ (p : ℝ)
+  let G : (∀ a, ℝ) → ℝ := fun f => ∑ a in s, ‖f a‖ ^ (p : ℝ)
   have hG : Continuous G := by
     refine' continuous_finset_sum s _
     intro a ha
@@ -353,26 +336,20 @@ theorem sum_rpow_le_of_tendsto (p : ℝ≥0) [Fact (0 < p)] {C : ℝ} {F : ℕ �
   intro k hCFk
   refine' (sum_rpow_le_norm _ (F k) s).trans _; assumption
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_le_of_forall_sum_le (p : ℝ≥0) [Fact (0 < p)] (f : lpType p) (C)
-    (hf : ∀ s : Finset ℕ, ∑ i in s, |f i| ^ (p : ℝ) ≤ C) : «expr∥ ∥» f ≤ C := by
+    (hf : ∀ s : Finset ℕ, ∑ i in s, |f i| ^ (p : ℝ) ≤ C) : ‖f‖ ≤ C := by
   apply tsum_le_of_sum_le; exact lp_type.summable f; assumption
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_le_of_tendsto (p : ℝ≥0) [Fact (0 < p)] {C : ℝ} (F : ℕ → lpType p)
-    (hCF : ∀ᶠ k in Filter.atTop, «expr∥ ∥» (F k) ≤ C) (f : lpType p)
+    (hCF : ∀ᶠ k in Filter.atTop, ‖F k‖ ≤ C) (f : lpType p)
     (hf : Filter.Tendsto (fun j i => F j i) (Filter.atTop : Filter ℕ) (𝓝 fun i => f i)) :
-    «expr∥ ∥» f ≤ C := by
+    ‖f‖ ≤ C := by
   obtain ⟨i, hi⟩ := hCF.exists
   have hC : 0 ≤ C := le_trans _ hi
   apply norm_le_of_forall_sum_le
   apply sum_rpow_le_of_tendsto; exact hCF; exact hf
   apply tsum_nonneg; intro _; apply Real.rpow_nonneg_of_nonneg; exact abs_nonneg _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 instance : CompleteSpace (lpType p) :=
   by
   apply Metric.complete_of_cauchySeq_tendsto
@@ -381,17 +358,17 @@ instance : CompleteSpace (lpType p) :=
   have hf' : Memℓp f p :=
     by
     obtain ⟨C, hC, H⟩ := hu.bounded_range.exists_pos_norm_le
-    replace H : ∀ n, «expr∥ ∥» (u n) ≤ C := fun n => H _ ⟨n, rfl⟩
+    replace H : ∀ n, ‖u n‖ ≤ C := fun n => H _ ⟨n, rfl⟩
     apply memℓp_gen'; swap; use C
     intro S; simp only [Real.norm_eq_abs, ENNReal.coe_toReal]
     apply sum_rpow_le_of_tendsto; apply Filter.eventually_of_forall; exact H; assumption
   refine' ⟨⟨f, hf'⟩, _⟩
   rw [metric.nhds_basis_closed_ball.tendsto_right_iff]
   intro ε hε
-  have hε' : {p : lp_type p × lp_type p | «expr∥ ∥» (p.1 - p.2) < ε} ∈ 𝓤 (lp_type p) :=
+  have hε' : {p : lp_type p × lp_type p | ‖p.1 - p.2‖ < ε} ∈ 𝓤 (lp_type p) :=
     normed_add_comm_group.uniformity_basis_dist.mem_of_mem hε
   refine' (hu.eventually_eventually hε').mono _; clear hε'
-  rintro n (hn : ∀ᶠ j in Filter.atTop, «expr∥ ∥» (u n - u j) < _)
+  rintro n (hn : ∀ᶠ j in Filter.atTop, ‖u n - u j‖ < _)
   apply norm_le_of_tendsto
   apply hn.mono; intro j hj; exact hj.le
   rw [tendsto_pi_nhds]; intro k

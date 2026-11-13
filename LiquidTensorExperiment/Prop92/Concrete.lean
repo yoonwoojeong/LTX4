@@ -43,15 +43,11 @@ theorem partial_sum_geom_le {r : ℝ} (hr : 0 ≤ r) (hr' : r < 1) (n : ℕ) :
   rw [partial_sum_geom hr hr']
   exact div_le_div zero_le_one (sub_le_self _ (pow_nonneg hr n)) (sub_pos.mpr hr') rfl.le
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_sum_le_of_le_geom {α : Type _} [SeminormedAddCommGroup α] {r C : ℝ} (hC : 0 ≤ C)
-    (hr₀ : 0 ≤ r) (hr₁ : r < 1) {f : ℕ → α} (h : ∀ n, «expr∥ ∥» (f n) ≤ C * r ^ n) {n : ℕ} :
-    «expr∥ ∥» (∑ k in range n, f k) ≤ C / (1 - r) := by
+    (hr₀ : 0 ≤ r) (hr₁ : r < 1) {f : ℕ → α} (h : ∀ n, ‖f n‖ ≤ C * r ^ n) {n : ℕ} :
+    ‖∑ k in range n, f k‖ ≤ C / (1 - r) := by
   calc
-    «expr∥ ∥» (∑ k in range n, f k) ≤ ∑ k in range n, «expr∥ ∥» (f k) := norm_sum_le _ _
+    ‖∑ k in range n, f k‖ ≤ ∑ k in range n, ‖f k‖ := norm_sum_le _ _
     _ ≤ ∑ k in range n, C * r ^ k := (sum_le_sum fun k hk => h k)
     _ = C * ∑ k in range n, r ^ k := by rw [mul_sum]
     _ ≤ C * (1 / (1 - r)) := (mul_le_mul_of_nonneg_left (partial_sum_geom_le hr₀ hr₁ n) hC)
@@ -146,19 +142,13 @@ theorem NormedAddGroupHom.coe_range : (f.range : Set M₂) = Set.range f := by
 
 open NormedAddCommGroup
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem bar {C ε : ℝ} (hC : 0 < C) (hε : 0 < ε)
     (h :
       ∀ m₂ : M₂,
         ∃ g : ℕ → M₁,
-          CauchySeq g ∧ Tendsto (f ∘ g) atTop (𝓝 m₂) ∧ ∀ n, «expr∥ ∥» (g n) ≤ C * «expr∥ ∥» m₂) :
+          CauchySeq g ∧ Tendsto (f ∘ g) atTop (𝓝 m₂) ∧ ∀ n, ‖g n‖ ≤ C * ‖m₂‖) :
     ∀ hatm₂ : Completion M₂,
-      ∃ m₁, f.Completion m₁ = hatm₂ ∧ «expr∥ ∥» m₁ ≤ (C + ε) * «expr∥ ∥» hatm₂ :=
+      ∃ m₁, f.Completion m₁ = hatm₂ ∧ ‖m₁‖ ≤ (C + ε) * ‖hatm₂‖ :=
   by
   intro hatm₂
   refine'
@@ -176,7 +166,7 @@ theorem bar {C ε : ℝ} (hC : 0 < C) (hε : 0 < ε)
       (to_compl.continuous.tendsto _).comp lim_g
     exact tendsto_nhds_unique limUnder this
   · refine'
-      le_of_tendsto' (tendsto_norm.comp hy) (_ : ∀ n, «expr∥ ∥» (to_compl (g n)) ≤ C * «expr∥ ∥» m₂)
+      le_of_tendsto' (tendsto_norm.comp hy) (_ : ∀ n, ‖(to_compl (g n))‖ ≤ C * ‖m₂‖)
     intro n
     rw [NormedAddCommGroup.norm_toCompl]
     apply bound_g
@@ -206,9 +196,8 @@ variable
   {G : Type _}
   [SeminormedAddCommGroup G]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
-theorem LocallyConstant.norm_of_isEmpty [IsEmpty X] (f : LocallyConstant X G) : «expr∥ ∥» f = 0 :=
+theorem LocallyConstant.norm_of_isEmpty [IsEmpty X] (f : LocallyConstant X G) : ‖f‖ = 0 :=
   by rw [LocallyConstant.norm_def, iSup, range_eq_empty, Real.sSup_empty]
 
 @[simp]
@@ -227,22 +216,18 @@ theorem LocallyConstant.map_zero {Z : Type _} (g : G → Z) :
   simp only [Function.comp_apply, LocallyConstant.map_apply, LocallyConstant.zero_apply]
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
 theorem LocallyConstant.norm_const [h : Nonempty X] (g : G) :
-    «expr∥ ∥» (LocallyConstant.const X g) = «expr∥ ∥» g := by
+    ‖LocallyConstant.const X g‖ = ‖g‖ := by
   simp only [LocallyConstant.norm_def, LocallyConstant.const, ciSup_const, Function.const_apply,
     LocallyConstant.coe_mk]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
-theorem LocallyConstant.norm_zero : «expr∥ ∥» (0 : LocallyConstant X G) = 0 := by
+theorem LocallyConstant.norm_zero : ‖0 : LocallyConstant X G‖ = 0 := by
   simp only [LocallyConstant.norm_def, norm_zero, Real.iSup_zero, LocallyConstant.zero_apply]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
-theorem LocallyConstant.norm_const_zero : «expr∥ ∥» (LocallyConstant.const X (0 : G)) = 0 :=
+theorem LocallyConstant.norm_const_zero : ‖(LocallyConstant.const X (0 : G))‖ = 0 :=
   LocallyConstant.norm_zero
 
 -- Should go in mathlib topology/algebra/ordered, next to is_compast.exists_Sup_image_eq
@@ -251,28 +236,19 @@ theorem Continuous.exists_forall_le_of_compact {X : Type _} [TopologicalSpace X]
     [OrderTopology β] {f : X → β} (hf : Continuous f) : ∃ x, sSup (range f) = f x := by
   simpa using compact_univ.exists_Sup_image_eq univ_nonempty hf.continuous_on
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem LocallyConstant.exists_norm_eq [Nonempty X] (f : LocallyConstant X G) :
-    ∃ x, «expr∥ ∥» f = «expr∥ ∥» (f x) :=
+    ∃ x, ‖f‖ = ‖f x‖ :=
   (continuous_norm.comp f.Continuous).exists_forall_le_of_compact
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem LocallyConstant.norm_eq_iff (f : LocallyConstant X G) {x : X} :
-    «expr∥ ∥» f = «expr∥ ∥» (f x) ↔ ∀ x', «expr∥ ∥» (f x') ≤ «expr∥ ∥» (f x) :=
+    ‖f‖ = ‖f x‖ ↔ ∀ x', ‖f x'‖ ≤ ‖f x‖ :=
   by
-  have fin_range : (range fun x : X => «expr∥ ∥» (f x)).Finite :=
+  have fin_range : (range fun x : X => ‖f x‖).Finite :=
     by
     rw [range_comp]
     apply finite.image
     exact f.range_finite
-  have bound : ∃ b, ∀ y ∈ range fun x : X => «expr∥ ∥» (f x), y ≤ b :=
+  have bound : ∃ b, ∀ y ∈ range fun x : X => ‖f x‖, y ≤ b :=
     exists_upper_bound_image _ _ fin_range
   rw [LocallyConstant.norm_def]
   constructor
@@ -287,21 +263,15 @@ theorem LocallyConstant.norm_eq_iff (f : LocallyConstant X G) {x : X} :
       · intro h' x'
         exact (h x').trans h'
       · exact fun i => i x
-    · exact ⟨«expr∥ ∥» (f x), mem_range_self _⟩
+    · exact ⟨‖f x‖, mem_range_self _⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem LocallyConstant.norm_eq_iff' (f : LocallyConstant X G) {x : X} :
-    «expr∥ ∥» f = «expr∥ ∥» (f x) ↔ ∀ g ∈ range f, «expr∥ ∥» g ≤ «expr∥ ∥» (f x) := by
+    ‖f‖ = ‖f x‖ ↔ ∀ g ∈ range f, ‖g‖ ≤ ‖f x‖ := by
   rw [forall_range_iff, LocallyConstant.norm_eq_iff]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem LocallyConstant.norm_comap_le {α : Type _} [TopologicalSpace α] [CompactSpace α]
     (f : LocallyConstant X G) {g : α → X} (h : Continuous g) :
-    «expr∥ ∥» (f.comap g) ≤ «expr∥ ∥» f :=
+    ‖f.comap g‖ ≤ ‖f‖ :=
   LocallyConstant.comapHom_normNoninc g h f
 
 theorem LocallyConstant.comap_map {W X Y Z : Type _} [TopologicalSpace W] [TopologicalSpace X]
@@ -312,17 +282,14 @@ theorem LocallyConstant.map_comp' {W X Y Z : Type _} [TopologicalSpace W] (f : L
     (g : X → Y) (h : Y → Z) : (f.map g).map h = f.map (h ∘ g) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem Embedding.norm_extend (f : LocallyConstant X G) :
-    «expr∥ ∥» (he.locallyConstantExtend f) = «expr∥ ∥» f :=
+    ‖he.locallyConstantExtend f‖ = ‖f‖ :=
   by
   cases isEmpty_or_nonempty X
   · rw [f.norm_of_is_empty]
     dsimp [Embedding.locallyConstantExtend, Embedding.extend]
     have hX : ¬Nonempty X := by rwa [not_nonempty_iff]
-    suffices (⨆ y : Y, «expr∥ ∥» (0 : G)) = 0 by
+    suffices (⨆ y : Y, ‖0 : G‖) = 0 by
       simpa only [hX, dif_neg, not_false_iff, and_false_iff]
     simp only [norm_zero, Real.iSup_zero]
   · change (⨆ y : Y, _) = ⨆ x : X, _
@@ -333,11 +300,9 @@ variable (φ : X → Y)
   {r : ℝ≥0}
   {V : SemiNormedGroupCat} [NormedWithAut r V]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- this is indeed V!
 theorem LocallyConstant.norm_map_aut (g : LocallyConstant Y V) :
-    «expr∥ ∥» (g.map t.hom) = r * «expr∥ ∥» g :=
+    ‖g.map t.hom‖ = r * ‖g‖ :=
   by
   cases isEmpty_or_nonempty Y
   · simp only [MulZeroClass.mul_zero, LocallyConstant.norm_of_isEmpty]
@@ -365,9 +330,7 @@ noncomputable def Embedding.h (f : LocallyConstant X V) : ℕ → LocallyConstan
 
 variable (f : LocallyConstant X V)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_h (i : ℕ) : «expr∥ ∥» (he.h hφ f i) ≤ r ^ (i + 1) * «expr∥ ∥» f :=
+theorem norm_h (i : ℕ) : ‖he.h hφ f i‖ ≤ r ^ (i + 1) * ‖f‖ :=
   by
   induction' i with i ih <;> dsimp [Embedding.h]
   · rw [LocallyConstant.norm_map_aut, he.norm_extend, zero_add, pow_one]
@@ -415,7 +378,6 @@ open scoped TopologicalSpace
 
 variable [Fact ((r : ℝ) < 1)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem limit :
     Tendsto
       (fun N => mapHom t.inv (comapHom e he.Continuous (he.g hφ f N)) - comapHom φ hφ (he.g hφ f N))
@@ -427,28 +389,23 @@ theorem limit :
   apply squeeze_zero_norm
   intro n
   apply ((he.h hφ f n).norm_comap_le hφ).trans (norm_h he hφ _ _)
-  rw [← MulZeroClass.zero_mul («expr∥ ∥» f)]
+  rw [← MulZeroClass.zero_mul (‖f‖)]
   apply tendsto.mul_const
   rw [tendsto_add_at_top_iff_nat]
   exact tendsto_pow_atTop_nhds_0_of_lt_1 r.coe_nonneg (Fact.out _)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem cauchySeq_g : CauchySeq (he.g hφ f) :=
   by
-  apply cauchySeq_of_le_geometric r (r ^ 2 * «expr∥ ∥» f) (Fact.out _)
+  apply cauchySeq_of_le_geometric r (r ^ 2 * ‖f‖) (Fact.out _)
   intro n
   dsimp [Embedding.g]
   rw [dist_eq_norm, sum_range_succ _ (n + 1), sub_add_eq_sub_sub, sub_self, zero_sub, norm_neg]
   convert norm_h he hφ f (n + 1) using 1
   ring
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_g_le (N : ℕ) : «expr∥ ∥» (he.g hφ f N) ≤ r / (1 - r) * «expr∥ ∥» f :=
+theorem norm_g_le (N : ℕ) : ‖he.g hφ f N‖ ≤ r / (1 - r) * ‖f‖ :=
   by
-  have : ∀ n : ℕ, «expr∥ ∥» (he.h hφ f n) ≤ r * «expr∥ ∥» f * r ^ n :=
+  have : ∀ n : ℕ, ‖he.h hφ f n‖ ≤ r * ‖f‖ * r ^ n :=
     by
     intro n
     convert norm_h he hφ f n using 1
@@ -461,12 +418,10 @@ theorem norm_g_le (N : ℕ) : «expr∥ ∥» (he.g hφ f N) ≤ r / (1 - r) * �
 
 open UniformSpace
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem concrete_92 [Fact (0 < r)] (f : Completion (LocallyConstant X V)) {ε : ℝ} (hε : 0 < ε) :
     ∃ g : Completion (LocallyConstant Y V),
       ((mapHom t.inv).comp (comapHom e he.Continuous) - comapHom φ hφ).Completion g = f ∧
-        «expr∥ ∥» g ≤ (r / (1 - r) + ε) * «expr∥ ∥» f :=
+        ‖g‖ ≤ (r / (1 - r) + ε) * ‖f‖ :=
   by
   have : (0 : ℝ) < r / (1 - r) := by
     have : 0 < r := Fact.out _

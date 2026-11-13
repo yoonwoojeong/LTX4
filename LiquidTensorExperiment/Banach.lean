@@ -26,19 +26,13 @@ open scoped NNReal
 
 section
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 structure HasPNorm (V : Type _) (p : ℝ) [AddCommGroup V] [Module ℝ V] [UniformSpace V] extends
     Norm V where
-  norm_smul : ∀ (α : ℝ) (v : V), «expr∥ ∥» (α • v) = |α| ^ p • «expr∥ ∥» v
-  triangle : ∀ v w : V, «expr∥ ∥» (v + w) ≤ «expr∥ ∥» v + «expr∥ ∥» w
+  norm_smul : ∀ (α : ℝ) (v : V), ‖α • v‖ = |α| ^ p • ‖v‖
+  triangle : ∀ v w : V, ‖v + w‖ ≤ ‖v‖ + ‖w‖
   uniformity :
     uniformity V =
-      ⨅ (ε : ℝ) (H : ε > 0), Filter.principal {p : V × V | «expr∥ ∥» (p.fst - p.snd) < ε}
+      ⨅ (ε : ℝ) (H : ε > 0), Filter.principal {p : V × V | ‖p.fst - p.snd‖ < ε}
 
 variable (V : Type _) (p : ℝ) [AddCommGroup V] [Module ℝ V] [UniformSpace V]
 
@@ -177,9 +171,6 @@ theorem Real.add_rpow_le {x y r : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y) (h0r : 0 �
 /- ./././Mathport/Syntax/Translate/Basic.lean:339:40: warning: unsupported option extends_priority -/
 set_option extends_priority 920
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- Here, we set a rather high priority for the instance `[normed_space α β] : module α β`
 -- to take precedence over `semiring.to_module` as this leads to instance paths with better
 -- unification properties.
@@ -188,7 +179,7 @@ equality `∥c • x∥ = ∥c∥ ∥x∥`. We require only `∥c • x∥ ≤ �
 `∥c • x∥ = ∥c∥ ∥x∥` in `norm_smul`. -/
 class NormedSpace' (𝕜 : Type _) (p : outParam ℝ) (V : Type _) [NormedField 𝕜] [NormedAddCommGroup V]
     [Module 𝕜 V] where
-  norm_smul : ∀ (c : 𝕜) (v : V), «expr∥ ∥» (c • v) = «expr∥ ∥» c ^ p * «expr∥ ∥» v
+  norm_smul : ∀ (c : 𝕜) (v : V), ‖c • v‖ = ‖c‖ ^ p * ‖v‖
 
 instance (priority := 100) NormedSpace.normedSpace' (𝕜 : Type _) (V : Type _) [NormedField 𝕜]
     [NormedAddCommGroup V] [NormedSpace 𝕜 V] : NormedSpace' 𝕜 1 V
@@ -235,27 +226,14 @@ theorem down_smul {p' : ℝ} {𝕜 V : Type _} [Ring 𝕜] [AddCommGroup V] [Mod
     (v : AsNormedSpace' p' V) : (c • v).down = c • v.down :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- The natural `p'`-norm on `as_normed_space' p' V` induced by a `p`-norm on `V`. -/
 protected def hasNorm (p' p : ℝ) (V : Type _) [Norm V] : Norm (AsNormedSpace' p' V) :=
-  ⟨fun v => «expr∥ ∥» v.down ^ (p' / p)⟩
+  ⟨fun v => ‖v.down‖ ^ (p' / p)⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_def {V : Type _} [Norm V] (p' p : ℝ) (v : AsNormedSpace' p' V) :
-    @Norm.norm _ (AsNormedSpace'.hasNorm p' p V) v = «expr∥ ∥» v.down ^ (p' / p) :=
+    @Norm.norm _ (AsNormedSpace'.hasNorm p' p V) v = ‖v.down‖ ^ (p' / p) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- The natural `p'`-normed group structure on `as_normed_space' p' V`
 induced by a `p`-normed group structure on `V` -/
 protected def normedAddCommGroup (V : Type _) [NormedAddCommGroup V] (p' p : ℝ) [Fact (0 < p')]
@@ -265,25 +243,25 @@ protected def normedAddCommGroup (V : Type _) [NormedAddCommGroup V] (p' p : ℝ
     have hp : 0 < p := lt_of_lt_of_le hp' (Fact.out _)
     have H : 0 < p' / p := div_pos hp' hp
     { norm_eq_zero_iff := fun v =>
-        show «expr∥ ∥» v.down ^ (p' / p) = 0 ↔ v = 0 by
+        show ‖v.down‖ ^ (p' / p) = 0 ↔ v = 0 by
           simpa only [Real.rpow_eq_zero_iff_of_nonneg (norm_nonneg v.down), norm_eq_zero, H.ne',
             and_true_iff, Ne.def, not_false_iff]
       triangle := fun v w =>
         show
-          «expr∥ ∥» (v + w).down ^ (p' / p) ≤
-            «expr∥ ∥» v.down ^ (p' / p) + «expr∥ ∥» w.down ^ (p' / p)
+          ‖v + w‖.down ^ (p' / p) ≤
+            ‖v.down‖ ^ (p' / p) + ‖w.down‖ ^ (p' / p)
           by
           rw [down_add]
           calc
-            «expr∥ ∥» (v.down + w.down) ^ (p' / p) ≤
-                («expr∥ ∥» v.down + «expr∥ ∥» w.down) ^ (p' / p) :=
+            ‖v.down + w.down‖ ^ (p' / p) ≤
+                (‖v.down‖ + ‖w.down‖) ^ (p' / p) :=
               Real.rpow_le_rpow (norm_nonneg _) (norm_add_le _ _) H.le
-            _ ≤ «expr∥ ∥» v.down ^ (p' / p) + «expr∥ ∥» w.down ^ (p' / p) :=
+            _ ≤ ‖v.down‖ ^ (p' / p) + ‖w.down‖ ^ (p' / p) :=
               Real.add_rpow_le (norm_nonneg _) (norm_nonneg _) H.le _
           rw [div_le_iff hp, one_mul]
           exact Fact.out _
       norm_neg := fun v =>
-        show «expr∥ ∥» (-v).down ^ (p' / p) = «expr∥ ∥» v.down ^ (p' / p) by
+        show ‖-v‖.down ^ (p' / p) = ‖v.down‖ ^ (p' / p) by
           rw [down_neg, norm_neg] }
 
 attribute [local instance] AsNormedSpace'.normedAddCommGroup

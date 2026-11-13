@@ -46,15 +46,13 @@ variable {S : FintypeCat}
 --  ... here!
 section NewStuff
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- Simpler Laurent measures? -/
 structure Slm (r : ℝ≥0) (S : FintypeCat) where
   toFun : S → ℤ → ℤ
   d : ℤ
-  summable' : ∀ s, Summable fun n : ℕ => «expr∥ ∥₊» (to_fun s n) * r ^ n
+  summable' : ∀ s, Summable fun n : ℕ => ‖to_fun s n‖₊ * r ^ n
   zero_lt_d : ∀ s n, n < d → to_fun s n = 0
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- A "usual" Laurent Measure `F : ℒ S` gives rise to a Simple Laurent Measure of type `slm S`. -/
 def LaurentMeasures.toSlm (F : ℒ S) : Slm r S
     where
@@ -63,11 +61,9 @@ def LaurentMeasures.toSlm (F : ℒ S) : Slm r S
   zero_lt_d n s := lt_d_eq_zero F _ _
   summable' := by
     refine' fun s => summable_coe.mp _
-    convert ((@int_summable_iff _ _ _ _ _ fun n : ℤ => «expr∥ ∥» (F.to_fun s n) * r ^ n).mp _).1
+    convert ((@int_summable_iff _ _ _ _ _ fun n : ℤ => ‖F.to_fun s n‖ * r ^ n).mp _).1
     exact summable_coe.mpr (F.summable' s)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 --  The "main" input is `int_summable_iff`, proving that a series over `ℤ` is summable if and only
 --  if both its restrictions to `ℕ` and to "`-ℕ`" are summable.
 /-- A Simple Laurent Measure `F : slm S` "usual" Laurent Measure of type `ℒ S`. -/
@@ -76,10 +72,10 @@ def Slm.toLaurentMeasures {r : ℝ≥0} (F : Slm r S) : LaurentMeasures r S
   toFun := F.toFun
   summable' := by
     refine' fun s => summable_coe.mp _
-    convert (@int_summable_iff _ _ _ _ _ fun n : ℤ => «expr∥ ∥» (F.to_fun s n) * r ^ n).mpr _
+    convert (@int_summable_iff _ _ _ _ _ fun n : ℤ => ‖F.to_fun s n‖ * r ^ n).mpr _
     refine'
       ⟨_,
-        summable_of_eventually_zero (fun n : ℤ => «expr∥ ∥» (F.to_fun s n) * ↑r ^ n) F.d fun n nd =>
+        summable_of_eventually_zero (fun n : ℤ => ‖F.to_fun s n‖ * ↑r ^ n) F.d fun n nd =>
           _⟩
     · convert summable_coe.mpr (F.summable' s)
     · simp [F.zero_lt_d s n nd]

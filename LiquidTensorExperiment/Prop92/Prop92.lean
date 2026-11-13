@@ -18,8 +18,7 @@ variable (M : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ)
 def tInvSubTinv :=
   cLCFP.res V r' c₁ c₂ n ≫ cLCFP.tInv r V r' c₂ n - cLCFP.tinv V r' c₁ c₂ n
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_tInvSubTinv_le : «expr∥ ∥» ((tInvSubTinv r r' V c₁ c₂ n).app M) ≤ 1 + r⁻¹ :=
+theorem norm_tInvSubTinv_le : ‖((tInvSubTinv r r' V c₁ c₂ n).app M)‖ ≤ 1 + r⁻¹ :=
   by
   rw [T_inv_sub_Tinv, sub_eq_neg_add]
   refine' le_trans (norm_add_le _ _) (add_le_add _ _)
@@ -41,14 +40,12 @@ open ProfinitelyFilteredPseudoNormedGroup ProfinitelyFilteredPseudoNormedGroupWi
 
 open LocallyConstant CategoryTheory
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- 9.2 of Analytic.pdf -/
 theorem tInvSubTinv_exists_preimage [hr1 : Fact (r < 1)] (f : (cLCFP V r' (r' * c) n).obj M)
     (ε : ℝ≥0) (hε : 0 < ε) :
     ∃ g : (cLCFP V r' c n).obj M,
       (tInvSubTinv r r' V c (r' * c) n).app M g = f ∧
-        «expr∥ ∥» g ≤ (r / (1 - r) + ε) * «expr∥ ∥» f :=
+        ‖g‖ ≤ (r / (1 - r) + ε) * ‖f‖ :=
   by
   obtain ⟨g, hg1, hg2⟩ :=
     @concrete_92 _ _ _ _ _ _ _ _ ((filtrationPow.castLe _ _ _ _).app _) (embedding_cast_le _ _)

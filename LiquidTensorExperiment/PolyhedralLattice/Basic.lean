@@ -28,34 +28,26 @@ section GeneratesNorm
 
 variable {Λ ι : Type _} [SeminormedAddCommGroup Λ] [Fintype ι]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- A finite family `x : ι → Λ` generates the norm on `Λ`
 if for every `l : Λ` there exist coefficients `c : ι → ℕ`
 such that `l = ∑ i, c i • x i` and `∥l∥ = ∑ i, (c i) * ∥x i∥`.
 -/
 def GeneratesNorm (x : ι → Λ) :=
-  ∀ l : Λ, ∃ c : ι → ℕ, l = ∑ i, c i • x i ∧ «expr∥ ∥» l = ∑ i, c i * «expr∥ ∥» (x i)
+  ∀ l : Λ, ∃ c : ι → ℕ, l = ∑ i, c i • x i ∧ ‖l‖ = ∑ i, c i * ‖x i‖
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem generatesNorm_iff_generates_nnnorm (x : ι → Λ) :
     GeneratesNorm x ↔
-      ∀ l : Λ, ∃ c : ι → ℕ, l = ∑ i, c i • x i ∧ «expr∥ ∥₊» l = ∑ i, c i * «expr∥ ∥₊» (x i) :=
+      ∀ l : Λ, ∃ c : ι → ℕ, l = ∑ i, c i • x i ∧ ‖l‖₊ = ∑ i, c i * ‖x i‖₊ :=
   by
   apply forall_congr'; intro l
   simp only [← NNReal.eq_iff, NNReal.coe_mul, NNReal.coe_sum, NNReal.coe_nat_cast, coe_nnnorm]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem GeneratesNorm.generates_nnnorm {x : ι → Λ} (hl : GeneratesNorm x) :
-    ∀ l : Λ, ∃ c : ι → ℕ, l = ∑ i, c i • x i ∧ «expr∥ ∥₊» l = ∑ i, c i * «expr∥ ∥₊» (x i) :=
+    ∀ l : Λ, ∃ c : ι → ℕ, l = ∑ i, c i • x i ∧ ‖l‖₊ = ∑ i, c i * ‖x i‖₊ :=
   (generatesNorm_iff_generates_nnnorm x).mp hl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem generatesNorm_of_generates_nnnorm {x : ι → Λ}
-    (H : ∀ l : Λ, ∃ c : ι → ℕ, l = ∑ i, c i • x i ∧ «expr∥ ∥₊» l = ∑ i, c i * «expr∥ ∥₊» (x i)) :
+    (H : ∀ l : Λ, ∃ c : ι → ℕ, l = ∑ i, c i • x i ∧ ‖l‖₊ = ∑ i, c i * ‖x i‖₊) :
     GeneratesNorm x :=
   (generatesNorm_iff_generates_nnnorm x).mpr H
 
@@ -105,13 +97,11 @@ theorem polyhedral : ∃ (ι : Type) (_ : Fintype ι) (l : ι → Λ), Generates
 
 end PolyhedralLattice
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- A morphism of polyhedral lattices is a norm-nonincreasing group homomorphism. -/
 structure PolyhedralLatticeHom (Λ₁ Λ₂ : Type _) [PolyhedralLattice Λ₁] [PolyhedralLattice Λ₂] where
   toFun : Λ₁ → Λ₂
   map_add' : ∀ l₁ l₂, to_fun (l₁ + l₂) = to_fun l₁ + to_fun l₂
-  strict' : ∀ l, «expr∥ ∥» (to_fun l) ≤ «expr∥ ∥» l
+  strict' : ∀ l, ‖to_fun l‖ ≤ ‖l‖
 
 namespace AddMonoidHom
 
@@ -119,21 +109,17 @@ variable {Λ₁ Λ₂ : Type _} [PolyhedralLattice Λ₁] [PolyhedralLattice Λ�
 
 variable {f g : PolyhedralLatticeHom Λ₁ Λ₂}
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- Associate to a group homomorphism a bounded group homomorphism under a norm control condition.
 
 See `add_monoid_hom.mk_polyhedral_lattice_hom'` for a version that uses `ℝ≥0` for the bound. -/
-def mkPolyhedralLatticeHom (f : Λ₁ →+ Λ₂) (h : ∀ v, «expr∥ ∥» (f v) ≤ «expr∥ ∥» v) :
+def mkPolyhedralLatticeHom (f : Λ₁ →+ Λ₂) (h : ∀ v, ‖f v‖ ≤ ‖v‖) :
     PolyhedralLatticeHom Λ₁ Λ₂ :=
   { f with strict' := h }
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- Associate to a group homomorphism a bounded group homomorphism under a norm control condition.
 
 See `add_monoid_hom.mk_polyhedral_lattice_hom` for a version that uses `ℝ` for the bound. -/
-def mkPolyhedralLatticeHom' (f : Λ₁ →+ Λ₂) (h : ∀ x, «expr∥ ∥₊» (f x) ≤ «expr∥ ∥₊» x) :
+def mkPolyhedralLatticeHom' (f : Λ₁ →+ Λ₂) (h : ∀ x, ‖f x‖₊ ≤ ‖x‖₊) :
     PolyhedralLatticeHom Λ₁ Λ₂ :=
   { f with strict' := h }
 
@@ -230,14 +216,10 @@ theorem map_zsmul (n : ℤ) (x) : f (n • x) = n • f x :=
 instance : Zero (PolyhedralLatticeHom Λ₁ Λ₂) :=
   ⟨(0 : Λ₁ →+ Λ₂).mkPolyhedralLatticeHom (by simp [le_refl])⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem strict (l : Λ₁) : «expr∥ ∥» (f l) ≤ «expr∥ ∥» l :=
+theorem strict (l : Λ₁) : ‖f l‖ ≤ ‖l‖ :=
   f.strict' l
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem strict_nnnorm (l : Λ₁) : «expr∥ ∥₊» (f l) ≤ «expr∥ ∥₊» l :=
+theorem strict_nnnorm (l : Λ₁) : ‖f l‖₊ ≤ ‖l‖₊ :=
   f.strict' l
 
 @[simps]

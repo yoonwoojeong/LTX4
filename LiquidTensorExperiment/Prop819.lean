@@ -172,14 +172,12 @@ def cechIsoZero {C : Type _} [Category C] (F : Arrow C) [Limits.HasLimits C] :
 theorem augmentation_zero {C : Type _} [Category C] (F : Arrow C) [Limits.HasLimits C] :
     (cechIsoZero F).inv ≫ F.augmentedCechNerve.Hom.app _ = F.Hom := by tidy
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem locally_constant_norm_empty (X : Profinite) [IsEmpty X]
-    (g : (locallyConstant.obj M).obj (op X)) : «expr∥ ∥» g = 0 :=
+    (g : (locallyConstant.obj M).obj (op X)) : ‖g‖ = 0 :=
   by
   rw [LocallyConstant.norm_def]
   dsimp [iSup]
-  suffices (Set.range fun x : ↥X => «expr∥ ∥» (g.to_fun x)) = ∅ by erw [this, Real.sSup_empty]
+  suffices (Set.range fun x : ↥X => ‖g.to_fun x‖) = ∅ by erw [this, Real.sSup_empty]
   simp only [Set.range_eq_empty]
 
 theorem Profinite.coe_comp_apply {X Y Z : Profinite} (f : X ⟶ Y) (g : Y ⟶ Z) (x : X) :
@@ -216,24 +214,19 @@ theorem prop819_degree_zero_helper :
   change (limits.wide_pullback.lift F.hom _ _ ≫ limits.wide_pullback.base _) _ = _
   simp
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem prop819_zero_norm_le (g : (locallyConstant.obj M).obj (op F.right)) :
-    «expr∥ ∥» g ≤
-      «expr∥ ∥»
-        ((locallyConstant.obj M).map (Limits.WidePullback.base fun i : Fin 1 => F.Hom).op g) :=
+    ‖g‖ ≤
+      ‖((locallyConstant.obj M).map (Limits.WidePullback.base fun i : Fin 1 => F.Hom).op g)‖ :=
   by
   cases isEmpty_or_nonempty F.right
   · simp only [locally_constant_norm_empty, norm_nonneg]
   · apply csSup_le
     · inhabit ↥F.right
       dsimp only [unop_op]
-      refine' ⟨«expr∥ ∥» (g.to_fun _), default, rfl⟩
+      refine' ⟨‖g.to_fun _‖, default, rfl⟩
     · rintro z ⟨z, rfl⟩
       obtain ⟨z, rfl⟩ := (prop819_degree_zero_helper _ surj) z
-      change «expr∥ ∥» (g.to_fun _) ≤ _
+      change ‖g.to_fun _‖ ≤ _
       erw [← LocallyConstant_map_apply M _ F.right (limits.wide_pullback.base fun i => F.hom) g z]
       apply LocallyConstant.norm_apply_le
 
@@ -367,13 +360,11 @@ theorem d_eq_zero_fLF (n : ℕ) (S : DiscreteQuotient F.left)
   erw [← hh] at h 
   exact h
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem norm_eq_fLF (n : ℕ) (S : DiscreteQuotient F.left)
     (g : ((fLF F surj M).obj (op S)).pt (n + 1)) :
     ∃ (T : DiscreteQuotient F.left) (hT : T ≤ S),
-      «expr∥ ∥₊» (((fLFCocone F surj M).ι.app (op S)).f _ g) =
-        «expr∥ ∥₊» (((fLF F surj M).map (homOfLE hT).op).f _ g) :=
+      ‖(((fLFCocone F surj M).ι.app (op S)).f _ g)‖₊ =
+        ‖(((fLF F surj M).map (homOfLE hT).op).f _ g)‖₊ :=
   by
   have :=
     exists_image (Cech_cone_diagram F surj n) (Cech_cone F surj n) (Cech_cone_is_limit F surj n) S
@@ -410,13 +401,11 @@ theorem norm_eq_fLF (n : ℕ) (S : DiscreteQuotient F.left)
     dsimp only [Function.comp_apply]
     erw [hy]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem exists_locally_constant (n : ℕ) (f : (fL F M).pt (n + 1))
     (hf : (fL F M).d _ (n + 2) f = 0) :-- TODO: ∃ ..., true looks a bit fuuny
     ∃ (S : DiscreteQuotient F.left) (g : ((fLF F surj M).obj (op S)).pt (n + 1)) (hgf :
       ((fLFCocone F surj M).ι.app (op S)).f _ g = f) (hgd :
-      ((fLF F surj M).obj (op S)).d _ (n + 2) g = 0) (hgnorm : «expr∥ ∥₊» f = «expr∥ ∥₊» g), True :=
+      ((fLF F surj M).obj (op S)).d _ (n + 2) g = 0) (hgnorm : ‖f‖₊ = ‖g‖₊), True :=
   by
   obtain ⟨S, f, rfl⟩ := exists_locally_constant_fLF F surj M n f
   obtain ⟨T1, hT1, h1⟩ := d_eq_zero_fLF F surj M n S f hf
@@ -457,23 +446,17 @@ theorem exists_locally_constant (n : ℕ) (f : (fL F M).pt (n + 1))
     · rw [← hg2, h2]
       apply LocallyConstant_obj_map_norm_noninc
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem fLF_norm_noninc (n : ℕ) (S : DiscreteQuotient F.left)
     (f : ((fLF F surj M).obj (op S)).pt n) :
-    «expr∥ ∥₊» (((fLFCocone F surj M).ι.app (op S)).f _ f) ≤ «expr∥ ∥₊» f :=
+    ‖(((fLFCocone F surj M).ι.app (op S)).f _ f)‖₊ ≤ ‖f‖₊ :=
   by
   cases n
   apply LocallyConstant_obj_map_norm_noninc
   apply LocallyConstant_obj_map_norm_noninc
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem prop819 {m : ℕ} (ε : ℝ≥0) (hε : 0 < ε) (f : (fLC F M).pt (m + 1))
     (hf : (fLC F M).d (m + 1) (m + 2) f = 0) :
-    ∃ g : (fLC F M).pt m, (fLC F M).d m (m + 1) g = f ∧ «expr∥ ∥₊» g ≤ (1 + ε) * «expr∥ ∥₊» f :=
+    ∃ g : (fLC F M).pt m, (fLC F M).d m (m + 1) g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊ :=
   by
   apply exact_of_strictIso _ _ (fLCIso F M) ε hε _ _ _ hf
   apply cmpl_exact_of_exact _ _ hε
@@ -519,7 +502,7 @@ theorem prop819 {m : ℕ} (ε : ℝ≥0) (hε : 0 < ε) (f : (fLC F M).pt (m + 1
       rw [map_zero, zero_add] at hh 
       exact hh
   · rw [h3]
-    suffices «expr∥ ∥₊» GG ≤ «expr∥ ∥₊» gc
+    suffices ‖GG‖₊ ≤ ‖gc‖₊
       by
       apply le_trans this _
       cases n

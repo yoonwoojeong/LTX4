@@ -276,9 +276,8 @@ theorem NNReal.summable_hMul_left_iff {X : Type _} {f : X → ℝ≥0} {a : ℝ�
   intro b
   norm_cast
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem psi_def_summable {S : FintypeCat} (n : ℕ) (F : ℒ S) (s : S) :
-    Summable fun k : ℕ => r ^ (F.d + ↑n) * (2⁻¹ ^ (k : ℤ) * «expr∥ ∥₊» (F s (F.d + ↑n + ↑k))) :=
+    Summable fun k : ℕ => r ^ (F.d + ↑n) * (2⁻¹ ^ (k : ℤ) * ‖(F s (F.d + ↑n + ↑k))‖₊) :=
   by
   have := F.summable_half s
   apply Summable.mul_left
@@ -298,15 +297,10 @@ theorem psi_def_summable {S : FintypeCat} (n : ℕ) (F : ℒ S) (s : S) :
   · intro n hn
     simp [this2 n hn]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem psi_def_summable2 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S) (s : ↥S) :
     ∀ k : ℕ,
       Summable fun n : ℕ =>
-        r ^ (F.d + ↑n) * ((2⁻¹ : ℝ≥0) ^ (k : ℤ) * «expr∥ ∥₊» (F s (F.d + ↑n + ↑k))) :=
+        r ^ (F.d + ↑n) * ((2⁻¹ : ℝ≥0) ^ (k : ℤ) * ‖(F s (F.d + ↑n + ↑k))‖₊) :=
   by
   intro k
   have hhalf : (2⁻¹ : ℝ≥0) ≠ 0 := by norm_num
@@ -318,15 +312,15 @@ theorem psi_def_summable2 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : �
   have :
     ∀ x : ℕ,
       2⁻¹ ^ (-(k : ℤ)) * r ^ (k : ℤ) *
-          (r ^ (F.d + ↑x) * (2⁻¹ ^ (k : ℤ) * «expr∥ ∥₊» (F s (F.d + ↑x + ↑k)))) =
-        r ^ (F.d + x + k) * «expr∥ ∥₊» (F s (F.d + ↑x + ↑k)) :=
+          (r ^ (F.d + ↑x) * (2⁻¹ ^ (k : ℤ) * ‖(F s (F.d + ↑x + ↑k))‖₊)) =
+        r ^ (F.d + x + k) * ‖(F s (F.d + ↑x + ↑k))‖₊ :=
     by
     intro x
     rw [show
         (2⁻¹ : ℝ≥0) ^ (-(k : ℤ)) * r ^ (k : ℤ) *
-            (r ^ (F.d + ↑x) * (2⁻¹ ^ (k : ℤ) * «expr∥ ∥₊» (F s (F.d + ↑x + ↑k)))) =
+            (r ^ (F.d + ↑x) * (2⁻¹ ^ (k : ℤ) * ‖(F s (F.d + ↑x + ↑k))‖₊)) =
           (2⁻¹ : ℝ≥0) ^ (-(k : ℤ)) * 2⁻¹ ^ (k : ℤ) * r ^ (k : ℤ) * r ^ (F.d + ↑x) *
-            «expr∥ ∥₊» (F s (F.d + ↑x + ↑k))
+            ‖(F s (F.d + ↑x + ↑k))‖₊
         by ring]
     simp only [zpow_add₀ hr, ← zpow_add₀ hhalf']
     simp
@@ -344,24 +338,17 @@ theorem psi_def_summable2 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : �
     convert nnnorm_zero
     exact lt_d_eq_zero F s n hn
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem psi_def_summable3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S) (s : ↥S) :
     Summable fun k : ℕ =>
-      ∑' n : ℕ, r ^ (F.d + ↑n) * (2⁻¹ ^ (k : ℤ) * «expr∥ ∥₊» (F s (F.d + ↑n + ↑k))) :=
+      ∑' n : ℕ, r ^ (F.d + ↑n) * (2⁻¹ ^ (k : ℤ) * ‖(F s (F.d + ↑n + ↑k))‖₊) :=
   by
   -- take 2⁻¹^k out the tsum,
   -- put r^k into the tsum,
   -- bounded by sum of GP,
   have bdd :
     ∀ k : ℕ,
-      ∑' n : ℕ, r ^ (F.d + ↑n + k) * «expr∥ ∥₊» (F s (F.d + ↑n + ↑k)) ≤
-        ∑' t : ℤ, r ^ t * «expr∥ ∥₊» (F s t) :=
+      ∑' n : ℕ, r ^ (F.d + ↑n + k) * ‖(F s (F.d + ↑n + ↑k))‖₊ ≤
+        ∑' t : ℤ, r ^ t * ‖F s t‖₊ :=
     by
     intro k
     simp_rw [add_right_comm]
@@ -373,7 +360,7 @@ theorem psi_def_summable3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : �
     · intros; apply zero_le'
     · intro; rfl
     · rw [←
-        @nnreal.summable_iff_on_nat_less_shift (fun z : ℤ => r ^ z * «expr∥ ∥₊» (F s z)) F.d _
+        @nnreal.summable_iff_on_nat_less_shift (fun z : ℤ => r ^ z * ‖F s z‖₊) F.d _
           (F.d + k)]
       · convert F.summable' s
         ext z
@@ -387,8 +374,8 @@ theorem psi_def_summable3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : �
       rfl
   have :
     ∀ k : ℕ,
-      ∑' n : ℕ, r ^ (F.d + ↑n) * (2⁻¹ ^ (k : ℤ) * «expr∥ ∥₊» (F s (F.d + ↑n + ↑k))) =
-        (∑' n : ℕ, r ^ (F.d + ↑n + k) * «expr∥ ∥₊» (F s (F.d + ↑n + ↑k))) * (2⁻¹ * r⁻¹) ^ (k : ℤ) :=
+      ∑' n : ℕ, r ^ (F.d + ↑n) * (2⁻¹ ^ (k : ℤ) * ‖(F s (F.d + ↑n + ↑k))‖₊) =
+        (∑' n : ℕ, r ^ (F.d + ↑n + k) * ‖(F s (F.d + ↑n + ↑k))‖₊) * (2⁻¹ * r⁻¹) ^ (k : ℤ) :=
     by
     intro k
     rw [← NNReal.tsum_mul_right]
@@ -403,7 +390,7 @@ theorem psi_def_summable3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : �
     rw [mul_pow]
     ring
   rw [summable_congr this]; clear this
-  suffices Summable fun k : ℕ => (∑' t : ℤ, r ^ t * «expr∥ ∥₊» (F s t)) * (2⁻¹ * r⁻¹) ^ k
+  suffices Summable fun k : ℕ => (∑' t : ℤ, r ^ t * ‖F s t‖₊) * (2⁻¹ * r⁻¹) ^ k
     by
     refine' summable_of_le _ this
     intro k
@@ -413,24 +400,19 @@ theorem psi_def_summable3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : �
   apply summable_geometric
   exact div_lt_one_of_lt half_lt_r
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem psi_def_aux_4 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S) (s : ↥S) :
     Summable fun m : ℕ =>
-      «expr∥ ∥₊» ((2 : ℝ) ^ (F.d + ↑m)) *
-        ((∑' k : ℕ, «expr∥ ∥₊» (F s (F.d + ↑m + ↑k)) * 2⁻¹ ^ (F.d + ↑m + ↑k)) * r ^ (F.d + ↑m)) :=
+      ‖((2 : ℝ) ^ (F.d + ↑m))‖₊ *
+        ((∑' k : ℕ, ‖(F s (F.d + ↑m + ↑k))‖₊ * 2⁻¹ ^ (F.d + ↑m + ↑k)) * r ^ (F.d + ↑m)) :=
   by
   -- tidy up
   simp_rw [nnnorm_zpow, Real.nnnorm_two]
   have :
     ∀ m : ℕ,
       (2 : ℝ≥0) ^ (F.d + ↑m) *
-          ((∑' k : ℕ, «expr∥ ∥₊» (F s (F.d + ↑m + ↑k)) * 2⁻¹ ^ (F.d + ↑m + ↑k)) * r ^ (F.d + ↑m)) =
+          ((∑' k : ℕ, ‖(F s (F.d + ↑m + ↑k))‖₊ * 2⁻¹ ^ (F.d + ↑m + ↑k)) * r ^ (F.d + ↑m)) =
         ∑' k : ℕ,
-          (2 : ℝ≥0) ^ (F.d + ↑m) * «expr∥ ∥₊» (F s (F.d + ↑m + ↑k)) * 2⁻¹ ^ (F.d + ↑m + ↑k) *
+          (2 : ℝ≥0) ^ (F.d + ↑m) * ‖(F s (F.d + ↑m + ↑k))‖₊ * 2⁻¹ ^ (F.d + ↑m + ↑k) *
             r ^ (F.d + ↑m) :=
     by
     intro m
@@ -442,7 +424,7 @@ theorem psi_def_aux_4 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S)
   -- TODO : maybe now is the time to tidy up a bit (e.g. cancel the 2^x and 2⁻¹^x)
   suffices
     Summable fun m : ℕ =>
-      ∑' k : ℕ, «expr∥ ∥₊» (F s (F.d + ↑m + ↑k)) * 2⁻¹ ^ (k : ℤ) * r ^ (F.d + ↑m)
+      ∑' k : ℕ, ‖(F s (F.d + ↑m + ↑k))‖₊ * 2⁻¹ ^ (k : ℤ) * r ^ (F.d + ↑m)
     by
     refine' (summable_congr _).2 this
     intro m
@@ -466,20 +448,14 @@ theorem psi_def_aux_4 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S)
   -- sum is then bounded above by a GP.
   · apply psi_def_summable3
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem psi_def_aux_3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S) (s : ↥S) :
     Summable fun n : ℤ =>
-      «expr∥ ∥₊» (-(2 : ℝ) ^ (n - 1)) *
-        ite (F.d ≤ n) ((∑' k : ℕ, «expr∥ ∥₊» (F s (n + ↑k)) * 2⁻¹ ^ (n + ↑k)) * r ^ n) 0 :=
+      ‖(-(2 : ℝ) ^ (n - 1))‖₊ *
+        ite (F.d ≤ n) ((∑' k : ℕ, ‖(F s (n + ↑k))‖₊ * 2⁻¹ ^ (n + ↑k)) * r ^ n) 0 :=
   by
   -- get rid of factor of -2⁻¹
   simp_rw [_root_.nnnorm_neg, zpow_sub₀ (two_ne_zero : (2 : ℝ) ≠ 0), nnnorm_div, zpow_one,
-    div_eq_mul_inv _ («expr∥ ∥₊» (2 : ℝ)), mul_comm _ («expr∥ ∥₊» (2 : ℝ))⁻¹, mul_assoc]
+    div_eq_mul_inv _ (‖2 : ℝ‖₊), mul_comm _ (‖2 : ℝ‖₊)⁻¹, mul_assoc]
   apply Summable.mul_left
   have hinj : Function.Injective fun m : ℕ => F.d + m :=
     by
@@ -488,8 +464,8 @@ theorem psi_def_aux_3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S)
   -- change outer sum to m : ℕ with n : ℤ = F.d + m
   suffices :
     Summable fun m : ℕ =>
-      «expr∥ ∥₊» ((2 : ℝ) ^ (F.d + m)) *
-        ((∑' k : ℕ, «expr∥ ∥₊» (F s (F.d + m + ↑k)) * 2⁻¹ ^ (F.d + m + ↑k)) * r ^ (F.d + m))
+      ‖((2 : ℝ) ^ (F.d + m))‖₊ *
+        ((∑' k : ℕ, ‖(F s (F.d + m + ↑k))‖₊ * 2⁻¹ ^ (F.d + m + ↑k)) * r ^ (F.d + m))
   refine' NNReal.summable_of_comp_injective hinj _ _
   · intro a ha
     rw [if_neg]; simp
@@ -500,20 +476,17 @@ theorem psi_def_aux_3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S)
     simp
   exact psi_def_aux_4 F s
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem psi_def_aux_2 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S) (s : ↥S) :
     Summable fun n : ℤ =>
       ite (F.d ≤ n)
-        («expr∥ ∥₊» (-(2 : ℝ) ^ (n - 1) * ∑' k : ℕ, ↑(F s (n + ↑k)) * 2⁻¹ ^ (n + ↑k) * r ^ n)) 0 :=
+        (‖(-(2 : ℝ) ^ (n - 1) * ∑' k : ℕ, ↑(F s (n + ↑k)) * 2⁻¹ ^ (n + ↑k) * r ^ n)‖₊) 0 :=
   by
   simp_rw [nnnorm_mul]
   -- next : put norm inside inner tsum (a one way implication)
   suffices :
     Summable fun n : ℤ =>
-      «expr∥ ∥₊» (-(2 : ℝ) ^ (n - 1)) *
-        ite (F.d ≤ n) ((∑' k : ℕ, «expr∥ ∥₊» (F s (n + ↑k)) * 2⁻¹ ^ (n + ↑k)) * r ^ n) 0
+      ‖(-(2 : ℝ) ^ (n - 1))‖₊ *
+        ite (F.d ≤ n) ((∑' k : ℕ, ‖(F s (n + ↑k))‖₊ * 2⁻¹ ^ (n + ↑k)) * r ^ n) 0
   refine' summable_of_le _ this
   · intro n
     split_ifs
@@ -544,18 +517,15 @@ theorem psi_def_aux_2 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S)
     · simp
   exact psi_def_aux_3 _ _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem psi_def_aux {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S) (s : ↥S) :
     Summable fun n : ℤ =>
-      «expr∥ ∥₊»
-          (ite (F.d ≤ n) (-(2 : ℝ) ^ (n - 1) * ∑' k : ℕ, ↑(F s (n + ↑k)) * 2⁻¹ ^ (n + ↑k)) 0) *
+      ‖(ite (F.d ≤ n) (-(2 : ℝ) ^ (n - 1) * ∑' k : ℕ, ↑(F s (n + ↑k)) * 2⁻¹ ^ (n + ↑k)) 0)‖₊ *
         r ^ n :=
   by
   suffices :
     Summable fun n : ℤ =>
       ite (F.d ≤ n)
-        («expr∥ ∥₊» (-(2 : ℝ) ^ (n - 1) * ∑' k : ℕ, ↑(F s (n + ↑k)) * 2⁻¹ ^ (n + ↑k) * r ^ n)) 0
+        (‖(-(2 : ℝ) ^ (n - 1) * ∑' k : ℕ, ↑(F s (n + ↑k)) * 2⁻¹ ^ (n + ↑k) * r ^ n)‖₊) 0
   refine' summable_of_le _ this
   · intro n
     split_ifs
@@ -566,8 +536,6 @@ theorem psi_def_aux {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S) (
     · simp
   exact psi_def_aux_2 _ _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def ψ (F : ℒ S) (hF : θ F = 0) : ℒ S
     where
   toFun s n := if F.d ≤ n then ∑ l in range (n - F.d).natAbs.succ, F s (n - 1 - l) * 2 ^ l else 0
@@ -576,10 +544,9 @@ def ψ (F : ℒ S) (hF : θ F = 0) : ℒ S
     -- make everything real
     change
       Summable fun n : ℤ =>
-        «expr∥ ∥₊»
-            ((ite (F.d ≤ n) (∑ l : ℕ in range (n - F.d).natAbs.succ, F s (n - 1 - ↑l) * 2 ^ l) 0 :
+        ‖((ite (F.d ≤ n) (∑ l : ℕ in range (n - F.d).natAbs.succ, F s (n - 1 - ↑l) * 2 ^ l) 0 :
                 ℤ) :
-              ℝ) *
+              ℝ)‖₊ *
           r ^ n
     push_cast
     -- hypothesis that infinite sum converges at r>2⁻¹
@@ -642,8 +609,7 @@ def ψ (F : ℒ S) (hF : θ F = 0) : ℒ S
         ext; rfl
     suffices
       Summable fun n : ℤ =>
-        «expr∥ ∥₊»
-            (ite (F.d ≤ n) (-(2 : ℝ) ^ (n - 1) * ∑' k : ℕ, ↑(F s (n + k)) * 2⁻¹ ^ (n + k)) 0) *
+        ‖(ite (F.d ≤ n) (-(2 : ℝ) ^ (n - 1) * ∑' k : ℕ, ↑(F s (n + k)) * 2⁻¹ ^ (n + k)) 0)‖₊ *
           r ^ n
       by
       refine' (summable_congr _).2 this

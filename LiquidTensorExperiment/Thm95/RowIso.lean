@@ -263,12 +263,10 @@ def mulRescaleIsoRowOne (N : ℕ) [Fact (0 < N)] (N' : ℝ≥0) (h : N' = N)
       ((BD.system κ r V r').mapIso <|
         (PolyhedralLatticeCat.homCosimplicialZeroIso Λ N r' M N' h).op)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem mulRescaleIsoRowOne_strict (N : ℕ) [Fact (0 < N)] (N' : ℝ≥0) (h : N' = N)
     (Λ : PolyhedralLatticeCat.{u}) (M : ProFiltPseuNormGrpWithTinv.{u} r') (c : ℝ≥0) (i : ℕ)
     (x : (((Data.mul N).obj BD).system (rescaleConstants κ N') r V r').obj (op (hom Λ M)) c i) :
-    «expr∥ ∥» ((mulRescaleIsoRowOne BD κ r V N N' h Λ M).Hom x) = «expr∥ ∥» x :=
+    ‖((mulRescaleIsoRowOne BD κ r V N N' h Λ M).Hom x)‖ = ‖x‖ :=
   by
   apply NormedAddGroupHom.norm_eq_of_isometry
   refine' Isometry.comp (Isometry.comp _ _) _

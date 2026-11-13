@@ -66,51 +66,35 @@ theorem neg_apply (F : ℳ p S) (s : S) : (-F) s = -F s :=
 theorem sub_apply (F G : ℳ p S) (s : S) : (F - G) s = F s - G s :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 instance : Norm (ℳ p S) :=
-  ⟨fun F => ∑ s, «expr∥ ∥» (F s) ^ (p : ℝ)⟩
+  ⟨fun F => ∑ s, ‖F s‖ ^ (p : ℝ)⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_def (F : ℳ p S) : «expr∥ ∥» F = ∑ s, «expr∥ ∥» (F s) ^ (p : ℝ) :=
+theorem norm_def (F : ℳ p S) : ‖F‖ = ∑ s, ‖F s‖ ^ (p : ℝ) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance : NNNorm (ℳ p S) :=
-  ⟨fun F => ∑ s, «expr∥ ∥₊» (F s) ^ (p : ℝ)⟩
+  ⟨fun F => ∑ s, ‖F s‖₊ ^ (p : ℝ)⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_def (F : ℳ p S) : «expr∥ ∥₊» F = ∑ s, «expr∥ ∥₊» (F s) ^ (p : ℝ) :=
+theorem nnnorm_def (F : ℳ p S) : ‖F‖₊ = ∑ s, ‖F s‖₊ ^ (p : ℝ) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
-protected theorem coe_nnnorm (F : ℳ p S) : («expr∥ ∥₊» F : ℝ) = «expr∥ ∥» F := by
+protected theorem coe_nnnorm (F : ℳ p S) : (‖F‖₊ : ℝ) = ‖F‖ := by
   simp only [norm_def, nnnorm_def, NNReal.coe_sum, NNReal.coe_rpow, coe_nnnorm]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem RealMeasures.norm_nonneg (F : ℳ p S) : 0 ≤ «expr∥ ∥» F := by rw [← F.coe_nnnorm];
-  exact («expr∥ ∥₊» F).2
+theorem RealMeasures.norm_nonneg (F : ℳ p S) : 0 ≤ ‖F‖ := by rw [← F.coe_nnnorm];
+  exact (‖F‖₊).2
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-protected theorem nnnorm_zero [hp : Fact (0 < p)] : «expr∥ ∥₊» (0 : ℳ p S) = 0 :=
+protected theorem nnnorm_zero [hp : Fact (0 < p)] : ‖0 : ℳ p S‖₊ = 0 :=
   by
   rw [nnnorm_def, Finset.sum_eq_zero]
   rintro s -
   rw [zero_apply, nnnorm_zero, NNReal.zero_rpow]
   exact_mod_cast hp.out.ne'
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 protected theorem nnnorm_add [h0p : Fact (0 ≤ p)] [hp1 : Fact (p ≤ 1)] (F G : ℳ p S) :
-    «expr∥ ∥₊» (F + G) ≤ «expr∥ ∥₊» F + «expr∥ ∥₊» G :=
+    ‖F + G‖₊ ≤ ‖F‖₊ + ‖G‖₊ :=
   by
   dsimp [nnnorm_def]
   rw [← Finset.sum_add_distrib]
@@ -120,21 +104,19 @@ protected theorem nnnorm_add [h0p : Fact (0 ≤ p)] [hp1 : Fact (p ≤ 1)] (F G 
   have hp1' : (p : ℝ) ≤ 1; exact_mod_cast hp1.out
   exact
     (NNReal.rpow_le_rpow (nnnorm_add_le _ _) h0p').trans
-      (@NNReal.rpow_add_le_add_rpow p («expr∥ ∥₊» (F s)) («expr∥ ∥₊» (G s)) h0p' hp1')
+      (@NNReal.rpow_add_le_add_rpow p (‖F s‖₊) (‖G s‖₊) h0p' hp1')
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 --needed? [FAE] Yes!
 instance pngRealMeasures [Fact (0 < p)] [Fact (p ≤ 1)] : PseudoNormedGroup (ℳ p S)
     where
-  filtration c := {F | «expr∥ ∥₊» F ≤ c}
+  filtration c := {F | ‖F‖₊ ≤ c}
   filtration_mono c₁ c₂ h F hF := by dsimp at *; exact le_trans hF h
   zero_mem_filtration c := by simp only [RealMeasures.nnnorm_zero, zero_le', Set.mem_setOf_eq]
   neg_mem_filtration c F h := by dsimp [nnnorm_def] at *; simp only [h, nnnorm_neg]
   add_mem_filtration c₁ c₂ F₁ F₂ h₁ h₂ := (RealMeasures.nnnorm_add _ _).trans (add_le_add h₁ h₂)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem mem_filtration_iff [Fact (0 < p)] [Fact (p ≤ 1)] (F : ℳ p S) (c : ℝ≥0) :
-    F ∈ PseudoNormedGroup.filtration (ℳ p S) c ↔ «expr∥ ∥₊» F ≤ c :=
+    F ∈ PseudoNormedGroup.filtration (ℳ p S) c ↔ ‖F‖₊ ≤ c :=
   Iff.rfl
 
 def map (f : S ⟶ S') : ℳ p S → ℳ p S' := fun F s' =>
@@ -171,19 +153,14 @@ theorem map_comp {S'' : FintypeCat.{u}} (f : S ⟶ S') (g : S' ⟶ S'') :
       Finset.mem_inter] at hk 
     rw [← hk.1, ← hk.2]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem map_bound [h0p : Fact (0 < p)] [hp1 : Fact (p ≤ 1)] (f : S ⟶ S') (F : ℳ p S) :
-    «expr∥ ∥₊» (map f F) ≤ «expr∥ ∥₊» F :=
+    ‖map f F‖₊ ≤ ‖F‖₊ :=
   by
   calc
-    ∑ s', «expr∥ ∥₊» (∑ s in finset.univ.filter fun t => f t = s', F s) ^ (p : ℝ) ≤
-        ∑ s' : S', ∑ s in finset.univ.filter fun t => f t = s', «expr∥ ∥₊» (F s) ^ (p : ℝ) :=
+    ∑ s', ‖∑ s in finset.univ.filter fun t => f t = s', F s‖₊ ^ (p : ℝ) ≤
+        ∑ s' : S', ∑ s in finset.univ.filter fun t => f t = s', ‖F s‖₊ ^ (p : ℝ) :=
       _
-    _ = ∑ s, «expr∥ ∥₊» (F s) ^ (p : ℝ) := _
+    _ = ∑ s, ‖F s‖₊ ^ (p : ℝ) := _
   · apply Finset.sum_le_sum
     rintro s' -
     have h0p' : (0 : ℝ) < p; exact_mod_cast h0p.out
@@ -217,22 +194,17 @@ instance topologicalSpace (c : ℝ≥0) : TopologicalSpace (filtration (ℳ p S)
 instance t2Space (c : ℝ≥0) : T2Space (filtration (ℳ p S) c) :=
   @Subtype.t2Space _ _ Pi.topologicalSpace _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_apply_le_of_nnnorm_le (F : ℳ p S) (s : S) (c : ℝ≥0) (h : «expr∥ ∥₊» F ≤ c) :
-    «expr∥ ∥₊» (F s) ≤ c ^ (p⁻¹ : ℝ) :=
+theorem nnnorm_apply_le_of_nnnorm_le (F : ℳ p S) (s : S) (c : ℝ≥0) (h : ‖F‖₊ ≤ c) :
+    ‖F s‖₊ ≤ c ^ (p⁻¹ : ℝ) :=
   by
   calc
-    «expr∥ ∥₊» (F s) = («expr∥ ∥₊» (F s) ^ (p : ℝ)) ^ (p⁻¹ : ℝ) := _
+    ‖F s‖₊ = (‖F s‖₊ ^ (p : ℝ)) ^ (p⁻¹ : ℝ) := _
     _ ≤ c ^ (p⁻¹ : ℝ) := _
   · rw_mod_cast [← NNReal.rpow_mul, mul_inv_cancel, NNReal.rpow_one]
     exact ne_of_gt ‹Fact (0 < p)›.out
   · apply NNReal.rpow_le_rpow _ (inv_pos.mpr _).le
     · refine' le_trans _ h
-      have aux := Finset.sum_pi_single' s («expr∥ ∥₊» (F s) ^ (p : ℝ)) Finset.univ
+      have aux := Finset.sum_pi_single' s (‖F s‖₊ ^ (p : ℝ)) Finset.univ
       simp only [Finset.mem_univ, if_true] at aux 
       rw [← aux]
       apply Finset.sum_le_sum
@@ -240,8 +212,7 @@ theorem nnnorm_apply_le_of_nnnorm_le (F : ℳ p S) (s : S) (c : ℝ≥0) (h : «
       split_ifs; · subst t; · exact zero_le'
     · norm_cast; exact ‹Fact (0 < p)›.out
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem apply_mem_Icc_of_nnnorm_le (F : ℳ p S) (s : S) (c : ℝ≥0) (h : «expr∥ ∥₊» F ≤ c) :
+theorem apply_mem_Icc_of_nnnorm_le (F : ℳ p S) (s : S) (c : ℝ≥0) (h : ‖F‖₊ ≤ c) :
     F s ∈ Set.Icc (-c ^ (p⁻¹ : ℝ) : ℝ) (c ^ (p⁻¹ : ℝ) : ℝ) :=
   by
   have := @Set.mem_Icc_iff_abs_le ℝ _ 0 (F s) (c ^ (p : ℝ)⁻¹)
@@ -286,7 +257,6 @@ instance compactSpace (c : ℝ≥0) : CompactSpace (filtration (ℳ p S) c) :=
 
 open Metric
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def equivFiltrationϖBall (c : ℝ≥0) : filtration (ℳ p ϖ) c ≃ closedBall (0 : ℝ) (c ^ (p⁻¹ : ℝ) : ℝ≥0)
     where
   toFun f :=
@@ -295,7 +265,7 @@ def equivFiltrationϖBall (c : ℝ≥0) : filtration (ℳ p ϖ) c ≃ closedBall
       have hf := (mem_filtration_iff f.1 c).mp f.2
       simp only [← NNReal.coe_le_coe, RealMeasures.coe_nnnorm, nnnorm_def, Fintype.univ_punit,
         Finset.sum_singleton, norm_def] at hf 
-      have := @NNReal.rpow_le_rpow_iff («expr∥ ∥₊» (f.1 PUnit.unit)) (c ^ (p⁻¹ : ℝ)) p _
+      have := @NNReal.rpow_le_rpow_iff (‖f.1 PUnit.unit‖₊) (c ^ (p⁻¹ : ℝ)) p _
       rw [← NNReal.rpow_mul, inv_mul_cancel, NNReal.rpow_one] at this 
       exact this.mp hf
       exact nnreal.coe_ne_zero.mpr (ne_of_gt (Fact.out _))
@@ -339,9 +309,8 @@ def homeoFiltrationϖBall (c : ℝ≥0) :
     simp only [equiv_filtration_ϖ_ball]
     continuity
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem RealMeasures.dist_eq {c : ℝ≥0} (F G : filtration (ℳ p ϖ) c) :
-    «expr∥ ∥» (F.1 - G.1) ^ (p⁻¹ : ℝ) =
+    ‖F.1 - G.1‖ ^ (p⁻¹ : ℝ) =
       |(homeoFiltrationϖBall c F - homeoFiltrationϖBall c G : ℝ)| :=
   by
   have hp : (p : ℝ) ≠ 0 := by
@@ -354,7 +323,6 @@ theorem RealMeasures.dist_eq {c : ℝ≥0} (F G : filtration (ℳ p ϖ) c) :
 instance {c : ℝ≥0} : Zero (closedBall (0 : ℝ) c)
     where zero := ⟨0, by simp only [mem_closedBall_zero_iff, norm_zero, NNReal.zero_le_coe]⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem homeoFiltrationϖBall_preimage {c ε : ℝ≥0} (h : ε ^ (p : ℝ) ≤ c) :
     homeoFiltrationϖBall c ⁻¹' closedBall 0 ε =
       Set.range (Set.inclusion (@PseudoNormedGroup.filtration_mono (ℳ p ϖ) _ _ _ h)) :=
@@ -363,7 +331,7 @@ theorem homeoFiltrationϖBall_preimage {c ε : ℝ≥0} (h : ε ^ (p : ℝ) ≤ 
   simp only [homeo_filtration_ϖ_ball, equiv_filtration_ϖ_ball, Subtype.val_eq_coe, Subtype.coe_mk,
     Homeomorph.homeomorph_mk_coe, Equiv.coe_fn_mk, Set.mem_preimage, mem_closed_ball, dist_le_coe,
     Set.range_inclusion, Set.mem_setOf_eq]
-  change _ ↔ ∑ s : PUnit, «expr∥ ∥₊» (x s) ^ (p : ℝ) ≤ _
+  change _ ↔ ∑ s : PUnit, ‖x s‖₊ ^ (p : ℝ) ≤ _
   simp only [Fintype.univ_punit, Finset.sum_singleton]
   rw [NNReal.rpow_le_rpow_iff]
   · convert Iff.rfl
@@ -457,11 +425,10 @@ def mapHom [Fact (0 < p)] (f : S ⟶ S') : StrictComphausFilteredPseudoNormedGro
     rintro s -
     exact (continuous_apply s).comp continuous_subtype_val
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simps]
 def functor (p : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] : FintypeCat.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}
     where
-  obj S := ⟨ℳ p S, fun F => ⟨«expr∥ ∥₊» F, (mem_filtration_iff _ _).mpr le_rfl⟩⟩
+  obj S := ⟨ℳ p S, fun F => ⟨‖F‖₊, (mem_filtration_iff _ _).mpr le_rfl⟩⟩
   map S T f := mapHom f
   map_id' S := by ext1; rw [map_hom_to_fun, map_id]; rfl
   map_comp' S S' S'' f g := by ext1; simp only [map_hom_to_fun, map_comp]; rfl

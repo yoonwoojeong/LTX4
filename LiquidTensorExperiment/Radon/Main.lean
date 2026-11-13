@@ -106,12 +106,6 @@ theorem radon_closedEmbedding (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)]
       convert (X.Radon_LC_closed_embedding p c).closed_range
       erw [Subtype.range_val]; rfl)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem radon_closed_embedding_range_bdd (X : Profinite) (p c : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] :
     Bornology.IsBounded (NormedSpace.Dual.toWeakDual ⁻¹' Set.range (X.radonToWeakDual p c)) :=
   by
@@ -131,18 +125,18 @@ theorem radon_closed_embedding_range_bdd (X : Profinite) (p c : ℝ≥0) [Fact (
     let γ : WeakDual ℝ (LocallyConstant X ℝ) := X.weak_dual_C_to_LC μ
     dsimp [LocallyConstant.pkg]
     have : μ e = γ e; rfl; rw [this]; clear this
-    have : «expr∥ ∥» e.to_continuous_map = «expr∥ ∥» e := by
+    have : ‖e.to_continuous_map‖ = ‖e‖ := by
       simp only [ContinuousMap.norm_eq_iSup_norm, LocallyConstant.norm_def,
         LocallyConstant.toContinuousMap_eq_coe, LocallyConstant.coe_continuousMap]
     erw [this]; clear this
-    suffices «expr∥ ∥₊» (γ e) ≤ c ^ (1 / (p : ℝ)) * «expr∥ ∥₊» e by exact_mod_cast this
+    suffices ‖γ e‖₊ ≤ c ^ (1 / (p : ℝ)) * ‖e‖₊ by exact_mod_cast this
     have hp : 0 < (p : ℝ) := nnreal.coe_pos.mpr (Fact.out (0 < p))
     have hp' : (p : ℝ) ≠ 0 := ne_of_gt hp
     rw [← NNReal.rpow_le_rpow_iff hp, NNReal.mul_rpow, ← NNReal.rpow_mul]
     rw [show 1 / (p : ℝ) * p = 1 from (eq_div_iff hp').mp rfl, NNReal.rpow_one]
     obtain ⟨δ, hδ⟩ := hμ
     have H := δ.2 e.discrete_quotient
-    replace H := mul_le_mul H (le_refl («expr∥ ∥₊» e ^ (p : ℝ))) (zero_le _) (zero_le _)
+    replace H := mul_le_mul H (le_refl (‖e‖₊ ^ (p : ℝ))) (zero_le _) (zero_le _)
     refine' le_trans _ H; clear H
     rw [mul_comm, Finset.mul_sum]
     nth_rw 1 [e.eq_sum]
@@ -153,7 +147,7 @@ theorem radon_closed_embedding_range_bdd (X : Profinite) (p c : ℝ≥0) [Fact (
     refine' mul_le_mul _ (le_of_eq _) (zero_le _) (zero_le _)
     apply NNReal.rpow_le_rpow _ (le_of_lt hp)
     obtain ⟨x, rfl⟩ := DiscreteQuotient.proj_surjective _ x
-    change «expr∥ ∥₊» (e x) ≤ _
+    change ‖e x‖₊ ≤ _
     apply LocallyConstant.nnnorm_apply_le_nnnorm
     congr 2
     change _ = X.Radon_to_weak_dual p c δ _; rw [hδ]; rfl

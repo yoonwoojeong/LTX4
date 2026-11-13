@@ -97,11 +97,9 @@ theorem map_id {J} [Category J] {V W : SemiNormedGroupCat} (f g : V ⟶ W) :
     map (𝟙 V) (𝟙 W) (show 𝟙 V ≫ f = f ≫ 𝟙 W by simp) (show 𝟙 V ≫ g = g ≫ 𝟙 W by simp) = 𝟙 _ := by
   ext; rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_map_le {V₁ V₂ W₁ W₂ : SemiNormedGroupCat} {f₁ f₂ g₁ g₂} {φ : V₁ ⟶ V₂} {ψ : W₁ ⟶ W₂}
-    (hf : φ ≫ f₂ = f₁ ≫ ψ) (hg : φ ≫ g₂ = g₁ ≫ ψ) (C : ℝ) (hφ : «expr∥ ∥» (ι f₁ g₁ ≫ φ) ≤ C) :
-    «expr∥ ∥» (map φ ψ hf hg) ≤ C :=
+    (hf : φ ≫ f₂ = f₁ ≫ ψ) (hg : φ ≫ g₂ = g₁ ≫ ψ) (C : ℝ) (hφ : ‖ι f₁ g₁ ≫ φ‖ ≤ C) :
+    ‖map φ ψ hf hg‖ ≤ C :=
   NormedAddGroupHom.Equalizer.norm_map_le _ _ C hφ
 
 @[simps obj map]
@@ -194,17 +192,14 @@ theorem map_normNoninc {A₁ B₁ A₂ B₂ : Profiniteᵒᵖ} (f₁ g₁ : A₁
     (ψ : B₁ ⟶ B₂) (h₁ h₂) : (cLCTinv.map r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂).NormNoninc :=
   Equalizer.map_normNoninc _ _ <| cLC.map_normNoninc _ _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_map_le {A₁ B₁ A₂ B₂ : Profiniteᵒᵖ} (f₁ g₁ : A₁ ⟶ B₁) (f₂ g₂ : A₂ ⟶ B₂) (ϕ : A₁ ⟶ A₂)
     (ψ : B₁ ⟶ B₂) (h₁ h₂) (C : ℝ≥0)
     (H :
-      «expr∥ ∥»
-          (SemiNormedGroupCat.equalizer.ι ((cLC V).map f₁)
+      ‖(SemiNormedGroupCat.equalizer.ι ((cLC V).map f₁)
               ((cLC V).map g₁ ≫ (cLC.tInv r V).app B₁) ≫
-            (cLC V).map ϕ) ≤
+            (cLC V).map ϕ)‖ ≤
         C) :
-    «expr∥ ∥» (cLCTinv.map r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂) ≤ C :=
+    ‖cLCTinv.map r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂‖ ≤ C :=
   SemiNormedGroupCat.equalizer.norm_map_le _ _ C H
 
 @[simp]
@@ -384,10 +379,9 @@ theorem res_normNoninc {_ : Fact (c₂ ≤ r' * c₁)} {_ : Fact (c₂ ≤ c₁)
     ((res r V r' c₁ c₂ c₃ c₄ n).app M).NormNoninc :=
   cLCTinv.map_normNoninc _ _ _ _ _ _ _ _ _ _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_res_le [Fact (c₂ ≤ r' * c₁)] [Fact (c₂ ≤ c₁)] [Fact (c₄ ≤ r' * c₃)] [Fact (c₄ ≤ c₃)]
     [Fact (c₃ ≤ c₁)] [Fact (c₄ ≤ c₂)] (h₂₃ : c₂ = c₃) (M) :
-    «expr∥ ∥» ((res r V r' c₁ c₂ c₃ c₄ n).app M) ≤ r :=
+    ‖((res r V r' c₁ c₂ c₃ c₄ n).app M)‖ ≤ r :=
   by
   apply cLCTinv.norm_map_le
   rw [← category.comp_id ((cLC V).map ((nat_trans.op (filtrationPow.castLe r' c₃ c₁ n)).app M))]
@@ -422,9 +416,8 @@ theorem res_comp_res [Fact (c₃ ≤ c₁)] [Fact (c₅ ≤ c₃)] [Fact (c₅ �
 theorem res_normNoninc {_ : Fact (c₂ ≤ c₁)} (M) : ((res r V r' c₁ c₂ n).app M).NormNoninc :=
   cLCFPTinv₂.res_normNoninc r V r' _ _ _ _ _ _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_res_le [Fact (c₂ ≤ c₁)] [Fact (c₂ ≤ r' * c₁)] (M) :
-    «expr∥ ∥» ((res r V r' c₁ c₂ n).app M) ≤ r :=
+    ‖((res r V r' c₁ c₂ n).app M)‖ ≤ r :=
   by
   rw [← res_comp_res r V r' c₁ (r' * c₁) c₂]
   refine'
@@ -432,9 +425,8 @@ theorem norm_res_le [Fact (c₂ ≤ c₁)] [Fact (c₂ ≤ r' * c₁)] (M) :
   apply norm_noninc.norm_noninc_iff_norm_le_one.1
   exact cLCTinv.map_normNoninc r V _ _ _ _ _ _ _ _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_res_le_pow (N : ℕ) [Fact (c₂ ≤ c₁)] [h : Fact (c₂ ≤ r' ^ N * c₁)] (M) :
-    «expr∥ ∥» ((res r V r' c₁ c₂ n).app M) ≤ r ^ N :=
+    ‖((res r V r' c₁ c₂ n).app M)‖ ≤ r ^ N :=
   by
   induction' N with N ih generalizing c₁ c₂
   · rw [pow_zero]
@@ -518,10 +510,9 @@ theorem res_comp_evalCLCFPTinv₂ [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r'
   simp only [SemiNormedGroupCat.equalizer.mapNat_comp_mapNat]
   congr 1 <;> · simp only [← cLCFP.res_def]; apply res_comp_eval_CLCFP
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_evalCLCFPTinv₂_le [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)] [ϕ.Suitable c₃ c₁]
     [ϕ.Suitable c₄ c₂] (N : ℕ) (h : ϕ.BoundBy N) (M) :
-    «expr∥ ∥» ((ϕ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄).app M) ≤ N :=
+    ‖((ϕ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄).app M)‖ ≤ N :=
   by
   apply SemiNormedGroupCat.equalizer.norm_map_le
   refine' NormedAddGroupHom.norm_comp_le_of_le' _ _ _ (mul_one _).symm _ _
@@ -581,9 +572,8 @@ theorem evalCLCFPTinv_comp_res_absorb {_ : Fact (c₃ ≤ c₂)} [hϕ : ϕ.Suita
       (_root_.id _) (_root_.id _),
     res_refl, category.id_comp]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_evalCLCFPTinv_le [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ c₁] (N : ℕ)
-    (h : ϕ.BoundBy N) (M) : «expr∥ ∥» ((ϕ.evalCLCFPTinv r V r' c₁ c₂).app M) ≤ N :=
+    (h : ϕ.BoundBy N) (M) : ‖((ϕ.evalCLCFPTinv r V r' c₁ c₂).app M)‖ ≤ N :=
   norm_evalCLCFPTinv₂_le r V r' _ _ _ _ _ N h M
 
 theorem evalCLCFPTinv_normNoninc [NormedWithAut r V] [Fact (0 < r)] [h : ϕ.VerySuitable r r' c₂ c₁]

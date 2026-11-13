@@ -211,8 +211,6 @@ theorem admissibleOfIsometry {f : M ⟶ M'} (hadm : M'.Admissible)
 
 variable (M M')
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- `is_bounded_exact k K m c₀` is a predicate on systems of complexes.
 
 A system of complexes `C` is `(k,K)`-exact in degrees `≤ m` for `c ≥ c₀`*
@@ -235,15 +233,13 @@ Implementation details:
 def IsBoundedExact (k K : ℝ≥0) (m : ℕ) [hk : Fact (1 ≤ k)] (c₀ : ℝ≥0) : Prop :=
   ∀ (c) (hc : Fact (c₀ ≤ c)) (i) (hi : i ≤ m) (x : C (k * c) i),
     ∃ (i₀ j : ℕ) (hi₀ : i₀ = i - 1) (hj : i + 1 = j) (y : C c i₀),
-      «expr∥ ∥» (res x - C.d _ _ y) ≤ K * «expr∥ ∥» (C.d i j x)
+      ‖res x - C.d _ _ y‖ ≤ K * ‖C.d i j x‖
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- Weak version of `is_bounded_exact`. -/
 def IsWeakBoundedExact (k K : ℝ≥0) (m : ℕ) [hk : Fact (1 ≤ k)] (c₀ : ℝ≥0) : Prop :=
   ∀ (c) (hc : Fact (c₀ ≤ c)) (i) (hi : i ≤ m) (x : C (k * c) i) (ε : ℝ) (hε : 0 < ε),
     ∃ (i₀ j : ℕ) (hi₀ : i₀ = i - 1) (hj : i + 1 = j) (y : C c i₀),
-      «expr∥ ∥» (res x - C.d _ _ y) ≤ K * «expr∥ ∥» (C.d i j x) + ε
+      ‖res x - C.d _ _ y‖ ≤ K * ‖C.d i j x‖ + ε
 
 namespace IsWeakBoundedExact
 
@@ -267,18 +263,6 @@ theorem ofLe (hC : C.IsWeakBoundedExact k K m c₀) (hC_adm : C.Admissible) (hk 
     mul_le_mul hK.out (hC_adm.res_norm_noninc _ _ _ _ (C.d _ _ x)) (norm_nonneg _)
       ((zero_le K).trans hK.out)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem ofIso (h : C₁.IsWeakBoundedExact k K m c₀) (f : C₁ ≅ C₂)
     (hf : ∀ c i, @Isometry (C₁ c i) (C₂ c i) _ _ (f.hom.apply : C₁ c i ⟶ C₂ c i)) :
     C₂.IsWeakBoundedExact k K m c₀ := by
@@ -286,21 +270,21 @@ theorem ofIso (h : C₁.IsWeakBoundedExact k K m c₀) (f : C₁ ≅ C₂)
   obtain ⟨i', j, hi', hj, y, hy⟩ := h c hc i hi (f.inv.apply x) ε hε
   refine' ⟨i', j, hi', hj, f.hom y, _⟩
   calc
-    «expr∥ ∥» (res x - C₂.d _ _ (f.hom y)) = «expr∥ ∥» (res x - f.hom (C₁.d _ _ y)) := by
+    ‖(res x - C₂.d _ _ (f.hom y))‖ = ‖(res x - f.hom (C₁.d _ _ y))‖ := by
       rw [d_apply]
-    _ = «expr∥ ∥» (f.hom (f.inv (res x)) - f.hom (C₁.d _ _ y)) := by rw [hom_apply_inv_apply]
-    _ = «expr∥ ∥» (f.hom (f.inv (res x) - C₁.d _ _ y)) := by
+    _ = ‖(f.hom (f.inv (res x)) - f.hom (C₁.d _ _ y))‖ := by rw [hom_apply_inv_apply]
+    _ = ‖(f.hom (f.inv (res x) - C₁.d _ _ y))‖ := by
       congr <;> exact (SystemOfComplexes.map_sub _ _ _).symm
-    _ = «expr∥ ∥» (f.inv (res x) - C₁.d _ _ y) := (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _)
-    _ = «expr∥ ∥» (res (f.inv x) - C₁.d _ _ y) := by rw [res_apply]
-    _ ≤ K * «expr∥ ∥» (C₁.d _ _ (f.inv x)) + ε := hy
-    _ = K * «expr∥ ∥» (C₂.d _ _ x) + ε := _
+    _ = ‖(f.inv (res x) - C₁.d _ _ y)‖ := (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _)
+    _ = ‖(res (f.inv x) - C₁.d _ _ y)‖ := by rw [res_apply]
+    _ ≤ K * ‖(C₁.d _ _ (f.inv x))‖ + ε := hy
+    _ = K * ‖C₂.d _ _ x‖ + ε := _
   congr 2
   calc
-    «expr∥ ∥» (C₁.d i j (f.inv x)) = «expr∥ ∥» (f.inv (C₂.d i j x)) := by rw [d_apply]
-    _ = «expr∥ ∥» (f.hom (f.inv (C₂.d _ _ x))) :=
+    ‖(C₁.d i j (f.inv x))‖ = ‖(f.inv (C₂.d i j x))‖ := by rw [d_apply]
+    _ = ‖(f.hom (f.inv (C₂.d _ _ x)))‖ :=
       (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _).symm
-    _ = «expr∥ ∥» (C₂.d _ _ x) := by rw [hom_apply_inv_apply]
+    _ = ‖C₂.d _ _ x‖ := by rw [hom_apply_inv_apply]
 
 theorem iff_of_iso (f : C₁ ≅ C₂)
     (hf : ∀ c i, @Isometry (C₁ c i) (C₂ c i) _ _ (f.hom.apply : C₁ c i ⟶ C₂ c i)) :
@@ -336,18 +320,6 @@ theorem ofLe (hC : C.IsBoundedExact k K m c₀) (hC_adm : C.Admissible) (hk : k 
     mul_le_mul hK (hC_adm.res_norm_noninc _ _ _ _ (C.d _ _ x)) (norm_nonneg _)
       ((zero_le K).trans hK)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem ofIso (h : C₁.IsBoundedExact k K m c₀) (f : C₁ ≅ C₂)
     (hf : ∀ c i, @Isometry (C₁ c i) (C₂ c i) _ _ (f.hom.apply : C₁ c i ⟶ C₂ c i)) :
     C₂.IsBoundedExact k K m c₀ := by
@@ -355,20 +327,20 @@ theorem ofIso (h : C₁.IsBoundedExact k K m c₀) (f : C₁ ≅ C₂)
   obtain ⟨i', j, hi', hj, y, hy⟩ := h c hc i hi (f.inv.apply x)
   refine' ⟨i', j, hi', hj, f.hom y, _⟩
   calc
-    «expr∥ ∥» (res x - C₂.d _ _ (f.hom y)) = «expr∥ ∥» (res x - f.hom (C₁.d _ _ y)) := by
+    ‖(res x - C₂.d _ _ (f.hom y))‖ = ‖(res x - f.hom (C₁.d _ _ y))‖ := by
       rw [d_apply]
-    _ = «expr∥ ∥» (f.hom (f.inv (res x)) - f.hom (C₁.d _ _ y)) := by rw [hom_apply_inv_apply]
-    _ = «expr∥ ∥» (f.hom (f.inv (res x) - C₁.d _ _ y)) := by
+    _ = ‖(f.hom (f.inv (res x)) - f.hom (C₁.d _ _ y))‖ := by rw [hom_apply_inv_apply]
+    _ = ‖(f.hom (f.inv (res x) - C₁.d _ _ y))‖ := by
       congr <;> exact (SystemOfComplexes.map_sub _ _ _).symm
-    _ = «expr∥ ∥» (f.inv (res x) - C₁.d _ _ y) := (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _)
-    _ = «expr∥ ∥» (res (f.inv x) - C₁.d _ _ y) := by rw [res_apply]
-    _ ≤ K * «expr∥ ∥» (C₁.d _ _ (f.inv x)) := hy
-    _ = K * «expr∥ ∥» (C₂.d _ _ x) := congr_arg _ _
+    _ = ‖(f.inv (res x) - C₁.d _ _ y)‖ := (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _)
+    _ = ‖(res (f.inv x) - C₁.d _ _ y)‖ := by rw [res_apply]
+    _ ≤ K * ‖(C₁.d _ _ (f.inv x))‖ := hy
+    _ = K * ‖C₂.d _ _ x‖ := congr_arg _ _
   calc
-    «expr∥ ∥» (C₁.d i j (f.inv x)) = «expr∥ ∥» (f.inv (C₂.d i j x)) := by rw [d_apply]
-    _ = «expr∥ ∥» (f.hom (f.inv (C₂.d _ _ x))) :=
+    ‖(C₁.d i j (f.inv x))‖ = ‖(f.inv (C₂.d i j x))‖ := by rw [d_apply]
+    _ = ‖(f.hom (f.inv (C₂.d _ _ x)))‖ :=
       (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _).symm
-    _ = «expr∥ ∥» (C₂.d _ _ x) := by rw [hom_apply_inv_apply]
+    _ = ‖C₂.d _ _ x‖ := by rw [hom_apply_inv_apply]
 
 end IsBoundedExact
 
@@ -378,10 +350,6 @@ variable {C C₁ C₂}
 
 variable {k k' K K' : ℝ≥0} {m m' : ℕ} {c₀ c₀' : ℝ≥0} [Fact (1 ≤ k)] [Fact (1 ≤ k')]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem toExact (hC : C.IsWeakBoundedExact k K m c₀) [∀ c i, SeparatedSpace (C c i)] {δ : ℝ≥0}
     (hδ : 0 < δ)
     (H :
@@ -397,12 +365,12 @@ theorem toExact (hC : C.IsWeakBoundedExact k K m c₀) [∀ c i, SeparatedSpace 
   · rcases H c hc.out i hi x _ rfl hdx with ⟨i₀, hi₀, y, hy⟩
     exact ⟨i₀, _, hi₀, rfl, y, by simp [hy, hdx]⟩
   · obtain ⟨i', j, hi', rfl, y, hy⟩ :=
-      hC c hc _ hi x (δ * «expr∥ ∥» (C.d _ (i + 1) x))
+      hC c hc _ hi x (δ * ‖(C.d _ (i + 1) x)‖)
         (mul_pos (by exact_mod_cast hδ) <| norm_pos_iff'.mpr hdx)
     refine' ⟨i', _, hi', rfl, y, _⟩
     have :
-      ((K + δ : ℝ≥0) : ℝ) * «expr∥ ∥» (C.d _ (i + 1) x) =
-        K * «expr∥ ∥» (C.d _ (i + 1) x) + δ * «expr∥ ∥» (C.d _ (i + 1) x)
+      ((K + δ : ℝ≥0) : ℝ) * ‖(C.d _ (i + 1) x)‖ =
+        K * ‖(C.d _ (i + 1) x)‖ + δ * ‖(C.d _ (i + 1) x)‖
     apply_mod_cast add_mul
     rwa [this]
 
@@ -424,30 +392,14 @@ theorem IsQuotient.surjective {f : M ⟶ M'} (h : IsQuotient f) {c i} (m' : M' c
     ∃ m : M c i, f m = m' :=
   (h c i).Surjective m'
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem IsQuotient.norm_lift {f : M ⟶ M'} (h : IsQuotient f) {ε : ℝ} (hε : 0 < ε) {c i}
-    (n : M' c i) : ∃ m : M c i, f m = n ∧ «expr∥ ∥» m < «expr∥ ∥» n + ε :=
+    (n : M' c i) : ∃ m : M c i, f m = n ∧ ‖m‖ < ‖n‖ + ε :=
   (h c i).norm_lift hε n
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem IsQuotient.norm_le {f : M ⟶ M'} (h : IsQuotient f) {c i} (m : M c i) :
-    «expr∥ ∥» (f m) ≤ «expr∥ ∥» m :=
+    ‖f m‖ ≤ ‖m‖ :=
   (h c i).norm_le _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- The quotient of an admissible system of complexes is admissible. -/
 theorem admissibleOfQuotient {f : M ⟶ M'} (hquot : IsQuotient f) (hadm : M.Admissible) :
     M'.Admissible := by
@@ -455,13 +407,13 @@ theorem admissibleOfQuotient {f : M ⟶ M'} (hquot : IsQuotient f) (hadm : M.Adm
   · intro c i j h m'
     refine' le_of_forall_pos_le_add _
     intro ε hε
-    obtain ⟨m, hm : f m = m' ∧ «expr∥ ∥» m < «expr∥ ∥» m' + ε⟩ := hquot.norm_lift hε m'
+    obtain ⟨m, hm : f m = m' ∧ ‖m‖ < ‖m'‖ + ε⟩ := hquot.norm_lift hε m'
     rw [← hm.1, d_apply]
     calc
-      «expr∥ ∥» (f (M.d _ _ m)) ≤ «expr∥ ∥» (M.d _ _ m) := hquot.norm_le _
-      _ ≤ «expr∥ ∥» m := (hadm.d_norm_noninc _ _ _ _ m)
-      _ ≤ «expr∥ ∥» m' + ε := (le_of_lt hm.2)
-      _ = «expr∥ ∥» (f m) + ε := by rw [hm.1]
+      ‖(f (M.d _ _ m))‖ ≤ ‖M.d _ _ m‖ := hquot.norm_le _
+      _ ≤ ‖m‖ := (hadm.d_norm_noninc _ _ _ _ m)
+      _ ≤ ‖m'‖ + ε := (le_of_lt hm.2)
+      _ = ‖f m‖ + ε := by rw [hm.1]
   · intro c' c i hc m'
     letI h := hc
     refine' le_of_forall_pos_le_add _
@@ -469,10 +421,10 @@ theorem admissibleOfQuotient {f : M ⟶ M'} (hquot : IsQuotient f) (hadm : M.Adm
     obtain ⟨m, hm⟩ := hquot.norm_lift hε m'
     rw [← hm.1, res_apply]
     calc
-      «expr∥ ∥» (f (res m)) ≤ «expr∥ ∥» (res m) := hquot.norm_le _
-      _ ≤ «expr∥ ∥» m := (hadm.res_norm_noninc c' c _ hc m)
-      _ ≤ «expr∥ ∥» m' + ε := (le_of_lt hm.2)
-      _ = «expr∥ ∥» (f m) + ε := by rw [hm.1]
+      ‖(f (res m))‖ ≤ ‖res m‖ := hquot.norm_le _
+      _ ≤ ‖m‖ := (hadm.res_norm_noninc c' c _ hc m)
+      _ ≤ ‖m'‖ + ε := (le_of_lt hm.2)
+      _ = ‖f m‖ + ε := by rw [hm.1]
 
 end Quotient
 

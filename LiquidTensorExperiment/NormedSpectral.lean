@@ -76,20 +76,18 @@ end Truncate
 
 open Opposite
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 structure NormedSpectralHomotopy {row₀ row₁ : SystemOfComplexes.{u}} (d : row₀ ⟶ row₁) (m : ℕ)
     (k' ε : ℝ≥0) [Fact (1 ≤ k')] (c₀ H : ℝ≥0) [Fact (0 < H)] where
   h : ∀ (q : ℕ) {q' : ℕ} {c}, row₀ (k' * c) q' ⟶ row₁ c q
   norm_h_le :
     ∀ (q q' : ℕ) (hq : q ≤ m) (hq' : q + 1 = q') (c) [Fact (c₀ ≤ c)],
-      «expr∥ ∥» (h q : row₀ (k' * c) q' ⟶ row₁ c q) ≤ H
+      ‖(h q : row₀ (k' * c) q' ⟶ row₁ c q)‖ ≤ H
   δ : ∀ c : ℝ≥0, row₀.obj (op <| c) ⟶ row₁.obj (op <| k' * c)
   hδ :
     ∀ (c : ℝ≥0) [Fact (c₀ ≤ c)] (q : ℕ) (hq : q ≤ m),
       (SystemOfComplexes.res : row₀ (k' * (k' * c)) q ⟶ _) ≫ (δ c).f q =
         d.apply ≫ SystemOfComplexes.res + row₀.d q (q + 1) ≫ h q + h (q - 1) ≫ row₁.d (q - 1) q
-  norm_δ_le : ∀ (c : ℝ≥0) [Fact (c₀ ≤ c)] (q : ℕ) (hq : q ≤ m), «expr∥ ∥» ((δ c).f q) ≤ ε
+  norm_δ_le : ∀ (c : ℝ≥0) [Fact (c₀ ≤ c)] (q : ℕ) (hq : q ≤ m), ‖((δ c).f q)‖ ≤ ε
 
 theorem NormedSpectralHomotopy.hδ_apply {row₀ row₁ : SystemOfComplexes.{u}} {d : row₀ ⟶ row₁}
     {m : ℕ} {k' ε : ℝ≥0} [Fact (1 ≤ k')] {c₀ H : ℝ≥0} [Fact (0 < H)]
@@ -103,24 +101,12 @@ theorem NormedSpectralHomotopy.hδ_apply {row₀ row₁ : SystemOfComplexes.{u}}
   rw [NSH.hδ c q hq]
   dsimp; rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 def NormedSpectralHomotopy.ofIso {row₀ row₁ : SystemOfComplexes.{u}} {d : row₀ ⟶ row₁} {m : ℕ}
     {k' ε : ℝ≥0} [Fact (1 ≤ k')] {c₀ H : ℝ≥0} [Fact (0 < H)]
     (NSH : NormedSpectralHomotopy d m k' ε c₀ H) (row'₀ row'₁ : SystemOfComplexes.{u})
     (d' : row'₀ ⟶ row'₁) (φ₀ : row₀ ≅ row'₀) (φ₁ : row₁ ≅ row'₁)
-    (hφ₀ : ∀ (c i) (x : row'₀ c i), «expr∥ ∥» (φ₀.inv x) = «expr∥ ∥» x)
-    (hφ₁ : ∀ (c i) (x : row₁ c i), «expr∥ ∥» (φ₁.hom x) = «expr∥ ∥» x)
+    (hφ₀ : ∀ (c i) (x : row'₀ c i), ‖φ₀.inv x‖ = ‖x‖)
+    (hφ₁ : ∀ (c i) (x : row₁ c i), ‖φ₁.hom x‖ = ‖x‖)
     (hcomm : d' = φ₀.inv ≫ d ≫ φ₁.hom) : NormedSpectralHomotopy d' m k' ε c₀ H
     where
   h q q' c := φ₀.inv.apply ≫ NSH.h q ≫ φ₁.hom.apply
@@ -129,10 +115,10 @@ def NormedSpectralHomotopy.ofIso {row₀ row₁ : SystemOfComplexes.{u}} {d : ro
     intro q q' hqm hq' c hc
     refine' NormedAddGroupHom.opNorm_le_bound _ (NNReal.coe_nonneg H) fun x => _
     calc
-      «expr∥ ∥» (φ₁.hom (NSH.h q (φ₀.inv x))) = «expr∥ ∥» (NSH.h q (φ₀.inv x)) := hφ₁ _ _ _
-      _ ≤ ↑H * «expr∥ ∥» (φ₀.inv x) :=
+      ‖(φ₁.hom (NSH.h q (φ₀.inv x)))‖ = ‖(NSH.h q (φ₀.inv x))‖ := hφ₁ _ _ _
+      _ ≤ ↑H * ‖φ₀.inv x‖ :=
         (NormedAddGroupHom.le_of_opNorm_le _ (NSH.norm_h_le _ _ hqm hq' _) (φ₀.inv x))
-      _ = ↑H * «expr∥ ∥» x := congr_arg _ (hφ₀ _ _ _)
+      _ = ↑H * ‖x‖ := congr_arg _ (hφ₀ _ _ _)
   hδ := by
     intro c hc q hq
     ext1 x
@@ -157,11 +143,11 @@ def NormedSpectralHomotopy.ofIso {row₀ row₁ : SystemOfComplexes.{u}} {d : ro
     refine' NormedAddGroupHom.opNorm_le_bound _ (NNReal.coe_nonneg ε) _
     rintro (x : row'₀ c q)
     calc
-      «expr∥ ∥» (φ₁.hom ((NSH.δ c).f q (φ₀.inv x))) = «expr∥ ∥» ((NSH.δ c).f q (φ₀.inv x)) :=
+      ‖(φ₁.hom ((NSH.δ c).f q (φ₀.inv x)))‖ = ‖((NSH.δ c).f q (φ₀.inv x))‖ :=
         hφ₁ _ _ _
-      _ ≤ ↑ε * «expr∥ ∥» (φ₀.inv x) :=
+      _ ≤ ↑ε * ‖φ₀.inv x‖ :=
         (NormedAddGroupHom.le_of_opNorm_le _ (NSH.norm_δ_le _ _ hq) (φ₀.inv x))
-      _ = ↑ε * «expr∥ ∥» x := congr_arg _ (hφ₀ _ _ _)
+      _ = ↑ε * ‖x‖ := congr_arg _ (hφ₀ _ _ _)
 
 /-- The assumptions on `M` in Proposition 9.6 bundled into a structure. -/
 structure NormedSpectralConditions (M : SystemOfDoubleComplexes.{u}) (m : ℕ) (k K k' ε : ℝ≥0)
@@ -218,27 +204,23 @@ theorem hTruncate_zero {c : ℝ≥0} (x : (truncate.obj M).pt (k' * c) 0 1) :
     condM.hTruncate 0 x = SemiNormedGroupCat.explicitCokernelπ _ (condM.htpy.h 1 x) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_hTruncate_le :
     ∀ q q' : ℕ,
       q ≤ m →
         q + 1 = q' →
           ∀ c : ℝ≥0,
             Fact (c₀ ≤ c) →
-              «expr∥ ∥» (condM.hTruncate q : (truncate.obj M).pt (k' * c) 0 q' ⟶ _) ≤ H
+              ‖(condM.hTruncate q : (truncate.obj M).pt (k' * c) 0 q' ⟶ _)‖ ≤ H
   | q + 1, q' + 1, hq, rfl =>
     condM.htpy.norm_h_le _ _ (Nat.succ_le_succ hq) (by simp only [Nat.add_def, add_zero])
   | 0, 1, hq, rfl => by
     intro c hc
     refine' NormedAddGroupHom.opNorm_le_bound _ (NNReal.coe_nonneg H) fun x => _
     calc
-      _ = «expr∥ ∥» (SemiNormedGroupCat.explicitCokernelπ _ (condM.htpy.h 1 x)) := rfl
-      _ ≤ «expr∥ ∥» (condM.htpy.h 1 x) :=
+      _ = ‖(SemiNormedGroupCat.explicitCokernelπ _ (condM.htpy.h 1 x))‖ := rfl
+      _ ≤ ‖condM.htpy.h 1 x‖ :=
         ((SemiNormedGroupCat.isQuotient_explicitCokernelπ _).norm_le _)
-      _ ≤ H * «expr∥ ∥» x :=
+      _ ≤ H * ‖x‖ :=
         NormedAddGroupHom.le_of_opNorm_le _ (condM.htpy.norm_h_le 1 2 (by decide) rfl c) x
 
 def δTruncate (c : ℝ≥0) :
@@ -264,9 +246,8 @@ theorem hδ_truncate (c : ℝ≥0) [Fact (c₀ ≤ c)] :
       SemiNormedGroupCat.explicitCokernelπ_apply_dom_eq_zero]
     rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_δTruncate_le (c : ℝ≥0) [Fact (c₀ ≤ c)] :
-    ∀ (q : ℕ) (hq : q ≤ m), «expr∥ ∥» ((condM.δTruncate c).f q) ≤ ε
+    ∀ (q : ℕ) (hq : q ≤ m), ‖((condM.δTruncate c).f q)‖ ≤ ε
   | q + 1, h => condM.htpy.norm_δ_le c (q + 2) (Nat.succ_le_succ h)
   | 0, h =>
     by
@@ -308,9 +289,6 @@ variable {ε_ : ℝ≥0} {k₀_ : ℝ≥0} [Fact (1 ≤ k₀_)]
 
 variable [Fact (k₀_ ≤ k')] {c₀_ H_ : ℝ≥0} [Fact (0 < H_)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 def ofLe (cond : M.NormedSpectralConditions m k K k' ε c₀ H) (hm : m_ ≤ m) (hk : Fact (k ≤ k_))
     (hK : Fact (K ≤ K_)) (hε : ε ≤ ε_) (hc₀ : Fact (c₀ ≤ c₀_)) (hH : H ≤ H_) :
     M.NormedSpectralConditions m_ k_ K_ k' ε_ c₀_ H_
@@ -326,9 +304,9 @@ def ofLe (cond : M.NormedSpectralConditions m k K k' ε c₀ H) (hm : m_ ≤ m) 
         have : Fact (c₀ ≤ c) := ⟨hc₀.out.trans hc.out⟩
         refine' NormedAddGroupHom.opNorm_le_bound _ (NNReal.coe_nonneg H_) fun x => _
         calc
-          «expr∥ ∥» (cond.htpy.h q x) ≤ H * «expr∥ ∥» x :=
+          ‖cond.htpy.h q x‖ ≤ H * ‖x‖ :=
             NormedAddGroupHom.le_of_opNorm_le _ (cond.htpy.norm_h_le q q' (hq.trans hm) hq' c) x
-          _ ≤ H_ * «expr∥ ∥» x := mul_le_mul_of_nonneg_right hH (norm_nonneg x)
+          _ ≤ H_ * ‖x‖ := mul_le_mul_of_nonneg_right hH (norm_nonneg x)
       δ := cond.htpy.δ
       hδ := fun c hc q hq =>
         have : Fact (c₀ ≤ c) := ⟨hc₀.out.trans hc.out⟩

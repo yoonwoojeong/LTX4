@@ -70,8 +70,7 @@ def t [NormedWithAut r V] : lC V ≅ lC V :=
 theorem t_eq [NormedWithAut r V] [Fact (0 < r)] (A) : (t r V).hom.app A = NormedWithAut.t.hom :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_t_le [NormedWithAut r V] [Fact (0 < r)] (A) : «expr∥ ∥» ((lC.t r V).hom.app A) ≤ r :=
+theorem norm_t_le [NormedWithAut r V] [Fact (0 < r)] (A) : ‖((lC.t r V).hom.app A)‖ ≤ r :=
   by
   rw [T_eq]
   refine' NormedAddGroupHom.opNorm_le_bound _ NNReal.zero_le_coe fun v => _
@@ -87,8 +86,7 @@ theorem tInv_eq [NormedWithAut r V] [Fact (0 < r)] : (t r V).inv = tInv r V :=
 theorem tInv_eq' [NormedWithAut r V] [Fact (0 < r)] (A) : (tInv r V).app A = NormedWithAut.t.inv :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_tInv_le [NormedWithAut r V] [Fact (0 < r)] (A) : «expr∥ ∥» ((tInv r V).app A) ≤ r⁻¹ :=
+theorem norm_tInv_le [NormedWithAut r V] [Fact (0 < r)] (A) : ‖((tInv r V).app A)‖ ≤ r⁻¹ :=
   by
   rw [T_inv_eq']
   refine' NormedAddGroupHom.opNorm_le_bound _ (inv_nonneg.2 NNReal.zero_le_coe) fun v => _
@@ -396,11 +394,8 @@ theorem tInv_comp_evalLCFP [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ 
   congr 1
   apply basic_universal_map.T_inv_comp_eval_LCFP r V r'
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_evalLCFP_le [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ c₁] (N : ℕ)
-    (h : ϕ.BoundBy N) (M) : «expr∥ ∥» ((ϕ.evalLCFP V r' c₁ c₂).app M) ≤ N :=
+    (h : ϕ.BoundBy N) (M) : ‖((ϕ.evalLCFP V r' c₁ c₂).app M)‖ ≤ N :=
   by
   rw [eval_LCFP_eq_eval_LCFP', eval_LCFP']
   have : (∑ g : basic_universal_map m n in support ϕ, (coeff g ϕ).natAbs : ℝ) ≤ N := by
@@ -410,9 +405,9 @@ theorem norm_evalLCFP_le [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ c�
   intro g hg
   have aux := ϕ.suitable_of_mem_support c₂ c₁ g hg
   refine' le_trans (norm_zsmul_le _ _) _
-  suffices «expr∥ ∥» ((nat_trans.app_hom M) (basic_universal_map.eval_LCFP' V r' g c₁ c₂)) ≤ 1
+  suffices ‖((nat_trans.app_hom M) (basic_universal_map.eval_LCFP' V r' g c₁ c₂))‖ ≤ 1
     by
-    have aux₁ : «expr∥ ∥» ((coeff g) ϕ) = ↑((coeff g) ϕ).natAbs :=
+    have aux₁ : ‖((coeff g) ϕ)‖ = ↑((coeff g) ϕ).natAbs :=
       by
       rw [@coe_coe ℕ ℤ ℝ _ _ _, ← Int.abs_eq_natAbs, Int.cast_abs]
       rfl

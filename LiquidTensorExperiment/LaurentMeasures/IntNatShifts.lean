@@ -264,7 +264,6 @@ def equivNatDiag : { x : ℕ × ℕ // x.2 ≤ x.1 } ≃ ℕ × ℕ
   left_inv := by rintro ⟨x, hx⟩; simp only [Nat.sub_add_cancel hx, Prod.mk.eta]
   right_inv := by rintro ⟨x, y⟩; simp only [add_tsub_cancel_right]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem Summable.prod_nat {f : ℤ → ℝ} {g : ℕ → ℝ} (hf : Summable f) (f0 : ∀ n, 0 ≤ f n)
     (hg : Summable g) (g0 : ∀ n, 0 ≤ g n) :
     Summable fun lj : ℕ × ℕ => f (lj.fst + lj.snd) * g lj.snd :=
@@ -277,7 +276,7 @@ theorem Summable.prod_nat {f : ℤ → ℝ} {g : ℕ → ℝ} (hf : Summable f) 
     suffices f (↑(x - y) + ↑y) * g y = f ↑x * g y by simpa [equiv_nat_diag]
     rw_mod_cast [Nat.sub_add_cancel hx]
   apply Summable.subtype (_ : Summable fun lj : ℕ × ℕ => f lj.fst * g lj.snd)
-  convert summable_mul_of_summable_norm (_ : Summable fun i : ℕ => «expr∥ ∥» (f i)) _
+  convert summable_mul_of_summable_norm (_ : Summable fun i : ℕ => ‖f i‖) _
   · conv =>
       congr
       ext
@@ -289,18 +288,15 @@ theorem Summable.prod_nat {f : ℤ → ℝ} {g : ℕ → ℝ} (hf : Summable f) 
       rw [Real.norm_of_nonneg (g0 _)]
     exact hg
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem prod_nat_summable_aux {f : ℤ → ℝ} {s r : ℝ≥0} (s1 : s < 1)
-    (hf : Summable fun n : ℤ => «expr∥ ∥» (f n) * r ^ n) :
+    (hf : Summable fun n : ℤ => ‖f n‖ * r ^ n) :
     Summable fun lj : ℕ × ℕ =>
-      «expr∥ ∥» (f (lj.fst + 1 + lj.snd) * r ^ (lj.fst + 1 + lj.snd)) * s ^ lj.snd :=
+      ‖(f (lj.fst + 1 + lj.snd) * r ^ (lj.fst + 1 + lj.snd))‖ * s ^ lj.snd :=
   by
   apply Summable.of_norm
   simp_rw [norm_mul, norm_norm]
   convert
-    (_ : Summable fun n => «expr∥ ∥» (f (n + 1)) * r ^ (n + 1)).prod_nat _ (by simpa)
+    (_ : Summable fun n => ‖(f (n + 1))‖ * r ^ (n + 1)).prod_nat _ (by simpa)
       (pow_nonneg s.2)
   · simpa only [norm_pow, norm_eq, val_eq_coe, add_right_comm _ (1 : ℤ), add_right_comm _ 1 _]
   · let add_one : ℤ ≃ ℤ := ⟨fun x => x - 1, fun x => x + 1, fun x => by simp, fun x => by simp⟩

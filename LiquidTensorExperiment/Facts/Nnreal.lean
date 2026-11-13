@@ -47,15 +47,23 @@ instance fact_one_le_add_one : Fact (1 ≤ k + 1) :=
 instance fact_le_refl : Fact (c ≤ c) :=
   ⟨le_rfl⟩
 
-instance fact_le_subst_right [Fact (c₁ ≤ c₂)] [h : Fact (c₂ = c₃)] : Fact (c₁ ≤ c₃) := by
+-- Porting note: was an `instance` in Lean 3; Lean 4 cannot find a synthesization order
+-- (the middle term appears only in the hypotheses), so it is a plain theorem.
+theorem fact_le_subst_right [Fact (c₁ ≤ c₂)] [h : Fact (c₂ = c₃)] : Fact (c₁ ≤ c₃) := by
   rwa [← h.1]
 
-instance fact_le_subst_right' [Fact (c₁ ≤ c₂)] [h : Fact (c₃ = c₂)] : Fact (c₁ ≤ c₃) := by
+-- Porting note: was an `instance` in Lean 3; Lean 4 cannot find a synthesization order
+-- (the middle term appears only in the hypotheses), so it is a plain theorem.
+theorem fact_le_subst_right' [Fact (c₁ ≤ c₂)] [h : Fact (c₃ = c₂)] : Fact (c₁ ≤ c₃) := by
   rwa [← h.1.symm]
 
-instance fact_le_subst_left [Fact (c₁ ≤ c₂)] [h : Fact (c₁ = c₃)] : Fact (c₃ ≤ c₂) := by rwa [← h.1]
+-- Porting note: was an `instance` in Lean 3; Lean 4 cannot find a synthesization order
+-- (the middle term appears only in the hypotheses), so it is a plain theorem.
+theorem fact_le_subst_left [Fact (c₁ ≤ c₂)] [h : Fact (c₁ = c₃)] : Fact (c₃ ≤ c₂) := by rwa [← h.1]
 
-instance fact_le_subst_left' [Fact (c₁ ≤ c₂)] [h : Fact (c₃ = c₁)] : Fact (c₃ ≤ c₂) := by
+-- Porting note: was an `instance` in Lean 3; Lean 4 cannot find a synthesization order
+-- (the middle term appears only in the hypotheses), so it is a plain theorem.
+theorem fact_le_subst_left' [Fact (c₁ ≤ c₂)] [h : Fact (c₃ = c₁)] : Fact (c₃ ≤ c₂) := by
   rwa [← h.1.symm]
 
 instance fact_inv_hMul_le [h : Fact (0 < r')] : Fact (r'⁻¹ * (r' * c) ≤ c) :=
@@ -108,8 +116,8 @@ theorem fact_le_pow_hMul_of_le_pow_succ_hMul {n : ℕ} (r : ℝ≥0) [Fact (r �
   rw [pow_succ, mul_assoc]
   apply Fact.out
 
-instance fact_le_hMul_add : Fact (c * c₁ + c * c₂ ≤ c * (c₁ + c₂)) := by rw [mul_add];
-  exact NNReal.fact_le_refl _
+instance fact_le_hMul_add : Fact (c * c₁ + c * c₂ ≤ c * (c₁ + c₂)) := by
+  rw [mul_add]; exact NNReal.fact_le_refl _
 
 instance fact_nat_cast_pos (N : ℕ) [hN : Fact (0 < N)] : Fact (0 < (N : ℝ≥0)) :=
   ⟨Nat.cast_pos.mpr hN.1⟩
@@ -132,11 +140,11 @@ instance fact_inv_le_one [H : Fact (1 ≤ c)] : Fact (c⁻¹ ≤ 1) :=
 instance fact_one_le_two : Fact ((1 : ℝ≥0) ≤ 2) :=
   ⟨one_le_two⟩
 
-instance fact_two_pow_inv_le_two_pow_inv (N : ℕ) : Fact ((2 ^ N : ℝ≥0)⁻¹ ≤ (2 ^ N : ℕ)⁻¹) :=
+instance fact_two_pow_inv_le_two_pow_inv (N : ℕ) : Fact ((2 ^ N : ℝ≥0)⁻¹ ≤ ((2 ^ N : ℕ) : ℝ≥0)⁻¹) :=
   ⟨le_of_eq <| by norm_cast⟩
 
 instance fact_two_pow_inv_le_one (N : ℕ) : Fact ((2 ^ N : ℝ≥0)⁻¹ ≤ 1) :=
-  ⟨le_trans (NNReal.fact_two_pow_inv_le_two_pow_inv N).1 <| Fact.out _⟩
+  ⟨le_trans (NNReal.fact_two_pow_inv_le_two_pow_inv N).1 <| Fact.out⟩
 
 end NNReal
 

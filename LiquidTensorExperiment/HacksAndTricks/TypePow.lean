@@ -6,11 +6,10 @@ import Mathlib.Topology.Constructions
 In this file, we define notation `X^n` to take powers of types.
 By definition, `X^n` is modelled as functions from `fin n` to `X`.
 -/
-/-
-In this file, we define notation `X^n` to take powers of types.
-By definition, `X^n` is modelled as functions from `fin n` to `X`.
--/
 /-- A definition of powers of a type. -/
+-- Porting note: `@[reducible]` so that Lean 4 instance search sees `A ^ n = Fin n → A`,
+-- as Lean 3 did.
+@[reducible]
 def typePow : Pow (Type _) ℕ :=
   ⟨fun A n => Fin n → A⟩
 
@@ -25,6 +24,31 @@ instance topologicalSpace {n : ℕ} {α : Type _} [TopologicalSpace α] : Topolo
 
 --instance {n : ℕ} {α : Type*} [topological_space α] [discrete_topology α] : discrete_topology (α^n) := admit
 end TypePowTopology
+
+namespace TypePowAlgebra
+
+attribute [local instance] typePow
+
+-- Porting note: Lean 3 found the pi-instance on `A ^ n = Fin n → A` by unfolding `typePow`;
+-- Lean 4's instance index does not see through `A ^ n`, so it is registered explicitly
+-- (just as LTE already did above for `TopologicalSpace`).
+instance addCommGroup {n : ℕ} {A : Type _} [AddCommGroup A] : AddCommGroup (A ^ n) :=
+  Pi.addCommGroup
+
+-- Porting note: the `Pi.*_apply` simp lemmas do not match on `A ^ n`; these restate them.
+@[simp] theorem zero_apply {n : ℕ} {A : Type _} [AddCommGroup A] (i : Fin n) :
+    (0 : A ^ n) i = 0 := rfl
+
+@[simp] theorem add_apply {n : ℕ} {A : Type _} [AddCommGroup A] (x y : A ^ n) (i : Fin n) :
+    (x + y) i = x i + y i := rfl
+
+@[simp] theorem neg_apply {n : ℕ} {A : Type _} [AddCommGroup A] (x : A ^ n) (i : Fin n) :
+    (-x) i = -x i := rfl
+
+@[simp] theorem sub_apply {n : ℕ} {A : Type _} [AddCommGroup A] (x y : A ^ n) (i : Fin n) :
+    (x - y) i = x i - y i := rfl
+
+end TypePowAlgebra
 
 namespace AddMonoidHom
 
@@ -50,7 +74,7 @@ def powHom {A : Type u} [AddCommGroup A] {B : Type u} [AddCommGroup B] {n : ℕ}
     (φ : Fin n → A →+ B) : A ^ n →+ B
     where
   toFun z := ∑ i : Fin n, φ i (z i)
-  map_zero' := by simp only [Pi.zero_apply, Finset.sum_const_zero, map_zero]
+  map_zero' := by simp only [TypePowAlgebra.zero_apply, Finset.sum_const_zero, map_zero]
   map_add' x y := by
     rw [← Finset.sum_add_distrib]
     simp

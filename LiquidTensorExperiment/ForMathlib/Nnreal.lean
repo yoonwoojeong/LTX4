@@ -128,9 +128,8 @@ theorem NNReal.tsum_le_tsum {X : Type _} {f g : X → ℝ≥0} (hle : ∀ x, f x
     (hsummable : Summable g) : ∑' x, f x ≤ ∑' x, g x :=
   tsum_le_tsum hle (summable_of_le hle hsummable) hsummable
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem NNReal.summable_iff_summable_nnnorm {X : Type _} {f : X → ℝ} :
-    Summable f ↔ Summable fun x => «expr∥ ∥₊» (f x) :=
+    Summable f ↔ Summable fun x => ‖f x‖₊ :=
   by
   rw [← summable_norm_iff]
   rw [← summable_coe]

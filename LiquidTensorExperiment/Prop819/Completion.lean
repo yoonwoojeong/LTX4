@@ -19,16 +19,12 @@ abbrev cmpl :=
 
 open scoped NNReal
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem cmpl_exact_of_exact (ε : ℝ≥0) (hε : 0 < ε)
     (cond :
       ∀ (n : ℕ) (f : C.pt (n + 1)) (hf : C.d (n + 1) (n + 2) f = 0),
-        ∃ g : C.pt n, C.d _ _ g = f ∧ «expr∥ ∥₊» g ≤ «expr∥ ∥₊» f)
+        ∃ g : C.pt n, C.d _ _ g = f ∧ ‖g‖₊ ≤ ‖f‖₊)
     (n : ℕ) (f : (cmpl C).pt (n + 1)) (hf : (cmpl C).d _ (n + 2) f = 0) :
-    ∃ g : (cmpl C).pt n, (cmpl C).d _ _ g = f ∧ «expr∥ ∥₊» g ≤ (1 + ε) * «expr∥ ∥₊» f :=
+    ∃ g : (cmpl C).pt n, (cmpl C).d _ _ g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊ :=
   by
   have :=
     @controlled_exactness (C.X (n + 1)) (C.X n) (C.X (n + 2)) _ _ _ (C.d _ _) 1 zero_lt_one 1
@@ -69,16 +65,12 @@ theorem injective_of_strictIso (F : StrictIso C D)
   erw [hf]
   simp
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem exact_of_strictIso (F : StrictIso C D) (ε : ℝ≥0) (hε : 0 < ε)
     (cond :
       ∀ (n : ℕ) (f : C.pt (n + 1)) (hf : C.d _ (n + 2) f = 0),
-        ∃ g : C.pt n, C.d _ _ g = f ∧ «expr∥ ∥₊» g ≤ (1 + ε) * «expr∥ ∥₊» f)
+        ∃ g : C.pt n, C.d _ _ g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊)
     (n : ℕ) (f : D.pt (n + 1)) (hf : D.d _ (n + 2) f = 0) :
-    ∃ g : D.pt n, D.d _ _ g = f ∧ «expr∥ ∥₊» g ≤ (1 + ε) * «expr∥ ∥₊» f :=
+    ∃ g : D.pt n, D.d _ _ g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊ :=
   by
   specialize cond n (((HomologicalComplex.eval _ _ (n + 1)).mapIso F.iso).inv f) _
   · dsimp [HomologicalComplex.eval]

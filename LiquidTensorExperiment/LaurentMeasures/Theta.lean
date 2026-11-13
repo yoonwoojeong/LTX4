@@ -197,12 +197,8 @@ theorem exists_limit_y : ∃ a, Tendsto (fun n => y ξ x n) atTop (𝓝 a) :=
   rw [aux_y, ite_eq_right_iff]
   tauto
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem summable_norm (r : ℝ≥0) (hr₁ : r < 1) :
-    Summable fun i => «expr∥ ∥» ⌊(y ξ x i / ξ ^ i : ℝ)⌋ * r ^ i :=
+    Summable fun i => ‖⌊‖(y ξ x i / ξ ^ i : ℝ)⌋ * r ^ i :=
   by
   by_cases hr₀ : r = 0
   · rw [hr₀]
@@ -219,13 +215,13 @@ theorem summable_norm (r : ℝ≥0) (hr₁ : r < 1) :
     exact le_of_not_gt ((not_iff_not.mpr Nat.lt_one_iff).mpr h_n)
   apply (Finset.summable_compl_iff (Finset.range 1)).mp
   swap; infer_instance
-  have h_nonneg : ∀ i : { i // i ∉ range 1 }, «expr∥ ∥» ⌊(y ξ x i.1 / ξ ^ i.1 : ℝ)⌋ * r ^ i.1 ≥ 0 :=
+  have h_nonneg : ∀ i : { i // i ∉ range 1 }, ‖⌊‖(y ξ x i.1 / ξ ^ i.1 : ℝ)⌋ * r ^ i.1 ≥ 0 :=
     by
     intro i
     apply mul_nonneg _ (h_nonneg i.1 (H i))
     simp only [norm_nonneg]
   obtain ⟨μ, hμ⟩ := bdd_floor ξ x
-  have h_bdd : ∀ i : { i // i ∉ range 1 }, «expr∥ ∥» ⌊(y ξ x i.1 / ξ ^ i.1 : ℝ)⌋ ≤ μ :=
+  have h_bdd : ∀ i : { i // i ∉ range 1 }, ‖⌊‖(y ξ x i.1 / ξ ^ i.1 : ℝ)⌋ ≤ μ :=
     by
     rw [upperBounds] at hμ 
     simp_all only [forall_apply_eq_imp_iff, lt_one_iff, Set.mem_range, forall_const,
@@ -237,7 +233,7 @@ theorem summable_norm (r : ℝ≥0) (hr₁ : r < 1) :
     rwa [abs_eq_self.mpr (eventually_pos_floor ξ x a ha)]
     exact hμ a
   replace h_bdd :
-    ∀ i : { i // i ∉ range 1 }, «expr∥ ∥» ⌊(y ξ x i.1 / ξ ^ i.1 : ℝ)⌋ * r ^ i.1 ≤ μ * r ^ i.1
+    ∀ i : { i // i ∉ range 1 }, ‖⌊‖(y ξ x i.1 / ξ ^ i.1 : ℝ)⌋ * r ^ i.1 ≤ μ * r ^ i.1
   · intro i
     rw [mul_le_mul_right]
     exacts [h_bdd i, pow_pos ((Ne.symm hr₀).le_iff_lt.mp r.2) i.1]
@@ -247,20 +243,17 @@ theorem summable_norm (r : ℝ≥0) (hr₁ : r < 1) :
   apply summable_geometric_of_abs_lt_1
   rwa [← NNReal.val_eq_coe, abs_eq_self.mpr r.2]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem summable_nnnorm (r : ℝ≥0) (hr₁ : r < 1) :
-    Summable fun i => «expr∥ ∥₊» ⌊(y ξ x i / ξ ^ i : ℝ)⌋ * r ^ i := by
+    Summable fun i => ‖⌊‖₊(y ξ x i / ξ ^ i : ℝ)⌋ * r ^ i := by
   simpa only [← NNReal.summable_coe, Nonneg.coe_mul, coe_nnnorm, NNReal.coe_pow] using
     summable_norm ξ x r hr₁
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem summable_floor (r : ℝ≥0) (hr₁ : r < 1) :
     Summable fun i => (⌊(y ξ x i / ξ ^ i : ℝ)⌋ : ℝ) * r ^ i :=
   by
   have h_norm_eq :
-    (fun i : ℕ => «expr∥ ∥» ⌊y ξ x i / ξ ^ i⌋ * (r ^ i : ℝ)) = fun i : ℕ =>
-      «expr∥ ∥» ((⌊y ξ x i / ξ ^ i⌋ : ℝ) * r ^ i) :=
+    (fun i : ℕ => ‖⌊y‖ ξ x i / ξ ^ i⌋ * (r ^ i : ℝ)) = fun i : ℕ =>
+      ‖((⌊y ξ x i / ξ ^ i⌋ : ℝ) * r ^ i)‖ :=
     by
     funext
     simp only [norm_mul, norm_pow, NNReal.norm_eq, mul_eq_mul_right_iff]
@@ -342,11 +335,9 @@ theorem ϑ_eq_ϑ' : ϑ = ϑ' :=
 def ϑSection (r p : ℝ≥0) (S : FintypeCat) (g : RealMeasures p S) [Fact (r < 1)] [Fact (0 < ξ)]
     [Fact (ξ < 1)] : S → ℤ → ℤ := fun s m => Int.recOn m (fun i => ⌊y ξ (g s) i / ξ ^ i⌋) 0
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem summable_ϑSection (r p : ℝ≥0) (S : FintypeCat) (g : RealMeasures p S) [Fact (r < 1)]
     [Fact (0 < ξ)] [Fact (ξ < 1)] :
-    ∀ s, Summable fun n => «expr∥ ∥₊» ((ϑSection ξ r p S g) s n) * r ^ n :=
+    ∀ s, Summable fun n => ‖((ϑSection ξ r p S g) s n)‖₊ * r ^ n :=
   by
   let F₀ := ϑ_section ξ r p S g
   have hinj : Function.Injective (coe : ℕ → ℤ) := by apply Int.ofNat.inj
@@ -357,7 +348,7 @@ theorem summable_ϑSection (r p : ℝ≥0) (S : FintypeCat) (g : RealMeasures p 
     intro
     rfl
   have h_range_norm :
-    ∀ s : S, ∀ n : ℤ, n ∉ Set.range (coe : ℕ → ℤ) → «expr∥ ∥₊» (F₀ s n) * r ^ n = 0 :=
+    ∀ s : S, ∀ n : ℤ, n ∉ Set.range (coe : ℕ → ℤ) → ‖F₀ s n‖₊ * r ^ n = 0 :=
     by
     intro s n
     specialize h_aux s n

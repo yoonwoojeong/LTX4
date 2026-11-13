@@ -104,7 +104,6 @@ If `μ : S.Radon_png p`, then there exists a nonnegative real `c` such that for 
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 example (S : Profinite.{0})
     (μ : S.radonPng p) :-- there exists some `c : ℝ≥0` such that...
     ∃ c :
@@ -116,7 +115,7 @@ example (S : Profinite.{0})
         (I : IndexedPartition V)
         -- by clopens,
         (hV : ∀ i, IsClopen (V i)),-- the sum mentioned above is bounded by `c`.
-          ∑ i : ι, «expr∥ ∥₊» (μ (Clopens.indicator ⟨V i, hV i⟩)) ^ (p : ℝ) ≤
+          ∑ i : ι, ‖(μ (Clopens.indicator ⟨V i, hV i⟩))‖₊ ^ (p : ℝ) ≤
           c :=
   by
   obtain ⟨c, hc⟩ := μ.2
@@ -138,11 +137,10 @@ the `c`-th term of the filtration of `S.Radon_png p`.
 -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 example (S : Profinite.{0}) (μ : C(S, ℝ) →L[ℝ] ℝ) (c : ℝ≥0)
     (h :
       ∀ (ι : FintypeCat.{0}) (V : ι → Set S) (I : IndexedPartition V) (hV : ∀ i, IsClopen (V i)),
-        ∑ i : ι, «expr∥ ∥₊» (μ (Clopens.indicator ⟨V i, hV i⟩)) ^ (p : ℝ) ≤ c) :
+        ∑ i : ι, ‖(μ (Clopens.indicator ⟨V i, hV i⟩))‖₊ ^ (p : ℝ) ≤ c) :
     filtration (S.radonPng p) c :=
   { val := ⟨μ, c, by rw [WeakDual.bdd_iff_indexed_parition]; assumption⟩
     property := by erw [← WeakDual.bdd_iff_indexed_parition] at h ; assumption }

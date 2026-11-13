@@ -12,44 +12,6 @@ open CategoryTheory Opposite NormedAddGroupHom SystemOfComplexes
 
 variable (M M' N : SystemOfComplexes.{u}) (f : M ⟶ M') (g : M' ⟶ N)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 --TODO Add the non weak version for complete system of complexes
 /-- The normed snake lemma, weak version. See Proposition 9.10 from Analytic.pdf -/
 theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk' : Fact (1 ≤ k')]
@@ -58,7 +20,7 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
     (hf : ∀ c i, (f.apply : M c i ⟶ M' c i).NormNoninc)
     (Hf :
       ∀ (c : ℝ≥0) [Fact (c₀ ≤ c)] (i : ℕ) (hi : i ≤ m + 1 + 1) (x : M (k'' * c) i),
-        «expr∥ ∥» (res x : M c i) ≤ K'' * «expr∥ ∥» (f x))
+        ‖res x : M c i‖ ≤ K'' * ‖f x‖)
     (hg : ∀ c i, (g.apply : M' c i ⟶ N c i).ker = f.apply.range)
     (hgquot : SystemOfComplexes.IsQuotient g) :
     N.IsWeakBoundedExact (k'' * k * k') (K' * (K * K'' + 1)) m c₀ :=
@@ -69,7 +31,7 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
     ∀ n : N c₁ i,
       ∀ ε > 0,
         ∃ (i₀ : _) (hi₀ : i₀ = i - 1) (y : N c i₀),
-          «expr∥ ∥» (res n - N.d _ _ y) ≤ K' * (K * K'' + 1) * «expr∥ ∥» (N.d i (i + 1) n) + ε
+          ‖res n - N.d _ _ y‖ ≤ K' * (K * K'' + 1) * ‖(N.d i (i + 1) n)‖ + ε
     by
     dsimp [c₁] at this 
     intro n₁ ε hε
@@ -90,7 +52,7 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
   have hm₁' : g m₁' = N.d i (i + 1) (g m') := (d_apply _ _ g m').symm
   obtain
     ⟨m₁'' : M' c₁ (i + 1), hgm₁'' : g m₁'' = N.d i (i + 1) (g m'), hnorm_m₁'' :
-      «expr∥ ∥» m₁'' < «expr∥ ∥» (N.d i (i + 1) (g m')) + ε₁⟩ :=
+      ‖m₁''‖ < ‖(N.d i (i + 1) (g m'))‖ + ε₁⟩ :=
     (hgquot _ _).norm_lift hε₁ (N.d i (i + 1) (g m'))
   obtain ⟨m₁, hm₁⟩ : ∃ m₁ : M c₁ (i + 1), f m₁ + m₁'' = m₁' :=
     by
@@ -105,33 +67,33 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
   have hm₂ : f (M.d (i + 1) (i + 2) m₁) = -M'.d (i + 1) (i + 2) m₁'' := by
     rw [← d_apply, eq_sub_of_add_eq hm₁, _root_.map_sub, ← CategoryTheory.comp_apply, d_comp_d,
       coe_zero, ← neg_inj, Pi.zero_apply, zero_sub]
-  have hle : «expr∥ ∥» (res (M.d (i + 1) (i + 2) m₁)) ≤ K'' * «expr∥ ∥» m₁'' := by
+  have hle : ‖(res (M.d (i + 1) (i + 2) m₁))‖ ≤ K'' * ‖m₁''‖ := by
     calc
-      «expr∥ ∥» (res (M.d (i + 1) (i + 2) m₁)) ≤ K'' * «expr∥ ∥» (f (M.d (i + 1) (i + 2) m₁)) :=
+      ‖(res (M.d (i + 1) (i + 2) m₁))‖ ≤ K'' * ‖(f (M.d (i + 1) (i + 2) m₁))‖ :=
         Hf _ _ him _
-      _ = K'' * «expr∥ ∥» (M'.d (i + 1) (i + 2) m₁'') := by rw [hm₂, norm_neg]
-      _ ≤ K'' * «expr∥ ∥» m₁'' :=
+      _ = K'' * ‖(M'.d (i + 1) (i + 2) m₁'')‖ := by rw [hm₂, norm_neg]
+      _ ≤ K'' * ‖m₁''‖ :=
         mul_le_mul_of_nonneg_left (hM'_adm.d_norm_noninc _ _ _ _ m₁'') <| NNReal.coe_nonneg K''
   obtain ⟨i', j, hi', rfl, m₀, hm₀⟩ :=
     hM _ ⟨hc.out.trans <| le_mul_of_one_le_left' hk'.out⟩ _ (Nat.succ_le_succ hi) (res m₁) ε₁ hε₁
   rw [← Nat.pred_eq_sub_one, i.pred_succ] at hi' ; subst i'
   replace hm₀ :
-    «expr∥ ∥» (res m₁ - M.d i (i + 1) m₀) ≤
-      K * K'' * «expr∥ ∥» (N.d i (i + 1) (g m')) + K * K'' * ε₁ + ε₁
+    ‖(res m₁ - M.d i (i + 1) m₀)‖ ≤
+      K * K'' * ‖(N.d i (i + 1) (g m'))‖ + K * K'' * ε₁ + ε₁
   ·
     calc
-      «expr∥ ∥» (res m₁ - M.d i (i + 1) m₀) = «expr∥ ∥» (res (res m₁) - M.d i (i + 1) m₀) := by
+      ‖(res m₁ - M.d i (i + 1) m₀)‖ = ‖(res (res m₁) - M.d i (i + 1) m₀)‖ := by
         rw [res_res]
-      _ ≤ K * «expr∥ ∥» (M.d (i + 1) (i + 2) (res m₁)) + ε₁ := hm₀
-      _ = K * «expr∥ ∥» (res (M.d (i + 1) (i + 2) m₁)) + ε₁ := by rw [d_res]
-      _ ≤ K * (K'' * «expr∥ ∥» m₁'') + ε₁ :=
+      _ ≤ K * ‖(M.d (i + 1) (i + 2) (res m₁))‖ + ε₁ := hm₀
+      _ = K * ‖(res (M.d (i + 1) (i + 2) m₁))‖ + ε₁ := by rw [d_res]
+      _ ≤ K * (K'' * ‖m₁''‖) + ε₁ :=
         (add_le_add_right (mul_le_mul_of_nonneg_left hle NNReal.zero_le_coe) _)
-      _ ≤ K * (K'' * («expr∥ ∥» (N.d i (i + 1) (g m')) + ε₁)) + ε₁ :=
+      _ ≤ K * (K'' * (‖(N.d i (i + 1) (g m'))‖ + ε₁)) + ε₁ :=
         (add_le_add_right
           (mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left hnorm_m₁''.le NNReal.zero_le_coe)
             NNReal.zero_le_coe)
           ε₁)
-      _ = K * K'' * «expr∥ ∥» (N.d i (i + 1) (g m')) + K * K'' * ε₁ + ε₁ := by ring
+      _ = K * K'' * ‖(N.d i (i + 1) (g m'))‖ + K * K'' * ε₁ + ε₁ := by ring
   let mnew₁' := M'.d i (i + 1) (res m' - f m₀)
   have hmnew' : mnew₁' = res m₁'' + f (res m₁ - M.d i (i + 1) m₀) := by
     calc
@@ -142,24 +104,24 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
         rw [← SystemOfComplexes.map_sub, ← res_apply, ← _root_.map_sub, ←
           sub_eq_of_eq_add' hm₁.symm]
   have hnormle :
-    «expr∥ ∥» mnew₁' ≤ (K * K'' + 1) * «expr∥ ∥» (N.d i (i + 1) (g m')) + (K * K'' + 2) * ε₁ := by
+    ‖mnew₁'‖ ≤ (K * K'' + 1) * ‖(N.d i (i + 1) (g m'))‖ + (K * K'' + 2) * ε₁ := by
     calc
-      «expr∥ ∥» mnew₁' = «expr∥ ∥» (res m₁'' + f (res m₁ - M.d i (i + 1) m₀)) := by rw [hmnew']
-      _ ≤ «expr∥ ∥» (res m₁'') + «expr∥ ∥» (f (res m₁ - M.d i (i + 1) m₀)) := (norm_add_le _ _)
-      _ ≤ «expr∥ ∥» m₁'' + «expr∥ ∥» (f (res m₁ - M.d i (i + 1) m₀)) :=
+      ‖mnew₁'‖ = ‖(res m₁'' + f (res m₁ - M.d i (i + 1) m₀))‖ := by rw [hmnew']
+      _ ≤ ‖res m₁''‖ + ‖(f (res m₁ - M.d i (i + 1) m₀))‖ := (norm_add_le _ _)
+      _ ≤ ‖m₁''‖ + ‖(f (res m₁ - M.d i (i + 1) m₀))‖ :=
         (add_le_add_right (hM'_adm.res_norm_noninc _ _ _ _ m₁'') _)
-      _ ≤ «expr∥ ∥» m₁'' + «expr∥ ∥» (res m₁ - M.d i (i + 1) m₀) := (add_le_add_left (hf _ _ _) _)
-      _ ≤ «expr∥ ∥» (N.d i (i + 1) (g m')) + ε₁ + «expr∥ ∥» (res m₁ - M.d i (i + 1) m₀) :=
+      _ ≤ ‖m₁''‖ + ‖(res m₁ - M.d i (i + 1) m₀)‖ := (add_le_add_left (hf _ _ _) _)
+      _ ≤ ‖(N.d i (i + 1) (g m'))‖ + ε₁ + ‖(res m₁ - M.d i (i + 1) m₀)‖ :=
         (add_le_add_right (le_of_lt hnorm_m₁'') _)
       _ ≤
-          «expr∥ ∥» (N.d i (i + 1) (g m')) + ε₁ +
-            (K * K'' * «expr∥ ∥» (N.d i (i + 1) (g m')) + K * K'' * ε₁ + ε₁) :=
+          ‖(N.d i (i + 1) (g m'))‖ + ε₁ +
+            (K * K'' * ‖(N.d i (i + 1) (g m'))‖ + K * K'' * ε₁ + ε₁) :=
         (add_le_add_left hm₀ _)
-      _ = (K * K'' + 1) * «expr∥ ∥» (d _ _ (i + 1) (g m')) + (K * K'' + 2) * ε₁ := by ring
+      _ = (K * K'' + 1) * ‖(d _ _ (i + 1) (g m'))‖ + (K * K'' + 2) * ε₁ := by ring
   obtain ⟨i₀, _, hi₀, rfl, mnew₀, hmnew₀⟩ := hM' _ hc _ (hi.trans m.le_succ) (res m' - f m₀) _ hε₁
   replace hmnew₀ :
-    «expr∥ ∥» (res (res m' - f m₀) - d _ _ _ mnew₀) ≤
-      K' * ((K * K'' + 1) * «expr∥ ∥» (N.d i (i + 1) (g m')) + (K * K'' + 2) * ε₁) + ε₁ :=
+    ‖(res (res m' - f m₀) - d _ _ _ mnew₀)‖ ≤
+      K' * ((K * K'' + 1) * ‖(N.d i (i + 1) (g m'))‖ + (K * K'' + 2) * ε₁) + ε₁ :=
     hmnew₀.trans (add_le_add_right (mul_le_mul_of_nonneg_left hnormle NNReal.zero_le_coe) ε₁)
   let nnew₀ : ↥(N c i₀) := g mnew₀
   have hmnewlift : g (res (res m' - f m₀) - M'.d i₀ i mnew₀) = res (g m') - N.d i₀ i nnew₀ :=

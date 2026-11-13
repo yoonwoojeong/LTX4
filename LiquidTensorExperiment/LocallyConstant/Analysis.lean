@@ -64,9 +64,8 @@ namespace LocallyConstant
 
 variable {X Y Z V V₁ V₂ V₃ : Type _} [TopologicalSpace X]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- The sup norm on locally constant function -/
-protected def hasNorm [Norm Y] : Norm (LocallyConstant X Y) where norm f := ⨆ x, «expr∥ ∥» (f x)
+protected def hasNorm [Norm Y] : Norm (LocallyConstant X Y) where norm f := ⨆ x, ‖f x‖
 
 /-- The sup edist on locally constant function -/
 protected def hasEdist [EDist Y] : EDist (LocallyConstant X Y)
@@ -81,9 +80,7 @@ theorem edist_apply_le [EDist Y] (f g : LocallyConstant X Y) (x : X) :
     edist (f x) (g x) ≤ edist f g :=
   le_sSup (Set.mem_range_self x)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_def [Norm Y] (f : LocallyConstant X Y) : «expr∥ ∥» f = ⨆ x, «expr∥ ∥» (f x) :=
+theorem norm_def [Norm Y] (f : LocallyConstant X Y) : ‖f‖ = ⨆ x, ‖f x‖ :=
   rfl
 
 theorem edist_def [EDist Y] (f g : LocallyConstant X Y) : edist f g = ⨆ x, edist (f x) (g x) :=
@@ -96,9 +93,7 @@ section CompactDomain
 
 variable [CompactSpace X]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_apply_le [Norm Y] (f : LocallyConstant X Y) (x : X) : «expr∥ ∥» (f x) ≤ «expr∥ ∥» f :=
+theorem norm_apply_le [Norm Y] (f : LocallyConstant X Y) (x : X) : ‖f x‖ ≤ ‖f‖ :=
   by
   refine' le_csSup _ (Set.mem_range_self _)
   apply exists_upper_bound_image
@@ -192,11 +187,6 @@ section MapHom
 variable [SeminormedAddCommGroup V] [SeminormedAddCommGroup V₁] [SeminormedAddCommGroup V₂]
   [SeminormedAddCommGroup V₃]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- Push-forward of locally constant maps under a normed group hom, as a normed
 group hom between types of locally constant functions. -/
 @[simps]
@@ -210,16 +200,16 @@ def mapHom (f : NormedAddGroupHom V₁ V₂) :
     use C
     rintro (g : LocallyConstant _ _)
     calc
-      Sup (Set.range fun x => «expr∥ ∥» (f (g x))) ≤ Sup (Set.range fun x => C * «expr∥ ∥» (g x)) :=
+      Sup (Set.range fun x => ‖(f (g x))‖) ≤ Sup (Set.range fun x => C * ‖g x‖) :=
         _
-      _ = C * Sup (Set.range fun x => «expr∥ ∥» (g x)) := _
+      _ = C * Sup (Set.range fun x => ‖g x‖) := _
     · cases isEmpty_or_nonempty X
       · simp only [Set.range_eq_empty, Real.sSup_empty]
       refine' csSup_le _ _
       · inhabit X; exact ⟨_, Set.mem_range_self default⟩
       rintro _ ⟨x, rfl⟩
       calc
-        «expr∥ ∥» (f (g x)) ≤ C * «expr∥ ∥» (g x) := hC _
+        ‖(f (g x))‖ ≤ C * ‖g x‖ := hC _
         _ ≤ Sup _ := le_csSup _ _
       · apply exists_upper_bound_image
         rw [Set.range_comp, Set.range_comp]
@@ -251,7 +241,6 @@ variable [TopologicalSpace Y] [CompactSpace Y] [TopologicalSpace Z] [CompactSpac
 
 variable [SeminormedAddCommGroup V]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- Pull-back of locally constant maps under a normed group hom, as a normed
 group hom between types of locally constant functions. -/
 @[simps]
@@ -272,7 +261,7 @@ def comapHom (f : X → Y) (hf : Continuous f) :
         · simp only [Set.range_eq_empty, Real.sSup_empty]
         inhabit Y
         calc
-          0 ≤ «expr∥ ∥» (g default) := norm_nonneg _
+          0 ≤ ‖g default‖ := norm_nonneg _
           _ ≤ _ := _
         apply le_csSup
         · apply exists_upper_bound_image

@@ -57,27 +57,24 @@ theorem nsmul_apply (k : ℕ) (F : ℤ[T⁻¹] S) (s : S) : (k • F) s = k • 
 theorem zsmul_apply (k : ℤ) (F : ℤ[T⁻¹] S) (s : S) : (k • F) s = k • F s :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- @[ext]
 -- lemma ext (F G : ℤ[T⁻¹] S) : (F : S → ) = G → F = G :=
 -- by { intros h, funext s, ext, exact congr_fun (congr_fun h s) n }
 protected theorem nNReal_summable (F : ℤ[T⁻¹] S) (s : S) :
-    Summable fun n => «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ) :=
+    Summable fun n => ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) :=
   by
   apply @summable_of_ne_finset_zero _ _ _ _ _ (F s).support
   intro n hn
   simp only [Polynomial.mem_support_iff, Classical.not_not] at hn 
   simp only [hn, nnnorm_zero, MulZeroClass.zero_mul]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 protected theorem summable (F : ℤ[T⁻¹] S) (s : S) :
-    Summable fun n => «expr∥ ∥» ((F s).Coeff n) * r ^ (-n : ℤ) := by
+    Summable fun n => ‖((F s).Coeff n)‖ * r ^ (-n : ℤ) := by
   simpa only [← NNReal.summable_coe, NNReal.coe_mul, coe_nnnorm, NNReal.coe_zpow] using
     F.nnreal_summable s
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- Move me
-theorem nonneg_of_norm_hMul_zpow (k n : ℤ) (r : ℝ≥0) : 0 ≤ «expr∥ ∥» k * (r : ℝ) ^ n :=
+theorem nonneg_of_norm_hMul_zpow (k n : ℤ) (r : ℝ≥0) : 0 ≤ ‖k‖ * (r : ℝ) ^ n :=
   mul_nonneg (norm_nonneg _) (zpow_nonneg (NNReal.coe_nonneg _) _)
 
 def map (f : S ⟶ S') : ℤ[T⁻¹] S → ℤ[T⁻¹] S' := fun F => fun s' =>
@@ -116,50 +113,35 @@ theorem map_comp {S'' : FintypeCat.{u}} (f : S ⟶ S') (g : S' ⟶ S'') :
     refine' h _
     rw [← hk.1, ← hk.2]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 instance : Norm (ℤ[T⁻¹] S) :=
-  ⟨fun F => ∑ s, ∑' n, «expr∥ ∥» ((F s).Coeff n) * (r : ℝ) ^ (-n : ℤ)⟩
+  ⟨fun F => ∑ s, ∑' n, ‖((F s).Coeff n)‖ * (r : ℝ) ^ (-n : ℤ)⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_def (F : ℤ[T⁻¹] S) :
-    «expr∥ ∥» F = ∑ s, ∑' n, «expr∥ ∥» ((F s).Coeff n) * (r : ℝ) ^ (-n : ℤ) :=
+    ‖F‖ = ∑ s, ∑' n, ‖((F s).Coeff n)‖ * (r : ℝ) ^ (-n : ℤ) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- The norm on `ℤ[T⁻¹](S)` sending `s ↦ ∑ aₙ(s) T⁻ⁿ` to `∑_{s,n} ∥aₙ(s)∥₊r^⁻ⁿ`. -/
 instance : NNNorm (ℤ[T⁻¹] S) :=
-  ⟨fun F => ∑ s, ∑' n, «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ)⟩
+  ⟨fun F => ∑ s, ∑' n, ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ)⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem nnnorm_def (F : ℤ[T⁻¹] S) :
-    «expr∥ ∥₊» F = ∑ s, ∑' n, «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ) :=
+    ‖F‖₊ = ∑ s, ∑' n, ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
-theorem coe_nnnorm (F : ℤ[T⁻¹] S) : («expr∥ ∥₊» F : ℝ) = «expr∥ ∥» F := by
+theorem coe_nnnorm (F : ℤ[T⁻¹] S) : (‖F‖₊ : ℝ) = ‖F‖ := by
   simp only [nnnorm_def, norm_def, NNReal.coe_sum, NNReal.coe_tsum, Nonneg.coe_mul, coe_nnnorm,
     NNReal.coe_zpow]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
-theorem Invpoly.norm_nonneg (F : ℤ[T⁻¹] S) : 0 ≤ «expr∥ ∥» F := by
-  rw [← coe_nnnorm] <;> exact («expr∥ ∥₊» F).coe_nonneg
+theorem Invpoly.norm_nonneg (F : ℤ[T⁻¹] S) : 0 ≤ ‖F‖ := by
+  rw [← coe_nnnorm] <;> exact (‖F‖₊).coe_nonneg
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_neg (F : ℤ[T⁻¹] S) : «expr∥ ∥₊» (-F) = «expr∥ ∥₊» F := by
+theorem nnnorm_neg (F : ℤ[T⁻¹] S) : ‖-F‖₊ = ‖F‖₊ := by
   simp only [nnnorm_def, nnnorm_neg, neg_apply, Polynomial.coeff_neg]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_add (F G : ℤ[T⁻¹] S) : «expr∥ ∥₊» (F + G) ≤ «expr∥ ∥₊» F + «expr∥ ∥₊» G :=
+theorem nnnorm_add (F G : ℤ[T⁻¹] S) : ‖F + G‖₊ ≤ ‖F‖₊ + ‖G‖₊ :=
   by
   simp only [nnnorm_def, ← Finset.sum_add_distrib]
   apply Finset.sum_le_sum
@@ -171,65 +153,51 @@ theorem nnnorm_add (F G : ℤ[T⁻¹] S) : «expr∥ ∥₊» (F + G) ≤ «expr
   simp [← add_mul]
   refine' mul_le_mul' (nnnorm_add_le _ _) le_rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_add (F G : ℤ[T⁻¹] S) : «expr∥ ∥» (F + G) ≤ «expr∥ ∥» F + «expr∥ ∥» G := by
+theorem norm_add (F G : ℤ[T⁻¹] S) : ‖F + G‖ ≤ ‖F‖ + ‖G‖ := by
   simpa only [← coe_nnnorm, ← NNReal.coe_add, NNReal.coe_le_coe] using nnnorm_add F G
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance : PseudoNormedGroup (ℤ[T⁻¹] S)
     where
-  filtration c := {F | «expr∥ ∥₊» F ≤ c}
+  filtration c := {F | ‖F‖₊ ≤ c}
   filtration_mono c₁ c₂ h F hF := by dsimp at *; exact le_trans hF h
   zero_mem_filtration c := by simp [nnnorm_def]
   neg_mem_filtration c F h := (nnnorm_neg F).le.trans h
   add_mem_filtration c₁ c₂ F₁ F₂ h₁ h₂ := (nnnorm_add _ _).trans (add_le_add h₁ h₂)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
 theorem mem_filtration_iff (F : ℤ[T⁻¹] S) (c : ℝ≥0) :
-    F ∈ PseudoNormedGroup.filtration (ℤ[T⁻¹] S) c ↔ «expr∥ ∥₊» F ≤ c :=
+    F ∈ PseudoNormedGroup.filtration (ℤ[T⁻¹] S) c ↔ ‖F‖₊ ≤ c :=
   Iff.rfl
 
 section
 
 open Finset
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem map_bound (f : S ⟶ S') (F : ℤ[T⁻¹] S) : «expr∥ ∥₊» (map f F) ≤ «expr∥ ∥₊» F :=
+theorem map_bound (f : S ⟶ S') (F : ℤ[T⁻¹] S) : ‖map f F‖₊ ≤ ‖F‖₊ :=
   calc
-    «expr∥ ∥₊» (map f F) =
+    ‖map f F‖₊ =
         ∑ s',
-          ∑' n, «expr∥ ∥₊» (∑ s in univ.filterₓ fun t => f t = s', (F s).Coeff n) * r ^ (-n : ℤ) :=
+          ∑' n, ‖(∑ s in univ.filterₓ fun t => f t = s', (F s).Coeff n)‖₊ * r ^ (-n : ℤ) :=
       by simp only [map, ← Polynomial.finset_sum_coeff] <;> rfl
     _ ≤
         ∑ s',
-          ∑' n, ∑ s in univ.filterₓ fun t => f t = s', «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ) :=
+          ∑' n, ∑ s in univ.filterₓ fun t => f t = s', ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) :=
       by
       apply sum_le_sum
       rintro s' -
       have h1 :
         Summable fun n : ℕ =>
-          ∑ s : S.α in univ.filter fun t => f t = s', «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ) :=
+          ∑ s : S.α in univ.filter fun t => f t = s', ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) :=
         summable_sum fun s _ => F.nnreal_summable s
       have h2 :
         ∀ b : ℕ,
-          «expr∥ ∥₊» (∑ s : S.α in univ.filter fun t => f t = s', (F s).Coeff b) * r ^ (-b : ℤ) ≤
-            ∑ s : S.α in univ.filter fun t => f t = s', «expr∥ ∥₊» ((F s).Coeff b) * r ^ (-b : ℤ) :=
+          ‖(∑ s : S.α in univ.filter fun t => f t = s', (F s).Coeff b)‖₊ * r ^ (-b : ℤ) ≤
+            ∑ s : S.α in univ.filter fun t => f t = s', ‖((F s).Coeff b)‖₊ * r ^ (-b : ℤ) :=
         by intro b; rw [← sum_mul]; exact mul_le_mul' (nnnorm_sum_le _ _) le_rfl
       apply tsum_le_tsum h2 (NNReal.summable_of_le h2 h1) h1
     _ =
         ∑ s',
-          ∑ s in univ.filterₓ fun t => f t = s', ∑' n, «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ) :=
+          ∑ s in univ.filterₓ fun t => f t = s', ∑' n, ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) :=
       (sum_congr rfl fun s' _ => tsum_sum fun s _ => F.nNReal_summable _)
     _ = _ := by
       rw [← sum_bUnion]
@@ -244,22 +212,15 @@ theorem map_bound (f : S ⟶ S') (F : ℤ[T⁻¹] S) : «expr∥ ∥₊» (map f
 
 end
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem map_bound' (f : S ⟶ S') (F : ℤ[T⁻¹] S) : «expr∥ ∥» (map f F) ≤ «expr∥ ∥» F := by
+theorem map_bound' (f : S ⟶ S') (F : ℤ[T⁻¹] S) : ‖map f F‖ ≤ ‖F‖ := by
   simpa only [← coe_nnnorm, ← NNReal.coe_add, NNReal.coe_le_coe] using map_bound f F
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem bounded_of_filtration (F : ℤ[T⁻¹] S) (c : ℝ≥0) [hr : Fact (0 < r)] :
-    «expr∥ ∥₊» F ≤ c → ∀ (s : S) (n : ℕ), «expr∥ ∥₊» ((F s).Coeff n) ≤ c * r ^ n :=
+    ‖F‖₊ ≤ c → ∀ (s : S) (n : ℕ), ‖((F s).Coeff n)‖₊ ≤ c * r ^ n :=
   by
   intro hF s n
   have :
-    «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ) ≤ ∑' k, «expr∥ ∥₊» ((F s).Coeff k) * r ^ (-k : ℤ) :=
+    ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) ≤ ∑' k, ‖((F s).Coeff k)‖₊ * r ^ (-k : ℤ) :=
     le_tsum (F.nnreal_summable s) _ fun k _ => zero_le'
   rw [mul_comm, NNReal.mul_le_iff_le_inv (zpow_ne_zero_of_ne_zero hr.elim.ne.symm _)] at this 
   simp only [zpow_neg, zpow_ofNat, inv_inv, mul_comm (r ^ n)] at this 
@@ -268,38 +229,32 @@ theorem bounded_of_filtration (F : ℤ[T⁻¹] S) (c : ℝ≥0) [hr : Fact (0 < 
   refine' le_trans _ hF
   unfold nnnorm
   simp only [zpow_neg, zpow_ofNat]
-  apply @Finset.single_le_sum S ℝ≥0 _ fun s => ∑' n, «expr∥ ∥₊» ((F s).Coeff n) * (r ^ n)⁻¹
+  apply @Finset.single_le_sum S ℝ≥0 _ fun s => ∑' n, ‖((F s).Coeff n)‖₊ * (r ^ n)⁻¹
   · rintro s -; exact zero_le'
   · exact Finset.mem_univ _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem bounded_of_filtration' (F : ℤ[T⁻¹] S) (c : ℝ≥0) [Fact (0 < r)] [hr : Fact (r < 1)] :
-    «expr∥ ∥₊» F ≤ c → ∀ (s : S) (n : ℕ), |(F s).Coeff n| ≤ ⌊c⌋₊ :=
+    ‖F‖₊ ≤ c → ∀ (s : S) (n : ℕ), |(F s).Coeff n| ≤ ⌊c⌋₊ :=
   by
   intro hF s n
   rw [Int.abs_le_floor_nnreal_iff]
   refine' le_trans (bounded_of_filtration F c hF s n) _
   exact mul_le_of_le_of_le_one (le_refl c) (pow_le_one' hr.elim.le n)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- rather annoyingly, can't use `bounded_of_filtration` to prove this
 -- more easily because it's true even if r=0 :-)
 /-- This lemma puts bounds on where `(F s).coeff n` can be nonzero. -/
 theorem eq_zero_of_filtration (F : ℤ[T⁻¹] S) (c : ℝ≥0) :
-    «expr∥ ∥₊» F ≤ c → ∀ (s : S) (n : ℕ), c < r ^ (-n : ℤ) → (F s).Coeff n = 0 :=
+    ‖F‖₊ ≤ c → ∀ (s : S) (n : ℕ), c < r ^ (-n : ℤ) → (F s).Coeff n = 0 :=
   by
   intro hF s n h
-  suffices «expr∥ ∥₊» ((F s).Coeff n) < 1
+  suffices ‖((F s).Coeff n)‖₊ < 1
     by
     change abs ((F s).Coeff n : ℝ) < 1 at this 
     norm_cast at this 
     rwa [← Int.abs_lt_one_iff]
   have :
-    «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ) ≤ ∑' k, «expr∥ ∥₊» ((F s).Coeff k) * r ^ (-k : ℤ) :=
+    ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) ≤ ∑' k, ‖((F s).Coeff k)‖₊ * r ^ (-k : ℤ) :=
     le_tsum (F.nnreal_summable s) _ fun k _ => zero_le'
   replace this := lt_of_le_of_lt (this.trans _) h
   · have hr₁ : 0 < r ^ (-n : ℤ) := lt_of_le_of_lt zero_le' h
@@ -309,7 +264,7 @@ theorem eq_zero_of_filtration (F : ℤ[T⁻¹] S) (c : ℝ≥0) :
     · exact (mul_inv_cancel hr₂).symm
     · rwa [nnreal.inv_pos]
   · refine' le_trans _ hF
-    apply @Finset.single_le_sum S ℝ≥0 _ fun s => ∑' n, «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ)
+    apply @Finset.single_le_sum S ℝ≥0 _ fun s => ∑' n, ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ)
     · rintro s -; exact zero_le'
     · exact Finset.mem_univ _
 
@@ -324,9 +279,8 @@ theorem log_div_log_lt {r : ℝ≥0} (c : ℝ≥0) (n : ℕ) (hr0 : 0 < r) (hr1 
     · exact_mod_cast h
     · norm_cast; apply NNReal.zpow_pos hr0.ne.symm
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem eq_zero_of_filtration' {F : ℤ[T⁻¹] S} {c : ℝ≥0} [hr0 : Fact (0 < r)] [hr1 : Fact (r < 1)] :
-    «expr∥ ∥₊» F ≤ c → ∀ (s : S) (n : ℕ), -Real.log c / Real.log r < n → (F s).Coeff n = 0 :=
+    ‖F‖₊ ≤ c → ∀ (s : S) (n : ℕ), -Real.log c / Real.log r < n → (F s).Coeff n = 0 :=
   by
   intro hF s n h
   refine' eq_zero_of_filtration F c hF s n (log_div_log_lt c n hr0.elim hr1.elim h)
@@ -344,11 +298,9 @@ section ProfiniteStructure
 
 variable [Fact (0 < r)] (c : ℝ≥0)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance [Fact (r < 1)] : Fintype {F : ℤ[T⁻¹] S | «expr∥ ∥₊» F ≤ c} :=
+instance [Fact (r < 1)] : Fintype {F : ℤ[T⁻¹] S | ‖F‖₊ ≤ c} :=
   let i :
-    {F : ℤ[T⁻¹] S | «expr∥ ∥₊» F ≤ c} →
+    {F : ℤ[T⁻¹] S | ‖F‖₊ ≤ c} →
       S → Fin (⌊-Real.log ↑c / Real.log ↑r⌋₊ + 1) → Set.Icc (-⌊c⌋₊ : ℤ) ⌊c⌋₊ :=
     fun F s j => ⟨(F.1 s).Coeff j, abs_le.1 (bounded_of_filtration' _ _ F.2 _ _)⟩
   Fintype.ofInjective i
@@ -364,8 +316,7 @@ instance [Fact (r < 1)] : Fintype {F : ℤ[T⁻¹] S | «expr∥ ∥₊» F ≤ 
         · apply eq_zero_of_filtration' F₁.2 _ _ hn
         · apply eq_zero_of_filtration' F₂.2 _ _ hn)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance : TopologicalSpace {F : ℤ[T⁻¹] S | «expr∥ ∥₊» F ≤ c} :=
+instance : TopologicalSpace {F : ℤ[T⁻¹] S | ‖F‖₊ ≤ c} :=
   ⊥
 
 instance [Fact (0 < r)] [Fact (r < 1)] : ProfinitelyFilteredPseudoNormedGroup (ℤ[T⁻¹] S) :=
@@ -400,16 +351,14 @@ theorem tinvAux_zero (F : ℤ[T⁻¹] S) (s : S) : (tinvAux F s).Coeff 0 = 0 := 
 theorem tinvAux_succ (F : ℤ[T⁻¹] S) (s : S) (i : ℕ) : (tinvAux F s).Coeff (i + 1) = (F s).Coeff i :=
   by simp only [Tinv_aux_coeff, Polynomial.coeff_X_mul]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem tinvAux_summable [hr : Fact (0 < r)] (F : ℤ[T⁻¹] S) (s : S) :
-    Summable fun n => «expr∥ ∥₊» ((tinvAux F s).Coeff n) * r ^ (-n : ℤ) :=
+    Summable fun n => ‖((tinvAux F s).Coeff n)‖₊ * r ^ (-n : ℤ) :=
   by
   rw [← NNReal.summable_nat_add_iff 1]
   simp only [Tinv_aux_succ, Int.ofNat_succ, neg_add, zpow_add₀ hr.out.ne', ← mul_assoc]
   apply Summable.mul_right
   exact F.nnreal_summable s
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simps]
 def tinvHom [hr : Fact (0 < r)] [Fact (r < 1)] :
     ComphausFilteredPseudoNormedGroupHom (ℤ[T⁻¹] S) (ℤ[T⁻¹] S) :=
@@ -423,7 +372,7 @@ def tinvHom [hr : Fact (0 < r)] [Fact (r < 1)] :
         refine' le_trans _ (mul_le_mul' hF le_rfl)
         simp only [nnnorm_def, Finset.sum_mul]
         refine' Finset.sum_le_sum fun s _ => _
-        trans ∑' n, «expr∥ ∥₊» ((F s).Coeff n) * r ^ (-n : ℤ) * r⁻¹
+        trans ∑' n, ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) * r⁻¹
         · rw [← sum_add_tsum_nat_add' 1]
           swap; · apply Tinv_aux_summable
           simp only [Finset.range_one, zpow_neg, zpow_ofNat, Finset.sum_singleton, pow_zero,
@@ -460,7 +409,6 @@ variable {α : Type _}
 
 open PseudoNormedGroup ProfinitelyFilteredPseudoNormedGroup ComphausFilteredPseudoNormedGroup
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simps]
 def mapHom [Fact (0 < r)] [Fact (r < 1)] (f : S ⟶ S') :
     ComphausFilteredPseudoNormedGroupWithTinvHom r (ℤ[T⁻¹] S) (ℤ[T⁻¹] S')
@@ -476,7 +424,7 @@ def mapHom [Fact (0 < r)] [Fact (r < 1)] (f : S ⟶ S') :
     ext s (_ | n)
     · simp only [map_apply, Tinv_zero, Finset.sum_const_zero]
     · simp only [map_apply, Tinv_succ]
-  strict' c F (hF : «expr∥ ∥₊» F ≤ c) := (map_bound _ _).trans hF
+  strict' c F (hF : ‖F‖₊ ≤ c) := (map_bound _ _).trans hF
   continuous' c := continuous_of_discreteTopology
 
 end Invpoly

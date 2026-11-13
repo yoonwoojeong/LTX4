@@ -24,12 +24,6 @@ variable (p : ℝ≥0) [Fact (0 < p)] [Fact (p < 1)]
 
 local notation "r" => @r p
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- The "evaluate at 2" function, sending an S-indexed family of elements of `ℤ[T⁻¹]`
   to an S-indexed family of integers, via the assignment `T⁻¹ ↦ 2`. Note that
   this is a strict (i.e. norm-nonincreasing) morphism of normed groups,
@@ -50,17 +44,17 @@ def eval2 (S : FintypeCat.{u}) :
     have hp1 : p ≤ 1 := Fact.out _
     have h0pinv : 0 ≤ p⁻¹ := by rw [← nnreal.inv_pos] at h0p ; exact h0p.le
     calc
-      «expr∥ ∥₊» ((F s).eval 2) ^ (p : ℝ) =
-          «expr∥ ∥₊» (∑ n in Finset.range ((F s).natDegree + 1), (F s).coeff n * 2 ^ n) ^ (p : ℝ) :=
+      ‖((F s).eval 2)‖₊ ^ (p : ℝ) =
+          ‖(∑ n in Finset.range ((F s).natDegree + 1), (F s).coeff n * 2 ^ n)‖₊ ^ (p : ℝ) :=
         _
       _ ≤
-          (∑ n in Finset.range ((F s).natDegree + 1), «expr∥ ∥₊» ((F s).coeff n * 2 ^ n)) ^
+          (∑ n in Finset.range ((F s).natDegree + 1), ‖((F s).coeff n * 2 ^ n)‖₊) ^
             (p : ℝ) :=
         _
-      _ ≤ ∑ n in Finset.range ((F s).natDegree + 1), «expr∥ ∥₊» ((F s).coeff n * 2 ^ n) ^ (p : ℝ) :=
+      _ ≤ ∑ n in Finset.range ((F s).natDegree + 1), ‖((F s).coeff n * 2 ^ n)‖₊ ^ (p : ℝ) :=
         _
-      _ ≤ ∑ n in Finset.range ((F s).natDegree + 1), «expr∥ ∥₊» ((F s).coeff n) * r ^ (-n : ℤ) := _
-      _ ≤ ∑' n, «expr∥ ∥₊» ((F s).coeff n) * r ^ (-n : ℤ) := _
+      _ ≤ ∑ n in Finset.range ((F s).natDegree + 1), ‖((F s).coeff n)‖₊ * r ^ (-n : ℤ) := _
+      _ ≤ ∑' n, ‖((F s).coeff n)‖₊ * r ^ (-n : ℤ) := _
     · rw [Polynomial.eval_eq_sum_range]
     · refine' NNReal.rpow_le_rpow (nnnorm_sum_le _ _) h0p.le
     · refine' NNReal.rpow_sum_le_sum_rpow _ _ h0p hp1
@@ -279,8 +273,6 @@ theorem psi_eq_div_x_sub_two {S : FintypeCat} (c : ℝ≥0) {f : Invpoly r S}
     apply phi_eq_mul_Tinv_sub_two
   simp [hf3]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem shortExact (S : Profinite) :
     ShortExact ((condensifyTinv2 _).app S) ((condensifyMap <| eval2NatTrans p).app S) :=
   by
@@ -302,8 +294,8 @@ theorem shortExact (S : Profinite) :
       rw [show (2 : Polynomial ℤ) = Polynomial.C (2 : ℤ) by simp]
       rwa [Polynomial.mul_divByMonic_eq_iff_isRoot]
     refine' ⟨fun s => f s /ₘ (Polynomial.X - 2), _, _⟩
-    · change «expr∥ ∥₊» _ ≤ c at hf2 
-      change «expr∥ ∥₊» _ ≤ _
+    · change ‖_‖₊ ≤ c at hf2 
+      change ‖_‖₊ ≤ _
       have hf1' : ((eval2_nat_trans p).app S) f = 0 := by simpa using hf1
       rw [← to_laurent_measures_addhom_isometry] at hf2 ⊢
       refine' le_trans _ (NNReal.hMul_le_hMul_right (le_max_right _ _) _)

@@ -18,7 +18,7 @@ theorem quotientMap {X Y : Profinite} (f : X ⟶ Y) (hf : Function.Surjective f)
   rw [← isClosed_compl_iff] at *
   rw [← Set.preimage_compl] at hS 
   have : Sᶜ = f '' (f ⁻¹' Sᶜ) := by
-    ext
+    ext x
     constructor
     · intro h
       obtain ⟨y, rfl⟩ := hf x

@@ -8,7 +8,7 @@ namespace CompHaus
 open CategoryTheory
 
 noncomputable instance : Limits.PreservesLimits (forget CompHaus) := by
-  apply limits.comp_preserves_limits compHausToTop (forget TopCat)
+  apply Limits.compPreservesLimits compHausToTop (forget TopCat)
 
 @[simp]
 theorem coe_id (X : CompHaus) : (𝟙 X : X → X) = id :=

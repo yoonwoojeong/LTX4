@@ -31,26 +31,20 @@ variable {Λ : Type _} [PolyhedralLattice Λ]
 
 variable {M : Type _} [PseudoNormedGroup M]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem GeneratesNorm.addMonoidHom_mem_filtration_iff {ι : Type} [Fintype ι] {l : ι → Λ}
     (hl : GeneratesNorm l) (x : Λ →+ M) (c : ℝ≥0) :
-    x ∈ filtration (Λ →+ M) c ↔ ∀ i, x (l i) ∈ filtration M (c * «expr∥ ∥₊» (l i)) :=
+    x ∈ filtration (Λ →+ M) c ↔ ∀ i, x (l i) ∈ filtration M (c * ‖l i‖₊) :=
   by
-  refine' ⟨fun H i => H (le_refl («expr∥ ∥₊» (l i))), _⟩
+  refine' ⟨fun H i => H (le_refl (‖l i‖₊)), _⟩
   intro H c' l' hl'
   obtain ⟨cᵢ, h1, h2⟩ := hl.generates_nnnorm l'
   rw [h1, x.map_sum]
-  refine' filtration_mono _ (sum_mem_filtration _ (fun i => c * cᵢ i * «expr∥ ∥₊» (l i)) _ _)
+  refine' filtration_mono _ (sum_mem_filtration _ (fun i => c * cᵢ i * ‖l i‖₊) _ _)
   ·
     calc
-      ∑ i, c * cᵢ i * «expr∥ ∥₊» (l i) = c * ∑ i, cᵢ i * «expr∥ ∥₊» (l i) := by
+      ∑ i, c * cᵢ i * ‖l i‖₊ = c * ∑ i, cᵢ i * ‖l i‖₊ := by
         simp only [mul_assoc, ← Finset.mul_sum]
-      _ = c * «expr∥ ∥₊» l' := by rw [h2]
+      _ = c * ‖l'‖₊ := by rw [h2]
       _ ≤ c * c' := mul_le_mul' le_rfl hl'
   rintro i -
   rw [mul_assoc, mul_left_comm, x.map_nsmul]
@@ -68,8 +62,7 @@ namespace AddMonoidHom
 
 variable {Λ r' M} (c : ℝ≥0)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-def incl (c : ℝ≥0) : filtration (Λ →+ M) c → ∀ l : Λ, filtration M (c * «expr∥ ∥₊» l) := fun f l =>
+def incl (c : ℝ≥0) : filtration (Λ →+ M) c → ∀ l : Λ, filtration M (c * ‖l‖₊) := fun f l =>
   ⟨f l, f.2 <| mem_filtration_nnnorm _⟩
 
 @[simp]
@@ -107,13 +100,11 @@ instance : TotallyDisconnectedSpace (filtration (Λ →+ M) c)
       isTotallyDisconnected_of_totallyDisconnectedSpace _
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (l₁ l₂) -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem incl_range_eq :
     Set.range (@incl Λ r' M _ _ c) =
       ⋂ (l₁) (l₂),
         {f |
-          (castLe (f (l₁ + l₂)) : filtration M (c * («expr∥ ∥₊» l₁ + «expr∥ ∥₊» l₂))) =
+          (castLe (f (l₁ + l₂)) : filtration M (c * (‖l₁‖₊ + ‖l₂‖₊))) =
             castLe (add' (f l₁, f l₂))} :=
   by
   ext f
@@ -160,8 +151,6 @@ theorem continuous_iff {X : Type _} [TopologicalSpace X] (ϕ : X → filtration 
   · intro h l; exact (continuous_apply l).comp h
   · exact continuous_pi
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance profinitelyFilteredPseudoNormedGroup : ProfinitelyFilteredPseudoNormedGroup (Λ →+ M) :=
   {
     AddMonoidHom.pseudoNormedGroup with
@@ -172,7 +161,7 @@ instance profinitelyFilteredPseudoNormedGroup : ProfinitelyFilteredPseudoNormedG
       have step1 :=
         ((continuous_apply l).comp (incl_continuous Λ r' M c₁)).Prod_map
           ((continuous_apply l).comp (incl_continuous Λ r' M c₂))
-      have step2 := continuous_add' (c₁ * «expr∥ ∥₊» l) (c₂ * «expr∥ ∥₊» l)
+      have step2 := continuous_add' (c₁ * ‖l‖₊) (c₂ * ‖l‖₊)
       have := step2.comp step1
       refine' (@continuous_cast_le _ _ _ _ (id _)).comp this
       rw [add_mul]; exact ⟨le_rfl⟩
@@ -216,8 +205,6 @@ open ComphausFilteredPseudoNormedGroup
 
 variable [Fact (0 < r')]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def tinv : ComphausFilteredPseudoNormedGroupHom (Λ →+ M) (Λ →+ M) :=
   ComphausFilteredPseudoNormedGroupHom.mk' tinv'
     (by
@@ -228,7 +215,7 @@ def tinv : ComphausFilteredPseudoNormedGroupHom (Λ →+ M) (Λ →+ M) :=
         ⟨by simp [mul_inv_cancel_left₀ (ne_of_gt (Fact.out _ : 0 < r'))]⟩
       refine'
         (@continuous_cast_le _ _ _ _ (id _)).comp
-          ((@Tinv₀_continuous r' M _ (c * «expr∥ ∥₊» l) (r'⁻¹ * (c * «expr∥ ∥₊» l)) _).comp
+          ((@Tinv₀_continuous r' M _ (c * ‖l‖₊) (r'⁻¹ * (c * ‖l‖₊)) _).comp
             ((continuous_apply l).comp (add_monoid_hom.incl_continuous Λ r' M c)))
       rw [mul_assoc]; exact ⟨le_rfl⟩)
 

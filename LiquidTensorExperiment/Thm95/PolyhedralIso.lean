@@ -156,10 +156,6 @@ theorem homFinsuppEquiv_strict [Fact (0 < r')] (c : ℝ≥0)
     apply hf _
     exact (SeminormedAddCommGroup.mem_filtration_iff _ _).mpr rfl.le
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem homFinsuppEquiv_ctu [Fact (0 < r')] (c : ℝ≥0) :
     Continuous
       (level (Λ.homFinsuppEquiv N r' M) (fun c x => (homFinsuppEquiv_strict Λ N r' M c x).1) c) :=
@@ -170,12 +166,12 @@ theorem homFinsuppEquiv_ctu [Fact (0 < r')] (c : ℝ≥0) :
   dsimp only [Function.comp]
   rw [add_monoid_hom.continuous_iff]
   intro l
-  haveI : Fact (c * «expr∥ ∥₊» (Finsupp.single i l) ≤ c * «expr∥ ∥₊» l) :=
+  haveI : Fact (c * ‖Finsupp.single i l‖₊ ≤ c * ‖l‖₊) :=
     ⟨mul_le_mul' le_rfl <| le_of_eq _⟩
   · have aux1 := add_monoid_hom.incl_continuous (Fin N →₀ Λ) r' M c
     have aux2 := (continuous_apply (Finsupp.single i l)).comp aux1
-    rwa [(embedding_cast_le (c * «expr∥ ∥₊» (Finsupp.single i l))
-          (c * «expr∥ ∥₊» l)).continuous_iff] at
+    rwa [(embedding_cast_le (c * ‖Finsupp.single i l‖₊)
+          (c * ‖l‖₊)).continuous_iff] at
       aux2 
   · rw [Finsupp.nnnorm_def, Finsupp.sum_single_index]; exact nnnorm_zero
 

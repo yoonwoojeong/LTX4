@@ -164,9 +164,6 @@ theorem fintype_prod_nat_equiv_nat (S : Type _) [Fintype S] [hS : Nonempty S] :
   rw [← Fintype.card_pos_iff] at hS 
   exact_mod_cast hS.ne'
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem lem98_int [Fact (r' < 1)] (N : ℕ) (hN : 0 < N) (c : ℝ≥0) (x : Lbar r' S)
     (hx : x ∈ filtration (Lbar r' S) c) (H : ∀ s n, (x s n).natAbs ≤ 1) :
     ∃ y : Fin N → Lbar r' S, x = ∑ i, y i ∧ ∀ i, y i ∈ filtration (Lbar r' S) (c / N + 1) :=
@@ -208,10 +205,10 @@ theorem lem98_int [Fact (r' < 1)] (N : ℕ) (hN : 0 < N) (c : ℝ≥0) (x : Lbar
   refine' ⟨y, hxy, _⟩
   intro i
   rw [Lbar.mem_filtration_iff] at hx ⊢
-  suffices «expr∥ ∥₊» x = ∑' n, f n ∧ «expr∥ ∥₊» (y i) = ∑' n : ℕ, (mask i).indicator f n
+  suffices ‖x‖₊ = ∑' n, f n ∧ ‖y i‖₊ = ∑' n : ℕ, (mask i).indicator f n
     by
     calc
-      «expr∥ ∥₊» (y i) = ∑' n : ℕ, (mask i).indicator f n := this.right
+      ‖y i‖₊ = ∑' n : ℕ, (mask i).indicator f n := this.right
       _ ≤ (∑' n : ℕ, f n) / N + 1 := (h2 i)
       _ ≤ c / N + 1 := _
     simp only [div_eq_mul_inv]
@@ -266,10 +263,6 @@ theorem lem98_aux' [Fact (r' < 1)] (N : ℕ) (A : Finset (Λ →+ ℤ)) (x x₀ 
   rw [Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ, Fintype.card_fin, Finset.sum_comm,
     ← hx₀]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem lem98_crux [Fact (r' < 1)] {ι : Type} {l : ι → Λ} (N : ℕ) (hN : 0 < N) (A : Finset (Λ →+ ℤ))
     (x x₀ x₁ : Λ →+ Lbar r' S) (x' x₀' x₁' : S → ℕ → Λ →+ ℤ) [∀ s n a, Decidable (x₁' s n = a)]
     (xₐ : (Λ →+ ℤ) → Lbar r' S) (hx : ∀ l s n, x l s n = x' s n l)
@@ -278,8 +271,8 @@ theorem lem98_crux [Fact (r' < 1)] {ι : Type} {l : ι → Λ} (N : ℕ) (hN : 0
     (Hx₁ : ∀ l : Λ, x₁ l = ∑ a : Λ →+ ℤ in A, a l • xₐ a) (hx₁'A : ∀ s n, x₁' s n ∈ A)
     (H : ∀ s n i, (x' s n (l i)).natAbs = N * (x₀' s n (l i)).natAbs + (x₁' s n (l i)).natAbs)
     (i : ι) :
-    «expr∥ ∥₊» (x (l i)) =
-      N • «expr∥ ∥₊» (x₀ (l i)) + ∑ a in A, «expr∥ ∥₊» (a (l i)) * «expr∥ ∥₊» (xₐ a) :=
+    ‖(x (l i))‖₊ =
+      N • ‖(x₀ (l i))‖₊ + ∑ a in A, ‖(a (l i))‖₊ * ‖xₐ a‖₊ :=
   by
   simp only [hx, H, ← hx₀, ← hx₁, Lbar.nnnorm_def, nsmul_eq_mul, mul_assoc, Finset.smul_sum,
     Finset.mul_sum, Nat.cast_add, Nat.cast_mul, add_mul]
@@ -341,51 +334,11 @@ theorem hA (N : ℕ) [hN : Fact (0 < N)] (x : Λ →+ ℤ) :
       x = N • y + x' ∧ ∀ i, (x (l Λ i)).natAbs = N * (y (l Λ i)).natAbs + (x' (l Λ i)).natAbs :=
   (lem97' N hN.1 (l Λ)).choose_spec x
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def d (N : ℕ) [hN : Fact (0 < N)] : ℝ≥0 :=
-  Finset.univ.sup fun i => ∑ a in a Λ N, «expr∥ ∥₊» (a (l Λ i)) / «expr∥ ∥₊» (l Λ i)
+  Finset.univ.sup fun i => ∑ a in a Λ N, ‖(a (l Λ i))‖₊ / ‖l Λ i‖₊
 
 end Lem98
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem lem98Finite [Fact (r' < 1)] (Λ : Type _) [PolyhedralLattice Λ] (S : Type _) [Fintype S]
     (N : ℕ) [hN : Fact (0 < N)] : PseudoNormedGroup.Splittable (Λ →+ Lbar r' S) N (Lem98.d Λ N) :=
   by
@@ -421,7 +374,7 @@ theorem lem98Finite [Fact (r' < 1)] (Λ : Type _) [PolyhedralLattice Λ] (S : Ty
   -- we first decompose the `xₐ a` into `N` pieces
   have hxₐ : ∀ a s n, (xₐ a s n).natAbs ≤ 1 := by intro a s n;
     dsimp [xₐ, Lbar.mkOfAddMonoidHom_to_fun]; split_ifs <;> simp
-  have := fun a => lem98_int N hN.1 («expr∥ ∥₊» (xₐ a)) (xₐ a) _ (hxₐ a)
+  have := fun a => lem98_int N hN.1 (‖xₐ a‖₊) (xₐ a) _ (hxₐ a)
   swap
   · rw [Lbar.mem_filtration_iff]
   choose y' hy'1 hy'2 using this
@@ -438,8 +391,8 @@ theorem lem98Finite [Fact (r' < 1)] (Λ : Type _) [PolyhedralLattice Λ] (S : Ty
   specialize hx i
   simp only [Lbar.mem_filtration_iff] at hx hy'2 ⊢
   have Hx :
-    «expr∥ ∥₊» (x (l i)) =
-      N • «expr∥ ∥₊» (x₀ (l i)) + ∑ a in A, «expr∥ ∥₊» (a (l i)) * «expr∥ ∥₊» (xₐ a) :=
+    ‖(x (l i))‖₊ =
+      N • ‖(x₀ (l i))‖₊ + ∑ a in A, ‖(a (l i))‖₊ * ‖xₐ a‖₊ :=
     by
     apply lem98_crux N hN.1 A x x₀ x₁ x' x₀' x₁' xₐ
     all_goals intros;
@@ -447,44 +400,44 @@ theorem lem98Finite [Fact (r' < 1)] (Λ : Type _) [PolyhedralLattice Λ] (S : Ty
       | rfl
       | apply_assumption
   calc
-    «expr∥ ∥₊» (y j (l i)) ≤
-        «expr∥ ∥₊» (x₀ (l i)) + ∑ a in A, «expr∥ ∥₊» (a (l i)) * «expr∥ ∥₊» (xₐ a) / N +
-          d * «expr∥ ∥₊» (l i) :=
+    ‖(y j (l i))‖₊ ≤
+        ‖(x₀ (l i))‖₊ + ∑ a in A, ‖(a (l i))‖₊ * ‖xₐ a‖₊ / N +
+          d * ‖l i‖₊ :=
       _
     _ =
-        (N • «expr∥ ∥₊» (x₀ (l i)) + ∑ a in A, «expr∥ ∥₊» (a (l i)) * «expr∥ ∥₊» (xₐ a)) / N +
-          d * «expr∥ ∥₊» (l i) :=
+        (N • ‖(x₀ (l i))‖₊ + ∑ a in A, ‖(a (l i))‖₊ * ‖xₐ a‖₊) / N +
+          d * ‖l i‖₊ :=
       _
-    _ = «expr∥ ∥₊» (x (l i)) / N + d * «expr∥ ∥₊» (l i) := by rw [Hx]
+    _ = ‖(x (l i))‖₊ / N + d * ‖l i‖₊ := by rw [Hx]
     _ ≤ _ := _
   · simp only [AddMonoidHom.add_apply, add_assoc, AddMonoidHom.finset_sum_apply,
       Lbar.mkTensor_apply]
     refine' (Lbar.nnnorm_add_le _ _).trans (add_le_add le_rfl _)
     refine' (Lbar.nnnorm_sum_le _ _).trans _
     calc
-      ∑ a in A, «expr∥ ∥₊» (a (l i) • y' a j) =
-          ∑ a in A, «expr∥ ∥₊» (a (l i)) * «expr∥ ∥₊» (y' a j) :=
+      ∑ a in A, ‖(a (l i) • y' a j)‖₊ =
+          ∑ a in A, ‖(a (l i))‖₊ * ‖y' a j‖₊ :=
         Finset.sum_congr rfl _
-      _ ≤ ∑ a in A, «expr∥ ∥₊» (a (l i)) * («expr∥ ∥₊» (xₐ a) / N + 1) := (Finset.sum_le_sum _)
-      _ = ∑ a in A, («expr∥ ∥₊» (a (l i)) * «expr∥ ∥₊» (xₐ a) / N + «expr∥ ∥₊» (a (l i))) :=
+      _ ≤ ∑ a in A, ‖(a (l i))‖₊ * (‖xₐ a‖₊ / N + 1) := (Finset.sum_le_sum _)
+      _ = ∑ a in A, (‖(a (l i))‖₊ * ‖xₐ a‖₊ / N + ‖(a (l i))‖₊) :=
         (Finset.sum_congr rfl _)
-      _ = ∑ a in A, «expr∥ ∥₊» (a (l i)) * «expr∥ ∥₊» (xₐ a) / N + ∑ a in A, «expr∥ ∥₊» (a (l i)) :=
+      _ = ∑ a in A, ‖(a (l i))‖₊ * ‖xₐ a‖₊ / N + ∑ a in A, ‖(a (l i))‖₊ :=
         _
-      _ ≤ ∑ a in A, «expr∥ ∥₊» (a (l i)) * «expr∥ ∥₊» (xₐ a) / N + d * «expr∥ ∥₊» (l i) :=
+      _ ≤ ∑ a in A, ‖(a (l i))‖₊ * ‖xₐ a‖₊ / N + d * ‖l i‖₊ :=
         add_le_add le_rfl _
     · intro a ha; rw [Lbar.nnnorm_zsmul]
     · intro a ha; exact mul_le_mul' le_rfl (hy'2 a j)
     · intro a ha; rw [mul_add, mul_one, mul_div_assoc]
     · rw [Finset.sum_add_distrib]
     · calc
-        ∑ a in A, «expr∥ ∥₊» (a (l i)) =
-            (∑ a in A, «expr∥ ∥₊» (a (l i)) / «expr∥ ∥₊» (l i)) * «expr∥ ∥₊» (l i) :=
+        ∑ a in A, ‖(a (l i))‖₊ =
+            (∑ a in A, ‖(a (l i))‖₊ / ‖l i‖₊) * ‖l i‖₊ :=
           _
         _ ≤
-            (finset.univ.sup fun i => ∑ a in A, «expr∥ ∥₊» (a (l i)) / «expr∥ ∥₊» (l i)) *
-              «expr∥ ∥₊» (l i) :=
+            (finset.univ.sup fun i => ∑ a in A, ‖(a (l i))‖₊ / ‖l i‖₊) *
+              ‖l i‖₊ :=
           _
-      · have : «expr∥ ∥₊» (l i) ≠ 0 := by simp only [hl' i, nnnorm_eq_zero, Ne.def, not_false_iff]
+      · have : ‖l i‖₊ ≠ 0 := by simp only [hl' i, nnnorm_eq_zero, Ne.def, not_false_iff]
         simp only [div_eq_mul_inv, ← Finset.sum_mul, inv_mul_cancel_right₀ this]
       · exact mul_le_mul' (Finset.le_sup (Finset.mem_univ i)) le_rfl
   · simp only [div_eq_mul_inv, add_mul, Finset.sum_mul, nsmul_eq_mul]

@@ -19,10 +19,6 @@ open Filter Set Function NormedAddCommGroup UniformSpace NormedAddGroupHom Finse
 
 open scoped TopologicalSpace BigOperators
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem controlled_exactness {M M₁ M₂ : Type _} [SeminormedAddCommGroup M]
     [SeminormedAddCommGroup M₁] [SeminormedAddCommGroup M₂] {f : NormedAddGroupHom M₁ M} {C : ℝ}
     (hC : 0 < C) {D : ℝ} {g : NormedAddGroupHom M M₂} (h : f.SurjectiveOnWith g.ker C)
@@ -36,7 +32,7 @@ theorem controlled_exactness {M M₁ M₂ : Type _} [SeminormedAddCommGroup M]
       map_zero]
   set hatf := f.completion
   set i := incl g.ker
-  have norm_j_comp_i : ∀ x, «expr∥ ∥» (to_compl.comp i x) = «expr∥ ∥» x :=
+  have norm_j_comp_i : ∀ x, ‖to_compl.comp i x‖ = ‖x‖ :=
     by
     intro x
     erw [norm_to_compl, norm_incl]
@@ -44,7 +40,7 @@ theorem controlled_exactness {M M₁ M₂ : Type _} [SeminormedAddCommGroup M]
     rwa [← NormedAddGroupHom.ker_completion h']
   have :
     ∀ k : g.ker,
-      ∃ m' : completion M₁, hatf m' = (to_compl.comp i) k ∧ «expr∥ ∥» m' ≤ C * «expr∥ ∥» k :=
+      ∃ m' : completion M₁, hatf m' = (to_compl.comp i) k ∧ ‖m'‖ ≤ C * ‖k‖ :=
     by
     rintro ⟨k, k_in⟩
     rcases h k k_in with ⟨m₁, hm₁, hm₁'⟩

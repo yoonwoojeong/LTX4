@@ -15,13 +15,12 @@ open scoped BigOperators NNReal Classical
 open Set
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (s i) -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- `laurent_measures_bdd r S T c` is functions from `S` to the space of Laurent polynomials
   whose coefficients are supported in the `finset` T, and whose `r`-norm is at most `c`.
   Note that this is a finite type.  -/
 structure LaurentMeasuresBdd (r : ℝ≥0) (S : FintypeCat) (T : Finset ℤ) (c : ℝ≥0) where
   toFun : S → T → ℤ
-  bound' : ∑ (s) (i), «expr∥ ∥₊» (to_fun s i) * r ^ (i : ℤ) ≤ c
+  bound' : ∑ (s) (i), ‖to_fun s i‖₊ * r ^ (i : ℤ) ≤ c
 
 namespace LaurentMeasuresBdd
 
@@ -35,35 +34,27 @@ theorem ext (F G : LaurentMeasuresBdd r S T c) : (F : S → T → ℤ) = G → F
   cases G; simpa
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (s i) -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance : NNNorm (LaurentMeasuresBdd r S T c) :=
-  ⟨fun F => ∑ (s) (i), «expr∥ ∥₊» (F s i) * r ^ (i : ℤ)⟩
+  ⟨fun F => ∑ (s) (i), ‖F s i‖₊ * r ^ (i : ℤ)⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (s i) -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
 theorem nnnorm_def (F : LaurentMeasuresBdd r S T c) :
-    «expr∥ ∥₊» F = ∑ (s) (i), «expr∥ ∥₊» (F s i) * r ^ (i : ℤ) :=
+    ‖F‖₊ = ∑ (s) (i), ‖F s i‖₊ * r ^ (i : ℤ) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem bound (F : LaurentMeasuresBdd r S T c) : «expr∥ ∥₊» F ≤ c :=
+theorem bound (F : LaurentMeasuresBdd r S T c) : ‖F‖₊ ≤ c :=
   F.2
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def map (f : S ⟶ S') : LaurentMeasuresBdd r S T c → LaurentMeasuresBdd r S' T c := fun F =>
   { toFun := fun s' k => ∑ s in Finset.univ.filterₓ fun t => f t = s', F s k
     bound' :=
       calc
         ∑ (s : S') (i : T),
-              «expr∥ ∥₊» (∑ s : S.α in Finset.univ.filterₓ fun t : S => f t = s, F s i) *
+              ‖∑ s : S.α in Finset.univ.filterₓ fun t : S => f t = s, F s i‖₊ *
                 r ^ (i : ℤ) ≤
             ∑ (s' : S') (i : T),
-              ∑ s in Finset.univ.filterₓ fun t => f t = s', «expr∥ ∥₊» (F s i) * r ^ (i : ℤ) :=
+              ∑ s in Finset.univ.filterₓ fun t => f t = s', ‖F s i‖₊ * r ^ (i : ℤ) :=
           by
           apply Finset.sum_le_sum
           intro s' hs'
@@ -73,12 +64,12 @@ def map (f : S ⟶ S') : LaurentMeasuresBdd r S T c → LaurentMeasuresBdd r S' 
           exact mul_le_mul' (nnnorm_sum_le _ _) (le_refl _)
         _ =
             ∑ s' : S',
-              ∑ s in Finset.univ.filterₓ fun t => f t = s', ∑ i, «expr∥ ∥₊» (F s i) * r ^ (i : ℤ) :=
+              ∑ s in Finset.univ.filterₓ fun t => f t = s', ∑ i, ‖F s i‖₊ * r ^ (i : ℤ) :=
           by
           apply Finset.sum_congr rfl
           intro s' hs'
           rw [Finset.sum_comm]
-        _ = ∑ s, ∑ i, «expr∥ ∥₊» (F s i) * r ^ (i : ℤ) :=
+        _ = ∑ s, ∑ i, ‖F s i‖₊ * r ^ (i : ℤ) :=
           by
           rw [← Finset.sum_biUnion]
           · apply Finset.sum_congr
@@ -127,27 +118,20 @@ theorem map_comp (f : S ⟶ S') (g : S' ⟶ S'') :
     apply h
     rw [← he.1, ← he.2]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem coeff_bound (F : LaurentMeasuresBdd r S T c) [hr : Fact (0 < r)] (s : S) (i : T) :
-    «expr∥ ∥₊» (F s i) ≤ c * (r ^ (i : ℤ))⁻¹ :=
+    ‖F s i‖₊ ≤ c * (r ^ (i : ℤ))⁻¹ :=
   by
-  suffices «expr∥ ∥₊» (F s i) * r ^ (i : ℤ) ≤ c
+  suffices ‖F s i‖₊ * r ^ (i : ℤ) ≤ c
     by
     convert mul_le_mul' this le_rfl using 1
     have hh : 0 < (r ^ (i : ℤ))⁻¹ := by rw [nnreal.inv_pos]; exact NNReal.zpow_pos hr.out.ne' _
     have hh' : r ^ (i : ℤ) ≠ 0 := zpow_ne_zero _ hr.out.ne'
     field_simp [this]
   calc
-    «expr∥ ∥₊» (F s i) * r ^ (i : ℤ) ≤ ∑ i, «expr∥ ∥₊» (F s i) * r ^ (i : ℤ) :=
-      @Finset.single_le_sum T _ _ (fun i => «expr∥ ∥₊» (F s i) * r ^ (i : ℤ)) _ _ _ _
-    _ ≤ «expr∥ ∥₊» F :=
-      (@Finset.single_le_sum S _ _ (fun s => ∑ i, «expr∥ ∥₊» (F s i) * r ^ (i : ℤ)) _ _ _ _)
+    ‖F s i‖₊ * r ^ (i : ℤ) ≤ ∑ i, ‖F s i‖₊ * r ^ (i : ℤ) :=
+      @Finset.single_le_sum T _ _ (fun i => ‖F s i‖₊ * r ^ (i : ℤ)) _ _ _ _
+    _ ≤ ‖F‖₊ :=
+      (@Finset.single_le_sum S _ _ (fun s => ∑ i, ‖F s i‖₊ * r ^ (i : ℤ)) _ _ _ _)
     _ ≤ c := F.bound
   all_goals
     first

@@ -197,19 +197,15 @@ theorem Nnreal.rpow_int_cast (x : ℝ≥0) (n : ℤ) : x ^ n = x ^ (n : ℝ) := 
 theorem Nnreal.rpow_le_rpow_of_exponent_le {x : ℝ≥0} (x1 : 1 ≤ x) {y z : ℝ} (hyz : y ≤ z) :
     x ^ y ≤ x ^ z := by cases' x with x hx; exact Real.rpow_le_rpow_of_exponent_le x1 hyz
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem Nnreal.tsum_geom_arit_inequality (f : ℤ → ℝ) {r' : ℝ} (hr'1 : 0 < r') (hr'2 : r' ≤ 1)
-    (hs1 : Summable fun n => f n) (hs2 : Summable fun n => «expr∥ ∥₊» (f n) ^ r') :
-    «expr∥ ∥₊» (tsum fun n => f n) ^ r' ≤ tsum fun n => «expr∥ ∥₊» (f n) ^ r' :=
+    (hs1 : Summable fun n => f n) (hs2 : Summable fun n => ‖f n‖₊ ^ r') :
+    ‖tsum fun n => f n‖₊ ^ r' ≤ tsum fun n => ‖f n‖₊ ^ r' :=
   by
   rw [← summable_norm_iff] at hs1 
   simp_rw [← _root_.coe_nnnorm] at hs1 
   rw [NNReal.summable_coe] at hs1 
   refine' le_trans (NNReal.rpow_le_rpow (nnnorm_tsum_le hs1) hr'1.le) _
-  have := fun s : Finset ℤ => NNReal.rpow_sum_le_sum_rpow s (fun i => «expr∥ ∥₊» (f i)) hr'1 hr'2
+  have := fun s : Finset ℤ => NNReal.rpow_sum_le_sum_rpow s (fun i => ‖f i‖₊) hr'1 hr'2
   dsimp only at this 
   have s1' :=
     Filter.Tendsto.comp (Continuous.tendsto (NNReal.continuous_rpow_const hr'1.le) _) hs1.has_sum
@@ -220,11 +216,9 @@ theorem Nnreal.tsum_geom_arit_inequality (f : ℤ → ℝ) {r' : ℝ} (hr'1 : 0 
   ext x
   simp [this]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem aux_bound (F : ℒ S) (s : S) :
     ∀ b : ℤ,
-      «expr∥ ∥₊» (F s b : ℝ) ^ (p : ℝ) * (2⁻¹ ^ (p : ℝ)) ^ (b : ℝ) ≤ «expr∥ ∥₊» (F s b) * r ^ b :=
+      ‖F s b : ℝ‖₊ ^ (p : ℝ) * (2⁻¹ ^ (p : ℝ)) ^ (b : ℝ) ≤ ‖F s b‖₊ * r ^ b :=
   by
   intro b
   rw [NNReal.rpow_int_cast]
@@ -244,9 +238,6 @@ theorem aux_bound (F : ℒ S) (s : S) :
       rw [← Int.norm_eq_abs]
       rwa [← NNReal.coe_lt_coe, ← nnnorm_norm, Real.nnnorm_of_nonneg (norm_nonneg _)] at hf 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem θ_bound : ∀ c : ℝ≥0, ∀ F : ℒ S, F ∈ filtration (ℒ S) c → θ F ∈ filtration (ℳ S) (1 * c) :=
   by
   intro c F hF
@@ -257,8 +248,8 @@ theorem θ_bound : ∀ c : ℝ≥0, ∀ F : ℒ S, F ∈ filtration (ℒ S) c �
   let T := S.2.1
   have ineq :
     ∀ s ∈ T,
-      «expr∥ ∥₊» (∑' n : ℤ, (F s n : ℝ) * 2⁻¹ ^ n) ^ (p : ℝ) ≤
-        ∑' n : ℤ, «expr∥ ∥₊» ((F s n : ℝ) * 2⁻¹ ^ n) ^ (p : ℝ) :=
+      ‖(∑' n : ℤ, (F s n : ℝ) * 2⁻¹ ^ n)‖₊ ^ (p : ℝ) ≤
+        ∑' n : ℤ, ‖((F s n : ℝ) * 2⁻¹ ^ n)‖₊ ^ (p : ℝ) :=
     by
     intro s hs
     apply nnreal.tsum_geom_arit_inequality fun n => F s n * 2⁻¹ ^ n
@@ -282,7 +273,7 @@ theorem θ_bound : ∀ c : ℝ≥0, ∀ F : ℒ S, F ∈ filtration (ℒ S) c �
           refine' le_of_eq (Real.zero_rpow _)
           norm_cast
           exact ne_of_gt (Fact.out _)
-        · nth_rw 2 [(Real.rpow_one («expr∥ ∥» (F s n))).symm]
+        · nth_rw 2 [(Real.rpow_one (‖F s n‖)).symm]
           apply Real.rpow_le_rpow_of_exponent_le
           · rw [Int.norm_eq_abs, le_abs']
             norm_cast
@@ -342,9 +333,8 @@ def sevalℳC (c : ℝ≥0) (s : S) : filtration (ℳ S) c → filtration (ℳ �
 -- everything seems to work
 variable (c : ℝ≥0)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 def Box :=
-  { F : ℳ S // ∀ s, «expr∥ ∥₊» (F s) ^ (p : ℝ) ≤ c }
+  { F : ℳ S // ∀ s, ‖F s‖₊ ^ (p : ℝ) ≤ c }
 
 instance : Coe (box S c) (ℳ S) := by dsimp only [box]; infer_instance
 
@@ -471,13 +461,10 @@ theorem reduction_balls {c : ℝ≥0} (f : X → closedBall (0 : ℝ) c)
   use f ⁻¹' ball (f x) ε
   exact ⟨preimage_mono hε, H (f x) ε, mem_ball_self h₀⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem mem_filtration_le_monomial (F : filtration (ℒ ϖ) c) (n : ℕ) :
-    «expr∥ ∥» (F.1 PUnit.unit n : ℝ) ≤ c * r⁻¹ ^ n :=
+    ‖F.1 PUnit.unit n : ℝ‖ ≤ c * r⁻¹ ^ n :=
   by
-  have h_le : ∑' n : ℤ, «expr∥ ∥» (F.1 PUnit.unit n : ℝ) * r ^ n ≤ c :=
+  have h_le : ∑' n : ℤ, ‖F.1 PUnit.unit n : ℝ‖ * r ^ n ≤ c :=
     by
     have := (LaurentMeasures.mem_filtration_iff F.1 c).mp F.2
     rw [LaurentMeasures.nnnorm_def] at this 
@@ -485,7 +472,7 @@ theorem mem_filtration_le_monomial (F : filtration (ℒ ϖ) c) (n : ℕ) :
       NNReal.coe_mul, NNReal.coe_zpow, LaurentMeasures.coe_nnnorm] at this 
     exact this
   have :=
-    @sum_le_tsum ℝ _ _ _ _ (fun n => «expr∥ ∥» (F.1 PUnit.unit n : ℝ) * r ^ n) {n} _
+    @sum_le_tsum ℝ _ _ _ _ (fun n => ‖F.1 PUnit.unit n : ℝ‖ * r ^ n) {n} _
       (F.1.Summable PUnit.unit)
   simp only [Finset.sum_singleton, zpow_ofNat] at this 
   replace h_le := this.trans h_le
@@ -495,11 +482,9 @@ theorem mem_filtration_le_monomial (F : filtration (ℒ ϖ) c) (n : ℕ) :
     simp only [Subtype.val_eq_coe]
     exact mul_nonneg (norm_nonneg _) (zpow_nonneg (le_of_lt (nnreal.coe_pos.mpr r_pos)) b)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem mem_filtration_sum_le_geom (F : filtration (ℒ ϖ) c) (B : ℕ) :
-    «expr∥ ∥» (∑' n : { x : ℕ // B ≤ x }, (F.1 PUnit.unit n : ℝ) * 2⁻¹ ^ n.1) ≤
-      «expr∥ ∥» ((c : ℝ) * ∑' n : { x : ℕ // B ≤ x }, (2⁻¹ * r⁻¹) ^ n.1) :=
+    ‖(∑' n : { x : ℕ // B ≤ x }, (F.1 PUnit.unit n : ℝ) * 2⁻¹ ^ n.1)‖ ≤
+      ‖((c : ℝ) * ∑' n : { x : ℕ // B ≤ x }, (2⁻¹ * r⁻¹) ^ n.1)‖ :=
   by
   have two_r_nonneg : 0 ≤ (2⁻¹ * r⁻¹ : ℝ) := by
     refine' mul_nonneg (inv_nonneg.2 two_pos.le) (inv_nonneg.2 r.2)
@@ -544,11 +529,10 @@ theorem mem_filtration_sum_le_geom (F : filtration (ℒ ϖ) c) (B : ℕ) :
     intro n hn
     rw [lt_d_eq_zero F.1 PUnit.unit n hn, norm_zero, MulZeroClass.zero_mul]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 def geomBNat (ε : ℝ) (hε : 0 < ε) :
     { B : ℕ //
       ∀ F : filtration (ℒ ϖ) c,
-        «expr∥ ∥» (tsum fun b : { n : ℕ // B ≤ n } => (F.1 PUnit.unit b.1 : ℝ) * 2⁻¹ ^ b.1) <
+        ‖(tsum fun b : { n : ℕ // B ≤ n } => (F.1 PUnit.unit b.1 : ℝ) * 2⁻¹ ^ b.1)‖ <
           ε ^ (p⁻¹ : ℝ) } :=
   by
   let g := fun n : ℕ => (c : ℝ) * (2⁻¹ * r⁻¹) ^ n
@@ -601,11 +585,10 @@ def eqLeIntNat (B : ℕ) : { n : ℤ // (B : ℤ) ≤ n } ≃ { n : ℕ // B ≤
     simp only [coe_coe, Subtype.coe_mk, Int.coe_nat_inj']
     exact (@exists_eq' _ _).choose_spec.symm
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 def geomBInt (ε : ℝ) (hε : 0 < ε) :
     { B : ℤ //
       ∀ F : filtration (ℒ ϖ) c,
-        «expr∥ ∥» (tsum fun b : { n : ℤ // B ≤ n } => (F.1 PUnit.unit b.1 : ℝ) * 2⁻¹ ^ b.1) <
+        ‖(tsum fun b : { n : ℤ // B ≤ n } => (F.1 PUnit.unit b.1 : ℝ) * 2⁻¹ ^ b.1)‖ <
           ε ^ (p⁻¹ : ℝ) } :=
   by
   let ℬ := geom_B_nat p c ε hε
@@ -623,11 +606,9 @@ def geomBInt (ε : ℝ) (hε : 0 < ε) :
 def geomB (ε : ℝ) (hε : 0 < ε) : ℤ :=
   (geom_B_int c ε hε).1
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem tail_B (ε : ℝ) (hε : 0 < ε) :
     ∀ F : filtration (ℒ ϖ) c,
-      «expr∥ ∥»
-          (tsum fun b : { n : ℤ // geom_B c ε hε ≤ n } => (F.1 PUnit.unit b.1 : ℝ) * 2⁻¹ ^ b.1) <
+      ‖(tsum fun b : { n : ℤ // geom_B c ε hε ≤ n } => (F.1 PUnit.unit b.1 : ℝ) * 2⁻¹ ^ b.1)‖ <
         ε ^ (p⁻¹ : ℝ) :=
   by
   intro F
@@ -755,15 +736,12 @@ theorem continuous_of_seval_ℳ_comp_continuous (c : ℝ≥0) {X : Type _} [Topo
     rw [Homeomorph.comp_continuous_iff, (inducing_α p S c).continuous_iff]
   exact H
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem tsum_subtype_sub {f g : ℤ → ℝ} {B : ℤ}
     (hf : Summable fun b : { x // B ≤ x } => f b * 2⁻¹ ^ b.1)
     (hg : Summable fun b : { x // B ≤ x } => g b * 2⁻¹ ^ b.1) :
-    «expr∥ ∥» (tsum ((fun b : ℤ => ((g b : ℝ) - f b) * 2⁻¹ ^ b) ∘ (coe : {b | B ≤ b} → ℤ))) =
-      «expr∥ ∥»
-        (∑' b : { x // B ≤ x }, (g b : ℝ) * 2⁻¹ ^ b.1 -
-          ∑' b : { x // B ≤ x }, (f b : ℝ) * 2⁻¹ ^ b.1) :=
+    ‖(tsum ((fun b : ℤ => ((g b : ℝ) - f b) * 2⁻¹ ^ b) ∘ (coe : {b | B ≤ b} → ℤ)))‖ =
+      ‖(∑' b : { x // B ≤ x }, (g b : ℝ) * 2⁻¹ ^ b.1 -
+          ∑' b : { x // B ≤ x }, (f b : ℝ) * 2⁻¹ ^ b.1)‖ :=
   by
   rw [← tsum_sub hg hf, tsum_eq_tsum_of_hasSum_iff_hasSum]
   intro
@@ -784,10 +762,9 @@ theorem pos_ε_pow (ε : ℝ) (hε : 0 < ε) : 0 < ε / (2 : ℝ) ^ p.1 :=
   apply div_pos hε (Real.rpow_pos_of_pos _ _)
   simp only [zero_lt_bit0, zero_lt_one]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem dist_lt_of_mem_u (ε : ℝ≥0) (hε : 0 < ε) (F G : filtration (ℒ ϖ) c) :
     G ∈ U c F (geom_B c (ε / (2 : ℝ) ^ p.1) (pos_ε_pow ε hε)) →
-      «expr∥ ∥» ((θ_c c ϖ G : ℳ ϖ) - (θ_c c ϖ) F) < ε :=
+      ‖((θ_c c ϖ G : ℳ ϖ) - (θ_c c ϖ) F)‖ < ε :=
   by
   intro h_mem_G
   rw [RealMeasures.norm_def]
@@ -871,7 +848,6 @@ def ξ (F : filtration (ℒ ϖ) c) : ℝ :=
 def hξ (F : filtration (ℒ ϖ) c) : ξ F = (homeoFiltrationϖBall c) (θ_c c (FintypeCat.of PUnit) F) :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem speed_aux' (ε η : ℝ) (η₀ : ℝ≥0) (hη₀ : η = η₀) (y : closedBall (0 : ℝ) (c ^ (p : ℝ)⁻¹))
     (F G : filtration (ℒ (FintypeCat.of PUnit)) c)
     (hF : |((homeoFiltrationϖBall c) (θ_c c (FintypeCat.of PUnit) F) : ℝ) - y| < ε)
@@ -879,7 +855,7 @@ theorem speed_aux' (ε η : ℝ) (η₀ : ℝ≥0) (hη₀ : η = η₀) (y : cl
     (h_pos : 0 < (η / 2) ^ (p : ℝ)) (hp : 0 < (p : ℝ)) (η_pos' : 0 < η)
     (h_η_η₀ : (η / 2) ^ (p : ℝ) = ↑η₀ ^ (p : ℝ) / 2 ^ p.val) (h_pos'')
     (hG : G ∈ U c F (geom_B c (↑η₀ ^ (p : ℝ) / 2 ^ p.val) h_pos'')) :
-    «expr∥ ∥» ((θ_c c (FintypeCat.of PUnit) G).val - (θ_c c (FintypeCat.of PUnit) F).val) <
+    ‖((θ_c c (FintypeCat.of PUnit) G).val - (θ_c c (FintypeCat.of PUnit) F).val)‖ <
       η ^ (p : ℝ) :=
   by
   have foo : 0 < η₀ ^ (p : ℝ) := by apply Real.rpow_pos_of_pos; rw [← hη₀]; exact η_pos'

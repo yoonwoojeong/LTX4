@@ -66,8 +66,7 @@ protected theorem coeff_zero (x : Lbar r' S) (s : S) : x s 0 = 0 :=
 protected theorem summable (x : Lbar r' S) (s : S) : Summable fun n => ↑(x s n).natAbs * r' ^ n :=
   x.summable' s
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem summable_coe_real (x : Lbar r' S) (s : S) : Summable fun n => «expr∥ ∥» (x s n) * r' ^ n :=
+theorem summable_coe_real (x : Lbar r' S) (s : S) : Summable fun n => ‖x s n‖ * r' ^ n :=
   by
   simpa only [← NNReal.summable_coe, NNReal.coe_nat_cast, NNReal.coe_natAbs, NNReal.coe_mul,
     NNReal.coe_pow] using x.summable s
@@ -249,27 +248,20 @@ protected def nnnorm (F : Lbar r' S) : ℝ≥0 :=
 instance : NNNorm (Lbar r' S) :=
   ⟨Lbar.nnnorm⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_def (F : Lbar r' S) : «expr∥ ∥₊» F = ∑ s, ∑' n, ↑(F s n).natAbs * r' ^ n :=
+theorem nnnorm_def (F : Lbar r' S) : ‖F‖₊ = ∑ s, ∑' n, ↑(F s n).natAbs * r' ^ n :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_zero : «expr∥ ∥₊» (0 : Lbar r' S) = 0 := by
+theorem nnnorm_zero : ‖0 : Lbar r' S‖₊ = 0 := by
   simp only [nnnorm_def, Lbar.coe_zero, tsum_zero, Nat.cast_zero, MulZeroClass.zero_mul,
     Pi.zero_apply, zero_le', Finset.sum_const_zero, Int.natAbs_zero]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_neg (F : Lbar r' S) : «expr∥ ∥₊» (-F) = «expr∥ ∥₊» F := by
+theorem nnnorm_neg (F : Lbar r' S) : ‖-F‖₊ = ‖F‖₊ := by
   simp only [nnnorm_def, Lbar.coe_neg, Pi.neg_apply, Int.natAbs_neg, Int.natAbs, coe_neg,
     Set.mem_setOf_eq]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_add_le (F₁ F₂ : Lbar r' S) : «expr∥ ∥₊» (F₁ + F₂) ≤ «expr∥ ∥₊» F₁ + «expr∥ ∥₊» F₂ :=
+theorem nnnorm_add_le (F₁ F₂ : Lbar r' S) : ‖F₁ + F₂‖₊ ≤ ‖F₁‖₊ + ‖F₂‖₊ :=
   by
   simp only [nnnorm_def, ← Finset.sum_add_distrib]
   refine' Finset.sum_le_sum _
@@ -283,10 +275,8 @@ theorem nnnorm_add_le (F₁ F₂ : Lbar r' S) : «expr∥ ∥₊» (F₁ + F₂)
   rw [Nat.cast_le]
   exact Int.natAbs_add_le _ _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem nnnorm_sum_le {ι : Type _} (s : Finset ι) (F : ι → Lbar r' S) :
-    «expr∥ ∥₊» (∑ i in s, F i) ≤ ∑ i in s, «expr∥ ∥₊» (F i) := by
+    ‖∑ i in s, F i‖₊ ≤ ∑ i in s, ‖F i‖₊ := by
   classical
   apply Finset.induction_on s <;> clear s
   · simp only [Finset.sum_empty, nnnorm_zero]
@@ -294,18 +284,16 @@ theorem nnnorm_sum_le {ι : Type _} (s : Finset ι) (F : ι → Lbar r' S) :
   simp only [Finset.sum_insert his]
   exact (nnnorm_add_le _ _).trans (add_le_add le_rfl IH)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance pseudoNormedGroup : PseudoNormedGroup (Lbar r' S)
     where
-  filtration c := {F | «expr∥ ∥₊» F ≤ c}
+  filtration c := {F | ‖F‖₊ ≤ c}
   filtration_mono c₁ c₂ h F hF := le_trans hF h
   zero_mem_filtration c := by dsimp; rw [nnnorm_zero]; apply zero_le'
   neg_mem_filtration c F hF := by dsimp; rwa [nnnorm_neg]
   add_mem_filtration c₁ c₂ F₁ F₂ hF₁ hF₂ := le_trans (nnnorm_add_le _ _) (add_le_add hF₁ hF₂)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem mem_filtration_iff (x : Lbar r' S) (c : ℝ≥0) :
-    x ∈ PseudoNormedGroup.filtration (Lbar r' S) c ↔ «expr∥ ∥₊» x ≤ c :=
+    x ∈ PseudoNormedGroup.filtration (Lbar r' S) c ↔ ‖x‖₊ ≤ c :=
   Iff.rfl
 
 /-- The coercion from `Lbar r' S` to functions `S → ℕ → ℤ`.
@@ -327,11 +315,8 @@ theorem coe_zsmul (n : ℤ) (F : Lbar r' S) : ⇑(n • F) = n • F :=
 theorem coe_nsmul (n : ℕ) (F : Lbar r' S) : ⇑(n • F) = n • F :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_zsmul (N : ℤ) (F : Lbar r' S) : «expr∥ ∥₊» (N • F) = «expr∥ ∥₊» N * «expr∥ ∥₊» F :=
+theorem nnnorm_zsmul (N : ℤ) (F : Lbar r' S) : ‖N • F‖₊ = ‖N‖₊ * ‖F‖₊ :=
   by
   simp only [nnnorm_def, Finset.mul_sum]
   apply Fintype.sum_congr
@@ -340,9 +325,7 @@ theorem nnnorm_zsmul (N : ℤ) (F : Lbar r' S) : «expr∥ ∥₊» (N • F) = 
   simp only [NNReal.coe_mul, NNReal.coe_tsum, ← tsum_mul_left, ← mul_assoc, NNReal.coe_natAbs,
     coe_nnnorm, coe_zsmul, Pi.smul_apply, Int.norm_eq_abs, ← abs_mul, ← Int.cast_mul, smul_eq_mul]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_nsmul (x : Lbar r' S) (N : ℕ) : «expr∥ ∥₊» (N • x) = N • «expr∥ ∥₊» x := by
+theorem nnnorm_nsmul (x : Lbar r' S) (N : ℕ) : ‖N • x‖₊ = N • ‖x‖₊ := by
   rw [← coe_nat_zsmul, nnnorm_zsmul, nsmul_eq_mul, ← NNReal.coe_natAbs]; rfl
 
 section Tinv
@@ -536,10 +519,8 @@ theorem map_comp (F : Lbar r' S) {U : Type _} [Fintype U] (g : T → U) :
     refine' h _
     rw [← hs.1, ← hs.2]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_map_le_of_nnnorm_le {c : ℝ≥0} (F : Lbar r' S) (hF : «expr∥ ∥₊» F ≤ c) :
-    «expr∥ ∥₊» (F.map f) ≤ c := by
+theorem nnnorm_map_le_of_nnnorm_le {c : ℝ≥0} (F : Lbar r' S) (hF : ‖F‖₊ ≤ c) :
+    ‖F.map f‖₊ ≤ c := by
   simp [Lbar.nnnorm_def] at *
   rw [← tsum_sum] at hF ⊢
   · refine' le_trans (tsum_le_tsum _ _ _) hF

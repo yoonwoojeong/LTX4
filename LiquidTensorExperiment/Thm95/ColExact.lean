@@ -1149,12 +1149,10 @@ end ColComplexRescaled
 
 variable [Fact (0 < r)] [Fact (0 < r')] [Fact (r' < 1)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem col_exact'_aux1 [NormedWithAut r V] (c : ℝ≥0ᵒᵖ) (i : ℕ) :
     ∀ x,
-      «expr∥ ∥» ((((colComplexRescaled.tInvSubTinv' r r' V Λ M N (BD.pt n) (κ n)).app c).f i) x) ≤
-        (1 + r⁻¹) * «expr∥ ∥» x :=
+      ‖((((colComplexRescaled.tInvSubTinv' r r' V Λ M N (BD.pt n) (κ n)).app c).f i) x)‖ ≤
+        (1 + r⁻¹) * ‖x‖ :=
   by
   intro x
   cases i <;>
@@ -1164,13 +1162,11 @@ theorem col_exact'_aux1 [NormedWithAut r V] (c : ℝ≥0ᵒᵖ) (i : ℕ) :
 
 variable [Fact (r < r')]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem col_exact'_aux2 [NormedWithAut r V] (c : ℝ≥0ᵒᵖ) (i : ℕ) :
     ∀ y,
       ∃ x,
         (((colComplexRescaled.tInvSubTinv' r r' V Λ M N (BD.pt n) (κ n)).app c).f i) x = y ∧
-          «expr∥ ∥» x ≤ ↑(r / (1 - r) + 1) * «expr∥ ∥» y :=
+          ‖x‖ ≤ ↑(r / (1 - r) + 1) * ‖y‖ :=
   by
   haveI : Fact (r < 1) := ⟨@lt_trans _ _ r r' 1 (Fact.out _) (Fact.out _)⟩
   cases i <;>

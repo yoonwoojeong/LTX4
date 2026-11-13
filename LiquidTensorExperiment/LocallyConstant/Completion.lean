@@ -29,9 +29,8 @@ attribute [local instance] LocallyConstant.seminormedAddCommGroup LocallyConstan
 
 open UniformSpace
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem ContinuousMap.bddAbove_range_norm (f : C(S, V')) :
-    BddAbove (Set.range fun s : ↥S => «expr∥ ∥» (f s)) :=
+    BddAbove (Set.range fun s : ↥S => ‖f s‖) :=
   (isCompact_range <| continuous_norm.comp f.Continuous).BddAbove
 
 def Condensed.ofTopAbMapNormedGroupHom {S T : Profinite.{u}ᵒᵖ} (f : S ⟶ T) :

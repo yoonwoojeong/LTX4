@@ -14,8 +14,6 @@ import LiquidTensorExperiment.ForMathlib.NnrealIntBinary
 -- basic binary expansion for nnreal.
 open scoped NNReal
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-
 
 # Two auxiliary lemmas.
@@ -96,11 +94,10 @@ summability results are in `thm69` so it's simply a case of
 refactoring all of them.
 
 -/
-theorem Real.nnnorm_int (n : ℤ) : «expr∥ ∥₊» (n : ℝ) = «expr∥ ∥₊» n :=
+theorem Real.nnnorm_int (n : ℤ) : ‖n : ℝ‖₊ = ‖n‖₊ :=
   Subtype.ext <| by simp [coe_nnnorm, Real.norm_eq_abs, Int.norm_eq_abs]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem Real.neg_nnnorm_of_neg {r : ℝ} (hr : r < 0) : -(«expr∥ ∥₊» r : ℝ) = r := by
+theorem Real.neg_nnnorm_of_neg {r : ℝ} (hr : r < 0) : -(‖r‖₊ : ℝ) = r := by
   rw [coe_nnnorm, neg_eq_iff_neg_eq, Real.norm_eq_abs, abs_of_neg hr]
 
 namespace PsiAuxLemma
@@ -112,24 +109,17 @@ namespace PsiAuxLemma
 -/
 open scoped ENNReal
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- line 7 ≤ line 10
 theorem step7 {f : ℤ → ℝ} {d : ℤ} {r : ℝ≥0} (hr2 : 2⁻¹ < r)
-    (hconv : Summable fun n : ℤ => «expr∥ ∥₊» (f n) * r ^ n) :-- do I use hconv??
+    (hconv : Summable fun n : ℤ => ‖f n‖₊ * r ^ n) :-- do I use hconv??
       ∑' b : ℕ,
-        (∑' i : ℕ, («expr∥ ∥₊» (f (d + ↑b + ↑i)) : ℝ≥0∞) * r ^ (d + b + i)) * (2 * r)⁻¹ ^ b ≤
-      2 * (↑(2 - r⁻¹)⁻¹ * ∑' a : ℤ, «expr∥ ∥₊» (f a) * r ^ a) :=
+        (∑' i : ℕ, (‖(f (d + ↑b + ↑i))‖₊ : ℝ≥0∞) * r ^ (d + b + i)) * (2 * r)⁻¹ ^ b ≤
+      2 * (↑(2 - r⁻¹)⁻¹ * ∑' a : ℤ, ‖f a‖₊ * r ^ a) :=
   by
   have bound :
     ∀ z : ℤ,
-      ∑' i : ℕ, («expr∥ ∥₊» (f (z + ↑i)) : ℝ≥0∞) * r ^ (z + ↑i) ≤
-        ∑' a : ℤ, «expr∥ ∥₊» (f a) * r ^ a :=
+      ∑' i : ℕ, (‖(f (z + ↑i))‖₊ : ℝ≥0∞) * r ^ (z + ↑i) ≤
+        ∑' a : ℤ, ‖f a‖₊ * r ^ a :=
     by
     intro z
     refine' tsum_le_tsum_of_inj (fun i => z + i) _ _ _ ENNReal.summable ENNReal.summable
@@ -137,8 +127,8 @@ theorem step7 {f : ℤ → ℝ} {d : ℤ} {r : ℝ≥0} (hr2 : 2⁻¹ < r)
     · intros; exact ENNReal.zero_le'
     · intros; apply le_refl _
   suffices
-    ∑' b : ℕ, (∑' a : ℤ, («expr∥ ∥₊» (f a) : ℝ≥0∞) * r ^ a) * (2 * ↑r)⁻¹ ^ b =
-      2 * (↑(2 - r⁻¹)⁻¹ * ∑' a : ℤ, ↑(«expr∥ ∥₊» (f a)) * ↑r ^ a)
+    ∑' b : ℕ, (∑' a : ℤ, (‖f a‖₊ : ℝ≥0∞) * r ^ a) * (2 * ↑r)⁻¹ ^ b =
+      2 * (↑(2 - r⁻¹)⁻¹ * ∑' a : ℤ, ↑(‖f a‖₊) * ↑r ^ a)
     by
     rw [← this]
     apply ENNReal.tsum_le_tsum
@@ -164,19 +154,12 @@ theorem step7 {f : ℤ → ℝ} {d : ℤ} {r : ℝ≥0} (hr2 : 2⁻¹ < r)
     · left; norm_num
   · intros; norm_num
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (i j) -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- line 5 ≤ line 10
 theorem step6 {f : ℤ → ℝ} {d : ℤ} {r : ℝ≥0} (hr2 : 2⁻¹ < r) (hdf : ∀ n, n < d → f n = 0)
-    (hconv : Summable fun n : ℤ => «expr∥ ∥₊» (f n) * r ^ n) :
-    (2⁻¹ : ℝ≥0∞) * ∑' (i : ℕ) (j : ℕ), ↑(«expr∥ ∥₊» (f (d + ↑i + ↑j) * 2⁻¹ ^ j)) * ↑(r ^ (d + ↑i)) ≤
-      ↑(2 - r⁻¹)⁻¹ * ∑' a : ℤ, ↑(«expr∥ ∥₊» (f a) * r ^ a) :=
+    (hconv : Summable fun n : ℤ => ‖f n‖₊ * r ^ n) :
+    (2⁻¹ : ℝ≥0∞) * ∑' (i : ℕ) (j : ℕ), ↑(‖(f (d + ↑i + ↑j) * 2⁻¹ ^ j)‖₊) * ↑(r ^ (d + ↑i)) ≤
+      ↑(2 - r⁻¹)⁻¹ * ∑' a : ℤ, ↑(‖f a‖₊ * r ^ a) :=
   by
   rw [ENNReal.tsum_comm]
   -- woohoo, I just interchanged the sums
@@ -195,16 +178,16 @@ theorem step6 {f : ℤ → ℝ} {d : ℤ} {r : ℝ≥0} (hr2 : 2⁻¹ < r) (hdf 
   rw [ENNReal.inv_hMul_le_iff h2ne0 h2netop]
   have :
     ∀ a b : ℕ,
-      («expr∥ ∥₊» (f (d + ↑a + ↑b)) : ℝ≥0∞) * 2⁻¹ ^ b * ↑r ^ (d + ↑a) =
-        «expr∥ ∥₊» (f (d + ↑a + ↑b)) * r ^ (d + a + b) * (2 * r)⁻¹ ^ b :=
+      (‖(f (d + ↑a + ↑b))‖₊ : ℝ≥0∞) * 2⁻¹ ^ b * ↑r ^ (d + ↑a) =
+        ‖(f (d + ↑a + ↑b))‖₊ * r ^ (d + a + b) * (2 * r)⁻¹ ^ b :=
     by
     intro a b
     rw [ENNReal.mul_inv (Or.inl h2ne0) (Or.inl h2netop), mul_pow, ← zpow_ofNat (↑r)⁻¹]
     rw [ENNReal.zpow_add hrne0 hrnetop _ b]
     have :
-      («expr∥ ∥₊» (f (d + ↑a + ↑b)) : ℝ≥0∞) * (↑r ^ (d + ↑a) * ↑r ^ (b : ℤ)) *
+      (‖(f (d + ↑a + ↑b))‖₊ : ℝ≥0∞) * (↑r ^ (d + ↑a) * ↑r ^ (b : ℤ)) *
           (2⁻¹ ^ b * (↑r)⁻¹ ^ (b : ℤ)) =
-        ↑(«expr∥ ∥₊» (f (d + ↑a + ↑b))) * 2⁻¹ ^ b * ↑r ^ (d + ↑a) * (r ^ (b : ℤ) * r⁻¹ ^ (b : ℤ)) :=
+        ↑(‖(f (d + ↑a + ↑b))‖₊) * 2⁻¹ ^ b * ↑r ^ (d + ↑a) * (r ^ (b : ℤ) * r⁻¹ ^ (b : ℤ)) :=
       by ring
     rw [this]
     convert (mul_one _).symm
@@ -216,12 +199,9 @@ theorem step6 {f : ℤ → ℝ} {d : ℤ} {r : ℝ≥0} (hr2 : 2⁻¹ < r) (hdf 
   simp_rw [this, ENNReal.tsum_mul_right, add_right_comm]
   exact step7 hr2 hconv
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- auxiliary convergence lemma
 theorem step5 {f : ℤ → ℝ} {d : ℤ} {r : ℝ≥0} (hr2 : 2⁻¹ < r) (hdf : ∀ n, n < d → f n = 0)
-    (hconv : Summable fun n : ℤ => «expr∥ ∥₊» (f n) * r ^ n) :
+    (hconv : Summable fun n : ℤ => ‖f n‖₊ * r ^ n) :
     Summable fun x : ℤ => f x * 2⁻¹ ^ x :=
   by
   rw [← summable_subtype_and_compl]
@@ -245,7 +225,7 @@ theorem step5 {f : ℤ → ℝ} {d : ℤ} {r : ℝ≥0} (hr2 : 2⁻¹ < r) (hdf 
     rintro ⟨b, hb : ¬b < 0⟩
     push_neg at hb 
     rw [nnnorm_mul]
-    suffices «expr∥ ∥₊» (f b) * (2 ^ b)⁻¹ ≤ «expr∥ ∥₊» (f b) * r ^ b by simpa
+    suffices ‖f b‖₊ * (2 ^ b)⁻¹ ≤ ‖f b‖₊ * r ^ b by simpa
     apply NNReal.hMul_le_hMul_left
     rw [← inv_zpow]
     apply NNReal.zpow_le_zpow' hb hr2.le
@@ -256,10 +236,9 @@ example (r : ℝ≥0) (n : ℕ) : r ^ (n : ℤ) = r ^ n :=
 noncomputable instance xxx : DivInvMonoid ℝ≥0 :=
   inferInstance
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- second line is third line
 theorem step4 {f : ℤ → ℝ} {n d : ℤ} {r : ℝ≥0} (hr1 : r < 1) (hr2 : 2⁻¹ < r)
-    (hdf : ∀ n, n < d → f n = 0) (hconv : Summable fun n : ℤ => «expr∥ ∥₊» (f n) * r ^ n)
+    (hdf : ∀ n, n < d → f n = 0) (hconv : Summable fun n : ℤ => ‖f n‖₊ * r ^ n)
     (hzero : ∑' n, f n * 2⁻¹ ^ n = 0) :
     ∑' l : ℕ, f (n - 1 - ↑l) * 2 ^ l = 2⁻¹ * -∑' m : ℕ, f (n + m) * 2⁻¹ ^ m :=
   by
@@ -308,27 +287,20 @@ theorem step4 {f : ℤ → ℝ} {n d : ℤ} {r : ℝ≥0} (hr1 : r < 1) (hr2 : 2
       rw [show n - 1 - b = n - (b + 1) by ring]
       rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- second line ≤ last line
 theorem step3 {f : ℤ → ℝ} {r : ℝ≥0} (hr1 : r < 1) (hr2 : 2⁻¹ < r) {d : ℤ}
-    (hdf : ∀ n, n < d → f n = 0) (hconv : Summable fun n : ℤ => «expr∥ ∥₊» (f n) * r ^ n)
+    (hdf : ∀ n, n < d → f n = 0) (hconv : Summable fun n : ℤ => ‖f n‖₊ * r ^ n)
     (hzero : ∑' n, f n * 2⁻¹ ^ n = 0) :
     ∑' n : ℤ,
-        ((«expr∥ ∥₊» (ite (d ≤ n) (∑' l : ℕ, f (n - 1 - ↑l) * 2 ^ l) 0) * r ^ n : ℝ≥0) : ℝ≥0∞) ≤
-      ((2 - r⁻¹)⁻¹ * ∑' n : ℤ, «expr∥ ∥₊» (f n) * r ^ n : ℝ≥0) :=
+        ((‖(ite (d ≤ n) (∑' l : ℕ, f (n - 1 - ↑l) * 2 ^ l) 0)‖₊ * r ^ n : ℝ≥0) : ℝ≥0∞) ≤
+      ((2 - r⁻¹)⁻¹ * ∑' n : ℤ, ‖f n‖₊ * r ^ n : ℝ≥0) :=
   by
   simp_rw [step4 hr1 hr2 hdf hconv hzero]
   -- n - d = m
   rw [tsum_eq_tsum_of_ne_zero_bij
       fun m :
         Function.support fun m : ℕ =>
-          ((«expr∥ ∥₊» ((2⁻¹ : ℝ) * -∑' l : ℕ, f (d + m + ↑l) * 2⁻¹ ^ l) * r ^ (d + m) : ℝ≥0) :
+          ((‖((2⁻¹ : ℝ) * -∑' l : ℕ, f (d + m + ↑l) * 2⁻¹ ^ l)‖₊ * r ^ (d + m) : ℝ≥0) :
             ℝ≥0∞) =>
       d + m.1]
   · dsimp only
@@ -347,9 +319,9 @@ theorem step3 {f : ℤ → ℝ} {r : ℝ≥0} (hr1 : r < 1) (hr2 : 2⁻¹ < r) {
           (show Function.Injective fun x : ℕ => t + x by intro x y hxy; simpa using hxy)
     suffices
       ∑' m : ℕ,
-          (2⁻¹ : ℝ≥0∞) * ↑(∑' l : ℕ, «expr∥ ∥₊» (f (d + ↑m + ↑l) * 2⁻¹ ^ l) : ℝ≥0) *
+          (2⁻¹ : ℝ≥0∞) * ↑(∑' l : ℕ, ‖(f (d + ↑m + ↑l) * 2⁻¹ ^ l)‖₊ : ℝ≥0) *
             ↑(r ^ (d + ↑m)) ≤
-        ↑(2 - r⁻¹)⁻¹ * ↑(∑' n : ℤ, «expr∥ ∥₊» (f n) * r ^ n)
+        ↑(2 - r⁻¹)⁻¹ * ↑(∑' n : ℤ, ‖f n‖₊ * r ^ n)
       by
       refine' le_trans _ this
       apply ENNReal.tsum_le_tsum
@@ -365,7 +337,7 @@ theorem step3 {f : ℤ → ℝ} {r : ℝ≥0} (hr1 : r < 1) (hr2 : 2⁻¹ < r) {
       congr
       ext
       rw [ENNReal.coe_tsum
-          (show Summable fun l : ℕ => «expr∥ ∥₊» (f (d + m + ↑l) * 2⁻¹ ^ l)
+          (show Summable fun l : ℕ => ‖(f (d + m + ↑l) * 2⁻¹ ^ l)‖₊
             by
             rw [← NNReal.summable_iff_summable_nnnorm]
             apply summable_half)]
@@ -411,31 +383,24 @@ theorem step2 {f : ℤ → ℝ} {n d : ℤ} (hn : d ≤ n) (hdf : ∀ n, n < d �
   suffices (b : ℤ) ≤ ((n - d).natAbs : ℤ) by assumption_mod_cast
   rw [← Int.eq_natAbs_of_zero_le] <;> linarith
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- coerce to ℝ≥0∞
 theorem step1 {f : ℤ → ℝ} {r : ℝ≥0} (hr1 : r < 1) (hr2 : 2⁻¹ < r) {d : ℤ}
-    (hdf : ∀ n, n < d → f n = 0) (hconv : Summable fun n : ℤ => «expr∥ ∥₊» (f n) * r ^ n)
+    (hdf : ∀ n, n < d → f n = 0) (hconv : Summable fun n : ℤ => ‖f n‖₊ * r ^ n)
     (hzero : ∑' n, f n * 2⁻¹ ^ n = 0) :
     ∑' n : ℤ,
-        ((«expr∥ ∥₊»
-                (ite (d ≤ n)
-                  ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0) *
+        ((‖(ite (d ≤ n)
+                  ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0)‖₊ *
               r ^ n :
             ℝ≥0) :
           ℝ≥0∞) ≤
-      ((2 - r⁻¹)⁻¹ * ∑' n : ℤ, «expr∥ ∥₊» (f n) * r ^ n : ℝ≥0) :=
+      ((2 - r⁻¹)⁻¹ * ∑' n : ℤ, ‖f n‖₊ * r ^ n : ℝ≥0) :=
   by
   have :
     ∀ n,
-      «expr∥ ∥₊»
-            (ite (d ≤ n)
-              ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0) *
+      ‖(ite (d ≤ n)
+              ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0)‖₊ *
           r ^ n =
-        «expr∥ ∥₊» (ite (d ≤ n) (∑' l : ℕ, f (n - 1 - l) * 2 ^ l) 0) * r ^ n :=
+        ‖(ite (d ≤ n) (∑' l : ℕ, f (n - 1 - l) * 2 ^ l) 0)‖₊ * r ^ n :=
     by
     intro n
     congr 2
@@ -445,28 +410,21 @@ theorem step1 {f : ℤ → ℝ} {r : ℝ≥0} (hr1 : r < 1) (hr2 : 2⁻¹ < r) {
   simp_rw [this]
   apply step3 hr1 hr2 hdf hconv hzero
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- first line ≤ last line
 theorem key_tsum_lemma (f : ℤ → ℝ) (r : ℝ≥0) (hr1 : r < 1) (hr2 : 2⁻¹ < r) (d : ℤ)
-    (hdf : ∀ n, n < d → f n = 0) (hconv : Summable fun n : ℤ => «expr∥ ∥₊» (f n) * r ^ n)
+    (hdf : ∀ n, n < d → f n = 0) (hconv : Summable fun n : ℤ => ‖f n‖₊ * r ^ n)
     (hzero : ∑' n, f n * 2⁻¹ ^ n = 0) :
     ∑' n : ℤ,
-        «expr∥ ∥₊»
-            (ite (d ≤ n)
-              ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0) *
+        ‖(ite (d ≤ n)
+              ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0)‖₊ *
           r ^ n ≤
-      (2 - r⁻¹)⁻¹ * ∑' n, «expr∥ ∥₊» (f n) * r ^ n :=
+      (2 - r⁻¹)⁻¹ * ∑' n, ‖f n‖₊ * r ^ n :=
   by
   have := step1 hr1 hr2 hdf hconv hzero
   have this2 :
     ∑' n : ℤ,
-        ((«expr∥ ∥₊»
-                (ite (d ≤ n)
-                  ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0) *
+        ((‖(ite (d ≤ n)
+                  ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0)‖₊ *
               r ^ n :
             ℝ≥0) :
           ℝ≥0∞) <
@@ -476,9 +434,8 @@ theorem key_tsum_lemma (f : ℤ → ℝ) (r : ℝ≥0) (hr1 : r < 1) (hr2 : 2⁻
     exact ENNReal.coe_lt_top
   have this3 :
     Summable fun n =>
-      («expr∥ ∥₊»
-            (ite (d ≤ n)
-              ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0) *
+      (‖(ite (d ≤ n)
+              ((Finset.range (n - d).natAbs.succ).Sum fun l : ℕ => f (n - 1 - ↑l) * 2 ^ l) 0)‖₊ *
           r ^ n :
         ℝ≥0) :=
     ennreal.tsum_coe_ne_top_iff_summable.mp this2.ne

@@ -22,8 +22,6 @@ open CategoryTheory
 
 open CategoryTheory.Limits
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem polyhedral_exhaustive (M : Type _) [PseudoNormedGroup M]
     (e : ∀ x : M, ∃ c, x ∈ PseudoNormedGroup.filtration M c) (x : Λ →+ M) :
     ∃ c : ℝ≥0, x ∈ PseudoNormedGroup.filtration (Λ →+ M) c :=
@@ -31,9 +29,9 @@ theorem polyhedral_exhaustive (M : Type _) [PseudoNormedGroup M]
   obtain ⟨ι, hι, l, hl, h⟩ := PolyhedralLattice.polyhedral Λ
   skip
   let cs : ι → ℝ≥0 := fun i => (e (x (l i))).some
-  let c := finset.univ.sup fun i => cs i / «expr∥ ∥₊» (l i)
+  let c := finset.univ.sup fun i => cs i / ‖l i‖₊
   -- This should be easy, using the fact that (l i) ≠ 0.
-  have hc : ∀ i, cs i ≤ c * «expr∥ ∥₊» (l i) :=
+  have hc : ∀ i, cs i ≤ c * ‖l i‖₊ :=
     by
     intro i; rw [← mul_inv_le_iff₀]
     · exact Finset.le_sup (Finset.mem_univ i)
@@ -44,7 +42,6 @@ theorem polyhedral_exhaustive (M : Type _) [PseudoNormedGroup M]
   apply PseudoNormedGroup.filtration_mono (hc i)
   apply (e (x (l i))).choose_spec
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simps]
 def polyhedralPostcompose {M N : ProFiltPseuNormGrpWithTinv₁ r} (f : M ⟶ N) :
     ComphausFilteredPseudoNormedGroupWithTinvHom r (Λ →+ M) (Λ →+ N)
@@ -65,7 +62,7 @@ def polyhedralPostcompose {M N : ProFiltPseuNormGrpWithTinv₁ r} (f : M ⟶ N) 
     intro l
     simp only
     have aux1 := PolyhedralLattice.AddMonoidHom.incl_continuous Λ r M c
-    have aux2 := f.level_continuous (c * «expr∥ ∥₊» l)
+    have aux2 := f.level_continuous (c * ‖l‖₊)
     exact (aux2.comp (continuous_apply l)).comp aux1
   map_Tinv' x := by ext l; dsimp; erw [f.map_Tinv]; rfl
 
@@ -134,7 +131,6 @@ abbrev homFunctor'ConeIsoHomToFunAuxToFunAuxValAux (Λ : Type u) {J : Type u} [P
       dsimp at this ⊢
       rw [← this]; rfl }
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 abbrev homFunctor'ConeIsoHomToFunAuxToFunAux (Λ : Type u) {J : Type u} [PolyhedralLattice Λ]
     [SmallCategory J] (K : J ⥤ PseuNormGrp₁)
     (f : ↥(boundedConePoint (Ab.limitCone' ((K ⋙ homFunctor' Λ) ⋙ toAb)))) :
@@ -142,7 +138,7 @@ abbrev homFunctor'ConeIsoHomToFunAuxToFunAux (Λ : Type u) {J : Type u} [Polyhed
   { val := homFunctor'ConeIsoHomToFunAuxToFunAuxValAux Λ _ f q
     property := by
       obtain ⟨c, hc⟩ := f.2
-      use c * «expr∥ ∥₊» q
+      use c * ‖q‖₊
       intro j
       apply hc
       simp }

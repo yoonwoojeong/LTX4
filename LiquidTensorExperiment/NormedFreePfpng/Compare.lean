@@ -11,14 +11,11 @@ variable (p : ℝ≥0) (S : FintypeCat)
 
 variable [Fact (0 < p)] [Fact (p ≤ 1)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_int_rpow_le (n : ℤ) : «expr∥ ∥₊» n ^ (p : ℝ) ≤ «expr∥ ∥₊» n :=
+theorem nnnorm_int_rpow_le (n : ℤ) : ‖n‖₊ ^ (p : ℝ) ≤ ‖n‖₊ :=
   by
   have h0p : 0 < p := Fact.out _
   have hp1 : p ≤ 1 := Fact.out _
-  rcases eq_or_ne («expr∥ ∥₊» n) 0 with (h | h)
+  rcases eq_or_ne (‖n‖₊) 0 with (h | h)
   · simp only [h, le_zero_iff, NNReal.rpow_eq_zero_iff, eq_self_iff_true, Ne.def,
       NNReal.coe_eq_zero, true_and_iff]
     exact h0p.ne'

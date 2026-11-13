@@ -27,13 +27,10 @@ open TopologicalSpace
 
 attribute [local instance] LocallyConstant.seminormedAddCommGroup LocallyConstant.pseudoMetricSpace
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem Real.pow_nnnorm_sum_le {ι : Type _} (S : Finset ι) (r : ι → ℝ) (p : ℝ≥0) [Fact (0 < p)]
-    [Fact (p ≤ 1)] : «expr∥ ∥₊» (∑ i in S, r i) ^ (p : ℝ) ≤ ∑ i in S, «expr∥ ∥₊» (r i) ^ (p : ℝ) :=
+    [Fact (p ≤ 1)] : ‖∑ i in S, r i‖₊ ^ (p : ℝ) ≤ ∑ i in S, ‖r i‖₊ ^ (p : ℝ) :=
   by
-  refine' Finset.le_sum_of_subadditive (fun x : ℝ => «expr∥ ∥₊» x ^ (p : ℝ)) _ _ S r
+  refine' Finset.le_sum_of_subadditive (fun x : ℝ => ‖x‖₊ ^ (p : ℝ)) _ _ S r
   · simp only [nnnorm_zero, NNReal.rpow_eq_zero_iff, eq_self_iff_true, Ne.def, NNReal.coe_eq_zero,
       true_and_iff]
     exact ne_of_gt (Fact.out _)
@@ -53,10 +50,8 @@ instance normedSpace (X : Type _) [TopologicalSpace X] [CompactSpace X] :
       simpa only [norm_def, coe_smul, Pi.smul_apply, Algebra.id.smul_eq_mul, Real.norm_eq_abs,
         abs_mul, mul_comm (abs a)] using (Real.iSup_mul_of_nonneg (abs_nonneg _) _).symm.le }
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem nnnorm_apply_le_nnnorm (X : Type _) [TopologicalSpace X] [CompactSpace X]
-    (e : LocallyConstant X ℝ) (x : X) : «expr∥ ∥₊» (e x) ≤ «expr∥ ∥₊» e :=
+    (e : LocallyConstant X ℝ) (x : X) : ‖e x‖₊ ≤ ‖e‖₊ :=
   by
   change _ ≤ Sup _
   apply le_csSup
@@ -302,7 +297,6 @@ def ContinuousMap.comapLCLinearMap {X Y : Type _} [TopologicalSpace X] [Topologi
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- Given a continuous function `f : X → Y` between topological spaces `X` and `Y`,
 `continuous_map.comap_LC_linear_map f` is the `ℝ`-linear pre-composition with `f` as a *continuous*
 function from the locally constant `ℝ`-valued continuous functions on `Y` to the locally constant
@@ -328,7 +322,7 @@ def ContinuousMap.comapLC {X Y : Type _} [TopologicalSpace X] [CompactSpace X] [
     change Sup _ ≤ _
     apply csSup_le
     simp only [not_isEmpty_iff] at h ; obtain ⟨x⟩ := h
-    use«expr∥ ∥» (e (f x)); use x; rfl
+    use‖(e (f x))‖; use x; rfl
     rintro b ⟨x, rfl⟩; dsimp
     exact_mod_cast LocallyConstant.nnnorm_apply_le_nnnorm _ e (f x)
 
@@ -363,7 +357,6 @@ def comap {A B : Type _} [AddCommGroup A] [Module ℝ A] [TopologicalSpace A] [A
     intro a
     apply WeakDual.eval_continuous
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- Given a compact topological space `X`, an element `μ` in the weak, `ℝ`-linear dual of the
 continuous functions on `X`, and two non-negative real numbers `p` and `c`, `bdd μ p c` is the
 statement that the sum of the `p`-th powers of the absolute values of the measures of all the
@@ -374,9 +367,8 @@ See the actual definition for what "all the clopen subsets" really means!
 `bdd_LC` is similar, but uses the dual of locally constant functions.  -/
 def Bdd {X : Type _} [TopologicalSpace X] [CompactSpace X] (μ : WeakDual ℝ C(X, ℝ)) (p c : ℝ≥0) :
     Prop :=
-  ∀ T : DiscreteQuotient X, ∑ t : T, «expr∥ ∥₊» (μ (T.fibre t).indicator) ^ (p : ℝ) ≤ c
+  ∀ T : DiscreteQuotient X, ∑ t : T, ‖(μ (T.fibre t).indicator)‖₊ ^ (p : ℝ) ≤ c
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- Given a compact topological space `X`, an element `μ` in the weak, `ℝ`-linear dual of the
 locally constant functions on `X`, and two non-negative real numbers `p` and `c`, `bdd μ p c` is the
 statement that the sum of the `p`-th powers of the absolute values of the measures of all the
@@ -387,10 +379,9 @@ See the actual definition for what "all the clopen subsets" really means!
 `bdd` is similar, but uses the dual of continuous functions.  -/
 def BddLC {X : Type _} [TopologicalSpace X] [CompactSpace X] (μ : WeakDual ℝ (LocallyConstant X ℝ))
     (p c : ℝ≥0) : Prop :=
-  ∀ T : DiscreteQuotient X, ∑ t : T, «expr∥ ∥₊» (μ (T.fibre t).indicatorLC) ^ (p : ℝ) ≤ c
+  ∀ T : DiscreteQuotient X, ∑ t : T, ‖(μ (T.fibre t).indicatorLC)‖₊ ^ (p : ℝ) ≤ c
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `congrm #[[expr «expr ^ »(«expr∥ ∥₊»(μ ⟨λ t, ite _ _ _, _⟩), «expr↑ »(p))]] -/
+/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `congrm #[[expr «expr ^ »(‖μ ⟨λ t, ite _ _ _, _⟩‖₊, «expr↑ »(p))]] -/
 theorem bddLCComap {X Y : Type _} {p c : ℝ≥0} [Fact (0 < p)] [TopologicalSpace X] [CompactSpace X]
     [TopologicalSpace Y] [CompactSpace Y] (μ : WeakDual ℝ (LocallyConstant X ℝ)) (hμ : μ.BddLC p c)
     (f : C(X, Y)) : (WeakDual.comap f.comapLC μ).BddLC p c :=
@@ -406,7 +397,7 @@ theorem bddLCComap {X Y : Type _} {p c : ℝ≥0} [Fact (0 < p)] [TopologicalSpa
   have :
     S₁ =
       ∑ t in finset.univ.image ι,
-        «expr∥ ∥₊» (((comap f.comap_LC) μ) (T.fibre t).indicatorLC) ^ (p : ℝ) :=
+        ‖(((comap f.comap_LC) μ) (T.fibre t).indicatorLC)‖₊ ^ (p : ℝ) :=
     by
     symm; apply Finset.sum_subset; simp only [Finset.subset_univ]
     intro x _ hx
@@ -431,7 +422,7 @@ theorem bddLCComap {X Y : Type _} {p c : ℝ≥0} [Fact (0 < p)] [TopologicalSpa
   · intros; dsimp; erw [Finset.mem_image]; refine' ⟨a, Finset.mem_univ _, rfl⟩
   · intro a ha
     trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `congrm #[[expr «expr ^ »(«expr∥ ∥₊»(μ ⟨λ t, ite _ _ _, _⟩), «expr↑ »(p))]]"
+      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `congrm #[[expr «expr ^ »(‖μ ⟨λ t, ite _ _ _, _⟩‖₊, «expr↑ »(p))]]"
     rw [SetLike.mem_coe, SetLike.mem_coe, ← DiscreteQuotient.comap_mem_fibre_iff]
   · intro a₁ a₂ h₁ h₂ hh; apply hι; exact hh
   · rintro b hb
@@ -443,11 +434,10 @@ theorem bddComap {X Y : Type _} {p c : ℝ≥0} [Fact (0 < p)] [TopologicalSpace
     [TopologicalSpace Y] [CompactSpace Y] (μ : WeakDual ℝ C(X, ℝ)) (hμ : μ.bdd p c) (f : C(X, Y)) :
     (WeakDual.comap f.comap μ).bdd p c := fun t => by apply bdd_LC_comap (comap (lcToC X) μ) hμ f t
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem bdd_iff_indexed_parition (S : Profinite.{0}) (μ : WeakDual ℝ C(S, ℝ)) (p c : ℝ≥0) :
     μ.bdd p c ↔
       ∀ (ι : FintypeCat.{0}) (e : ι → Set S) (I : IndexedPartition e) (he : ∀ i, IsClopen (e i)),
-        ∑ i : ι, «expr∥ ∥₊» (μ.1 (TopologicalSpace.Clopens.indicator ⟨e i, he i⟩)) ^ (p : ℝ) ≤ c :=
+        ∑ i : ι, ‖(μ.1 (TopologicalSpace.Clopens.indicator ⟨e i, he i⟩))‖₊ ^ (p : ℝ) ≤ c :=
   by
   constructor
   · intro hμ ι e I he

@@ -53,49 +53,33 @@ section StdFltLemmas
 
 variable (α : Type _) [NNNorm α]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem std_flt_mono ⦃c d : ℝ≥0⦄ (cd : c ≤ d) :
-    {z : α | «expr∥ ∥₊» z ≤ c} ⊆ {z : α | «expr∥ ∥₊» z ≤ d} := fun x (hx : «expr∥ ∥₊» x ≤ c) =>
+    {z : α | ‖z‖₊ ≤ c} ⊆ {z : α | ‖z‖₊ ≤ d} := fun x (hx : ‖x‖₊ ≤ c) =>
   hx.trans cd
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem std_flt_zero_mem [Zero α] (n0 : «expr∥ ∥₊» (0 : α) = 0) (c : ℝ≥0) :
-    (0 : α) ∈ {z : α | «expr∥ ∥₊» z ≤ c} := by simp only [n0, Set.mem_setOf_eq, zero_le']
+theorem std_flt_zero_mem [Zero α] (n0 : ‖0 : α‖₊ = 0) (c : ℝ≥0) :
+    (0 : α) ∈ {z : α | ‖z‖₊ ≤ c} := by simp only [n0, Set.mem_setOf_eq, zero_le']
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem std_flt_neg_mem [Neg α] (nn : ∀ {x : α}, «expr∥ ∥₊» (-x) = «expr∥ ∥₊» x) ⦃c : ℝ≥0⦄ ⦃x : α⦄
-    (xc : x ∈ {z : α | «expr∥ ∥₊» z ≤ c}) : -x ∈ {z : α | «expr∥ ∥₊» z ≤ c} := by
+theorem std_flt_neg_mem [Neg α] (nn : ∀ {x : α}, ‖-x‖₊ = ‖x‖₊) ⦃c : ℝ≥0⦄ ⦃x : α⦄
+    (xc : x ∈ {z : α | ‖z‖₊ ≤ c}) : -x ∈ {z : α | ‖z‖₊ ≤ c} := by
   simpa only [nn, Set.mem_setOf_eq] using xc
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem std_flt_add_mem [Add α]
-    (n_le : ∀ {x y : α}, «expr∥ ∥₊» (x + y) ≤ «expr∥ ∥₊» x + «expr∥ ∥₊» y) ⦃c d : ℝ≥0⦄ ⦃x y : α⦄
-    (xc : x ∈ {z : α | «expr∥ ∥₊» z ≤ c}) (yd : y ∈ {z : α | «expr∥ ∥₊» z ≤ d}) :
-    x + y ∈ {z : α | «expr∥ ∥₊» z ≤ c + d} :=
+    (n_le : ∀ {x y : α}, ‖x + y‖₊ ≤ ‖x‖₊ + ‖y‖₊) ⦃c d : ℝ≥0⦄ ⦃x y : α⦄
+    (xc : x ∈ {z : α | ‖z‖₊ ≤ c}) (yd : y ∈ {z : α | ‖z‖₊ ≤ d}) :
+    x + y ∈ {z : α | ‖z‖₊ ≤ c + d} :=
   n_le.trans (add_le_add xc yd)
 
 open NnnormAddClass
 
 variable {α}
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 /-- Given a type `α` with a `nnnorm_add_class` instance, `std_flt.to_pseudo_normed_group`
 shows that the standard filtration `λ c, {z : α | ∥z∥₊ ≤ c}` endows `α` with a
 `pseudo_normed_group` class. -/
 def StdFlt.toPseudoNormedGroup [AddCommGroup α] [NnnormAddClass α] : PseudoNormedGroup α
     where
-  filtration c := {z : α | «expr∥ ∥₊» z ≤ c}
+  filtration c := {z : α | ‖z‖₊ ≤ c}
   filtration_mono := std_flt_mono α
   zero_mem_filtration := std_flt_zero_mem α nnn_zero
   neg_mem_filtration := std_flt_neg_mem α nnn_neg
@@ -117,25 +101,18 @@ namespace NNReal.Normed
 
 variable {r : ℝ≥0} (F G H : r.Normed)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 instance (r : ℝ≥0) : NNNorm r.Normed :=
-  ⟨fun F => ∑ x in F.support, «expr∥ ∥₊» (F x) * r⁻¹ ^ x⟩
+  ⟨fun F => ∑ x in F.support, ‖F x‖₊ * r⁻¹ ^ x⟩
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_zero : «expr∥ ∥₊» (0 : r.Normed) = 0 := by
+theorem nnnorm_zero : ‖0 : r.Normed‖₊ = 0 := by
   simp only [NNNorm.nnnorm, support_zero, sum_empty]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem nnnorm_neg : «expr∥ ∥₊» (-F) = «expr∥ ∥₊» F := by
+theorem nnnorm_neg : ‖-F‖₊ = ‖F‖₊ := by
   simp only [NNNorm.nnnorm, Pi.neg_apply, Finsupp.coe_neg, support_neg, norm_neg]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_add_le : «expr∥ ∥₊» (F + G) ≤ «expr∥ ∥₊» F + «expr∥ ∥₊» G :=
+theorem nnnorm_add_le : ‖F + G‖₊ ≤ ‖F‖₊ + ‖G‖₊ :=
   by
   unfold nnnorm
   rw [sum_subset (subset_union_left F.support G.support),
@@ -164,13 +141,10 @@ open NnnormAddClass
 
 variable {r : ℝ≥0} {α : Type _} [NNNorm α] {S : FintypeCat}
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-instance Fintype.sumNnnorm : NNNorm (S → α) where nnnorm F := ∑ b, «expr∥ ∥₊» (F b)
+instance Fintype.sumNnnorm : NNNorm (S → α) where nnnorm F := ∑ b, ‖F b‖₊
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 @[simp]
-theorem Fintype.sumNnnorm_def (F : S → α) : «expr∥ ∥₊» F = ∑ b, «expr∥ ∥₊» (F b) :=
+theorem Fintype.sumNnnorm_def (F : S → α) : ‖F‖₊ = ∑ b, ‖F b‖₊ :=
   rfl
 
 instance [AddGroup α] [NnnormAddClass α] : NnnormAddClass (S → α) :=

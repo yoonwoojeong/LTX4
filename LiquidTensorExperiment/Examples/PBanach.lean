@@ -58,27 +58,21 @@ attribute [local instance] PBanachCat.hasNorm
 /-! The chosen norm on `V` scales via the rule `∥rv∥ = |r|^p * ∥v∥`. -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-example (r : ℝ) (v : V) : «expr∥ ∥» (r • v) = |r| ^ (p : ℝ) * «expr∥ ∥» v :=
+example (r : ℝ) (v : V) : ‖r • v‖ = |r| ^ (p : ℝ) * ‖v‖ :=
   (PBanach.exists_p_norm V.pBanach').some.norm_smul r v
 
 /-! The chosen norm on `V` satisfies the triangle inequality. -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-example (v w : V) : «expr∥ ∥» (v + w) ≤ «expr∥ ∥» v + «expr∥ ∥» w :=
+example (v w : V) : ‖v + w‖ ≤ ‖v‖ + ‖w‖ :=
   (PBanach.exists_p_norm V.pBanach').some.triangle v w
 
 /-! The uniform space structure on `V` is induced by the chosen norm. -/
 
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 example :
     uniformity V =
-      ⨅ (ε : ℝ) (H : ε > 0), Filter.principal {p : V × V | «expr∥ ∥» (p.1 - p.2) < ε} :=
+      ⨅ (ε : ℝ) (H : ε > 0), Filter.principal {p : V × V | ‖p.1 - p.2‖ < ε} :=
   (PBanach.exists_p_norm V.pBanach').some.uniformity
 
 end PBanachCat

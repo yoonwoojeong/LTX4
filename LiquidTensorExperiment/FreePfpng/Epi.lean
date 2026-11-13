@@ -341,9 +341,8 @@ instance Profinite.discreteTopology_pmz (S : Profinite.{u}) [DiscreteTopology S]
     DiscreteTopology (S.pmz n) :=
   Sigma.discreteTopology
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- move this
-theorem SignType.nnnorm_coe_int_le_one : ∀ i : SignType, «expr∥ ∥₊» (i : ℤ) ≤ 1
+theorem SignType.nnnorm_coe_int_le_one : ∀ i : SignType, ‖i : ℤ‖₊ ≤ 1
   | SignType.zero => by erw [nnnorm_zero]; exact zero_le'
   | SignType.neg => by simp
   | SignType.pos => by erw [nnnorm_one]
@@ -497,9 +496,8 @@ theorem Refactor.exists_signed_sum (s : Finset α) (n : ℕ) (f : α → ℤ)
     rw [hg _ ha, SignType.coe_zero]
   · simp_rw [if_neg (ne_of_mem_of_not_mem hb ha).symm, hf _ hb, sum_const_zero, add_zero]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem Profinite.pmz_to_free_pfpng_epi_aux' [Fintype α] (r : NNReal) (f : α → ℤ)
-    (hf : ∑ i : α, «expr∥ ∥₊» (f i) ≤ r) :
+    (hf : ∑ i : α, ‖f i‖₊ ≤ r) :
     ∃ (sgn : ℕ → SignType) (g : ℕ → α),
       ∀ t, (∑ i in range ⌊r⌋₊, if g i = t then (sgn i : ℤ) else 0) = f t :=
   by
@@ -509,9 +507,8 @@ theorem Profinite.pmz_to_free_pfpng_epi_aux' [Fintype α] (r : NNReal) (f : α �
   simp_rw [Nat.cast_sum, NNReal.coe_natAbs]
   exact hf
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem Profinite.pmz_to_free_pfpng_epi_aux [Fintype α] (r : NNReal) (f : α → ℤ)
-    (hf : ∑ i : α, «expr∥ ∥₊» (f i) ≤ r) :
+    (hf : ∑ i : α, ‖f i‖₊ ≤ r) :
     ∃ (sgn : Fin ⌊r⌋₊ → SignType) (g : Fin ⌊r⌋₊ → α),
       (∑ i : Fin ⌊r⌋₊, fun t : α => if g i = t then (sgn i : ℤ) else 0) = f :=
   by

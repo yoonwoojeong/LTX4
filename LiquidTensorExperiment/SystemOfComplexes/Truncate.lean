@@ -136,8 +136,6 @@ theorem truncateAdmissible (hC : C.Admissible) : (truncate.obj C).Admissible :=
 
 variable {k K : ℝ≥0} (m' m : ℕ) [hk : Fact (1 ≤ k)] (c₀ : ℝ≥0)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem truncateIsWeakBoundedExact (hC : C.IsWeakBoundedExact k K (m + 1) c₀) :
     (truncate.obj C).IsWeakBoundedExact k K m c₀
   | c, hc, 0, hi, x, ε, hε =>
@@ -149,8 +147,8 @@ theorem truncateIsWeakBoundedExact (hC : C.IsWeakBoundedExact k K (m + 1) c₀) 
     refine' ⟨0, _, rfl, rfl, 0, _⟩
     simp only [map_zero, sub_zero, map_neg, truncate_obj_d_zero_one, norm_neg]
     calc
-      _ = «expr∥ ∥» (π c (res x - C.d 0 1 y)) := _
-      _ ≤ «expr∥ ∥» (res x - C.d 0 1 y) := (SemiNormedGroupCat.normNoninc_explicitCokernelπ _ _)
+      _ = ‖(π c (res x - C.d 0 1 y))‖ := _
+      _ ≤ ‖res x - C.d 0 1 y‖ := (SemiNormedGroupCat.normNoninc_explicitCokernelπ _ _)
       _ ≤ _ := hy
     have hπy : π c (C.d 0 1 y) = 0 := by show (C.d 0 1 ≫ π c) y = 0;
       rw [SemiNormedGroupCat.comp_explicitCokernelπ]; rfl
@@ -161,13 +159,6 @@ theorem truncateIsWeakBoundedExact (hC : C.IsWeakBoundedExact k K (m + 1) c₀) 
     refine' ⟨i, _, rfl, rfl, _⟩
     cases i <;> [exact ⟨SemiNormedGroupCat.explicitCokernelπ _ y, hy⟩; exact ⟨y, hy⟩]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem isWeakBoundedExactOfTruncate (IH : C.IsWeakBoundedExact k K m c₀)
     (hC : (truncate.obj C).IsWeakBoundedExact k K m c₀) : C.IsWeakBoundedExact k K (m + 1) c₀
   | c, hc, 0, hi, x, ε, hε => IH c hc 0 (Nat.zero_le _) x ε hε
@@ -178,7 +169,7 @@ theorem isWeakBoundedExactOfTruncate (IH : C.IsWeakBoundedExact k K m c₀)
     have hδε : δ + δ = ε := by dsimp [δ]; rw [← add_div, half_add_self]
     have hδ : 0 < δ := div_pos hε zero_lt_two
     obtain ⟨x', Hxx', Hx'⟩ :
-      ∃ x', π c x' = π c (res x) ∧ «expr∥ ∥» x' < «expr∥ ∥» (π c (res x)) + δ :=
+      ∃ x', π c x' = π c (res x) ∧ ‖x'‖ < ‖(π c (res x))‖ + δ :=
       (SemiNormedGroupCat.isQuotient_explicitCokernelπ _).norm_lift hδ _
     obtain ⟨y, hy⟩ : ∃ y : C c 0, C.d 0 1 y = res x - x' :=
       by
@@ -188,10 +179,10 @@ theorem isWeakBoundedExactOfTruncate (IH : C.IsWeakBoundedExact k K m c₀)
     refine' ⟨0, 2, rfl, rfl, y, _⟩
     simp only [d_self_apply, map_zero, sub_zero, truncate_obj_d_zero_one, norm_neg] at H ⊢
     calc
-      «expr∥ ∥» (res x - (C.d 0 1) y) ≤ «expr∥ ∥» x' := by rw [hy, sub_sub_cancel]
-      _ ≤ «expr∥ ∥» (π c (res x)) + δ := Hx'.le
-      _ ≤ ↑K * «expr∥ ∥» (C.d 1 2 x) + δ + δ := (add_le_add_right H _)
-      _ ≤ ↑K * «expr∥ ∥» (C.d 1 2 x) + ε := by rw [add_assoc, hδε]
+      ‖(res x - (C.d 0 1) y)‖ ≤ ‖x'‖ := by rw [hy, sub_sub_cancel]
+      _ ≤ ‖(π c (res x))‖ + δ := Hx'.le
+      _ ≤ ↑K * ‖C.d 1 2 x‖ + δ + δ := (add_le_add_right H _)
+      _ ≤ ↑K * ‖C.d 1 2 x‖ + ε := by rw [add_assoc, hδε]
   | c, hc, i + 2, hi, x, ε, hε =>
     by
     obtain ⟨_, _, rfl, rfl, y, hy⟩ := hC c hc (i + 1) (Nat.pred_le_pred hi) x ε hε

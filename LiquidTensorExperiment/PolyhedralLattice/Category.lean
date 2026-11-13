@@ -59,13 +59,8 @@ instance : Limits.HasZeroMorphisms.{u, u + 1} PolyhedralLatticeCat
   comp_zero := by intros; ext; rfl
   zero_comp := by intro _ _ _ f; ext; exact f.map_zero
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 def isoMk {Λ₁ Λ₂ : PolyhedralLatticeCat.{u}} (f : Λ₁ →+ Λ₂) (g : Λ₂ → Λ₁)
-    (hf : ∀ l, «expr∥ ∥» (f l) = «expr∥ ∥» l) (hfg : g ∘ f = id) (hgf : f ∘ g = id) : Λ₁ ≅ Λ₂
+    (hf : ∀ l, ‖f l‖ = ‖l‖) (hfg : g ∘ f = id) (hgf : f ∘ g = id) : Λ₁ ≅ Λ₂
     where
   hom := { f with strict' := fun l => le_of_eq (hf l) }
   inv :=
@@ -77,8 +72,8 @@ def isoMk {Λ₁ Λ₂ : PolyhedralLatticeCat.{u}} (f : Λ₁ →+ Λ₂) (g : �
           right_inv := congr_fun hgf } with
       strict' := fun l =>
         calc
-          «expr∥ ∥» (g l) ≤ «expr∥ ∥» (f (g l)) := le_of_eq <| (hf _).symm
-          _ = «expr∥ ∥» l := congr_arg norm <| congr_fun hgf l }
+          ‖g l‖ ≤ ‖(f (g l))‖ := le_of_eq <| (hf _).symm
+          _ = ‖l‖ := congr_arg norm <| congr_fun hgf l }
   hom_inv_id' := by ext x; exact congr_fun hfg x
   inv_hom_id' := by ext x; exact congr_fun hgf x
 

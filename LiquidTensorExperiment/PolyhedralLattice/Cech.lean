@@ -132,14 +132,10 @@ theorem π_apply_eq_zero_iff (x : Fin m →₀ Λ') : π f m x = 0 ↔ x ∈ l f
 theorem π_surjective : Function.Surjective (π f m) :=
   Quotient.surjective_Quotient_mk''
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_π_one_eq (l : Fin 1 →₀ Λ') : «expr∥ ∥» ((π f 1) l) = «expr∥ ∥» l :=
+theorem norm_π_one_eq (l : Fin 1 →₀ Λ') : ‖((π f 1) l)‖ = ‖l‖ :=
   by
   delta π; dsimp
-  show «expr∥ ∥» ((QuotientAddGroup.mk' (L f 1)) l) = «expr∥ ∥» l
+  show ‖((QuotientAddGroup.mk' (L f 1)) l)‖ = ‖l‖
   rw [quotient_norm_mk_eq (L f 1) l]
   simp only [L_one, Set.image_singleton, add_zero, csInf_singleton, AddSubgroup.coe_bot]
 
@@ -166,13 +162,8 @@ variable {n m k : ℕ} (g : Fin (n + 1) → Fin (m + 1)) (g' : Fin (m + 1) → F
 def mapAddHom : Obj f (n + 1) →+ Obj f (m + 1) :=
   QuotientAddGroup.map _ _ (mapDomain.addMonoidHom g) (l_le_comap f _ g)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem map_domain_addMonoidHom_strict (x : Fin (n + 1) →₀ Λ) :
-    «expr∥ ∥» (mapDomain.addMonoidHom g x) ≤ «expr∥ ∥» x :=
+    ‖mapDomain.addMonoidHom g x‖ ≤ ‖x‖ :=
   by
   simp only [norm_def, map_domain.add_monoid_hom_apply]
   dsimp [map_domain]
@@ -180,10 +171,10 @@ theorem map_domain_addMonoidHom_strict (x : Fin (n + 1) →₀ Λ) :
   simp only [sum_apply]
   rw [sum_fintype]; swap; · intro; exact norm_zero
   calc
-    ∑ i, «expr∥ ∥» (x.sum fun j l => single (g j) l i) ≤
-        ∑ i, ∑ j, «expr∥ ∥» (single (g j) (x j) i) :=
+    ∑ i, ‖(x.sum fun j l => single (g j) l i)‖ ≤
+        ∑ i, ∑ j, ‖(single (g j) (x j) i)‖ :=
       _
-    _ ≤ ∑ j, «expr∥ ∥» (x j) := _
+    _ ≤ ∑ j, ‖x j‖ := _
   · apply Finset.sum_le_sum
     rintro i -
     rw [sum_fintype]; swap; · intro; rw [single_zero, zero_apply]
@@ -195,18 +186,14 @@ theorem map_domain_addMonoidHom_strict (x : Fin (n + 1) →₀ Λ) :
     apply le_of_eq
     simp only [Finset.sum_ite_eq, Finset.mem_univ, if_true]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem mapAddHom_strict (x : Obj f (n + 1)) : «expr∥ ∥» (mapAddHom f g x) ≤ «expr∥ ∥» x :=
+theorem mapAddHom_strict (x : Obj f (n + 1)) : ‖mapAddHom f g x‖ ≤ ‖x‖ :=
   by
   apply le_of_forall_pos_le_add
   intro ε hε
   obtain ⟨x, rfl, h⟩ := norm_mk_lt x hε
   calc
-    _ ≤ «expr∥ ∥» (map_domain.add_monoid_hom g x) := quotient_norm_mk_le _ _
-    _ ≤ «expr∥ ∥» x := (map_domain_add_monoid_hom_strict _ _)
+    _ ≤ ‖map_domain.add_monoid_hom g x‖ := quotient_norm_mk_le _ _
+    _ ≤ ‖x‖ := (map_domain_add_monoid_hom_strict _ _)
     _ ≤ _ := h.le
 
 theorem mapAddHom_mk (x : Fin (n + 1) →₀ Λ') :
@@ -301,9 +288,6 @@ def mapSuccZeroAux (m : ℕ) (g : Fin (m + 2) →o Fin 1) : obj f (m + 1) →+ �
 
 end
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 def mapSuccZero (m : ℕ) (g : Fin (m + 2) →o Fin 1) : obj f (m + 1) ⟶ Λ' :=
   { mapSuccZeroAux f m g with
     strict' := by
@@ -312,10 +296,10 @@ def mapSuccZero (m : ℕ) (g : Fin (m + 2) →o Fin 1) : obj f (m + 1) ⟶ Λ' :
       intro ε hε
       obtain ⟨x, rfl, h⟩ := norm_mk_lt x hε
       calc
-        «expr∥ ∥» (Finsupp.mapDomain.addMonoidHom g x 0) ≤
-            «expr∥ ∥» (Finsupp.mapDomain.addMonoidHom g x) :=
+        ‖Finsupp.mapDomain.addMonoidHom g x 0‖ ≤
+            ‖Finsupp.mapDomain.addMonoidHom g x‖ :=
           _
-        _ ≤ «expr∥ ∥» x := (conerve.map_domain_add_monoid_hom_strict g x)
+        _ ≤ ‖x‖ := (conerve.map_domain_add_monoid_hom_strict g x)
         _ ≤ _ := h.le
       rw [Finsupp.norm_def, Finsupp.sum_fintype, Fin.sum_univ_succ, Fin.sum_univ_zero, add_zero]
       intro; exact norm_zero }

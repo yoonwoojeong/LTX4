@@ -13,18 +13,14 @@ namespace Rescale
 
 variable {N : ℝ≥0} {V : Type _}
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-instance [Norm V] : Norm (Rescale N V) where norm v := «expr∥ ∥» (of.symm v) / N
+instance [Norm V] : Norm (Rescale N V) where norm v := ‖of.symm v‖ / N
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_def [Norm V] (v : Rescale N V) : «expr∥ ∥» v = «expr∥ ∥» (of.symm v) / N :=
+theorem norm_def [Norm V] (v : Rescale N V) : ‖v‖ = ‖of.symm v‖ / N :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 instance [hN : Fact (0 < N)] [SeminormedAddCommGroup V] : SeminormedAddCommGroup (Rescale N V) :=
   seminormed_add_comm_group.of_core (Rescale N V)
-    { norm_zero := show «expr∥ ∥» (0 : V) / N = 0 by rw [norm_zero, zero_div]
+    { norm_zero := show ‖0 : V‖ / N = 0 by rw [norm_zero, zero_div]
       triangle := fun v w => by
         simp only [norm_def, ← add_div]
         exact div_le_div_of_le hN.out.le (norm_add_le _ _)
@@ -46,11 +42,9 @@ instance [hN : Fact (0 < N)] [NormedAddCommGroup V] : NormedAddCommGroup (Rescal
       -- defeq abuse
       norm_neg := fun v => by simp only [norm_def]; congr 1; exact norm_neg _ }
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 -- defeq abuse
 theorem nnnorm_def [hN : Fact (0 < N)] [SeminormedAddCommGroup V] (v : Rescale N V) :
-    «expr∥ ∥₊» v = «expr∥ ∥₊» (of.symm v) / N :=
+    ‖v‖₊ = ‖of.symm v‖₊ / N :=
   rfl
 
 end Rescale
@@ -81,11 +75,9 @@ def rescale (r : ℝ≥0) [hr : Fact (0 < r)] : SemiNormedGroupCat ⥤ SemiNorme
 -- defeq abuse
 instance rescale.additive [Fact (0 < r)] : (rescale r).Additive where map_add' V W f g := rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- defeq abuse
 theorem norm_rescale_map_le [Fact (0 < r)] {V₁ V₂ : SemiNormedGroupCat} {f : V₁ ⟶ V₂} {C : ℝ}
-    (hf : «expr∥ ∥» f ≤ C) : «expr∥ ∥» ((rescale r).map f) ≤ C :=
+    (hf : ‖f‖ ≤ C) : ‖((rescale r).map f)‖ ≤ C :=
   by
   refine' NormedAddGroupHom.opNorm_le_bound _ (le_trans (norm_nonneg _) hf) fun v => _
   dsimp
@@ -111,13 +103,9 @@ theorem rescale_exact [Fact (0 < r)] {V₁ V₂ V₃ : SemiNormedGroupCat} (f : 
     _ ↔ x ∈ g.ker := by rw [hfg]
     _ ↔ x ∈ ((Rescale r).map g).ker := Iff.rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem rescale_exists_norm_le [Fact (0 < r)] {V₁ V₂ : SemiNormedGroupCat} (f : V₁ ⟶ V₂) (C : ℝ≥0)
-    (hf : ∀ y, ∃ x, f x = y ∧ «expr∥ ∥» x ≤ C * «expr∥ ∥» y) :
-    ∀ y, ∃ x, (rescale r).map f x = y ∧ «expr∥ ∥» x ≤ C * «expr∥ ∥» y :=
+    (hf : ∀ y, ∃ x, f x = y ∧ ‖x‖ ≤ C * ‖y‖) :
+    ∀ y, ∃ x, (rescale r).map f x = y ∧ ‖x‖ ≤ C * ‖y‖ :=
   by
   intro y
   obtain ⟨x, h1, h2⟩ := hf ((@Rescale.of r _).symm y)
@@ -126,10 +114,8 @@ theorem rescale_exists_norm_le [Fact (0 < r)] {V₁ V₂ : SemiNormedGroupCat} (
   simp only [div_eq_mul_inv, ← mul_assoc, Equiv.symm_apply_apply, ← coe_nnnorm]
   norm_cast; exact mul_le_mul' h2 le_rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem nnnorm_to_rescale {V : SemiNormedGroupCat} (v : V) :
-    «expr∥ ∥» ((@Rescale.of r V) v) ≤ r⁻¹ * «expr∥ ∥» v := by rw [← div_eq_inv_mul]; rfl
+    ‖((@Rescale.of r V) v)‖ ≤ r⁻¹ * ‖v‖ := by rw [← div_eq_inv_mul]; rfl
 
 def toRescale [Fact (0 < r)] : 𝟭 _ ⟶ rescale r
     where
@@ -168,20 +154,16 @@ theorem isoRescale_isometry [Fact (0 < r)] (h : r = 1) (V : SemiNormedGroupCat) 
   simp only [div_one, Subtype.coe_mk]
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_toRescale_le [Fact (0 < r)] (V : SemiNormedGroupCat) :
-    «expr∥ ∥» ((toRescale r).app V) ≤ r⁻¹ :=
+    ‖((toRescale r).app V)‖ ≤ r⁻¹ :=
   NormedAddGroupHom.mkNormedAddGroupHom_norm_le _ (inv_nonneg.2 NNReal.zero_le_coe) fun v =>
     nnnorm_to_rescale _ v
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
 theorem nnnorm_rescale_rescale_symm {V : SemiNormedGroupCat} (v : (rescale r₁).obj V) :
-    «expr∥ ∥₊» ((@Rescale.of r₂ V) ((@Rescale.of r₁ V).symm v)) ≤ r₁ / r₂ * «expr∥ ∥₊» v :=
+    ‖((@Rescale.of r₂ V) ((@Rescale.of r₁ V).symm v))‖₊ ≤ r₁ / r₂ * ‖v‖₊ :=
   by
   apply le_of_eq
-  show _ = r₁ / r₂ * («expr∥ ∥₊» ((@Rescale.of r₁ V).symm v) / r₁)
+  show _ = r₁ / r₂ * (‖((@Rescale.of r₁ V).symm v)‖₊ / r₁)
   simp only [AddMonoidHom.mk'_apply, div_eq_inv_mul, Rescale.nnnorm_def]
   rw [mul_assoc, mul_inv_cancel_left₀ (show r₁ ≠ 0 from ne_of_gt <| Fact.out _)]
   rfl
@@ -194,9 +176,8 @@ def scale : rescale r₁ ⟶ rescale r₂
       (r₁ / r₂) fun v => nnnorm_rescale_rescale_symm r₁ r₂ v
   naturality' V W f := rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 -- defeq abuse
-theorem norm_scale_le (V : SemiNormedGroupCat) : «expr∥ ∥» ((scale r₁ r₂).app V) ≤ r₁ / r₂ :=
+theorem norm_scale_le (V : SemiNormedGroupCat) : ‖((scale r₁ r₂).app V)‖ ≤ r₁ / r₂ :=
   NormedAddGroupHom.mkNormedAddGroupHom_norm_le _
     (div_nonneg (NNReal.coe_nonneg _) (NNReal.coe_nonneg _)) fun v =>
     nnnorm_rescale_rescale_symm r₁ r₂ v

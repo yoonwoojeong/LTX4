@@ -7,16 +7,16 @@ variable {α β : Type _} [TopologicalSpace α] [TopologicalSpace β]
 
 noncomputable section
 
-#print QuotientMap.homeomorph /-
 def QuotientMap.homeomorph {f : α → β} (hf : QuotientMap f) : Quotient (Setoid.ker f) ≃ₜ β :=
   {
     Setoid.quotientKerEquivOfSurjective _
-      hf.Surjective with
-    continuous_toFun := quotientMap_quot_mk.continuous_iff.mpr hf.Continuous
+      hf.surjective with
+    continuous_toFun := quotientMap_quot_mk.continuous_iff.mpr hf.continuous
     continuous_invFun := by
       rw [hf.continuous_iff]
       convert continuous_quotient_mk'
       ext
-      simpa [(Setoid.quotientKerEquivOfSurjective f (QuotientMap.surjective hf)).symm_apply_eq] }
--/
+      -- Porting note: Lean 3 used
+      -- `simpa [(setoid.quotient_ker_equiv_of_surjective f _).symm_apply_eq]`; same lemma, applied directly.
+      exact (Setoid.quotientKerEquivOfSurjective f hf.surjective).symm_apply_eq.mpr rfl }
 

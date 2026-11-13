@@ -34,14 +34,11 @@ instance : Norm (ι →₀ Λ) :=
 
 variable {ι Λ}
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_def (x : ι →₀ Λ) : «expr∥ ∥» x = x.Sum fun _ => norm :=
+theorem norm_def (x : ι →₀ Λ) : ‖x‖ = x.Sum fun _ => norm :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 @[simp]
-theorem norm_single (i : ι) (l : Λ) : «expr∥ ∥» (single i l) = «expr∥ ∥» l := by
+theorem norm_single (i : ι) (l : Λ) : ‖single i l‖ = ‖l‖ := by
   simp only [norm_def, sum_single_index, norm_zero]
 
 variable (ι Λ)
@@ -66,8 +63,7 @@ instance [Fintype ι] : NormedAddCommGroup (ι →₀ Λ) :=
 
 variable {ι Λ}
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-theorem nnnorm_def [Fintype ι] (x : ι →₀ Λ) : «expr∥ ∥₊» x = x.Sum fun _ => nnnorm :=
+theorem nnnorm_def [Fintype ι] (x : ι →₀ Λ) : ‖x‖₊ = x.Sum fun _ => nnnorm :=
   by
   ext
   simpa only [coe_nnnorm, Finsupp.sum, NNReal.coe_sum] using norm_def x

@@ -57,22 +57,13 @@ instance quotient_free [H : Fact L.saturated] : Module.Free ℤ (Λ ⧸ L) :=
 
 open PseudoNormedGroup
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥₊» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_lift (y : Λ ⧸ L) : ∃ x, L.normedMk x = y ∧ «expr∥ ∥» x = «expr∥ ∥» y :=
+theorem norm_lift (y : Λ ⧸ L) : ∃ x, L.normedMk x = y ∧ ‖x‖ = ‖y‖ :=
   by
   have hq : L.normed_mk.is_quotient := NormedAddGroupHom.isQuotientQuotient _
-  let s ε := {x | L.normed_mk x = y ∧ «expr∥ ∥₊» x ≤ «expr∥ ∥₊» y + ε}
+  let s ε := {x | L.normed_mk x = y ∧ ‖x‖₊ ≤ ‖y‖₊ + ε}
   have hs : ∀ ε, (s ε).Finite := by
     intro ε
-    apply (filtration_finite Λ («expr∥ ∥₊» y + ε)).Subset
+    apply (filtration_finite Λ (‖y‖₊ + ε)).Subset
     rintro x ⟨h1, h2⟩
     simpa only [SeminormedAddCommGroup.mem_filtration_iff] using h2
   let t ε := (hs ε).toFinset
@@ -85,20 +76,20 @@ theorem norm_lift (y : Λ ⧸ L) : ∃ x, L.normedMk x = y ∧ «expr∥ ∥» x
   simp only [Finset.mem_image] at aux 
   obtain ⟨x, hx, H⟩ := aux
   simp only [Set.Finite.mem_toFinset, Set.mem_setOf_eq] at hx 
-  suffices hr : r = «expr∥ ∥₊» y
+  suffices hr : r = ‖y‖₊
   · refine' ⟨x, hx.1, _⟩
     simp only [← coe_nnnorm, nnreal.coe_injective.eq_iff]
     exact H.trans hr
   refine' ((lt_or_eq_of_le _).resolve_left _).symm
   · rw [← hx.1]; exact (hq.norm_le x).trans H.le
   · intro hyr
-    let ε := (r - «expr∥ ∥₊» y) / 2
-    have hε' : (ε : ℝ) = (r - «expr∥ ∥₊» y) / 2 := by dsimp only [ε];
+    let ε := (r - ‖y‖₊) / 2
+    have hε' : (ε : ℝ) = (r - ‖y‖₊) / 2 := by dsimp only [ε];
       rw [NNReal.coe_div, NNReal.coe_sub hyr.le, NNReal.coe_bit0, NNReal.coe_one]
     have hε : 0 < ε := by
       rw [← NNReal.coe_lt_coe, NNReal.coe_zero, hε']
       exact div_pos (sub_pos.mpr <| nnreal.coe_lt_coe.mpr hyr) zero_lt_two
-    have key : «expr∥ ∥₊» y + ε < r :=
+    have key : ‖y‖₊ + ε < r :=
       by
       rw [← NNReal.coe_lt_coe, NNReal.coe_add, hε']
       exact add_sub_div_two_lt (nnreal.coe_lt_coe.mpr hyr)

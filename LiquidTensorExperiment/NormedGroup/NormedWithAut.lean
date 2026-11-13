@@ -15,8 +15,6 @@ norms by a fixed factor `r`.
 
 open scoped NNReal
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 /-- A `normed_with_aut r V` structure on a seminormed group `V`
 consists of an automorphism `T` satisfying `∥T v∥ = r * ∥v∥`.
 
@@ -25,22 +23,17 @@ In other words, it is a normed `ℤ[T^{±1}]`-module satisfying `∥T v∥ = r *
 Definition 8.13 of [Analytic] -/
 class NormedWithAut (r : outParam ℝ≥0) (V : SemiNormedGroupCat) where
   t : V ≅ V
-  norm_t : ∀ v : V, «expr∥ ∥» ((T.hom : V → V) v) = r * «expr∥ ∥» v
+  norm_t : ∀ v : V, ‖((T.hom : V → V) v)‖ = r * ‖v‖
 
 variable {r : ℝ≥0} (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)]
 
 namespace NormedWithAut
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_t_inv (v : V) : «expr∥ ∥» (t.inv v) = r⁻¹ * «expr∥ ∥» v :=
+theorem norm_t_inv (v : V) : ‖t.inv v‖ = r⁻¹ * ‖v‖ :=
   by
   calc
-    «expr∥ ∥» ((T.inv : V → V) v) = r⁻¹ * «expr∥ ∥» (T.hom (T.inv v)) := _
-    _ = r⁻¹ * «expr∥ ∥» v := _
+    ‖((T.inv : V → V) v)‖ = r⁻¹ * ‖(T.hom (T.inv v))‖ := _
+    _ = r⁻¹ * ‖v‖ := _
   · rw [NormedWithAut.norm_t, inv_mul_cancel_left₀]
     apply ne_of_gt
     rw [NNReal.coe_pos]

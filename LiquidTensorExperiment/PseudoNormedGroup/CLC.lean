@@ -47,8 +47,7 @@ theorem map_normNoninc {M₁ M₂} (f : M₁ ⟶ M₂) : ((cLC V).map f).NormNon
 def t [NormedWithAut r V] [Fact (0 < r)] : cLC V ≅ cLC V :=
   ((whiskeringRight _ _ _).obj _).mapIso (lC.t r V)
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_t_le [NormedWithAut r V] [Fact (0 < r)] (A) : «expr∥ ∥» ((t r V).hom.app A) ≤ r :=
+theorem norm_t_le [NormedWithAut r V] [Fact (0 < r)] (A) : ‖((t r V).hom.app A)‖ ≤ r :=
   le_trans (NormedAddGroupHom.norm_completion _).le <| lC.norm_t_le _ _ _
 
 def tInv [NormedWithAut r V] [Fact (0 < r)] : cLC V ⟶ cLC V :=
@@ -57,8 +56,7 @@ def tInv [NormedWithAut r V] [Fact (0 < r)] : cLC V ⟶ cLC V :=
 theorem tInv_eq [NormedWithAut r V] [Fact (0 < r)] : (t r V).inv = tInv r V :=
   rfl
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
-theorem norm_tInv_le [NormedWithAut r V] [Fact (0 < r)] (A) : «expr∥ ∥» ((tInv r V).app A) ≤ r⁻¹ :=
+theorem norm_tInv_le [NormedWithAut r V] [Fact (0 < r)] (A) : ‖((tInv r V).app A)‖ ≤ r⁻¹ :=
   le_trans (NormedAddGroupHom.norm_completion _).le <| lC.norm_tInv_le _ _ _
 
 end cLC
@@ -233,9 +231,8 @@ theorem tInv_comp_evalCLCFP [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂
     tInv r V r' c₁ n ≫ ϕ.evalCLCFP V r' c₁ c₂ = ϕ.evalCLCFP V r' c₁ c₂ ≫ tInv r V r' c₂ m := by
   simp only [eval_CLCFP, T_inv_def, ← whisker_right_comp, T_inv_comp_eval_LCFP]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr∥ ∥» -/
 theorem norm_evalCLCFP_le [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ c₁] (N : ℕ)
-    (h : ϕ.BoundBy N) (M) : «expr∥ ∥» ((ϕ.evalCLCFP V r' c₁ c₂).app M) ≤ N :=
+    (h : ϕ.BoundBy N) (M) : ‖((ϕ.evalCLCFP V r' c₁ c₂).app M)‖ ≤ N :=
   le_trans (NormedAddGroupHom.norm_completion _).le <| norm_evalLCFP_le _ _ _ _ _ _ _ h _
 
 end UniversalMap
