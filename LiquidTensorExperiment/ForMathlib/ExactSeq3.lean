@@ -32,10 +32,10 @@ theorem ExactSeq.replace {X₁ X₂ X₃ X₄ X₅ : A} {f₁ : X₁ ⟶ X₂} {
     simp only [← Abelian.Pseudoelement.comp_apply]
     suffices (e.extract 0 2).π ≫ (e.extract 2 3).ι = 0 by rw [this]; simp
     ext
-    dsimp [exact_seq.π, exact_seq.ι]
+    dsimp [ExactSeq.π, ExactSeq.ι]
     simpa using (e.extract 1 2).w
   · intro t ht
-    dsimp [exact_seq.π, exact_seq.ι] at *
+    dsimp [ExactSeq.π, ExactSeq.ι] at *
     apply_fun fun i => kernel.ι f₄ i at ht 
     simp only [← Abelian.Pseudoelement.comp_apply, kernel.lift_ι] at ht 
     simp at ht 
@@ -49,18 +49,22 @@ theorem ExactSeq.replace {X₁ X₂ X₃ X₄ X₅ : A} {f₁ : X₁ ⟶ X₂} {
 theorem isZero_of_exactSeq_of_is_iso_of_is_iso {X₁ X₂ X₃ X₄ X₅ : A} (f₁ : X₁ ⟶ X₂) (f₂ : X₂ ⟶ X₃)
     (f₃ : X₃ ⟶ X₄) (f₄ : X₄ ⟶ X₅) [Epi f₁] [Mono f₄] (e : ExactSeq A [f₁, f₂, f₃, f₄]) :
     IsZero X₃ := by
-  have h1 : is_zero (cokernel f₁) := CategoryTheory.Limits.isZero_cokernel_of_epi f₁
-  have h2 : is_zero (kernel f₄) := CategoryTheory.Limits.isZero_kernel_of_mono f₄
-  apply CategoryTheory.Limits.isZero_of_exact_isZero_isZero _ _ _ h1 h2
-  exact (e.extract 0 2).π; exact (e.extract 2 3).ι
-  apply ExactSeq.replace
+  have h1 : IsZero (cokernel f₁) := CategoryTheory.Limits.isZero_cokernel_of_epi f₁
+  have h2 : IsZero (kernel f₄) := CategoryTheory.Limits.isZero_kernel_of_mono f₄
+  -- Porting note: Lean 4's `apply` orders the goals differently, so the morphisms are given
+  exact CategoryTheory.Limits.isZero_of_exact_isZero_isZero (e.extract 0 2).π (e.extract 2 3).ι
+    (ExactSeq.replace e) h1 h2
 
 theorem isIso_of_exact_of_isZero_of_isZero {X₁ X₂ X₃ X₄ : A} (f₁ : X₁ ⟶ X₂) (f₂ : X₂ ⟶ X₃)
     (f₃ : X₃ ⟶ X₄) (h₁ : IsZero X₁) (h₄ : IsZero X₄) (e : ExactSeq A [f₁, f₂, f₃]) : IsIso f₂ :=
   by
-  apply (config := { instances := false }) is_iso_of_mono_of_epi; infer_instance
-  apply Exact.mono_of_isZero e.pair; assumption
-  apply Exact.epi_of_isZero (e.extract 1 2).pair; assumption
+  -- Porting note: `apply_with is_iso_of_mono_of_epi { instances := ff }` has no Lean 4
+  -- counterpart; the two instances are provided first
+  haveI := Exact.mono_of_isZero e.pair h₁
+  haveI := Exact.epi_of_isZero (e.extract 1 2).pair h₄
+  exact isIso_of_mono_of_epi f₂
+
+end
 
 end CategoryTheory
 

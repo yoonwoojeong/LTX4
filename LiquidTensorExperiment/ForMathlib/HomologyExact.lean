@@ -22,23 +22,23 @@ theorem ExactSeq.isIso_of_zero_of_zero {A B C D : 𝓐} {f : A ⟶ B} {g : B ⟶
     {L : List (Arrow 𝓐)} (H : ExactSeq 𝓐 (f::g::h::L)) (hf : f = 0) (hh : h = 0) : IsIso g :=
   by
   subst f; subst h
-  have : mono g := by rw [H.pair.mono_iff_eq_zero]
-  have : epi g := by rw [(H.drop 1).pair.epi_iff_eq_zero]
-  exact is_iso_of_mono_of_epi g
+  have : Mono g := by rw [H.pair.mono_iff_eq_zero]
+  have : Epi g := by rw [(H.drop 1).pair.epi_iff_eq_zero]
+  exact isIso_of_mono_of_epi g
 
 theorem Exact.homology'_isZero {X Y Z : 𝓐} (f : X ⟶ Y) (g : Y ⟶ Z) (hfg : Exact f g) :
     IsZero (homology' f g hfg.w) :=
   by
   rw [Preadditive.exact_iff_homology'_zero] at hfg 
   rcases hfg with ⟨w, ⟨e⟩⟩
-  exact CategoryTheory.Limits.isZero_of_iso_of_zero (is_zero_zero _) e.symm
+  exact CategoryTheory.Limits.isZero_of_iso_of_zero (isZero_zero _) e.symm
 
 theorem exact_of_homology'_isZero {X Y Z : 𝓐} {f : X ⟶ Y} {g : Y ⟶ Z} {w : f ≫ g = 0}
     (H : IsZero (homology' f g w)) : Exact f g :=
   by
   rw [Preadditive.exact_iff_homology'_zero]
   refine' ⟨w, ⟨_⟩⟩
-  exact H.iso_zero
+  exact H.isoZero
 
 namespace Limits
 
@@ -55,15 +55,11 @@ theorem homology'_isZero {X Y Z : 𝓐} (hY : IsZero Y) (f : X ⟶ Y) (g : Y ⟶
 theorem isIso {X Y : 𝓐} (hX : IsZero X) (hY : IsZero Y) (f : X ⟶ Y) : IsIso f :=
   { out := ⟨0, hX.eq_of_src _ _, hY.eq_of_tgt _ _⟩ }
 
-theorem op {X : 𝓐} (h : IsZero X) : IsZero (op X) :=
-  by
-  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero] at h ⊢
-  rw [← op_id, h, op_zero]
-
-theorem unop {X : 𝓐ᵒᵖ} (h : IsZero X) : IsZero (unop X) :=
-  by
-  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero] at h ⊢
-  rw [← unop_id, h, unop_zero]
+/-
+Porting note: LTE's `is_zero.op` and `is_zero.unop` were later added to mathlib with the same
+statements (for any category); in Lean 4 they are `CategoryTheory.Limits.IsZero.op`/`unop`,
+so they are not redeclared.
+-/
 
 end IsZero
 
