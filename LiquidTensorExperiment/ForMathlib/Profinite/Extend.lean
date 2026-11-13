@@ -168,20 +168,20 @@ theorem extendCommutes_comp_extendExtends (G : C ⥤ D)
     whiskerLeft FintypeCat.toProfinite (extendCommutes F G).hom ≫ (extendExtends _).hom =
       (Functor.associator _ _ _).inv ≫ whiskerRight (extendExtends _).hom G :=
   by
-  ext
+  ext x
   simp only [NatTrans.comp_app, CategoryTheory.whiskerLeft_app, Profinite.extendExtends_hom_app, Functor.comp_map,
     Functor.associator_inv_app, CategoryTheory.whiskerRight_app, Functor.map_comp, Category.id_comp,
     Profinite.extendCommutes_hom_app]
   rw [← Category.assoc]; congr 1
   rw [← Iso.eq_comp_inv]
-  ext
+  refine limit.hom_ext fun j => ?_
   simp only [IsLimit.conePointUniqueUpToIso, Category.assoc, Functor.mapIso_hom,
     IsLimit.uniqueUpToIso_hom, Cones.forget_map, IsLimit.liftConeMorphism_hom,
     limit.isLimit_lift]
   erw [limit.lift_π, limit.lift_π]
   simp only [Functor.mapCone_π_app, limit.cone_π, Functor.mapIso_inv, Cones.forget_map,
     IsLimit.uniqueUpToIso_inv, IsLimit.liftConeMorphism_hom, limit.isLimit_lift,
-    cone_of_diagram_initial_π_app, Functor.comp_map, CategoryTheory.Limits.limitOfDiagramInitial]
+    CategoryTheory.Limits.coneOfDiagramInitial_π_app, Functor.comp_map, CategoryTheory.Limits.limitOfDiagramInitial]
   rw [← Functor.map_comp]; congr 1; symm
   exact limit.w _ ((Profinite.botInitial x).to j)
 
@@ -196,6 +196,8 @@ theorem extendNatTrans_id (F : FintypeCat ⥤ C) [∀ X : Profinite, HasLimit (X
     extendNatTrans (𝟙 F) = 𝟙 _ := by
   ext S
   dsimp
+  -- Porting note: `limMap` has no `ext` lemma attribute in Lean 4
+  refine limit.hom_ext fun j => ?_
   simp
 
 @[simp]
@@ -207,6 +209,8 @@ theorem extendNatTrans_comp {F G H : FintypeCat ⥤ C}
   by
   ext S
   dsimp
+  -- Porting note: `limMap` has no `ext` lemma attribute in Lean 4
+  refine limit.hom_ext fun j => ?_
   simp
 
 theorem extend_π (F G : FintypeCat ⥤ C) [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ F)]
@@ -214,7 +218,9 @@ theorem extend_π (F G : FintypeCat ⥤ C) [∀ X : Profinite, HasLimit (X.finty
     (T : DiscreteQuotient X) :
     α.app X ≫ limit.π _ T =
       (extend F).map (X.asLimitCone.π.app T) ≫
-        α.app (Profinite.of T) ≫ (extendExtends G).hom.app _ :=
+        -- Porting note: Lean 3 elaborated `Profinite.of T` to `X.diagram.obj T` (the topologies on `T`
+        -- agree definitionally there, but not in Lean 4), so we write the latter explicitly.
+        α.app (X.diagram.obj T) ≫ (extendExtends G).hom.app _ :=
   by
   have : (extendExtends G).hom.app (X.fintypeDiagram.obj T) = limit.π _ ⊥ ≫ _ := rfl
   erw [this, α.naturality_assoc]; congr 1
