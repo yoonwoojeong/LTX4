@@ -1,4 +1,5 @@
 import Mathlib.CategoryTheory.Limits.Shapes.Biproducts
+import Mathlib.CategoryTheory.Preadditive.Basic
 
 /-!
 # Additive categories (compatibility)

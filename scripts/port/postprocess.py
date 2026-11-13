@@ -31,6 +31,24 @@ for root, _, fs in os.walk(SHIMS):
             imps = re.findall(r'^import (\S+)', open(os.path.join(root, f)).read(), re.M)
             shim[mod] = [via_align.get(i[len('Mathbin.'):], 'Mathlib.' + i[len('Mathbin.'):]) for i in imps]
 shim['Mathbin.CategoryTheory.Additive.Basic'] = ['LiquidTensorExperiment.Compat.AdditiveCategory']
+# Shims may import other shims: expand recursively.
+def expand(ms, seen=()):
+    out = []
+    for i in ms:
+        key = next((k for k, v in shim.items() if i == via_align.get(k[8:], 'Mathlib.' + k[8:])), None)
+        if key and key not in seen: out += expand(shim[key], seen + (key,))
+        else: out.append(i)
+    return out
+for k in list(shim): shim[k] = expand(shim[k], (k,))
+# mathlib3 modules with no `#align_import` (tactic files; split topology file).
+manual = {
+    'Tactic.Linarith.Default': ['Mathlib.Tactic.Linarith'],
+    'Tactic.RingExp': ['Mathlib.Tactic.Ring'],
+    # mathlib4 #7628 split topology/subset_properties into these:
+    'Topology.SubsetProperties': ['Mathlib.Topology.Compactness.Compact', 'Mathlib.Topology.Clopen',
+        'Mathlib.Topology.Compactness.LocallyCompact', 'Mathlib.Topology.Compactness.SigmaCompact',
+        'Mathlib.Topology.Compactness.Paracompact', 'Mathlib.Topology.Irreducible'],
+}
 def exists(mod):
     return os.path.exists(os.path.join(MATHLIB, *mod.split('.')) + '.lean')
 unresolved = set()
@@ -41,6 +59,7 @@ def rewrite(m):
     if m == 'Mathbin.Tactic.Default': return ['Mathlib.Tactic']
     if m in shim: return shim[m]
     if m.startswith('Mathbin.'): m = m[len('Mathbin.'):]
+    if m in manual: return manual[m]
     if m in via_align: return [via_align[m]]
     if exists('Mathlib.' + m): return ['Mathlib.' + m]
     unresolved.add(m); return ['Mathlib.' + m]
