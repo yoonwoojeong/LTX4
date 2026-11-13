@@ -50,18 +50,18 @@ theorem nSCRowExact (IH : ∀ m' < m, Thm95.IH r r' BD V κ κ' M m') (h0m : 0 <
   have hm' : m - 1 < m := Nat.pred_lt h0m.ne'
   rcases i with (i | i | i)
   · rw [Thm95.doubleComplex.row_zero]
-    refine' (IH (m - 1) hm' Λ).of_le BD.data.system_admissible _ _ le_rfl _
+    refine' (IH (m - 1) hm' Λ).of_le BD.data.systemAdmissible _ _ le_rfl _
     pick_goal 3
     · apply c₀_mono
     all_goals infer_instance
   · rw [Thm95.doubleComplex.row_one]
-    refine' (IH (m - 1) hm' _).of_le BD.data.system_admissible _ _ le_rfl _
+    refine' (IH (m - 1) hm' _).of_le BD.data.systemAdmissible _ _ le_rfl _
     pick_goal 3
     · apply c₀_pred_le; exact h0m
     all_goals infer_instance
   · rw [Thm95.doubleComplex.row]
     apply SystemOfComplexes.rescaleIsWeakBoundedExact
-    refine' (IH (m - 1) hm' _).of_le BD.data.system_admissible _ _ le_rfl _
+    refine' (IH (m - 1) hm' _).of_le BD.data.systemAdmissible _ _ le_rfl _
     pick_goal 3
     · apply c₀_pred_le_of_le; exact hi
     all_goals infer_instance
@@ -112,7 +112,7 @@ theorem thm95' :
   swap
   · intro m' hm' Λ
     apply IH; assumption
-  exact normed_spectral cond
+  exact SystemOfDoubleComplexes.normedSpectral cond
 
 /-- A variant of Theorem 9.5 in [Analytic] using weak bounded exactness. -/
 theorem thm95'.profinite :
@@ -132,7 +132,7 @@ theorem thm95'.profinite :
   swap
   · intro m' hm' Λ
     apply IH; assumption
-  exact normed_spectral cond
+  exact SystemOfDoubleComplexes.normedSpectral cond
 
 /-- Theorem 9.5 in [Analytic] -/
 theorem thm95 (Λ : PolyhedralLatticeCat.{u}) (S : Type u) [Fintype S] (V : SemiNormedGroupCat.{v})
@@ -143,7 +143,7 @@ theorem thm95 (Λ : PolyhedralLatticeCat.{u}) (S : Type u) [Fintype S] (V : Semi
   refine'
     SystemOfComplexes.IsWeakBoundedExact.strongOfComplete _ (thm95' r r' BD κ κ' m Λ S V) _ 1
       zero_lt_one
-  apply data.system_admissible
+  apply Data.systemAdmissible
 
 /-- Theorem 9.5 in [Analytic] -/
 theorem thm95.profinite (Λ : PolyhedralLatticeCat.{u}) (S : Profinite.{u})
@@ -154,7 +154,7 @@ theorem thm95.profinite (Λ : PolyhedralLatticeCat.{u}) (S : Profinite.{u})
   refine'
     SystemOfComplexes.IsWeakBoundedExact.strongOfComplete _ (thm95'.profinite r r' BD κ κ' m Λ S V)
       _ 1 zero_lt_one
-  apply data.system_admissible
+  apply Data.systemAdmissible
 
 /-- Theorem 9.5 in [Analytic] -/
 theorem Thm94.explicit (S : Profinite.{0}) (V : SemiNormedGroupCat.{v}) [NormedWithAut r V] :
@@ -191,7 +191,7 @@ theorem thm95'' (BD : Package) (r r' : ℝ≥0) [Fact (0 < r)] [Fact (0 < r')] [
   by
   intro m
   let κ' := package.κ' BD κ
-  haveI _inst_κ' : package.adept BD κ κ' := package.κ'_adept BD κ
+  haveI _inst_κ' : Package.Adept BD κ κ' := package.κ'_adept BD κ
   refine' ⟨k κ' m, K r r' BD κ' m, inferInstance, fun Λ _inst_Λ => _⟩
   refine' ⟨c₀ r r' BD κ κ' m (@PolyhedralLatticeCat.of Λ _inst_Λ), fun S _inst_S V _inst_V => _⟩
   apply thm95'
@@ -211,7 +211,7 @@ theorem thm95''.profinite (BD : Package) (r r' : ℝ≥0) [Fact (0 < r)] [Fact (
   by
   intro m
   let κ' := package.κ' BD κ
-  haveI _inst_κ' : package.adept BD κ κ' := package.κ'_adept BD κ
+  haveI _inst_κ' : Package.Adept BD κ κ' := package.κ'_adept BD κ
   refine' ⟨k κ' m, K r r' BD κ' m, inferInstance, fun Λ _inst_Λ => _⟩
   refine' ⟨c₀ r r' BD κ κ' m (@PolyhedralLatticeCat.of Λ _inst_Λ), fun S _inst_S V _inst_V => _⟩
   apply thm95'.profinite

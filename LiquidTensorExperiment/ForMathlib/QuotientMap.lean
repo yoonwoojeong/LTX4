@@ -1,7 +1,7 @@
 import Mathlib.Data.Setoid.Basic
 import Mathlib.Topology.Homeomorph
 
-#align_import for_mathlib.quotient_map
+#align_import for_mathlib.quotientMap
 
 variable {α β : Type _} [TopologicalSpace α] [TopologicalSpace β]
 

@@ -2,7 +2,7 @@ import LiquidTensorExperiment.ForMathlib.ComposableMorphisms
 import Mathlib.Algebra.Homology.Additive
 import LiquidTensorExperiment.ForMathlib.HomologicalComplexMapDToDFrom
 
-#align_import for_mathlib.short_complex
+#align_import for_mathlib.ShortComplex
 
 noncomputable section
 
@@ -93,35 +93,35 @@ def homMk [HasZeroMorphisms C] {X₁ Y₁ Z₁ X₂ Y₂ Z₂ : C} {f₁ : X₁ 
 
 @[simps]
 def isoMk [HasZeroMorphisms C] {S₁ S₂ : ShortComplex C} (τ₁ : S₁.1.pt ≅ S₂.1.pt)
-    (τ₂ : S₁.1.y ≅ S₂.1.y) (τ₃ : S₁.1.z ≅ S₂.1.z) (comm₁₂ : S₁.1.f ≫ τ₂.Hom = τ₁.Hom ≫ S₂.1.f)
-    (comm₂₃ : S₁.1.g ≫ τ₃.Hom = τ₂.Hom ≫ S₂.1.g) : S₁ ≅ S₂
+    (τ₂ : S₁.1.y ≅ S₂.1.y) (τ₃ : S₁.1.z ≅ S₂.1.z) (comm₁₂ : S₁.1.f ≫ τ₂.hom = τ₁.hom ≫ S₂.1.f)
+    (comm₂₃ : S₁.1.g ≫ τ₃.hom = τ₂.hom ≫ S₂.1.g) : S₁ ≅ S₂
     where
-  Hom := ⟨τ₁.Hom, τ₂.Hom, τ₃.Hom, comm₁₂, comm₂₃⟩
+  hom := ⟨τ₁.hom, τ₂.hom, τ₃.hom, comm₁₂, comm₂₃⟩
   inv := by
     refine' ⟨τ₁.inv, τ₂.inv, τ₃.inv, _, _⟩
     ·
-      simp only [← cancel_mono τ₂.hom, ← cancel_epi τ₁.hom, assoc, iso.inv_hom_id, comp_id,
-        iso.hom_inv_id_assoc, comm₁₂]
+      simp only [← cancel_mono τ₂.hom, ← cancel_epi τ₁.hom, assoc, Iso.inv_hom_id, comp_id,
+        Iso.hom_inv_id_assoc, comm₁₂]
     ·
-      simp only [← cancel_mono τ₃.hom, ← cancel_epi τ₂.hom, assoc, iso.inv_hom_id, comp_id,
-        iso.hom_inv_id_assoc, comm₂₃]
-  hom_inv_id' := by
+      simp only [← cancel_mono τ₃.hom, ← cancel_epi τ₂.hom, assoc, Iso.inv_hom_id, comp_id,
+        Iso.hom_inv_id_assoc, comm₂₃]
+  hom_inv_id := by
     ext
-    · simpa only [comp_τ₁, hom_mk_τ₁, iso.hom_inv_id]
-    · simpa only [comp_τ₂, hom_mk_τ₂, iso.hom_inv_id]
-    · simpa only [comp_τ₃, hom_mk_τ₃, iso.hom_inv_id]
-  inv_hom_id' := by
+    · simpa only [comp_τ₁, hom_mk_τ₁, Iso.hom_inv_id]
+    · simpa only [comp_τ₂, hom_mk_τ₂, Iso.hom_inv_id]
+    · simpa only [comp_τ₃, hom_mk_τ₃, Iso.hom_inv_id]
+  inv_hom_id := by
     ext
-    · simpa only [iso.inv_hom_id, comp_τ₁, hom_mk_τ₁]
-    · simpa only [iso.inv_hom_id, comp_τ₂, hom_mk_τ₂]
-    · simpa only [iso.inv_hom_id, comp_τ₃, hom_mk_τ₃]
+    · simpa only [Iso.inv_hom_id, comp_τ₁, hom_mk_τ₁]
+    · simpa only [Iso.inv_hom_id, comp_τ₂, hom_mk_τ₂]
+    · simpa only [Iso.inv_hom_id, comp_τ₃, hom_mk_τ₃]
 
 theorem isIso_of_is_isos [HasZeroMorphisms C] {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂)
     (h₁ : IsIso φ.τ₁) (h₂ : IsIso φ.τ₂) (h₃ : IsIso φ.τ₃) : IsIso φ :=
   by
-  let e : S₁ ≅ S₂ := iso_mk (as_iso φ.τ₁) (as_iso φ.τ₂) (as_iso φ.τ₃) φ.comm₁₂ φ.comm₂₃
+  let e : S₁ ≅ S₂ := iso_mk (CategoryTheory.asIso φ.τ₁) (CategoryTheory.asIso φ.τ₂) (CategoryTheory.asIso φ.τ₃) φ.comm₁₂ φ.comm₂₃
   rcases φ with ⟨τ₁, τ₂, τ₃, comm₁₂, comm₂₂⟩
-  exact is_iso.of_iso e
+  exact IsIso.of_iso e
 
 def homology [Abelian C] (S : ShortComplex C) : C :=
   homology' S.1.f S.1.g S.2
@@ -131,8 +131,8 @@ def homologyFunctor [Abelian C] : ShortComplex C ⥤ C
     where
   obj X := X.homology'
   map X Y φ := homology'.map X.2 Y.2 ⟨φ.τ₁, φ.τ₂, φ.comm₁₂.symm⟩ ⟨φ.τ₂, φ.τ₃, φ.comm₂₃.symm⟩ rfl
-  map_id' X := by apply homology'.map_id
-  map_comp' X Y Z φ ψ := by symm; apply homology'.map_comp
+  map_id X := by apply homology'.map_id
+  map_comp X Y Z φ ψ := by symm; apply homology'.map_comp
 
 variable (C)
 
@@ -143,12 +143,12 @@ def functorHomologicalComplex [HasZeroMorphisms C] {M : Type _} (c : ComplexShap
   obj X := mk (X.dTo i) (X.dFrom i) (X.dTo_comp_dFrom i)
   map X Y f :=
     ComposableMorphisms.Hom.mk (f.prev i) (f.f i) (f.next i) (f.comm_to i).symm (f.comm_from i).symm
-  map_id' X := by
+  map_id X := by
     ext
     · exact X.prev_id i
     · rfl
     · exact X.next_id i
-  map_comp' X Y Z f g := by
+  map_comp X Y Z f g := by
     ext
     · exact HomologicalComplex.prev_comp f g i
     · rfl
@@ -158,7 +158,7 @@ def functorHomologicalComplex [HasZeroMorphisms C] {M : Type _} (c : ComplexShap
 def homologyFunctorIso [Abelian C] {M : Type _} (c : ComplexShape M) (i : M) :
     homology'Functor C c i ≅ functorHomologicalComplex C c i ⋙ ShortComplex.homologyFunctor :=
   NatIso.ofComponents (fun X => Iso.refl _) fun X Y f => by ext;
-    simpa only [iso.refl_hom, id_comp, comp_id]
+    simpa only [Iso.refl_hom, id_comp, comp_id]
 
 end ShortComplex
 
@@ -172,7 +172,7 @@ def mapShortComplex [HasZeroMorphisms C] [HasZeroMorphisms D] (F : C ⥤ D)
   FullSubcategory.lift _ (inducedFunctor _ ⋙ F.mapComposableMorphisms) fun X =>
     by
     have h := X.2
-    dsimp [composable_morphisms.zero] at h ⊢
+    dsimp [ComposableMorphisms.Zero] at h ⊢
     rw [← F.map_comp, h, F.map_zero]
 
 end Functor
@@ -212,13 +212,13 @@ theorem NatTrans.mapShortComplex_app :
 
 theorem naturality_functorHomologicalComplexMap :
     (NatTrans.mapShortComplex φ).app ((ShortComplex.functorHomologicalComplex C c i).obj X) ≫
-        (ShortComplex.functorHomologicalComplexMap G c i).Hom.app X =
-      (ShortComplex.functorHomologicalComplexMap F c i).Hom.app X ≫
+        (ShortComplex.functorHomologicalComplexMap G c i).hom.app X =
+      (ShortComplex.functorHomologicalComplexMap F c i).hom.app X ≫
         (ShortComplex.functorHomologicalComplex D c i).map
           ((NatTrans.mapHomologicalComplex φ c).app X) :=
   by
-  dsimp only [functor_homological_complex_map, iso.refl_hom, nat_trans.id_app]
-  erw [nat_trans.map_short_complex_app, category.id_comp, category.comp_id]
+  dsimp only [ShortComplex.functorHomologicalComplexMap, Iso.refl_hom, NatTrans.id_app]
+  erw [NatTrans.mapShortComplex_app, Category.id_comp, Category.comp_id]
 
 end ShortComplex
 

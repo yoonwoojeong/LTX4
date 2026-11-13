@@ -62,29 +62,29 @@ def evalPng : BasicUniversalMap m n →+ ComphausFilteredPseudoNormedGroupHom (M
           have : ∑ i, ↑(f j i).natAbs * (1 * c) ≤ C * c := by rw [← Finset.sum_mul];
             exact mul_le_mul' (Finset.le_sup (Finset.mem_univ j)) (one_mul c).le
           refine' filtration_mono this _
-          simp only [← coe_to_add_monoid_hom, ← to_add_monoid_hom_hom_apply, AddMonoidHom.map_sum,
+          simp only [← coe_to_add_monoid_hom, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_sum,
             AddMonoidHom.map_zsmul, AddMonoidHom.finset_sum_apply]
           refine' sum_mem_filtration _ _ _ _
           rintro i -
           refine' int_smul_mem_filtration _ _ _ _
-          exact @pi_proj_bound_by _ (fun _ => M) _ i _ _ hx))
+          exact @ComphausFilteredPseudoNormedGroup.piProjBoundBy _ (fun _ => M) _ i _ _ hx))
     (by
       intro f g
       ext x j
-      simp only [← coe_to_add_monoid_hom, ← to_add_monoid_hom_hom_apply, AddMonoidHom.map_add,
+      simp only [← coe_to_add_monoid_hom, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_add,
         AddMonoidHom.add_apply, Pi.add_apply]
-      simp only [coe_to_add_monoid_hom, to_add_monoid_hom_hom_apply]
-      simp only [pi_lift_to_fun, mk_to_pi_apply, ← to_add_monoid_hom_hom_apply,
+      simp only [coe_to_add_monoid_hom, ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply]
+      simp only [pi_lift_to_fun, AddMonoidHom.mkToPi_apply, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply,
         AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, AddMonoidHom.finset_sum_apply]
       rw [← Finset.sum_add_distrib]
-      simp only [pi_proj_to_fun, to_add_monoid_hom_hom_apply, coe_smul, coe_to_add_monoid_hom,
+      simp only [pi_proj_to_fun, ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, coe_smul, coe_to_add_monoid_hom,
         Pi.smul_apply, add_smul]
       rfl)
 
 theorem evalPng_apply (x : M ^ m) : evalPng M f x = fun j => ∑ i, f j i • x i :=
   by
   ext j
-  simp only [eval_png, mk'_apply, pi_lift_to_fun, mk_to_pi_apply, ← to_add_monoid_hom_hom_apply]
+  simp only [BreenDeligne.BasicUniversalMap.evalPng, mk'_apply, pi_lift_to_fun, AddMonoidHom.mkToPi_apply, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply]
   simp only [AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, AddMonoidHom.finset_sum_apply]
   rfl
 
@@ -92,19 +92,19 @@ theorem evalPng_mem_filtration :
     (evalPng M f).toAddMonoidHom ∈
       filtration (M ^ m →+ M ^ n) (Finset.univ.sup fun i => ∑ j, (f i j).natAbs) :=
   by
-  apply mk_to_pi_mem_filtration
+  apply AddMonoidHom.mkToPi_mem_filtration
   intro j
   let C : ℝ≥0 := finset.univ.sup fun j => ∑ i, (f j i).natAbs
   intro c x hx
   have : ∑ i, ↑(f j i).natAbs * (1 * c) ≤ C * c := by rw [← Finset.sum_mul];
     exact mul_le_mul' (Finset.le_sup (Finset.mem_univ j)) (one_mul c).le
   refine' filtration_mono this _
-  simp only [← coe_to_add_monoid_hom, ← to_add_monoid_hom_hom_apply, AddMonoidHom.map_sum,
+  simp only [← coe_to_add_monoid_hom, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_sum,
     AddMonoidHom.map_zsmul, AddMonoidHom.finset_sum_apply]
   refine' sum_mem_filtration _ _ _ _
   rintro i -
   refine' int_smul_mem_filtration _ _ _ _
-  exact @pi_proj_bound_by _ (fun _ => M) _ i _ _ hx
+  exact @ComphausFilteredPseudoNormedGroup.piProjBoundBy _ (fun _ => M) _ i _ _ hx
 
 theorem evalPng_mem_filtration' (c₁ c₂ : ℝ≥0) [h : f.Suitable c₁ c₂] (x : M ^ m)
     (hx : x ∈ filtration (M ^ m) c₁) : evalPng M f x ∈ filtration (M ^ n) c₂ :=
@@ -122,12 +122,12 @@ theorem evalPng_comp {l m n} (g : BasicUniversalMap m n) (f : BasicUniversalMap 
     evalPng M (BasicUniversalMap.comp g f) = (evalPng M g).comp (evalPng M f) :=
   by
   ext x j
-  simp only [eval_png_apply, Function.comp_apply, coe_comp, basic_universal_map.comp, comp_to_fun,
+  simp only [BreenDeligne.BasicUniversalMap.evalPng_apply, Function.comp_apply, coe_comp, BasicUniversalMap.comp, comp_to_fun,
     Matrix.mul_apply, Finset.smul_sum, Finset.sum_smul, mul_smul, AddMonoidHom.mk'_apply]
   rw [Finset.sum_comm]
 
 theorem evalPng₀_continuous (c₁ c₂ : ℝ≥0) [f.Suitable c₁ c₂] : Continuous (f.evalPng₀ M c₁ c₂) :=
-  (evalPng M f).Continuous _ fun x => rfl
+  (evalPng M f).continuous _ fun x => rfl
 
 end ProfinitelyFilteredPseudoNormedGroup
 

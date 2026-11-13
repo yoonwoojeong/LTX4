@@ -24,7 +24,7 @@ def fintypeArrowDiagram : DiscreteQuotient F.left ⥤ Arrow FintypeCat.{u}
   obj S :=
     { left := FintypeCat.of S
       right := FintypeCat.of <| S.make F.Hom surj
-      Hom := DiscreteQuotient.map (S.makeLeComap _ _) }
+      hom := DiscreteQuotient.map (S.makeLeComap _ _) }
   map S T f :=
     { left := ofLE <| leOfHom f
       right := ofLE <| make_right_mono F.Hom surj S T <| leOfHom f }
@@ -43,7 +43,7 @@ abbrev rightArrowDiagram : DiscreteQuotient F.left ⥤ Profinite.{u} :=
   arrowDiagram F surj ⋙ Arrow.rightFunc
 
 theorem arrowDiagram_surjective (S : DiscreteQuotient F.left) :
-    Function.Surjective ((arrowDiagram F surj).obj S).Hom :=
+    Function.Surjective ((arrowDiagram F surj).obj S).hom :=
   by
   rintro ⟨x⟩
   obtain ⟨x, rfl⟩ := surj x
@@ -55,7 +55,7 @@ instance (S : DiscreteQuotient F.left) : Arrow.Split ((arrowDiagram F surj).obj 
     ⟨fun x => Classical.choose (arrowDiagram_surjective F surj S x), continuous_of_discreteTopology⟩
   is_splitting' := by
     ext x
-    erw [Classical.choose_spec (arrow_diagram_surjective F surj S x)]
+    erw [Classical.choose_spec (Profinite.arrowDiagram_surjective F surj S x)]
     rfl
 
 /-- A cone which is a limit expressing an arrow as a limit. -/
@@ -72,8 +72,8 @@ def arrowCone : Limits.Cone (arrowDiagram F surj)
 /-- A helper definition used for `arrow_limit_cone`. -/
 def arrowDiagramSndPreserves : Limits.PreservesLimit (arrowDiagram F surj ⋙ Comma.snd _ _) (𝟭 _) :=
   by
-  have h := limits.id_preserves_limits.preserves_limits_of_shape
-  have hh := h.preserves_limit
+  have h := limits.idPreservesLimits.preservesLimitsOfShape
+  have hh := h.preservesLimit
   exact hh
 
 /-- the limit cone assocciated to arrow_diagram -/
@@ -125,7 +125,7 @@ instance arrow_isIso_lift_right :
           have h1 : II ≤ I := inf_le_right
           have h2 : II ≤ J.comap F.hom.continuous := inf_le_left
           rw [← hx (hom_of_le h1)]
-          dsimp [comma.cone_of_preserves_is_limit, limit_cone_is_limit, CompHaus.limitConeIsLimit,
+          dsimp [Comma.coneOfPreservesIsLimit, limit_cone_is_limit, CompHaus.limitConeIsLimit,
             TopCat.limitConeIsLimit]
           rw [hy]
           dsimp [Us]
@@ -165,9 +165,9 @@ def rightArrowConeIso : rightArrowCone F surj ≅ limitCone <| rightArrowDiagram
 @[simps]
 def arrowConeIso : arrowCone F surj ≅ (arrowLimitCone F surj).Cone :=
   haveI :=
-    arrow.is_iso_of_iso_left_of_is_iso_right
-      ((arrow_limit_cone F surj).IsLimit.lift (arrow_cone F surj))
-  limits.cones.ext (as_iso <| (arrow_limit_cone F surj).IsLimit.lift (arrow_cone F surj)) fun _ =>
+    Arrow.isIso_of_isIso_left_of_isIso_right
+      ((Profinite.arrowLimitCone F surj).IsLimit.lift (Profinite.arrowCone F surj))
+  Limits.Cones.ext (CategoryTheory.asIso <| (Profinite.arrowLimitCone F surj).IsLimit.lift (Profinite.arrowCone F surj)) fun _ =>
     rfl
 
 /-- arrow_cone is a limit cone. -/
@@ -233,7 +233,7 @@ def swapConeRight (n : ℕ) (S : Limits.Cone (cechConeDiagram F surj n)) :
   pt := S.pt
   π :=
     { app := fun T => S.π.app T ≫ Limits.WidePullback.base _
-      naturality' := by
+      naturality := by
         intro X Y f
         dsimp
         simp [← S.w f] }
@@ -245,7 +245,7 @@ def swapConeLeft (n : ℕ) (i : Fin (n + 1)) (S : Limits.Cone (cechConeDiagram F
   pt := S.pt
   π :=
     { app := fun T => S.π.app T ≫ Limits.WidePullback.π _ i
-      naturality' := by
+      naturality := by
         intro X Y f
         dsimp
         simp [← S.w f] }
@@ -258,45 +258,45 @@ def cechConeIsLimit (n : ℕ) : Limits.IsLimit (cechCone F surj n)
       (fun i => (isLimitLeftArrowCone F surj).lift <| swapConeLeft _ _ _ i _)
       (by
         intro i
-        apply (is_limit_right_arrow_cone F surj).hom_ext
+        apply (Profinite.isLimitRightArrowCone F surj).hom_ext
         intro T
         simp
         have :
-          (arrow_cone F surj).pt.Hom ≫ (right_arrow_cone F surj).π.app T =
-            (left_arrow_cone F surj).π.app T ≫
-              (whisker_left (arrow_diagram F surj) arrow.left_to_right).app T :=
+          (Profinite.arrowCone F surj).pt.hom ≫ (Profinite.rightArrowCone F surj).π.app T =
+            (Profinite.leftArrowCone F surj).π.app T ≫
+              (whisker_left (Profinite.arrowDiagram F surj) Arrow.leftToRight).app T :=
           by rfl
-        erw [this, ← category.assoc,
-          (is_limit_left_arrow_cone F surj).fac (swap_cone_left F surj n i S) T]
+        erw [this, ← Category.assoc,
+          (Profinite.isLimitLeftArrowCone F surj).fac (Profinite.swapConeLeft F surj n i S) T]
         simp)
   fac := by
     intro S T
-    apply limits.wide_pullback.hom_ext
+    apply Limits.WidePullback.hom_ext
     · intro i
       dsimp
       simp
-      have := (is_limit_left_arrow_cone F surj).fac
+      have := (Profinite.isLimitLeftArrowCone F surj).fac
       erw [this]
       rfl
     · dsimp
       simp
-      erw [(is_limit_right_arrow_cone F surj).fac]
+      erw [(Profinite.isLimitRightArrowCone F surj).fac]
       rfl
   uniq := by
     intro S f h
-    apply limits.wide_pullback.hom_ext
+    apply Limits.WidePullback.hom_ext
     · dsimp; simp
       intro i
-      apply (is_limit_left_arrow_cone F surj).hom_ext
+      apply (Profinite.isLimitLeftArrowCone F surj).hom_ext
       intro T
       simp
-      erw [← h T, category.assoc, limits.wide_pullback.lift_π]
+      erw [← h T, Category.assoc, Limits.WidePullback.lift_π]
       rfl
     · dsimp; simp
-      apply (is_limit_right_arrow_cone F surj).hom_ext
+      apply (Profinite.isLimitRightArrowCone F surj).hom_ext
       intro T
       simp
-      erw [← h T, category.assoc, limits.wide_pullback.lift_base]
+      erw [← h T, Category.assoc, Limits.WidePullback.lift_base]
       rfl
 
 end Profinite

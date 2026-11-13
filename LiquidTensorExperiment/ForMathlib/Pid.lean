@@ -409,7 +409,7 @@ theorem span_succ {N : Submodule R M} {BB : { i // a i ≠ 0 } → M} {i : Ordin
         cases h
         have hjx : x = ⟨j, hjo⟩ := by simp [h_1]
         have hx : x ∈ l'.support := hx
-        rw [l'.mem_support_to_fun] at hx 
+        rw [l'.mem_support_toFun] at hx 
         have hl' : l' x = 0
         dsimp [l']
         have hu := hBBa j_good
@@ -640,7 +640,7 @@ theorem Submodule.nonempty_basis_of_pid' [IsDomain R] [IsPrincipalIdealRing R] {
     simp only [mem_span_set, Basis.coe_reindex, SetLike.mem_coe]
     use Finsupp.mapDomain B l
     constructor
-    rw [Finsupp.mapDomain_support_of_injOn l (inj_on_of_injective (Basis.injective B) _)]
+    rw [Finsupp.mapDomain_support_of_injOn l (Set.injOn_of_injective (Basis.injective B) _)]
     simp only [B, Finset.coe_image, Basis.reindex_apply_image]
     have h : (Ordinal.enumIso' r).symm.toEquiv.symm '' (l.support : Set ords) ⊆ seg j
     simp only [Equiv.subset_image, RelIso.coe_fn_toEquiv]
@@ -685,11 +685,11 @@ theorem Submodule.nonempty_basis_of_pid' [IsDomain R] [IsPrincipalIdealRing R] {
     rcases h with ⟨l, ⟨hsupp, hl⟩⟩
     simp [B] at hx 
     simp [BB] at hl 
-    let l' := Finsupp.comapDomain b l (inj_on_of_injective (Basis.injective b) _)
+    let l' := Finsupp.comapDomain b l (Set.injOn_of_injective (Basis.injective b) _)
     have hsupp' : (l.support : Set M) ⊆ range ⇑b :=
       subset.trans hsupp (Set.image_subset_range b (seg i))
     have hrepr :=
-      Finsupp.total_comap_domain' (fun i => i) b l (inj_on_of_injective (Basis.injective b) _)
+      Finsupp.total_comap_domain' (fun i => i) b l (Set.injOn_of_injective (Basis.injective b) _)
         hsupp'
     have hrepr : (Finsupp.total ι M R ((fun i => i) ∘ b)) l' = ∑ i : M in l.support, l i • i :=
       hrepr

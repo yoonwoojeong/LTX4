@@ -36,8 +36,8 @@ def parallelPairIso {F G : Sheaf J A} (η γ : F ⟶ G) :
   NatIso.ofComponents
     (fun x =>
       match x with
-      | limits.walking_parallel_pair.zero => eqToIso rfl
-      | limits.walking_parallel_pair.one => eqToIso rfl)
+      | Limits.WalkingParallelPair.zero => eqToIso rfl
+      | Limits.WalkingParallelPair.one => eqToIso rfl)
     (by
       rintro (x | x) (y | y) (f | f | f)
       any_goals rfl
@@ -74,25 +74,25 @@ def kernelSheaf {F G : Sheaf J A} (η : F ⟶ G) : Sheaf J A
     where
   val := Limits.kernel.{max v u} ((sheafToPresheaf J A).map η)
   cond := by
-    apply presheaf.is_sheaf_of_iso J (kernel_iso η).symm
+    apply presheaf.isSheaf_of_iso J (kernel_iso η).symm
     exact Sheaf.cond _
 
 def kernelι {F G : Sheaf J A} (η : F ⟶ G) : kernelSheaf η ⟶ F :=
   ⟨Limits.kernel.ι _⟩
 
 def kernelFork {F G : Sheaf J A} (η : F ⟶ G) : Limits.Fork η 0 :=
-  Limits.Fork.ofι (kernelι η) <| by simp only [limits.comp_zero]; ext1;
-    apply limits.kernel.condition
+  Limits.Fork.ofι (kernelι η) <| by simp only [Limits.comp_zero]; ext1;
+    apply Limits.kernel.condition
 
 def isLimitKernelFork {F G : Sheaf J A} (η : F ⟶ G) : Limits.IsLimit (kernelFork η) :=
   Limits.isLimitAux _
     (fun S => ⟨Limits.kernel.lift _ S.ι.val <| congr_arg Sheaf.Hom.val S.condition⟩)
-    (by intro S; ext1; apply limits.kernel.lift_ι)
+    (by intro S; ext1; apply Limits.kernel.lift_ι)
     (by
       intro S m hm
       ext : 2
-      simp only [limits.kernel.lift_ι]
-      exact congr_arg Sheaf.hom.val hm)
+      simp only [Limits.kernel.lift_ι]
+      exact congr_arg Sheaf.Hom.val hm)
 
 -- Sanity check
 example : Limits.HasKernels (Sheaf J A) := by infer_instance
@@ -102,27 +102,27 @@ def kernelIsoKernelSheaf {F G : Sheaf J A} (η : F ⟶ G) : Limits.kernel η ≅
 
 @[simp, reassoc]
 theorem kernelIsoKernelSheaf_hom_ι {F G : Sheaf J A} (η : F ⟶ G) :
-    (kernelIsoKernelSheaf η).Hom ≫ kernelι η = Limits.kernel.ι _ :=
-  ((Limits.limit.isLimit _).uniqueUpToIso (isLimitKernelFork η)).Hom.w
+    (kernelIsoKernelSheaf η).hom ≫ kernelι η = Limits.kernel.ι _ :=
+  ((Limits.limit.isLimit _).uniqueUpToIso (isLimitKernelFork η)).hom.w
     Limits.WalkingParallelPair.zero
 
 @[simp, reassoc]
 theorem kernelIsoKernelSheaf_hom_ι_val {F G : Sheaf J A} (η : F ⟶ G) :
-    (kernelIsoKernelSheaf η).Hom.val ≫ (kernelι η).val = (Limits.kernel.ι η).val :=
+    (kernelIsoKernelSheaf η).hom.val ≫ (kernelι η).val = (Limits.kernel.ι η).val :=
   by
-  change ((kernel_iso_kernel_sheaf η).Hom ≫ kernel_ι η).val = (limits.kernel.ι η).val
+  change ((CategoryTheory.Sheaf.kernelIsoKernelSheaf η).hom ≫ kernel_ι η).val = (Limits.kernel.ι η).val
   simp
 
 @[simp, reassoc]
 theorem kernelIsoKernelSheaf_inv_ι {F G : Sheaf J A} (η : F ⟶ G) :
     (kernelIsoKernelSheaf η).inv ≫ Limits.kernel.ι _ = kernelι η := by
-  simp only [← kernel_iso_kernel_sheaf_hom_ι, iso.inv_hom_id_assoc]
+  simp only [← kernel_iso_kernel_sheaf_hom_ι, Iso.inv_hom_id_assoc]
 
 @[simp, reassoc]
 theorem kernelIsoKernelSheaf_inv_ι_val {F G : Sheaf J A} (η : F ⟶ G) :
     (kernelIsoKernelSheaf η).inv.val ≫ (Limits.kernel.ι η).val = (kernelι η).val :=
   by
-  change ((kernel_iso_kernel_sheaf η).inv ≫ limits.kernel.ι η).val = (kernel_ι η).val
+  change ((CategoryTheory.Sheaf.kernelIsoKernelSheaf η).inv ≫ Limits.kernel.ι η).val = (kernel_ι η).val
   simp
 
 end Kernels
@@ -171,10 +171,10 @@ def cokernelCofork {F G : Sheaf J A} (η : F ⟶ G) : Limits.Cofork η 0 :=
   Limits.Cofork.ofπ (cokernelπ η)
     (by
       ext1
-      rw [limits.zero_comp]
+      rw [Limits.zero_comp]
       dsimp only [cokernel_π]
       show η.val ≫ _ = 0
-      erw [← category.assoc, limits.cokernel.condition, limits.zero_comp])
+      erw [← Category.assoc, Limits.cokernel.condition, Limits.zero_comp])
 
 def isColimitCokernelCofork {F G : Sheaf J A} (η : F ⟶ G) : Limits.IsColimit (cokernelCofork η) :=
   Limits.isColimitAux _
@@ -186,15 +186,15 @@ def isColimitCokernelCofork {F G : Sheaf J A} (η : F ⟶ G) : Limits.IsColimit 
     (by
       intro S; ext1
       change (_ ≫ _) ≫ _ = _
-      rw [category.assoc, J.to_sheafify_sheafify_lift, limits.cokernel.π_desc])
+      rw [Category.assoc, J.to_sheafify_sheafify_lift, Limits.cokernel.π_desc])
     (by
       intro S m hm; ext1
       apply J.sheafify_lift_unique
-      rw [Sheaf.hom.ext_iff] at hm 
+      rw [Sheaf.Hom.ext_iff] at hm 
       change (_ ≫ _) ≫ _ = _ at hm 
-      rw [category.assoc] at hm 
+      rw [Category.assoc] at hm 
       ext1
-      rw [hm, limits.cokernel.π_desc])
+      rw [hm, Limits.cokernel.π_desc])
 
 -- Sanity check
 example : Limits.HasCokernels (Sheaf J A) := by infer_instance
@@ -204,14 +204,14 @@ def cokernelIsoCokernelSheaf {F G : Sheaf J A} (η : F ⟶ G) : Limits.cokernel 
 
 @[simp]
 theorem cokernelIsoCokernelSheaf_hom_π {F G : Sheaf J A} (η : F ⟶ G) :
-    Limits.cokernel.π η ≫ (cokernelIsoCokernelSheaf η).Hom = cokernelπ _ :=
-  ((Limits.colimit.isColimit _).uniqueUpToIso (isColimitCokernelCofork η)).Hom.w
+    Limits.cokernel.π η ≫ (cokernelIsoCokernelSheaf η).hom = cokernelπ _ :=
+  ((Limits.colimit.isColimit _).uniqueUpToIso (isColimitCokernelCofork η)).hom.w
     Limits.WalkingParallelPair.one
 
 @[simp]
 theorem cokernelIsoCokernelSheaf_inv_π {F G : Sheaf J A} (η : F ⟶ G) :
     cokernelπ η ≫ (cokernelIsoCokernelSheaf η).inv = Limits.cokernel.π η := by
-  simp only [← cokernel_iso_cokernel_sheaf_hom_π, category.assoc, iso.hom_inv_id, category.comp_id]
+  simp only [← cokernel_iso_cokernel_sheaf_hom_π, Category.assoc, Iso.hom_inv_id, Category.comp_id]
 
 end Cokernels
 
@@ -242,8 +242,8 @@ def coimToIm'Aux {F G : Sheaf J A} (η : F ⟶ G) :
     Limits.kernel.lift _ (Limits.kernel.ι _)
       (by
         dsimp [cokernel_π]
-        rw [← category.assoc, limits.kernel.condition]
-        simp only [limits.zero_comp])
+        rw [← Category.assoc, Limits.kernel.condition]
+        simp only [Limits.zero_comp])
 
 def coimToIm' {F G : Sheaf J A} (η : F ⟶ G) :
     cokernelSheaf (kernelι η) ⟶ kernelSheaf (cokernelπ η) :=
@@ -252,111 +252,111 @@ def coimToIm' {F G : Sheaf J A} (η : F ⟶ G) :
 def kernelSheafCokernelπIso {F G : Sheaf J A} (η : F ⟶ G) :
     kernelSheaf (Limits.cokernel.π η) ≅ kernelSheaf (cokernelπ η)
     where
-  Hom :=
-    ⟨Limits.kernel.map _ _ (𝟙 _) ((sheafToPresheaf J A).map (cokernelIsoCokernelSheaf η).Hom)
+  hom :=
+    ⟨Limits.kernel.map _ _ (𝟙 _) ((sheafToPresheaf J A).map (cokernelIsoCokernelSheaf η).hom)
         (by
-          rw [← functor.map_comp]
-          dsimp [cokernel_iso_cokernel_sheaf, limits.is_colimit.cocone_point_unique_up_to_iso,
+          rw [← Functor.map_comp]
+          dsimp [cokernel_iso_cokernel_sheaf, Limits.IsColimit.coconePointUniqueUpToIso,
             cokernel_cofork]
-          show Sheaf.hom.val (limits.cokernel.π η ≫ _) = _
-          simp only [limits.coequalizer.π_desc, category.id_comp])⟩
+          show Sheaf.Hom.val (Limits.cokernel.π η ≫ _) = _
+          simp only [Limits.coequalizer.π_desc, Category.id_comp])⟩
   inv :=
     ⟨Limits.kernel.map _ _ (𝟙 _) ((sheafToPresheaf J A).map (cokernelIsoCokernelSheaf η).inv)
         (by
-          rw [← functor.map_comp]
-          dsimp [cokernel_iso_cokernel_sheaf, limits.is_colimit.cocone_point_unique_up_to_iso,
-            cokernel_π, is_colimit_cokernel_cofork, limits.is_colimit_aux]
-          erw [category.id_comp, category.assoc, J.to_sheafify_sheafify_lift,
-            limits.cokernel.π_desc])⟩
-  hom_inv_id' := by
+          rw [← Functor.map_comp]
+          dsimp [cokernel_iso_cokernel_sheaf, Limits.IsColimit.coconePointUniqueUpToIso,
+            cokernel_π, is_colimit_cokernel_cofork, Limits.isColimitAux]
+          erw [Category.id_comp, Category.assoc, J.to_sheafify_sheafify_lift,
+            Limits.cokernel.π_desc])⟩
+  hom_inv_id := by
     ext : 2
-    delta limits.kernel.map
+    delta Limits.kernel.map
     dsimp
-    erw [category.assoc, limits.kernel.lift_ι, ← category.assoc, limits.kernel.lift_ι,
-      category.comp_id, category.comp_id, category.id_comp]
-  inv_hom_id' := by
+    erw [Category.assoc, Limits.kernel.lift_ι, ← Category.assoc, Limits.kernel.lift_ι,
+      Category.comp_id, Category.comp_id, Category.id_comp]
+  inv_hom_id := by
     ext : 2
-    delta limits.kernel.map
+    delta Limits.kernel.map
     dsimp
-    erw [category.assoc, limits.kernel.lift_ι, ← category.assoc, limits.kernel.lift_ι,
-      category.comp_id, category.comp_id, category.id_comp]
+    erw [Category.assoc, Limits.kernel.lift_ι, ← Category.assoc, Limits.kernel.lift_ι,
+      Category.comp_id, Category.comp_id, Category.id_comp]
 
 def cokernelSheafKernelιIso {F G : Sheaf J A} (η : F ⟶ G) :
     cokernelSheaf (Limits.kernel.ι η) ≅ cokernelSheaf (kernelι η)
     where
-  Hom :=
+  hom :=
     ⟨J.sheafifyLift
-        (Limits.cokernel.map _ _ ((sheafToPresheaf J A).map (kernelIsoKernelSheaf η).Hom) (𝟙 _)
-            (by rw [category.comp_id, ← functor.map_comp, kernel_iso_kernel_sheaf_hom_ι]) ≫
+        (Limits.cokernel.map _ _ ((sheafToPresheaf J A).map (kernelIsoKernelSheaf η).hom) (𝟙 _)
+            (by rw [Category.comp_id, ← Functor.map_comp, kernel_iso_kernel_sheaf_hom_ι]) ≫
           J.toSheafify _)
         (cokernelSheaf _).2⟩
   inv :=
     ⟨J.sheafifyLift
         (Limits.cokernel.map _ _ ((sheafToPresheaf J A).map (kernelIsoKernelSheaf η).inv) (𝟙 _)
-            (by rw [category.comp_id, ← functor.map_comp, kernel_iso_kernel_sheaf_inv_ι]) ≫
+            (by rw [Category.comp_id, ← Functor.map_comp, kernel_iso_kernel_sheaf_inv_ι]) ≫
           J.toSheafify _)
         (cokernelSheaf _).2⟩
-  hom_inv_id' := by
+  hom_inv_id := by
     ext1
-    apply J.sheafify_hom_ext _ _ (cokernel_sheaf _).2
-    erw [← category.assoc, J.to_sheafify_sheafify_lift, category.assoc, J.to_sheafify_sheafify_lift,
-      ← category.assoc]
-    conv_rhs => erw [category.comp_id]
-    convert category.id_comp _
+    apply J.sheafify_hom_ext _ _ (CategoryTheory.Sheaf.cokernelSheaf _).2
+    erw [← Category.assoc, J.to_sheafify_sheafify_lift, Category.assoc, J.to_sheafify_sheafify_lift,
+      ← Category.assoc]
+    conv_rhs => erw [Category.comp_id]
+    convert Category.id_comp _
     ext1
-    delta limits.cokernel.map
-    erw [← category.assoc, limits.coequalizer.π_desc, category.id_comp, limits.coequalizer.π_desc,
-      category.id_comp, category.comp_id]
-  inv_hom_id' := by
+    delta Limits.cokernel.map
+    erw [← Category.assoc, Limits.coequalizer.π_desc, Category.id_comp, Limits.coequalizer.π_desc,
+      Category.id_comp, Category.comp_id]
+  inv_hom_id := by
     ext1
-    apply J.sheafify_hom_ext _ _ (cokernel_sheaf _).2
-    erw [← category.assoc, J.to_sheafify_sheafify_lift, category.assoc, J.to_sheafify_sheafify_lift,
-      ← category.assoc]
-    conv_rhs => erw [category.comp_id]
-    convert category.id_comp _
+    apply J.sheafify_hom_ext _ _ (CategoryTheory.Sheaf.cokernelSheaf _).2
+    erw [← Category.assoc, J.to_sheafify_sheafify_lift, Category.assoc, J.to_sheafify_sheafify_lift,
+      ← Category.assoc]
+    conv_rhs => erw [Category.comp_id]
+    convert Category.id_comp _
     ext1
-    delta limits.cokernel.map
-    erw [← category.assoc, limits.coequalizer.π_desc, category.id_comp, limits.coequalizer.π_desc,
-      category.id_comp, category.comp_id]
+    delta Limits.cokernel.map
+    erw [← Category.assoc, Limits.coequalizer.π_desc, Category.id_comp, Limits.coequalizer.π_desc,
+      Category.id_comp, Category.comp_id]
 
 theorem eq_coimToIm' {F G : Sheaf J A} (η : F ⟶ G) :
     (cokernelSheafKernelιIso η).inv ≫
         (cokernelIsoCokernelSheaf _).inv ≫
           Abelian.coimageImageComparison η ≫
-            (kernelIsoKernelSheaf _).Hom ≫ (kernelSheafCokernelπIso η).Hom =
+            (kernelIsoKernelSheaf _).hom ≫ (kernelSheafCokernelπIso η).hom =
       coimToIm' η :=
   by
-  dsimp [abelian.coimage_image_comparison, cokernel_sheaf_kernel_ι_iso, coim_to_im',
-    coim_to_im'_aux, kernel_sheaf_cokernel_π_iso, limits.is_colimit.cocone_point_unique_up_to_iso,
-    limits.is_limit.cone_point_unique_up_to_iso]
-  delta limits.kernel.map limits.cokernel.map
+  dsimp [Abelian.coimageImageComparison, cokernel_sheaf_kernel_ι_iso, CategoryTheory.Sheaf.coimToIm',
+    CategoryTheory.Sheaf.coimToIm'Aux, kernel_sheaf_cokernel_π_iso, Limits.IsColimit.coconePointUniqueUpToIso,
+    Limits.IsLimit.conePointUniqueUpToIso]
+  delta Limits.kernel.map Limits.cokernel.map
   ext1
   apply J.sheafify_lift_unique
   ext : 2
   conv_rhs =>
-    erw [← category.assoc, limits.cokernel.π_desc, category.assoc, limits.kernel.lift_ι,
-      limits.kernel.lift_ι]
+    erw [← Category.assoc, Limits.cokernel.π_desc, Category.assoc, Limits.kernel.lift_ι,
+      Limits.kernel.lift_ι]
   dsimp
-  simp only [category.assoc, category.comp_id, category.id_comp, J.to_sheafify_sheafify_lift_assoc,
-    kernel_iso_kernel_sheaf_hom_ι_val, limits.kernel.lift_ι, limits.cokernel.π_desc_assoc]
-  dsimp [cokernel_iso_cokernel_sheaf, limits.is_colimit.cocone_point_unique_up_to_iso,
-    is_colimit_cokernel_cofork, limits.is_colimit_aux]
+  simp only [Category.assoc, Category.comp_id, Category.id_comp, J.to_sheafify_sheafify_lift_assoc,
+    kernel_iso_kernel_sheaf_hom_ι_val, Limits.kernel.lift_ι, Limits.cokernel.π_desc_assoc]
+  dsimp [cokernel_iso_cokernel_sheaf, Limits.IsColimit.coconePointUniqueUpToIso,
+    is_colimit_cokernel_cofork, Limits.isColimitAux]
   rw [J.to_sheafify_sheafify_lift_assoc]
-  simp only [limits.cokernel.π_desc_assoc, ← category.assoc, ← Sheaf.hom.comp_val,
-    limits.cokernel.π_desc]
-  simp only [category_theory.category_comp_val, category.assoc]
+  simp only [Limits.cokernel.π_desc_assoc, ← Category.assoc, ← Sheaf.Hom.comp_val,
+    Limits.cokernel.π_desc]
+  simp only [category_theory.category_comp_val, Category.assoc]
   erw [kernel_iso_kernel_sheaf_hom_ι_val]
-  rw [← Sheaf.hom.comp_val, limits.kernel.lift_ι]
+  rw [← Sheaf.Hom.comp_val, Limits.kernel.lift_ι]
 
 theorem coim_to_im_eq {F G : Sheaf J A} (η : F ⟶ G) :
     Abelian.coimageImageComparison η =
-      (cokernelIsoCokernelSheaf _).Hom ≫
-        (cokernelSheafKernelιIso η).Hom ≫
+      (cokernelIsoCokernelSheaf _).hom ≫
+        (cokernelSheafKernelιIso η).hom ≫
           coimToIm' η ≫ (kernelSheafCokernelπIso η).inv ≫ (kernelIsoKernelSheaf _).inv :=
   by
-  rw [← eq_coim_to_im']
-  simp only [category.assoc, iso.hom_inv_id, iso.inv_hom_id, iso.hom_inv_id_assoc,
-    iso.inv_hom_id_assoc, category.comp_id]
+  rw [← CategoryTheory.Sheaf.eq_coimToIm']
+  simp only [Category.assoc, Iso.hom_inv_id, Iso.inv_hom_id, Iso.hom_inv_id_assoc,
+    Iso.inv_hom_id_assoc, Category.comp_id]
 
 end KernelsAndCokernels
 
@@ -400,7 +400,7 @@ instance : AdditiveCategory (Sheaf J A) :=
       intro K _
       constructor
       intro F
-      apply limits.has_biproduct.of_has_product F }
+      apply Limits.HasBiproduct.of_hasProduct F }
 
 end Additive
 
@@ -430,32 +430,32 @@ def parallelPairSheafification {F G : Sheaf J A} (η : F ⟶ G) :
   NatIso.ofComponents
     (fun x =>
       match x with
-      | limits.walking_parallel_pair.zero => by dsimp; refine' (J.iso_sheafify G.2).symm
-      | limits.walking_parallel_pair.one => by dsimp; exact eq_to_iso rfl)
+      | Limits.WalkingParallelPair.zero => by dsimp; refine' (J.iso_sheafify G.2).symm
+      | Limits.WalkingParallelPair.one => by dsimp; exact eq_to_iso rfl)
     (by
       -- This proof is SLOW :-(
       rintro (a | a) (b | b) (f | f | f)
       · dsimp [parallel_pair_sheafification._match_1]
-        simp only [iso.eq_inv_comp, Functor.map_id]
-        dsimp [grothendieck_topology.iso_sheafify]
-        rw [← category.assoc, is_iso.comp_inv_eq, category.id_comp]
+        simp only [Iso.eq_inv_comp, Functor.map_id]
+        dsimp [GrothendieckTopology.isoSheafify]
+        rw [← Category.assoc, IsIso.comp_inv_eq, Category.id_comp]
         change J.to_sheafify _ ≫ (sheafification J A).map _ = _
-        erw [Functor.map_id, category.comp_id]
+        erw [Functor.map_id, Category.comp_id]
       · dsimp [parallel_pair_sheafification._match_1]
-        rw [category.comp_id, iso.eq_inv_comp]
-        dsimp [grothendieck_topology.iso_sheafify, cokernel_π]
-        change (to_sheafification J A).app _ ≫ (sheafification J A).map _ = _
-        rw [← (to_sheafification J A).naturality]
+        rw [Category.comp_id, Iso.eq_inv_comp]
+        dsimp [GrothendieckTopology.isoSheafify, cokernel_π]
+        change (CategoryTheory.GrothendieckTopology.toSheafification J A).app _ ≫ (sheafification J A).map _ = _
+        rw [← (CategoryTheory.GrothendieckTopology.toSheafification J A).naturality]
         rfl
       · dsimp [parallel_pair_sheafification._match_1]
-        simp only [limits.comp_zero, category.comp_id]
+        simp only [Limits.comp_zero, Category.comp_id]
         change (sheafification J A).map _ = _
         apply J.sheafify_hom_ext
-        · exact plus.is_sheaf_plus_plus J (limits.cokernel η.val)
-        erw [← (to_sheafification J A).naturality]
+        · exact Plus.isSheaf_plus_plus J (Limits.cokernel η.val)
+        erw [← (CategoryTheory.GrothendieckTopology.toSheafification J A).naturality]
         simp
       · dsimp [parallel_pair_sheafification._match_1]
-        simp only [limits.comp_zero, category.id_comp, category.comp_id]
+        simp only [Limits.comp_zero, Category.id_comp, Category.comp_id]
         change (sheafification J A).map _ = _
         simp only [Functor.map_id]
         erw [(sheafification J A).map_id]; rfl)
@@ -465,15 +465,15 @@ def kernelCokernelπIso {F G : Sheaf J A} (η : F ⟶ G) :
       Limits.kernel ((sheafToPresheaf J A).map (cokernelπ η)) :=
   by
   let e :=
-    (limits.is_limit_of_preserves (sheafification J A)
-          (limits.limit.is_limit
-            (limits.parallel_pair (limits.cokernel.π ((Sheaf_to_presheaf J A).map η))
+    (Limits.isLimitOfPreserves (sheafification J A)
+          (Limits.limit.isLimit
+            (Limits.parallelPair (Limits.cokernel.π ((Sheaf_to_presheaf J A).map η))
               0))).conePointUniqueUpToIso
-      (limits.limit.is_limit _)
+      (Limits.limit.isLimit _)
   refine' e ≪≫ _
-  change limits.limit _ ≅ _
-  refine' limits.has_limit.iso_of_nat_iso _
-  apply parallel_pair_sheafification
+  change Limits.limit _ ≅ _
+  refine' Limits.HasLimit.isoOfNatIso _
+  apply CategoryTheory.Sheaf.parallelPairSheafification
 
 /-
 { hom := J.sheafify_lift (limits.kernel.map _ _ (𝟙 _) (J.to_sheafify _) (by admit)) (by admit),
@@ -504,45 +504,45 @@ def kernelCokernelπIso {F G : Sheaf J A} (η : F ⟶ G) :
 -/
 theorem coimToIm'_eq {F G : Sheaf J A} (η : F ⟶ G) :
     (sheafToPresheaf J A).map (coimToIm' η) =
-      (sheafification J A).map (Abelian.coimageImageComparison _) ≫ (kernelCokernelπIso η).Hom :=
+      (sheafification J A).map (Abelian.coimageImageComparison _) ≫ (kernelCokernelπIso η).hom :=
   by
-  dsimp only [kernel_cokernel_π_iso, limits.is_limit.cone_point_unique_up_to_iso, functor.map_iso,
-    iso.trans_hom]
-  simp only [category.assoc]
-  dsimp only [id, limits.is_limit.unique_up_to_iso, limits.cones.forget,
-    limits.is_limit.lift_cone_morphism, functor.map_cone]
-  apply limits.equalizer.hom_ext
-  simp only [category.assoc]
+  dsimp only [kernel_cokernel_π_iso, Limits.IsLimit.conePointUniqueUpToIso, Functor.mapIso,
+    Iso.trans_hom]
+  simp only [Category.assoc]
+  dsimp only [id, Limits.IsLimit.uniqueUpToIso, Limits.Cones.forget,
+    Limits.IsLimit.liftConeMorphism, Functor.mapCone]
+  apply Limits.equalizer.hom_ext
+  simp only [Category.assoc]
   --delta limits.equalizer.ι,
-  erw [limits.has_limit.iso_of_nat_iso_hom_π]
-  dsimp only [parallel_pair_sheafification, nat_iso.of_components, id, iso_sheafify, as_iso,
+  erw [Limits.HasLimit.isoOfNatIso_hom_π]
+  dsimp only [CategoryTheory.Sheaf.parallelPairSheafification, NatIso.ofComponents, id, CategoryTheory.GrothendieckTopology.isoSheafify, CategoryTheory.asIso,
     iso.symm]
-  simp only [← category.assoc]
-  rw [is_iso.eq_comp_inv]
-  simp only [category.assoc]
-  erw [limits.limit.lift_π]
-  dsimp [limits.cones.functoriality, sheafify_map]
-  simp_rw [← plus_functor_map, ← functor.comp_map, ← functor.map_comp]
-  dsimp [coim_to_im', abelian.coimage_image_comparison, coim_to_im'_aux]
+  simp only [← Category.assoc]
+  rw [IsIso.eq_comp_inv]
+  simp only [Category.assoc]
+  erw [Limits.limit.lift_π]
+  dsimp [Limits.Cones.functoriality, CategoryTheory.GrothendieckTopology.sheafifyMap]
+  simp_rw [← CategoryTheory.GrothendieckTopology.plusFunctor_map, ← Functor.comp_map, ← Functor.map_comp]
+  dsimp [CategoryTheory.Sheaf.coimToIm', Abelian.coimageImageComparison, CategoryTheory.Sheaf.coimToIm'Aux]
   apply J.sheafify_hom_ext
-  · exact plus.is_sheaf_plus_plus J G.val
-  simp_rw [← category.assoc]
+  · exact Plus.isSheaf_plus_plus J G.val
+  simp_rw [← Category.assoc]
   erw [J.to_sheafify_sheafify_lift]
-  change _ = (to_sheafification J A).app _ ≫ (sheafification J A).map _
-  erw [← (to_sheafification J A).naturality]
-  simp only [category.assoc, limits.kernel.lift_ι]
+  change _ = (CategoryTheory.GrothendieckTopology.toSheafification J A).app _ ≫ (sheafification J A).map _
+  erw [← (CategoryTheory.GrothendieckTopology.toSheafification J A).naturality]
+  simp only [Category.assoc, Limits.kernel.lift_ι]
   dsimp
-  erw [category.assoc]
+  erw [Category.assoc]
 
 instance isIso_coim_to_im {F G : Sheaf J A} (η : F ⟶ G) :
     IsIso (Abelian.coimageImageComparison η) :=
   by
   rw [coim_to_im_eq]
-  suffices is_iso (coim_to_im' η) by skip; apply is_iso.comp_is_iso
-  suffices is_iso ((Sheaf_to_presheaf J A).map (coim_to_im' η)) by skip;
-    apply is_iso_of_fully_faithful (Sheaf_to_presheaf J A)
-  rw [coim_to_im'_eq]
-  apply is_iso.comp_is_iso
+  suffices is_iso (CategoryTheory.Sheaf.coimToIm' η) by skip; apply IsIso.comp_isIso
+  suffices is_iso ((Sheaf_to_presheaf J A).map (CategoryTheory.Sheaf.coimToIm' η)) by skip;
+    apply CategoryTheory.isIso_of_fully_faithful (Sheaf_to_presheaf J A)
+  rw [CategoryTheory.Sheaf.coimToIm'_eq]
+  apply IsIso.comp_isIso
 
 instance abelian : Abelian (Sheaf J A) :=
   Abelian.ofCoimageImageComparisonIsIso

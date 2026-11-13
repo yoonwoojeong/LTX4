@@ -81,7 +81,7 @@ theorem isClopen_sUnion {H : Type _} [TopologicalSpace H] (s : Finset (Set H))
 /-- The finite union of clopen sets is clopen. -/
 theorem clopen_finite_Union {H : Type _} [TopologicalSpace H] (s : Finset (Set H))
     (hs : ∀ x ∈ s, IsClopen x) : IsClopen (⋃₀ (s : Set (Set H))) := by rw [Set.sUnion_eq_biUnion];
-  apply Set.Finite.isClopen_biUnion s.finite_to_set hs
+  apply Set.Finite.isClopen_biUnion s.finite_toSet hs
 
 /-- Given a finite set of clopens, one can find a finite disjoint set of clopens contained in
   it. -/
@@ -240,7 +240,7 @@ theorem univ_sub_sUnion_setClopen : Set.univ ⊆ ⋃₀ setClopen ε f :=
     Set.iSup_eq_iUnion, Set.mem_setOf_eq, Subtype.coe_mk] at g3 
   rcases g3 with ⟨U, hU, a, ha, xa⟩
   refine' ⟨a, _, xa⟩
-  rw [mem_set_clopen]
+  rw [LocallyConstant.Density.mem_setClopen]
   simp only [exists_prop, Set.mem_range, exists_exists_eq_and, Set.mem_setOf_eq]
   refine' ⟨U, hU, ha⟩
 
@@ -437,7 +437,7 @@ theorem loc_const : IsLocallyConstant (c2 ε f) :=
   -- is there a better way to do this?
   any_goals
     ext y; simp only [exists_prop, and_congr_right_iff, exists_unique_iff_exists]
-    intro hy; symm; apply mem_finset_clopen_unique ε f hU hx' hy
+    intro hy; symm; apply LocallyConstant.Density.mem_finsetClopen_unique ε f hU hx' hy
 
 /-- Given an `f ∈ C(X, A)` and an `ε > 0`, one can find a locally constant function `b` which is in
   an ε-ball with center `f`, `b` is precisely `c2`. -/
@@ -475,7 +475,7 @@ theorem loc_const_dense' :
             delta c2;
             congr
             any_goals
-              have := Classical.choose_spec (ExistsUnique.exists (finset_clopen_prop ε f y))
+              have := Classical.choose_spec (ExistsUnique.exists (LocallyConstant.Density.finsetClopen_prop ε f y))
               simp only [exists_prop, exists_unique_iff_exists] at *
               apply hw _ this.1 this.2
           dsimp

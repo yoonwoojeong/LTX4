@@ -27,7 +27,7 @@ theorem monoLift_comp : h.monoLift φ w ≫ f = φ :=
   (Abelian.isLimitOfExactOfMono f g h).fac (KernelFork.ofι _ w) WalkingParallelPair.zero
 
 theorem monoLift_unique (e : T ⟶ A) (he : e ≫ f = φ) : e = h.monoLift φ w := by
-  rw [← cancel_mono f, he, h.mono_lift_comp]
+  rw [← cancel_mono f, he, h.monoLift_comp]
 
 end lift
 
@@ -43,7 +43,7 @@ theorem comp_epiDesc : g ≫ h.epiDesc φ w = φ :=
   (Abelian.isColimitOfExactOfEpi f g h).fac (CokernelCofork.ofπ _ w) WalkingParallelPair.one
 
 theorem epiDesc_unique (e : C ⟶ T) (he : g ≫ e = φ) : e = h.epiDesc φ w := by
-  rw [← cancel_epi g, he, h.comp_epi_desc]
+  rw [← cancel_epi g, he, h.comp_epiDesc]
 
 end Desc
 

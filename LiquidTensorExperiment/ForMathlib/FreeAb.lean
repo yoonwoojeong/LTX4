@@ -39,16 +39,16 @@ protected theorem comp_apply {X Y Z : FreeAb C} (f : X ⟶ Y) (g : Y ⟶ Z) : Fr
 
 instance : Category (FreeAb C)
     where
-  id_comp' X Y f := by
+  id_comp X Y f := by
     show FreeAb.comp X.id f = AddMonoidHom.id _ f; congr 1; clear f; ext1 f
     simp only [AddMonoidHom.id_apply, FreeAb.comp, FreeAbelianGroup.lift.of, FreeAb.id,
-      category.id_comp]
-  comp_id' X Y f := by
+      Category.id_comp]
+  comp_id X Y f := by
     show FreeAb.comp f Y.id = AddMonoidHom.id _ f
     rw [← AddMonoidHom.flip_apply]; congr 1; clear f; ext1 f
     simp only [AddMonoidHom.id_apply, FreeAb.comp, FreeAbelianGroup.lift.of, FreeAb.id,
-      category.comp_id, AddMonoidHom.flip_apply]
-  assoc' W X Y Z f g h :=
+      Category.comp_id, AddMonoidHom.flip_apply]
+  assoc W X Y Z f g h :=
     by
     show FreeAb.comp.comp (FreeAb.comp f) g h = (FreeAb.comp f).comp (FreeAb.comp g) h
     congr 1
@@ -61,7 +61,7 @@ instance : Category (FreeAb C)
     congr 1
     clear f g h; ext f g h
     simp only [AddMonoidHom.comp_apply, AddMonoidHom.compHom_apply_apply, AddMonoidHom.flip_apply,
-      FreeAb.comp, FreeAbelianGroup.lift.of, category.assoc]
+      FreeAb.comp, FreeAbelianGroup.lift.of, Category.assoc]
 
 instance : Preadditive (FreeAb C)
     where
@@ -73,12 +73,12 @@ def eval [Preadditive C] : FreeAb C ⥤ C
     where
   obj := FreeAb.as
   map X Y := FreeAbelianGroup.lift id
-  map_id' X :=
+  map_id X :=
     show FreeAbelianGroup.lift id X.id = 𝟙 X.as by simp only [FreeAb.id, FreeAbelianGroup.lift.of];
       rfl
-  map_comp' X Y Z f g :=
+  map_comp X Y Z f g :=
     by
-    show FreeAbelianGroup.lift id (FreeAb.comp f g) = preadditive.comp_hom _ _
+    show FreeAbelianGroup.lift id (FreeAb.comp f g) = Preadditive.compHom _ _
     rw [← AddMonoidHom.comp_apply, ← AddMonoidHom.comp_apply]; congr 1
     rw [← AddMonoidHom.comp_apply, ← AddMonoidHom.compHom_apply_apply, ← AddMonoidHom.comp_apply]
     conv_rhs =>
@@ -101,8 +101,8 @@ def mapFreeAb (F : C ⥤ D) : FreeAb C ⥤ FreeAb D
     where
   obj X := FreeAb.of (F.obj X.as)
   map X Y := FreeAbelianGroup.map fun f => F.map f
-  map_id' X := by erw [FreeAbelianGroup.map_of_apply, F.map_id]; rfl
-  map_comp' X Y Z f g :=
+  map_id X := by erw [FreeAbelianGroup.map_of_apply, F.map_id]; rfl
+  map_comp X Y Z f g :=
     by
     rw [← FreeAb.comp_apply, ← FreeAb.comp_apply, ← AddMonoidHom.comp_apply, ←
       AddMonoidHom.comp_apply]

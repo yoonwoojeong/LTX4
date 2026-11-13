@@ -19,17 +19,17 @@ variable (BD : Data)
 def homotopyTwoMul {BD₁ BD₂ : Data} {f g : BD₁ ⟶ BD₂} (h : Homotopy f g) :
     Homotopy ((mul 2).map f) ((mul 2).map g)
     where
-  Hom j i := UniversalMap.mul 2 (h.Hom j i)
+  Hom j i := UniversalMap.mul 2 (h.hom j i)
   zero' i j hij := by rw [h.zero i j hij, AddMonoidHom.map_zero]
   comm := by
     intro j
     simp only [mul_map_f, h.comm j, AddMonoidHom.map_add]
-    congr 2 <;> · erw [universal_map.mul_comp]; rfl
+    congr 2 <;> · erw [UniversalMap.hMul_comp]; rfl
 
 def homotopyPow' (h : Homotopy (BD.proj 2) (BD.Sum 2)) :
     ∀ N, Homotopy (homPow' (BD.proj 2) N) (homPow' (BD.Sum 2) N)
   | 0 => Homotopy.refl _
-  | N + 1 => (homotopyTwoMul (homotopy_pow' N)).comp h
+  | N + 1 => (homotopyTwoMul (BreenDeligne.Data.homotopyPow' N)).comp h
 
 def homotopyMul (h : Homotopy (BD.proj 2) (BD.Sum 2)) (N : ℕ) :
     Homotopy (BD.proj (2 ^ N)) (BD.Sum (2 ^ N)) :=
@@ -44,7 +44,7 @@ that forms a complex, together with a `homotopy`
 between the two universal maps `σ_add` and `σ_proj`. -/
 structure Package where
   data : Data
-  Homotopy : Homotopy (data.proj 2) (data.Sum 2)
+  Homotopy : Homotopy (Data.proj 2) (Data.sum 2)
 
 namespace Package
 
@@ -56,7 +56,7 @@ instance Adept.htpy_suitable (BD : Package) (κ κ' : ℕ → ℝ≥0) [Adept BD
     (BD.Homotopy.Hom j i).Suitable (rescaleConstants κ 2 j) (κ' i * κ i) :=
   by
   by_cases hij : j + 1 = i
-  · rw [← hij]; apply adept.htpy_suitable'
+  · rw [← hij]; apply Adept.htpy_suitable'
   · rw [BD.homotopy.zero]
     · infer_instance
     · exact hij
@@ -77,43 +77,43 @@ variable (BD : Package) (κ κ' : ℕ → ℝ≥0) [Adept BD κ κ']
 -- end
 instance homotopyPow'_suitable (j i : ℕ) :
     ∀ N,
-      ((BD.data.homotopyPow' BD.Homotopy N).Hom j i).Suitable (rescaleConstants κ (2 ^ N) j)
+      ((BD.data.homotopyPow' BD.Homotopy N).hom j i).Suitable (rescaleConstants κ (2 ^ N) j)
         ((κ' * κ) i)
   | 0 => UniversalMap.suitable_zero _ _
   | N + 1 => by
-    dsimp [data.homotopy_pow']
-    refine' @universal_map.suitable_add _ _ _ _ _ _ (id _) (id _)
-    · refine' @universal_map.suitable.comp _ _ _ _ _ _ (κ' i * κ i) _ _ (id _)
-      refine' @universal_map.mul_suitable _ _ _ _ _ (id _) _ ⟨two_pos⟩
-      refine' (homotopy_pow'_suitable N).le _ _ _ _ _ le_rfl
+    dsimp [Data.homotopyPow']
+    refine' @UniversalMap.suitable_add _ _ _ _ _ _ (id _) (id _)
+    · refine' @UniversalMap.Suitable.comp _ _ _ _ _ _ (κ' i * κ i) _ _ (id _)
+      refine' @UniversalMap.hMul_suitable _ _ _ _ _ (id _) _ ⟨two_pos⟩
+      refine' (BreenDeligne.Package.Adept.homotopyPow'_suitable N).le _ _ _ _ _ le_rfl
       calc
         rescaleConstants κ (2 ^ (N + 1)) j = κ j * (2⁻¹ * (2 ^ N)⁻¹) := by
           simp only [rescaleConstants, pow_succ, mul_inv]
         _ ≤ κ j * (1 * (2 ^ N)⁻¹) := (mul_le_mul' le_rfl (mul_le_mul' (by norm_num) le_rfl))
         _ = κ j * (2 ^ N)⁻¹ := by rw [one_mul]
-    · refine' @universal_map.suitable.comp _ _ _ _ _ _ (rescaleConstants κ 2 j) _ _ (id _)
-      refine' @universal_map.mul_suitable _ _ _ _ _ (id _) 2 ⟨zero_lt_two⟩
+    · refine' @UniversalMap.Suitable.comp _ _ _ _ _ _ (rescaleConstants κ 2 j) _ _ (id _)
+      refine' @UniversalMap.hMul_suitable _ _ _ _ _ (id _) 2 ⟨zero_lt_two⟩
       simp only [rescaleConstants, pow_succ, mul_inv]
       rw [← mul_assoc, mul_right_comm]
-      exact @universal_map.suitable_mul_right _ _ _ _ _ _ _
+      exact @UniversalMap.suitable_hMul_right _ _ _ _ _ _ _
 
 instance homotopyMul_suitable (j i N : ℕ) :
-    ((BD.data.homotopyMul BD.Homotopy N).Hom j i).Suitable (rescaleConstants κ (2 ^ N) j)
+    ((BD.data.homotopyMul BD.Homotopy N).hom j i).Suitable (rescaleConstants κ (2 ^ N) j)
       ((κ' * κ) i) :=
   by
-  dsimp [data.homotopy_mul, Homotopy.trans_hom]
+  dsimp [Data.homotopyMul, Homotopy.trans_hom]
   simp only [add_zero, zero_add]
-  refine' @universal_map.suitable.comp _ _ _ _ _ _ (rescaleConstants κ (2 ^ N) j) _ _ (id _)
+  refine' @UniversalMap.Suitable.comp _ _ _ _ _ _ (rescaleConstants κ (2 ^ N) j) _ _ (id _)
   generalize rescaleConstants κ (2 ^ N) j = c
   induction' N with N IH
-  · dsimp [data.pow'_iso_mul, data.mul_one_iso, FreeMat.one_mul_iso]
+  · dsimp [Data.pow'IsoMul, Data.mulOneIso, FreeMat.oneMulIso]
     -- jmc: I don't understand why TC doesn't find the following instance...
-    exact @universal_map.suitable_of _ _ _ _ _ (basic_universal_map.one_mul_hom_suitable _)
-  · dsimp [data.pow'_iso_mul]; haveI : Fact (0 < 2) := ⟨two_pos⟩
+    exact @UniversalMap.suitable_of _ _ _ _ _ (BasicUniversalMap.oneMulHom_suitable _)
+  · dsimp [Data.pow'IsoMul]; haveI : Fact (0 < 2) := ⟨two_pos⟩
     skip
-    refine' @universal_map.suitable.comp _ _ _ _ _ _ c _ (id _) (id _)
+    refine' @UniversalMap.Suitable.comp _ _ _ _ _ _ c _ (id _) (id _)
     · infer_instance
-    · dsimp [data.mul_mul_iso, FreeMat.mul_mul_iso]
+    · dsimp [Data.mulMulIso, FreeMat.mulMulIso]
       infer_instance
 
 end Adept

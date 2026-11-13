@@ -29,7 +29,7 @@ instance forget_moduleCat_reflectsIsomorphisms :
   by
   constructor
   intro M N f h
-  rw [is_iso_iff_bijective] at *
+  rw [CategoryTheory.isIso_iff_bijective] at *
   let e := LinearEquiv.ofBijective f h.1 h.2
   use e.symm
   constructor

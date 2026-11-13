@@ -18,7 +18,7 @@ open CategoryTheory
 variable {C D : Type _} [Category C] [Category D] (r' : ℝ≥0) [Fact (0 < r')]
 
 abbrev CategoryTheory.NatTrans.conjBy {F G : C ⥤ D} (α : F ≅ G) (β : G ⟶ G) : F ⟶ F :=
-  α.Hom ≫ β ≫ α.inv
+  α.hom ≫ β ≫ α.inv
 
 open CategoryTheory
 
@@ -94,7 +94,7 @@ def tinvNatTrans (F : C ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r') :
       (F ⋙ pFPNGT₁ToCHFPNG₁ₑₗ.{u} r') ⋙ cHFPNG₁ToCHFPNGₑₗ
     where
   app X := ProfinitelyFilteredPseudoNormedGroupWithTinv.tinv
-  naturality' X Y f := by ext x; exact ((F.map f).map_tinv x).symm
+  naturality X Y f := by ext x; exact ((F.map f).map_tinv x).symm
 
 /-- The endomorphism `T⁻¹ - 2` of a strict family of profinitely-filtered
 pseudo-normed groups with `T⁻¹`, considered as a possibly non-strict
@@ -112,7 +112,7 @@ theorem twoidBoundBy (F : C ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r') (X : C) :
     ComphausFilteredPseudoNormedGroupHom.BoundBy
       ((2 • 𝟙 ((F ⋙ pFPNGT₁ToCHFPNG₁ₑₗ r') ⋙ cHFPNG₁ToCHFPNGₑₗ)).app X) 2 :=
   by
-  simp only [nat_trans.app_nsmul, nat_trans.id_app]
+  simp only [NatTrans.app_nsmul, NatTrans.id_app]
   refine' ((ComphausFilteredPseudoNormedGroupHom.mkOfBoundBoundBy _ 1 _).nsmul 2).Mono _ _
   norm_num
 
@@ -156,19 +156,19 @@ theorem condensifyMap_comp_Tinv {F G : FintypeCat.{u} ⥤ ProFiltPseuNormGrpWith
   rw [← condensifyNonstrict_comp 1 r'⁻¹ r'⁻¹, ← condensifyNonstrict_comp r'⁻¹ 1 r'⁻¹]
   swap;
   · intro X
-    rw [nat_trans.comp_app]
+    rw [NatTrans.comp_app]
     rw [← one_mul r'⁻¹]
     apply ComphausFilteredPseudoNormedGroupHom.BoundBy.comp (tinvBoundBy F X)
-    simp only [whisker_right_twice, whisker_right_app, functor.comp_map, cHFPNG₁ToCHFPNGₑₗ_map]
+    simp only [CategoryTheory.whiskerRight_twice, CategoryTheory.whiskerRight_app, Functor.comp_map, cHFPNG₁ToCHFPNGₑₗ_map]
     apply StrictComphausFilteredPseudoNormedGroupHom.toChfpsngHom.boundByOne
   swap;
   · intro X
-    rw [nat_trans.comp_app]
+    rw [NatTrans.comp_app]
     rw [← mul_one r'⁻¹]
     refine' ComphausFilteredPseudoNormedGroupHom.BoundBy.comp _ (tinvBoundBy G X)
-    simp only [whisker_right_twice, whisker_right_app, functor.comp_map, cHFPNG₁ToCHFPNGₑₗ_map]
+    simp only [CategoryTheory.whiskerRight_twice, CategoryTheory.whiskerRight_app, Functor.comp_map, cHFPNG₁ToCHFPNGₑₗ_map]
     apply StrictComphausFilteredPseudoNormedGroupHom.toChfpsngHom.boundByOne
-  · simp only [whisker_right_twice, tinvNatTrans_comp]
+  · simp only [CategoryTheory.whiskerRight_twice, tinvNatTrans_comp]
 
 section
 
@@ -251,27 +251,27 @@ theorem condensifyNonstrict_exact (α : F ⋙ cHFPNG₁ToCHFPNGₑₗ.{u} ⟶ G 
     (X : Profinite.{u}) :
     ShortExact ((condensifyNonstrict α c h).app X) ((condensifyMap β).app X) :=
   by
-  apply (config := { instances := false }) short_exact.mk
+  apply (config := { instances := false }) ShortExact.mk
   · simp only [condensifyNonstrict, nonstrictExtend, whisker_right_comp]
     repeat' apply (config := { instances := false }) mono_comp <;> try infer_instance
     apply Condensed.mono_toCondensed_map
-    apply strongly_exact_extend_zero_left
+    apply CompHausFiltPseuNormGrp₁.stronglyExactExtendZeroLeft
     intro S
-    apply (config := { instances := false }) strongly_exact_of_mono
+    apply (config := { instances := false }) CompHausFiltPseuNormGrp₁.stronglyExactOfMono
     rw [AddCommGroupCat.mono_iff_injective]
     exact H1 S
   · dsimp only [condensifyMap, condensifyNonstrict]
     rw [nonstrictExtend_whiskerRight_enlarging]
     apply Condensed.epi_toCondensed_map _ cβ
-    apply strongly_exact_extend_zero_right
+    apply CompHausFiltPseuNormGrp₁.stronglyExactExtendZeroRight
     intro S
-    apply strongly_exact_of_epi _ _ _ hcβ (H3b S)
+    apply CompHausFiltPseuNormGrp₁.stronglyExactOfEpi _ _ _ hcβ (H3b S)
   · dsimp only [condensifyMap, condensifyNonstrict]
     rw [nonstrictExtend_whiskerRight_enlarging]
-    simp only [nonstrictExtend, whisker_right_comp, nat_trans.comp_app, category.assoc]
+    simp only [nonstrictExtend, whisker_right_comp, NatTrans.comp_app, Category.assoc]
     repeat' apply exact_of_iso_comp_exact <;> [infer_instance; skip]
     apply Condensed.exact_of_stronglyExact _ _ cα
-    apply strongly_exact.extend
+    apply StronglyExact.extend
     intro S
     refine' ⟨_, _, hcα⟩
     · ext x; specialize H2a S; apply_fun fun φ => φ.toFun at H2a ; exact congr_fun H2a x
@@ -286,7 +286,7 @@ theorem condensify_exact (α : F ⟶ G) (β : G ⟶ H) (cα cβ : ℝ≥0 → �
     (X : Profinite.{u}) : ShortExact ((condensifyMap α).app X) ((condensifyMap β).app X) :=
   by
   refine' condensifyNonstrict_exact _ _ 1 _ cα cβ hcα hcβ H1 _ _ H3b _
-  · intro S; simp only [whisker_right_app, ← functor.map_comp, H2a]; rfl
+  · intro S; simp only [CategoryTheory.whiskerRight_app, ← Functor.map_comp, H2a]; rfl
   · intro S c' x H; obtain ⟨x, hx, rfl⟩ := H2b S c' H
     refine' ⟨x, PseudoNormedGroup.filtration_mono _ hx, rfl⟩
     simp only [inv_one, mul_one]
@@ -313,5 +313,5 @@ theorem condensifyMap_comp_Tinv2 {F G : FintypeCat.{u} ⥤ ProFiltPseuNormGrpWit
       condensifyTinv2 F ≫ condensifyMap (whiskerRight α (pFPNGT₁ToCHFPNG₁ₑₗ r')) :=
   by
   simp only [condensifyTinv2_eq, comp_sub, sub_comp, comp_nsmul, nsmul_comp,
-    condensifyMap_comp_Tinv, category.id_comp, category.comp_id]
+    condensifyMap_comp_Tinv, Category.id_comp, Category.comp_id]
 

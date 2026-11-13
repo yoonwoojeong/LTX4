@@ -24,17 +24,17 @@ theorem condensed_ab_sheafifyLift_mono_of_exists :
       Mono (proetaleTopology.sheafifyLift η G.cond) :=
   by
   intro h
-  apply sheafify_lift_mono_of_exists_cover
+  apply CategoryTheory.GrothendieckTopology.sheafifyLift_mono_of_exists_cover
   intro B t ht
   specialize h B t ht
   obtain ⟨α, hα, X, π, surj, h⟩ := h
   skip
-  let W : proetale_topology.cover B := ⟨sieve.generate (presieve.of_arrows X π), _⟩
+  let W : proetale_topology.cover B := ⟨Sieve.generate (Presieve.ofArrows X π), _⟩
   use W
   rintro ⟨Z, f, ⟨A, g, hg, ⟨a⟩, rfl⟩⟩
   dsimp; simp [h a]
-  use presieve.of_arrows X π, α, hα, X, π, surj
-  apply sieve.le_generate
+  use Presieve.ofArrows X π, α, hα, X, π, surj
+  apply Sieve.le_generate
 
 theorem presheaf_to_condensed_ab_map_mono_of_exists
     (h :
@@ -45,7 +45,7 @@ theorem presheaf_to_condensed_ab_map_mono_of_exists
     Mono (((sheafificationAdjunction proetaleTopology Ab.{u + 1}).homEquiv _ G).symm η) :=
   by
   apply (Sheaf_to_presheaf proetaleTopology Ab.{u + 1}).mono_of_mono_map
-  dsimp [sheafification_adjunction]
+  dsimp [CategoryTheory.sheafificationAdjunction]
   apply condensed_ab_sheafifyLift_mono_of_exists
   exact h
 

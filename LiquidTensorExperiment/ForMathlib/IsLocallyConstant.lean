@@ -3,7 +3,7 @@ import Mathlib.Topology.LocallyConstant.Basic
 import Mathlib.Topology.DiscreteQuotient
 import Mathlib.Data.Setoid.Partition
 
-#align_import for_mathlib.is_locally_constant
+#align_import for_mathlib.isLocallyConstant
 
 noncomputable section
 

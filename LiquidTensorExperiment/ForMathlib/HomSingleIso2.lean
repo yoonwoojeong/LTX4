@@ -18,34 +18,34 @@ namespace BoundedHomotopyCategory
 open HomSingleIsoSetup Opposite
 
 theorem aux₁_naturality_snd_var (P : BoundedHomotopyCategory C) {B₁ B₂ : C} (i : ℤ) (f : B₁ ⟶ B₂) :
-    (aux₁ P B₁ i).Hom ≫
+    (aux₁ P B₁ i).hom ≫
         (homology'Functor AddCommGroupCat (ComplexShape.up ℤ).symm i).map
           ((NatTrans.mapHomologicalComplex (preadditiveYoneda.map f) (ComplexShape.up ℤ).symm).app
             P.val.as.op) =
-      mapHomComplexHomology _ _ f _ _ ≫ (aux₁ P B₂ i).Hom :=
+      mapHomComplexHomology _ _ f _ _ ≫ (aux₁ P B₂ i).hom :=
   by
-  rw [← iso.comp_inv_eq]
+  rw [← Iso.comp_inv_eq]
   ext : 2
-  dsimp only [aux₁, iso.symm_hom, iso.symm_inv, homology_iso', homology'.mapIso]
-  simp only [category.assoc]
+  dsimp only [aux₁, Iso.symm_hom, Iso.symm_inv, CategoryTheory.homologyIso', homology'.mapIso]
+  simp only [Category.assoc]
   rw [homology'.map_eq_desc'_lift_left, homology'.π'_desc'_assoc, homology'.map_eq_lift_desc'_left,
-    homology'.lift_ι, map_hom_complex_homology, homology'.map_eq_lift_desc'_left, homology'.lift_ι,
+    homology'.lift_ι, BoundedHomotopyCategory.mapHomComplexHomology, homology'.map_eq_lift_desc'_left, homology'.lift_ι,
     homology'.π'_desc']
-  dsimp only [arrow.hom_mk_left, map_hom_complex', nat_trans.map_homological_complex_app_f,
+  dsimp only [Arrow.homMk_left, BoundedHomotopyCategory.HomSingleIsoSetup.mapHomComplex', NatTrans.mapHomologicalComplex_app_f,
     homology'Functor_map]
   let t : _ := _; show _ ≫ _ ≫ t = _
-  have ht : t = homology'.ι _ _ _ ≫ cokernel.map _ _ (HomologicalComplex.xPrevIso _ _).Hom (𝟙 _) _
-  rotate_left 2; · dsimp; rfl; · rw [category.comp_id]; apply HomologicalComplex.dTo_eq
+  have ht : t = homology'.ι _ _ _ ≫ cokernel.map _ _ (HomologicalComplex.xPrevIso _ _).hom (𝟙 _) _
+  rotate_left 2; · dsimp; rfl; · rw [Category.comp_id]; apply HomologicalComplex.dTo_eq
   · ext1; erw [homology'.π'_ι_assoc, homology'.π'_desc', cokernel.π_desc]; rfl
   rw [ht, homology'.map_eq_lift_desc'_right, homology'.lift_ι_assoc]; clear ht t
   let t : _ := _; show t ≫ _ = _
   have ht : t = kernel.map _ _ (𝟙 _) (HomologicalComplex.xNextIso _ _).inv _ ≫ homology'.π' _ _ _
   rotate_left 2; · dsimp; apply sub_add_cancel
-  · rw [category.id_comp]; symm; apply HomologicalComplex.dFrom_eq
-  · ext1; erw [homology'.lift_ι, category.assoc, homology'.π'_ι, kernel.lift_ι_assoc]; rfl
-  rw [ht, category.assoc, homology'.π'_desc'_assoc, category.assoc, category.assoc]; clear ht t
+  · rw [Category.id_comp]; symm; apply HomologicalComplex.dFrom_eq
+  · ext1; erw [homology'.lift_ι, Category.assoc, homology'.π'_ι, kernel.lift_ι_assoc]; rfl
+  rw [ht, Category.assoc, homology'.π'_desc'_assoc, Category.assoc, Category.assoc]; clear ht t
   rw [kernel.lift_ι_assoc, cokernel.π_desc]
-  simp only [category.assoc, category.id_comp]; rfl
+  simp only [Category.assoc, Category.id_comp]; rfl
 
 theorem aux₂_naturality_snd_var (P : BoundedHomotopyCategory C) {B₁ B₂ : C} (i : ℤ) (f : B₁ ⟶ B₂) :
     (aux₂ P B₁ i).inv ≫ P.mapHomComplexHomology i f _ (HomologicalComplex.d_comp_d _ _ _ _) =
@@ -55,7 +55,7 @@ theorem aux₂_naturality_snd_var (P : BoundedHomotopyCategory C) {B₁ B₂ : C
           (Commsq.ofEq <| ((mapHomComplex' _ f).comm _ _).symm) ≫
         (aux₂ P B₂ i).inv :=
   by
-  dsimp only [aux₂, map_hom_complex_homology]
+  dsimp only [aux₂, BoundedHomotopyCategory.mapHomComplexHomology]
   rw [← AddCommGroupCat.homologyIso_inv_homologyMap]
   congr 1
   dsimp only [homology'.map']
@@ -81,9 +81,9 @@ theorem AddCommGroupCat.hasHomology_ι_eq {A B C : AddCommGroupCat} (f : A ⟶ B
   by
   dsimp only [AddCommGroupCat.hasHomology, AddCommGroupCat.ofHom]
   ext x
-  apply_fun (AddCommGroupCat.cokernelIsoRangeQuotient f).Hom
+  apply_fun (AddCommGroupCat.cokernelIsoRangeQuotient f).hom
   ·
-    simp only [AddMonoidHom.comp_apply, comp_apply, quotient_add_group.lift_mk'',
+    simp only [AddMonoidHom.comp_apply, comp_apply, QuotientAddGroup.lift_mk'',
       AddCommGroupCat.cokernel_π_cokernelIsoRangeQuotient_hom_apply,
       CategoryTheory.Iso.inv_hom_id_apply]
   · erw [← AddCommGroupCat.mono_iff_injective]; infer_instance
@@ -112,7 +112,7 @@ theorem homological_complex_hom_single_iso_natural_aux (P : BoundedHomotopyCateg
   by
   cases' φ with φ hφ
   rw [AddMonoidHom.mem_ker] at hφ ⊢
-  rw [← comp_apply, (map_hom_complex' P f).comm, comp_apply]
+  rw [← comp_apply, (BoundedHomotopyCategory.HomSingleIsoSetup.mapHomComplex' P f).comm, comp_apply]
   erw [hφ, map_zero]
 
 attribute [simps] eq_to_iso
@@ -127,67 +127,67 @@ theorem homologicalComplex_homSingleIso_natural (P : BoundedHomotopyCategory C) 
           ⟨(mapHomComplex' P f).f i φ, homological_complex_hom_single_iso_natural_aux P i f φ⟩) :=
   by
   dsimp only [HomotopyCategory.quotientMapHom, AddMonoidHom.mk'_apply, single,
-    HomotopyCategory.single, functor.comp_map]
-  rw [← functor.map_comp]; congr 1
+    HomotopyCategory.single, Functor.comp_map]
+  rw [← Functor.map_comp]; congr 1
   ext n
   dsimp only [HomologicalComplex.comp_f, HomologicalComplex.homSingleIso_symm_apply_f]
   split_ifs with hin; swap; · rw [zero_comp]
   subst n
-  simp only [category.assoc]; refine' congr_arg₂ _ rfl _
-  dsimp only [map_hom_complex', nat_trans.map_homological_complex_app_f,
-    preadditive_yoneda_map_app_apply]
-  simp only [category.assoc]; refine' congr_arg₂ _ rfl _
+  simp only [Category.assoc]; refine' congr_arg₂ _ rfl _
+  dsimp only [BoundedHomotopyCategory.HomSingleIsoSetup.mapHomComplex', NatTrans.mapHomologicalComplex_app_f,
+    CategoryTheory.preadditiveYoneda_map_app_apply]
+  simp only [Category.assoc]; refine' congr_arg₂ _ rfl _
   dsimp only [HomologicalComplex.single]
-  rw [← CategoryTheory.eqToIso_hom, ← iso.eq_inv_comp]
+  rw [← CategoryTheory.eqToIso_hom, ← Iso.eq_inv_comp]
   exact dif_pos rfl
 
 theorem homSingleIso_naturality_snd_var_good (P : BoundedHomotopyCategory C) {B₁ B₂ : C} (i : ℤ)
     (f : B₁ ⟶ B₂) :
-    (homSingleIso P B₁ i).Hom ≫
+    (homSingleIso P B₁ i).hom ≫
         (homology'Functor _ _ i).map
           (NatTrans.app (NatTrans.mapHomologicalComplex (preadditiveYoneda.map f) _) _) =
-      (preadditiveYoneda.map <| (single C i).map f).app (op P) ≫ (homSingleIso P B₂ i).Hom :=
+      (preadditiveYoneda.map <| (single C i).map f).app (op P) ≫ (homSingleIso P B₂ i).hom :=
   by
-  dsimp only [hom_single_iso, iso.trans_hom, iso.symm_hom, functor.comp_map, functor.op_map,
-    functor.right_op_map, Quiver.Hom.unop_op]
-  simp only [category.assoc]
+  dsimp only [hom_single_iso, Iso.trans_hom, Iso.symm_hom, Functor.comp_map, Functor.op_map,
+    Functor.rightOp_map, Quiver.Hom.unop_op]
+  simp only [Category.assoc]
   rw [aux₁_naturality_snd_var]
-  simp_rw [← category.assoc]; congr 1; simp_rw [category.assoc]
+  simp_rw [← Category.assoc]; congr 1; simp_rw [Category.assoc]
   rw [aux₂_naturality_snd_var]
-  simp_rw [← category.assoc]; congr 1
-  rw [← iso.eq_inv_comp]
+  simp_rw [← Category.assoc]; congr 1
+  rw [← Iso.eq_inv_comp]
   apply (AddCommGroupCat.hasHomology _ _ _).ext_ι
   apply (AddCommGroupCat.hasHomology _ _ _).ext_π
   rotate_left; · apply HomologicalComplex.d_comp_d; · apply HomologicalComplex.d_comp_d
   rw [AddCommGroupCat.homologyMap, HasHomology.map_ι, HasHomology.π_comp_desc]
-  dsimp only [map_hom_complex', nat_trans.map_homological_complex_app_f, addEquivIsoAddCommGroupIso]
-  simp only [AddCommGroupCat.hasHomology_ι_eq, ← category.assoc]
-  rw [iso.eq_comp_inv]
+  dsimp only [BoundedHomotopyCategory.HomSingleIsoSetup.mapHomComplex', NatTrans.mapHomologicalComplex_app_f, addEquivIsoAddCommGroupIso]
+  simp only [AddCommGroupCat.hasHomology_ι_eq, ← Category.assoc]
+  rw [Iso.eq_comp_inv]
   dsimp only [AddCommGroupCat.hasHomology]
-  simp only [category.assoc]
-  rw [← iso.inv_comp_eq]
+  simp only [Category.assoc]
+  rw [← Iso.inv_comp_eq]
   ext1 φ
   simp only [CategoryTheory.comp_apply, AddCommGroupCat.kernelIsoKer_inv_comp_ι_apply,
     AddCommGroupCat.cokernel_π_cokernelIsoRangeQuotient_hom_apply, AddCommGroupCat.ofHom,
     AddEquiv.toAddCommGroupCatIso, AddEquiv.coe_toAddMonoidHom]
-  dsimp only [aux₃, preadditive_yoneda_map_app_apply]
+  dsimp only [aux₃, CategoryTheory.preadditiveYoneda_map_app_apply]
   dsimp only [AddEquiv.surjectiveCongr, AddEquiv.coe_mk, AddEquiv.symm_mk_apply]
   rw [AddMonoidHom.liftOfSurjective_apply, AddMonoidHom.subtype_mk_apply]
   dsimp only [AddMonoidHom.comp_apply, AddEquiv.coe_toAddMonoidHom]
-  erw [homological_complex_hom_single_iso_natural P i f φ]
+  erw [BoundedHomotopyCategory.homologicalComplex_homSingleIso_natural P i f φ]
   rw [AddMonoidHom.liftOfSurjective_apply, AddMonoidHom.subtype_mk_apply]
   dsimp only [AddMonoidHom.comp_apply, AddEquiv.coe_toAddMonoidHom]
-  rw [quotient_add_group.lift_mk'', AddEquiv.apply_symm_apply, AddMonoidHom.comp_apply]
+  rw [QuotientAddGroup.lift_mk'', AddEquiv.apply_symm_apply, AddMonoidHom.comp_apply]
   rfl
 
 theorem homSingleIso_naturality_snd_var (P : BoundedHomotopyCategory C) {B₁ B₂ : C} (i : ℤ)
     (f : B₁ ⟶ B₂) (x : P ⟶ (single C i).obj B₁) :
     ((homology'Functor _ _ i).map
           ((NatTrans.mapHomologicalComplex (preadditiveYoneda.map f) _).app P.val.as.op))
-        ((homSingleIso P B₁ i).Hom x) =
-      (homSingleIso P B₂ i).Hom (x ≫ (single C i).map f) :=
+        ((homSingleIso P B₁ i).hom x) =
+      (homSingleIso P B₂ i).hom (x ≫ (single C i).map f) :=
   by
-  have := hom_single_iso_naturality_snd_var_good P i f
+  have := BoundedHomotopyCategory.homSingleIso_naturality_snd_var_good P i f
   apply_fun fun e => e x at this 
   exact this
 

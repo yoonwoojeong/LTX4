@@ -85,10 +85,10 @@ def eval2NatTrans :
       normedFreePfpngFunctor.{u} p ⋙ pFPNG₁ToCHFPNG₁ₑₗ
     where
   app S := eval2 p S
-  naturality' S T f := by
+  naturality S T f := by
     ext x t
     show (map f x t).eval 2 = _
-    dsimp only [functor.comp_map, normedFreePfpngFunctor_map, CompHausFiltPseuNormGrp₁.comp_apply,
+    dsimp only [Functor.comp_map, normedFreePfpngFunctor_map, CompHausFiltPseuNormGrp₁.comp_apply,
       map]
     erw [Polynomial.eval_finset_sum]; rfl
     recover exact 0
@@ -114,8 +114,8 @@ theorem Tinv2_injective (S : FintypeCat) :
   intro f hf
   ext s n
   apply_fun fun φ => φ s at hf 
-  simp only [tinv2NatTrans, tinvNatTrans, nat_trans.app_nsmul, nat_trans.id_app, sub_apply,
-    nat_trans.app_sub, ComphausFilteredPseudoNormedGroupHom.sub_apply, Pi.smul_apply,
+  simp only [tinv2NatTrans, tinvNatTrans, NatTrans.app_nsmul, NatTrans.id_app, sub_apply,
+    NatTrans.app_sub, ComphausFilteredPseudoNormedGroupHom.sub_apply, Pi.smul_apply,
     ComphausFilteredPseudoNormedGroupHom.nsmul_apply, Pi.sub_apply, Pi.zero_apply] at hf 
   simp only [Pi.zero_apply, Polynomial.coeff_zero]
   induction' n with n ih
@@ -133,7 +133,7 @@ theorem Tinv2_comp_eval2_eq_zero (S : FintypeCat) :
   by
   ext f s
   show (Polynomial.X * f s - _).eval 2 = (0 : ℤ)
-  simp only [nat_trans.app_nsmul, nat_trans.id_app,
+  simp only [NatTrans.app_nsmul, NatTrans.id_app,
     ComphausFilteredPseudoNormedGroupHom.nsmul_apply, CategoryTheory.id_apply, Pi.smul_apply,
     nsmul_eq_mul, Nat.cast_bit0, Nat.cast_one, Polynomial.eval_sub, Polynomial.eval_mul,
     Polynomial.eval_X, Polynomial.eval_bit0, Polynomial.eval_one, sub_self]
@@ -145,7 +145,7 @@ theorem theta_eval2_aux {S : FintypeCat} (s : S) (c : ℝ≥0) {f : Invpoly r S}
   have :
     ∀ n : ℤ,
       n ∉ Finset.Icc (-(f s).natDegree : ℤ) 0 →
-        (fun b : ℤ => ↑(to_laurent_measures_fun r S f s b) * ((2 : ℝ) ^ b)⁻¹) n = 0 :=
+        (fun b : ℤ => ↑(Invpoly.toLaurentMeasuresFun r S f s b) * ((2 : ℝ) ^ b)⁻¹) n = 0 :=
     by
     rintro n hn
     rw [Finset.mem_Icc, not_and_or] at hn 
@@ -155,12 +155,12 @@ theorem theta_eval2_aux {S : FintypeCat} (s : S) (c : ℝ≥0) {f : Invpoly r S}
     norm_cast
     cases' hn with hn hn
     · have : ∃ m : ℕ, n = -m := by
-        use n.nat_abs
+        use n.natAbs
         rw [Int.natAbs_of_nonpos]
         · simp
         exact le_trans hn.le (by simp)
       rcases this with ⟨m, rfl⟩
-      rw [to_laurent_measures_fun_nonpos]
+      rw [Invpoly.toLaurentMeasuresFun_nonpos]
       rw [Polynomial.coeff_eq_zero_of_natDegree_lt]
       simpa using hn
     · have : ∃ m : ℕ, n = m + 1 := by
@@ -168,7 +168,7 @@ theorem theta_eval2_aux {S : FintypeCat} (s : S) (c : ℝ≥0) {f : Invpoly r S}
         rw [Int.natAbs_of_nonneg]
         ring; linarith
       rcases this with ⟨m, rfl⟩
-      apply to_laurent_measures_fun_pos'
+      apply Invpoly.toLaurentMeasuresFun_pos'
   rw [tsum_eq_sum this]; clear this
   push_cast
   apply Finset.sum_bij fun (n : ℤ) hn => n.natAbs
@@ -176,7 +176,7 @@ theorem theta_eval2_aux {S : FintypeCat} (s : S) (c : ℝ≥0) {f : Invpoly r S}
   -- is four boring pieces of easy nonsense e.g.
   --2^{-n}=2^{n.nat_abs} if n < 0 is probably the hardest one
   · intro a ha
-    suffices a.nat_abs < (f s).natDegree + 1 by simpa
+    suffices a.natAbs < (f s).natDegree + 1 by simpa
     rw [Finset.mem_Icc] at ha 
     rw [Nat.lt_succ_iff, ← Int.ofNat_le, Int.natAbs_of_nonpos ha.2]
     linarith [ha.1]
@@ -185,15 +185,15 @@ theorem theta_eval2_aux {S : FintypeCat} (s : S) (c : ℝ≥0) {f : Invpoly r S}
     simp only
     congr
     · have : ∃ m : ℕ, a = -m := by
-        use a.nat_abs
+        use a.natAbs
         rw [Int.natAbs_of_nonpos ha.2]
         simp
       rcases this with ⟨m, rfl⟩
-      rw [to_laurent_measures_fun_nonpos]
+      rw [Invpoly.toLaurentMeasuresFun_nonpos]
       congr
       rw [← Int.ofNat_inj, Int.natAbs_of_nonpos ha.2, neg_neg]
     · rw [← zpow_neg, ← Int.natAbs_of_nonpos ha.2, zpow_ofNat]
-  · rintro a b ha hb (habs : a.nat_abs = b.nat_abs)
+  · rintro a b ha hb (habs : a.natAbs = b.natAbs)
     rw [Finset.mem_Icc] at ha hb 
     rw [← Int.ofNat_inj, Int.natAbs_of_nonpos ha.2, Int.natAbs_of_nonpos hb.2] at habs 
     exact neg_inj.mp habs
@@ -209,15 +209,15 @@ theorem theta_zero_of_eval2_zero {S : FintypeCat} (c : ℝ≥0) {f : Invpoly r S
   by
   ext s
   replace hf1 := congr_fun hf1 s
-  suffices ∑' n : ℤ, ↑(to_laurent_measures_fun r S f s n) * ((2 : ℝ) ^ n)⁻¹ = 0 by
-    simpa [LaurentMeasures.Θ, LaurentMeasuresSes.θToAdd, θ, Theta.ϑ, to_laurent_measures_addhom]
+  suffices ∑' n : ℤ, ↑(Invpoly.toLaurentMeasuresFun r S f s n) * ((2 : ℝ) ^ n)⁻¹ = 0 by
+    simpa [LaurentMeasures.Θ, LaurentMeasuresSes.θToAdd, θ, Theta.ϑ, Invpoly.toLaurentMeasuresAddhom]
   simp only [theta_eval2_aux p s c, Int.cast_eq_zero]
   exact hf1
 
 theorem Int.eq_neg_nat_or_succ_nat (n : ℤ) : ∃ m : ℕ, n = -m ∨ n = m + 1 :=
   by
   cases le_or_lt n 0
-  · use n.nat_abs
+  · use n.natAbs
     left
     rw [Int.natAbs_of_nonpos h, neg_neg]
   · use(n - 1).natAbs
@@ -234,18 +234,18 @@ theorem phi_eq_hMul_Tinv_sub_two {S : FintypeCat} (g : Invpoly r S) :
   simp only [LaurentMeasures.sub_apply, LaurentMeasures.shift_to_fun_to_fun,
     LaurentMeasures.nsmul_apply, nsmul_eq_mul, Int.ofNat_zero, zero_add]
   obtain ⟨m, rfl | rfl⟩ := n.eq_neg_nat_or_succ_nat
-  · simp only [to_laurent_measures_addhom, to_laurent_measures_fun_nonpos, AddMonoidHom.mk'_apply,
-      to_laurent_measures_to_fun]
+  · simp only [Invpoly.toLaurentMeasuresAddhom, Invpoly.toLaurentMeasuresFun_nonpos, AddMonoidHom.mk'_apply,
+      Invpoly.toLaurentMeasures_to_fun]
     cases m
     · simp only [Nat.zero_eq, Int.ofNat_zero, neg_zero', zero_add, Polynomial.mul_coeff_zero,
         Polynomial.coeff_sub, Polynomial.coeff_X_zero, zero_sub, neg_mul]
-      rw [to_laurent_measures_fun_pos'' r S g s (show (0 : ℤ) < 1 by norm_num)]
+      rw [Invpoly.toLaurentMeasuresFun_pos'' r S g s (show (0 : ℤ) < 1 by norm_num)]
       simp only [zero_sub, neg_inj, mul_eq_mul_right_iff,
         show (2 : Polynomial ℤ) = Polynomial.C 2 by simp, Polynomial.coeff_C_zero]
       left
       norm_num
     ·
-      simp only [to_laurent_measures_fun_nonpos, sub_mul, Int.ofNat_succ, neg_add_rev,
+      simp only [Invpoly.toLaurentMeasuresFun_nonpos, sub_mul, Int.ofNat_succ, neg_add_rev,
         neg_add_cancel_comm, Int.ofNat_bit0, Int.ofNat_zero, zero_add, Polynomial.coeff_sub,
         Polynomial.coeff_X_mul, sub_right_inj, show (2 : Polynomial ℤ) = Polynomial.C 2 by simp,
         Polynomial.coeff_C_mul]
@@ -266,8 +266,8 @@ theorem psi_eq_div_x_sub_two {S : FintypeCat} (c : ℝ≥0) {f : Invpoly r S}
     rw [show (2 : Polynomial ℤ) = Polynomial.C (2 : ℤ) by simp]
     rwa [Polynomial.mul_divByMonic_eq_iff_isRoot]
   suffices
-    ((to_laurent_measures_addhom r S) fun s => (Polynomial.X - 2) * (f s /ₘ (Polynomial.X - 2))) =
-      (to_laurent_measures_addhom r S) fun s => f s
+    ((Invpoly.toLaurentMeasuresAddhom r S) fun s => (Polynomial.X - 2) * (f s /ₘ (Polynomial.X - 2))) =
+      (Invpoly.toLaurentMeasuresAddhom r S) fun s => f s
     by
     rw [← this]
     apply phi_eq_mul_Tinv_sub_two
@@ -296,8 +296,8 @@ theorem shortExact (S : Profinite) :
     refine' ⟨fun s => f s /ₘ (Polynomial.X - 2), _, _⟩
     · change ‖_‖₊ ≤ c at hf2 
       change ‖_‖₊ ≤ _
-      have hf1' : ((eval2_nat_trans p).app S) f = 0 := by simpa using hf1
-      rw [← to_laurent_measures_addhom_isometry] at hf2 ⊢
+      have hf1' : ((Invpoly.eval2NatTrans p).app S) f = 0 := by simpa using hf1
+      rw [← Invpoly.toLaurentMeasuresAddhom_isometry] at hf2 ⊢
       refine' le_trans _ (NNReal.hMul_le_hMul_right (le_max_right _ _) _)
       rw [mul_inv_cancel_right₀ (lt_of_lt_of_le (zero_lt_two : (0 : ℝ≥0) < 2) le_add_self).ne']
       convert LaurentMeasures.psi_bound p S c (theta_zero_of_eval2_zero p c hf1') hf2

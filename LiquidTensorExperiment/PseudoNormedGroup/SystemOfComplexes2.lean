@@ -54,11 +54,11 @@ theorem tinv_eq [hκ₁ : ∀ n, Fact (Monotone (Function.swap κ₁ n))]
     ((tinv r' BD M V κ₁ κ₂).app c).f n = ((cLCFP.tinv V r' _ _ (BD.pt n)).app (op M) : _) :=
   by
   dsimp only [Tinv, cLCFP.tinv, FPsystem.Tinv, FP2.Tinv, HomologicalComplex.comp_f, auxSystem,
-    functor.comp_map, HomologicalComplex.unopFunctor, HomologicalComplex.unop_d, functor.op_obj,
-    functor.map_homological_complex_obj_d, unop_op, cLC, functor.op_map, Quiver.Hom.unop_op,
-    functor.map_homological_complex_map_f, functor.map_FreeAb, FreeAb.eval,
-    FreeAbelianGroup.map_of_apply, FPsystem, FP2.res_app, FreeAb.of_functor, functor.right_op_map,
-    whisker_right_app, nat_trans.op_app]
+    Functor.comp_map, HomologicalComplex.unopFunctor, HomologicalComplex.unop_d, Functor.op_obj,
+    Functor.mapHomologicalComplex_obj_d, unop_op, cLC, Functor.op_map, Quiver.Hom.unop_op,
+    Functor.mapHomologicalComplex_map_f, Functor.mapFreeAb, FreeAb.eval,
+    FreeAbelianGroup.map_of_apply, FPsystem, fP2.res_app, FreeAb.ofFunctor, Functor.rightOp_map,
+    CategoryTheory.whiskerRight_app, NatTrans.op_app]
   erw [FreeAbelianGroup.lift.of]
   rfl
 
@@ -71,34 +71,34 @@ def tInv [NormedWithAut r V] (κ : ℝ≥0 → ℕ → ℝ≥0) [∀ c, BD.Suita
           (SemiNormedGroupCat.locallyConstant.map <| NormedWithAut.t.inv).app _
       comm' := by
         rintro i j (rfl : i + 1 = j)
-        dsimp only [auxSystem, functor.comp_obj, HomologicalComplex.unopFunctor,
-          HomologicalComplex.unop_d, functor.op_obj, functor.map_homological_complex_obj_d, unop_op]
+        dsimp only [auxSystem, Functor.comp_obj, HomologicalComplex.unopFunctor,
+          HomologicalComplex.unop_d, Functor.op_obj, Functor.mapHomologicalComplex_obj_d, unop_op]
         erw [← SemiNormedGroupCat.completion_map, ← SemiNormedGroupCat.completion_map,
           ChainComplex.of_d]
-        dsimp only [FPsystem.d, universal_map.eval_FP2, universal_map.eval_CLCFP,
-          universal_map.eval_LCFP, cLC]
-        simp only [nat_trans.app_sum, functor.map_sum, preadditive.comp_sum, preadditive.sum_comp,
-          CategoryTheory.unop_sum, nat_trans.app_zsmul, functor.map_zsmul, preadditive.comp_zsmul,
-          preadditive.zsmul_comp, CategoryTheory.unop_zsmul]
+        dsimp only [FPsystem.d, UniversalMap.evalFP2, UniversalMap.evalCLCFP,
+          UniversalMap.evalLCFP, cLC]
+        simp only [NatTrans.app_sum, Functor.map_sum, Preadditive.comp_sum, Preadditive.sum_comp,
+          CategoryTheory.unop_sum, NatTrans.app_zsmul, Functor.map_zsmul, Preadditive.comp_zsmul,
+          Preadditive.zsmul_comp, CategoryTheory.unop_zsmul]
         refine' Finset.sum_congr rfl _
         rintro ⟨g, hg⟩ -
-        dsimp only [basic_universal_map.eval_FP2, basic_universal_map.eval_LCFP, whisker_right_app,
-          nat_trans.op_app, unop_op, FreeAb.of_functor, FreeAbelianGroup.map_of_apply,
-          functor.right_op_map, lC, functor.comp_map, functor.map_FreeAb, FreeAb.eval]
+        dsimp only [BasicUniversalMap.evalFP2, BasicUniversalMap.evalLCFP, CategoryTheory.whiskerRight_app,
+          NatTrans.op_app, unop_op, FreeAb.ofFunctor, FreeAbelianGroup.map_of_apply,
+          Functor.rightOp_map, lC, Functor.comp_map, Functor.mapFreeAb, FreeAb.eval]
         rw [FreeAbelianGroup.lift.of, _root_.id, Quiver.Hom.unop_op, ←
           SemiNormedGroup.Completion.map_comp, ← SemiNormedGroup.Completion.map_comp,
-          nat_trans.naturality] }
-  naturality' c₁ c₂ h := by
+          NatTrans.naturality] }
+  naturality c₁ c₂ h := by
     ext n : 2
-    dsimp only [HomologicalComplex.comp_f, auxSystem, functor.comp_map,
-      HomologicalComplex.unopFunctor, HomologicalComplex.unop_d, functor.op_obj,
-      functor.map_homological_complex_obj_d, unop_op, cLC, functor.op_map, Quiver.Hom.unop_op,
-      functor.map_homological_complex_map_f, functor.map_FreeAb, FreeAb.eval,
-      FreeAbelianGroup.map_of_apply, FPsystem, FP2.res_app, FreeAb.of_functor, functor.right_op_map]
+    dsimp only [HomologicalComplex.comp_f, auxSystem, Functor.comp_map,
+      HomologicalComplex.unopFunctor, HomologicalComplex.unop_d, Functor.op_obj,
+      Functor.mapHomologicalComplex_obj_d, unop_op, cLC, Functor.op_map, Quiver.Hom.unop_op,
+      Functor.mapHomologicalComplex_map_f, Functor.mapFreeAb, FreeAb.eval,
+      FreeAbelianGroup.map_of_apply, FPsystem, fP2.res_app, FreeAb.ofFunctor, Functor.rightOp_map]
     rw [← SemiNormedGroupCat.completion_map, ← SemiNormedGroupCat.completion_map,
       FreeAbelianGroup.lift.of, _root_.id, Quiver.Hom.unop_op, ←
       SemiNormedGroup.Completion.map_comp, ← SemiNormedGroup.Completion.map_comp,
-      nat_trans.naturality]
+      NatTrans.naturality]
     rfl
 
 variable [NormedWithAut r V]
@@ -108,11 +108,11 @@ theorem tInv_eq (κ : ℝ≥0 → ℕ → ℝ≥0) [∀ c, BD.Suitable (κ c)]
     ((tInv r r' BD M V κ).app c).f n = ((cLCFP.tInv r V r' _ (BD.pt n)).app (op M) : _) :=
   by
   dsimp only [T_inv, cLCFP.tInv, FPsystem, ChainComplex.of_x, FPsystem.X, HomologicalComplex.comp_f,
-    auxSystem, functor.comp_map, HomologicalComplex.unopFunctor, HomologicalComplex.unop_d,
-    functor.op_obj, functor.map_homological_complex_obj_d, functor.map_homological_complex_map_f,
-    functor.map_FreeAb, unop_op, cLC, functor.op_map, functor.op_obj, Quiver.Hom.unop_op,
-    FreeAb.eval, FreeAbelianGroup.map_of_apply, FPsystem, FP2.res_app, FreeAb.of_functor,
-    functor.right_op_map, whisker_right_app, nat_trans.op_app, whisker_left_app]
+    auxSystem, Functor.comp_map, HomologicalComplex.unopFunctor, HomologicalComplex.unop_d,
+    Functor.op_obj, Functor.mapHomologicalComplex_obj_d, Functor.mapHomologicalComplex_map_f,
+    Functor.mapFreeAb, unop_op, cLC, Functor.op_map, Functor.op_obj, Quiver.Hom.unop_op,
+    FreeAb.eval, FreeAbelianGroup.map_of_apply, FPsystem, fP2.res_app, FreeAb.ofFunctor,
+    Functor.rightOp_map, CategoryTheory.whiskerRight_app, NatTrans.op_app, CategoryTheory.whiskerLeft_app]
   rfl
 
 def res [hκ₁ : ∀ n, Fact (Monotone (Function.swap κ₁ n))]
@@ -128,11 +128,11 @@ theorem res_eq [hκ₁ : ∀ n, Fact (Monotone (Function.swap κ₁ n))]
     ((res r' BD M V κ₁ κ₂).app c).f n = ((cLCFP.res V r' _ _ (BD.pt n)).app (op M) : _) :=
   by
   dsimp only [res, cLCFP.res, FPsystem.res, FP2.res, HomologicalComplex.comp_f, auxSystem,
-    functor.comp_map, HomologicalComplex.unopFunctor, HomologicalComplex.unop_d, functor.op_obj,
-    functor.map_homological_complex_obj_d, unop_op, cLC, functor.op_map, Quiver.Hom.unop_op,
-    functor.map_homological_complex_map_f, functor.map_FreeAb, FreeAb.eval,
-    FreeAbelianGroup.map_of_apply, FPsystem, FP2.res_app, FreeAb.of_functor, functor.right_op_map,
-    whisker_right_app, nat_trans.op_app]
+    Functor.comp_map, HomologicalComplex.unopFunctor, HomologicalComplex.unop_d, Functor.op_obj,
+    Functor.mapHomologicalComplex_obj_d, unop_op, cLC, Functor.op_map, Quiver.Hom.unop_op,
+    Functor.mapHomologicalComplex_map_f, Functor.mapFreeAb, FreeAb.eval,
+    FreeAbelianGroup.map_of_apply, FPsystem, fP2.res_app, FreeAb.ofFunctor, Functor.rightOp_map,
+    CategoryTheory.whiskerRight_app, NatTrans.op_app]
   rw [FreeAbelianGroup.lift.of]
   rfl
 
@@ -149,7 +149,7 @@ theorem tinv2_eq [hκ₁ : ∀ n, Fact (Monotone (Function.swap κ₁ n))]
         ((cLCFP.tInv r V r' _ (BD.pt n)).app (op M) : _) ≫
           ((cLCFP.res V r' _ _ (BD.pt n)).app (op M) : _) :=
   by
-  rw [Tinv2, nat_trans.app_sub, HomologicalComplex.sub_f_apply, Tinv_eq, nat_trans.comp_app,
+  rw [Tinv2, NatTrans.app_sub, HomologicalComplex.sub_f_apply, Tinv_eq, NatTrans.comp_app,
     HomologicalComplex.comp_f, T_inv_eq, res_eq]
 
 theorem auxSystem_d_eq (κ : ℝ≥0 → ℕ → ℝ≥0) [∀ c, BD.Suitable (κ c)]
@@ -161,16 +161,16 @@ theorem auxSystem_d_eq (κ : ℝ≥0 → ℕ → ℝ≥0) [∀ c, BD.Suitable (�
   by
   dsimp [auxSystem, FPsystem]
   rw [ChainComplex.of_d]
-  dsimp [FreeAb.eval, functor.map_FreeAb, functor.right_op_map, FPsystem.d, universal_map.eval_FP2,
-    universal_map.eval_CLCFP, universal_map.eval_LCFP]
-  simp only [nat_trans.app_sum, map_sum, ← normedAddGroupHomCompletionHom_apply,
+  dsimp [FreeAb.eval, Functor.mapFreeAb, Functor.rightOp_map, FPsystem.d, UniversalMap.evalFP2,
+    UniversalMap.evalCLCFP, UniversalMap.evalLCFP]
+  simp only [NatTrans.app_sum, map_sum, ← normedAddGroupHomCompletionHom_apply,
     CategoryTheory.unop_sum]
   congr 1
   refine' Finset.sum_congr rfl _
   rintro ⟨g, hg⟩ -
-  simp only [nat_trans.app_zsmul, map_zsmul, CategoryTheory.unop_zsmul]
-  dsimp only [basic_universal_map.eval_FP2, basic_universal_map.eval_LCFP, whisker_right_app,
-    nat_trans.op_app, unop_op, FreeAb.of_functor, FreeAbelianGroup.map_of_apply]
+  simp only [NatTrans.app_zsmul, map_zsmul, CategoryTheory.unop_zsmul]
+  dsimp only [BasicUniversalMap.evalFP2, BasicUniversalMap.evalLCFP, CategoryTheory.whiskerRight_app,
+    NatTrans.op_app, unop_op, FreeAb.ofFunctor, FreeAbelianGroup.map_of_apply]
   rw [FreeAbelianGroup.lift.of]
   rfl
 
@@ -187,7 +187,7 @@ def inclF (c : ℝ≥0ᵒᵖ) (n : ℕ) :
       ((auxSystem r' BD M V fun c n => c * κ n).obj c).pt n :=
   by
   dsimp [BreenDeligne.Data.complex, BreenDeligne.Data.complex₂, BreenDeligne.Data.complex₂X,
-    cLCTinv, auxSystem, FPsystem, FPsystem.X, functor.map_FreeAb, FreeAb.eval]
+    cLCTinv, auxSystem, FPsystem, FPsystem.X, Functor.mapFreeAb, FreeAb.eval]
   exact (SemiNormedGroupCat.equalizer.ι _ _ : _)
 
 theorem incl_comm (c : ℝ≥0ᵒᵖ) (i : ℕ) :
@@ -199,12 +199,12 @@ theorem incl_comm (c : ℝ≥0ᵒᵖ) (i : ℕ) :
   dsimp [auxSystem]
   erw [ChainComplex.of_d, BreenDeligne.Data.complex_obj_d]
   dsimp [BreenDeligne.Data.complex, BreenDeligne.Data.complex₂, BreenDeligne.Data.complex₂X,
-    cLCTinv, FPsystem, FPsystem.X, functor.map_FreeAb, FreeAb.eval, universal_map.eval_CLCFPTinv,
-    universal_map.eval_CLCFPTinv₂, SemiNormedGroupCat.equalizer.mapNat, incl_f]
+    cLCTinv, FPsystem, FPsystem.X, Functor.mapFreeAb, FreeAb.eval, UniversalMap.evalCLCFPTinv,
+    UniversalMap.evalCLCFPTinv₂, SemiNormedGroupCat.equalizer.mapNat, auxSystem.inclF]
   delta id; dsimp only; symm
   convert SemiNormedGroupCat.equalizer.map_comp_ι _ _ _ _ using 2
-  apply arrow.mk_injective
-  rw [← aux_system_d_eq r' BD M V fun c n => c * κ n]
+  apply Arrow.mk_injective
+  rw [← auxSystem.auxSystem_d_eq r' BD M V fun c n => c * κ n]
   dsimp [auxSystem]
   erw [ChainComplex.of_d]
   rfl
@@ -214,13 +214,13 @@ def incl : (BD.system κ r V r').obj (op M) ⟶ auxSystem r' BD M V fun c n => c
   app c :=
     { f := inclF r r' BD M V κ c
       comm' := by rintro i j (rfl : i + 1 = j); apply incl_comm }
-  naturality' c₁ c₂ h := by
+  naturality c₁ c₂ h := by
     ext n : 2
     dsimp [auxSystem]
     dsimp [BreenDeligne.Data.complex, BreenDeligne.Data.complex₂, BreenDeligne.Data.complex₂X,
-      cLCTinv, FPsystem, FPsystem.X, functor.map_FreeAb, FreeAb.eval, FreeAb.of_functor,
-      universal_map.eval_CLCFPTinv, universal_map.eval_CLCFPTinv₂,
-      SemiNormedGroupCat.equalizer.mapNat, incl_f, cLCFPTinv₂.res, cLCTinv.mapNat, cLCTinv.map]
+      cLCTinv, FPsystem, FPsystem.X, Functor.mapFreeAb, FreeAb.eval, FreeAb.ofFunctor,
+      UniversalMap.evalCLCFPTinv, UniversalMap.evalCLCFPTinv₂,
+      SemiNormedGroupCat.equalizer.mapNat, auxSystem.inclF, cLCFPTinv₂.res, cLCTinv.mapNat, cLCTinv.map]
     delta id
     erw [FreeAbelianGroup.lift.of]
     convert SemiNormedGroupCat.equalizer.map_comp_ι _ _ _ _ using 1
@@ -257,23 +257,23 @@ theorem shortExact [Fact (r < 1)] (κ : ℕ → ℝ≥0) [BD.Suitable κ]
     ShortExact (((incl' r r' BD M V κ).app c).f n)
       (((tinv2' r r' BD M V (fun c n => r' * (c * κ n)) fun c n => c * κ n).app c).f n) :=
   by
-  apply (config := { instances := false }) @short_exact.mk
+  apply (config := { instances := false }) @ShortExact.mk
   · rw [AddCommGroupCat.mono_iff_injective]
-    dsimp [incl', incl, incl_f, BreenDeligne.Data.complex, BreenDeligne.Data.complex₂,
+    dsimp [incl', incl, auxSystem.inclF, BreenDeligne.Data.complex, BreenDeligne.Data.complex₂,
       BreenDeligne.Data.complex₂X]
     exact SemiNormedGroupCat.equalizer.ι_injective _ _
-  · rw [Tinv2', whisker_right_app, functor.map_homological_complex_map_f, Tinv2_eq, ←
-      nat_trans.comp_app, ← cLCFP.res_comp_tInv, nat_trans.comp_app, ← neg_sub, functor.map_neg,
-      functor.map_sub, CategoryTheory.Functor.map_comp, AddCommGroupCat.epi_iff_surjective]
+  · rw [Tinv2', CategoryTheory.whiskerRight_app, Functor.mapHomologicalComplex_map_f, Tinv2_eq, ←
+      NatTrans.comp_app, ← cLCFP.res_comp_tInv, NatTrans.comp_app, ← neg_sub, Functor.map_neg,
+      Functor.map_sub, CategoryTheory.Functor.map_comp, AddCommGroupCat.epi_iff_surjective]
     apply neg_surjective
     have := cLCFP.tInvSubTinv_surjective r r' V (unop c * κ n) (BD.X n) (op M)
-    rw [cLCFP.tInvSubTinv, nat_trans.app_sub, nat_trans.comp_app] at this 
+    rw [cLCFP.tInvSubTinv, NatTrans.app_sub, NatTrans.comp_app] at this 
     exact this
   · rw [AddCommGroupCat.exact_iff]
-    dsimp [incl', incl, incl_f, Tinv2', BreenDeligne.Data.complex, BreenDeligne.Data.complex₂,
+    dsimp [incl', incl, auxSystem.inclF, Tinv2', BreenDeligne.Data.complex, BreenDeligne.Data.complex₂,
       BreenDeligne.Data.complex₂X]
     rw [SemiNormedGroupCat.equalizer.forget₂_ι, AddSubgroup.subtype_range, Tinv2_eq, ←
-      nat_trans.comp_app, ← cLCFP.res_comp_tInv]
+      NatTrans.comp_app, ← cLCFP.res_comp_tInv]
     rfl
 
 end auxSystem

@@ -174,7 +174,7 @@ def rowMap (C : SystemOfDoubleComplexes.{u}) (p p' : ℕ) : C.row p ⟶ C.row p'
   app c :=
     { f := fun q => (C.d p p' : C.pt c.unop p q ⟶ C.pt c.unop p' q)
       comm' := fun q q' _ => (C.d'_comp_d _ p p' q q').symm }
-  naturality' c₁ c₂ h := (C.map h).comm p p'
+  naturality c₁ c₂ h := (C.map h).comm p p'
 
 @[simp]
 theorem rowMap_apply (C : SystemOfDoubleComplexes.{u}) (c : ℝ≥0) (p p' q : ℕ) (x : C.pt c p q) :
@@ -214,7 +214,7 @@ def colMap (C : SystemOfDoubleComplexes.{u}) (q q' : ℕ) : C.col q ⟶ C.col q'
   app c :=
     { f := fun p => (C.d' q q' : C.pt c.unop p q ⟶ C.pt c.unop p q')
       comm' := fun p p' _ => C.d'_comp_d _ p p' q q' }
-  naturality' c₁ c₂ h := by ext p : 2; exact ((C.map h).f p).comm q q'
+  naturality c₁ c₂ h := by ext p : 2; exact ((C.map h).f p).comm q q'
 
 /-- A system of double complexes is *admissible*
 if all the differentials and restriction maps are norm-nonincreasing.

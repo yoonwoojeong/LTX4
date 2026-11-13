@@ -52,29 +52,29 @@ def pullbackSheafificationCompatibility {G : C ⥤ D} (Hp : CoverPreserving J K 
 theorem toSheafify_pullbackSheafificationCompatibility {G : C ⥤ D} (Hp : CoverPreserving J K G)
     (Hl : CategoryTheory.Functor.IsCocontinuous J K G) (Hc : CompatiblePreserving K G) (F) :
     J.toSheafify (G.op ⋙ F) ≫
-        ((pullbackSheafificationCompatibility.{w, v, u} A Hp Hl Hc).Hom.app F).val =
+        ((pullbackSheafificationCompatibility.{w, v, u} A Hp Hl Hc).hom.app F).val =
       whiskerLeft _ (K.toSheafify _) :=
   by
-  dsimp [CategoryTheory.Sites.pullbackSheafificationCompatibility, adjunction.left_adjoint_uniq]
+  dsimp [CategoryTheory.Sites.pullbackSheafificationCompatibility, Adjunction.leftAdjointUniq]
   apply Quiver.Hom.op_inj
   apply coyoneda.map_injective; swap; infer_instance
   ext E f : 2
-  dsimp [functor.preimage, full.preimage, coyoneda, adjunction.left_adjoints_coyoneda_equiv]
-  simp only [adjunction.hom_equiv_unit, functor.comp_map, Sheaf_to_presheaf_map,
-    adjunction.hom_equiv_naturality_left_symm, whiskering_left_obj_map, adjunction.hom_equiv_counit,
+  dsimp [Functor.preimage, Full.preimage, coyoneda, Adjunction.leftAdjointsCoyonedaEquiv]
+  simp only [Adjunction.homEquiv_unit, Functor.comp_map, Sheaf_to_presheaf_map,
+    Adjunction.homEquiv_naturality_left_symm, CategoryTheory.whiskeringLeft_obj_map, Adjunction.homEquiv_counit,
     Sheaf.category_theory.category_comp_val, presheaf_to_Sheaf_map_val]
-  dsimp [adjunction.comp]
-  simp only [sheafification_adjunction_unit_app, category.comp_id, Functor.map_id, whisker_left_id',
-    category.assoc, grothendieck_topology.sheafify_map_sheafify_lift, category.id_comp,
-    grothendieck_topology.to_sheafify_sheafify_lift]
+  dsimp [Adjunction.comp]
+  simp only [CategoryTheory.sheafificationAdjunction_unit_app, Category.comp_id, Functor.map_id, whisker_left_id',
+    Category.assoc, GrothendieckTopology.sheafifyMap_sheafifyLift, Category.id_comp,
+    GrothendieckTopology.toSheafify_sheafifyLift]
   ext t
-  dsimp only [whisker_left, nat_trans.comp_app]
-  simp only [category.assoc]
+  dsimp only [whisker_left, NatTrans.comp_app]
+  simp only [Category.assoc]
   -- for some reason the proof that works in mathllib does not work here...
   -- we have to be a little more forceful.
-  erw [(Ran G.op).map_id, category.id_comp]
-  congr 1; simp only [← category.assoc]
-  convert category.id_comp _
+  erw [(Ran G.op).map_id, Category.id_comp]
+  congr 1; simp only [← Category.assoc]
+  convert Category.id_comp _
   dsimp only [pullback_sheaf]
   have := (Ran.adjunction A G.op).left_triangle
   apply_fun fun e => (e.app (K.sheafify F)).app x at this 
@@ -83,11 +83,11 @@ theorem toSheafify_pullbackSheafificationCompatibility {G : C ⥤ D} (Hp : Cover
 @[simp]
 theorem pullbackSheafificationCompatibility_hom_apply_val {G : C ⥤ D} (Hp : CoverPreserving J K G)
     (Hl : CategoryTheory.Functor.IsCocontinuous J K G) (Hc : CompatiblePreserving K G) (F) :
-    ((pullbackSheafificationCompatibility.{w, v, u} A Hp Hl Hc).Hom.app F).val =
+    ((pullbackSheafificationCompatibility.{w, v, u} A Hp Hl Hc).hom.app F).val =
       J.sheafifyLift (whiskerLeft _ <| K.toSheafify _) (Sheaf.cond _) :=
   by
   apply J.sheafify_lift_unique
-  apply to_sheafify_pullback_sheafification_compatibility
+  apply CategoryTheory.Sites.toSheafify_pullbackSheafificationCompatibility
 
 end CategoryTheory.Sites
 

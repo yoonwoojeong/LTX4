@@ -36,7 +36,7 @@ theorem profiniteFreeAdjAux₁_naturality (x : condensedSetToCondensedAb.obj S.u
       profiniteToCondensed.map f.unop ≫ profiniteFreeAdjAux₁ _ _ x :=
   by
   dsimp only [profinite_free_adj_aux₁]
-  simpa only [adjunction.hom_equiv_naturality_left]
+  simpa only [Adjunction.homEquiv_naturality_left]
 
 def profiniteFreeAdjAux₂ (M : Condensed.{u} Ab.{u + 1}) (S : Profinite.{u}ᵒᵖ) :
     ((Opposite.unop S).toCondensed ⟶ condensedAbToCondensedSet.obj M) ≃
@@ -74,7 +74,7 @@ def profiniteFreeAdj (M : Condensed.{u} Ab.{u + 1}) :
   NatIso.ofComponents
     (fun S => by
       apply AddEquiv.toAddCommGroupCatIso
-      apply profinite_free_adj_aux)
+      apply Condensed.profiniteFreeAdjAux)
     (by
       intro S T f; ext t
       change
@@ -82,7 +82,7 @@ def profiniteFreeAdj (M : Condensed.{u} Ab.{u + 1}) :
               ((profinite_free_adj_aux₂ M T).trans (profinite_free_adj_aux₃ M T)))
             _ =
           _
-      dsimp only [Equiv.trans_apply, functor.comp_map, functor.op_map, preadditive_yoneda]
+      dsimp only [Equiv.trans_apply, Functor.comp_map, Functor.op_map, CategoryTheory.preadditiveYoneda]
       erw [profinite_free_adj_aux₁_naturality]
       erw [profinite_free_adj_aux₂_naturality]
       erw [profinite_free_adj_aux₃_naturality]

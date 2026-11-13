@@ -13,7 +13,7 @@ variable {A B C : AddCommGroupCat.{u}} (f : A ⟶ B) (g : B ⟶ C)
 
 theorem exact_iff : Exact f g ↔ f.range = g.ker :=
   by
-  rw [abelian.exact_iff' f g (kernel_is_limit _) (cokernel_is_colimit _)]
+  rw [Abelian.exact_iff' f g (kernel_is_limit _) (cokernel_is_colimit _)]
   constructor
   · rintro ⟨hfg, h⟩; ext x; constructor
     · rintro ⟨x, rfl⟩; exact AddMonoidHom.congr_fun hfg x

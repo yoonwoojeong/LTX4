@@ -25,8 +25,8 @@ variable {𝒜 : Type _} [Category 𝒜] [HasZeroMorphisms 𝒜] [HasFiniteBipro
 def pow (n : ℕ) : 𝒜 ⥤ 𝒜 where
   obj A := ⨁ fun i : Fin n => A
   map A B f := biproduct.map fun i => f
-  map_id' A := by ext i j; simp only [biproduct.ι_map, category.id_comp, category.comp_id]
-  map_comp' A B C f g := by ext i j; simp only [biproduct.ι_map_assoc, category.assoc]
+  map_id A := by ext i j; simp only [biproduct.ι_map, Category.id_comp, Category.comp_id]
+  map_comp A B C f g := by ext i j; simp only [biproduct.ι_map_assoc, Category.assoc]
 
 -- move this
 attribute [simps] comp_hom
@@ -41,14 +41,14 @@ instance (n : ℕ) {J : Type _} [Category J] : PreservesColimitsOfShape J (pow n
                 { pt := s.pt
                   ι := {
                         app := fun j => show K.obj j ⟶ (K ⋙ pow n).obj j from biproduct.ι _ i
-                        naturality' := by
-                          intro X Y f <;> simp only [functor.comp_map, Pow_map, biproduct.ι_map] } ≫
+                        naturality := by
+                          intro X Y f <;> simp only [Functor.comp_map, Pow_map, biproduct.ι_map] } ≫
                       s.ι }
               hc.desc t
           fac := by
             intros; ext
-            simp only [Pow_map, functor.map_cocone_ι_app, biproduct.map_desc, is_colimit.fac,
-              nat_trans.comp_app, biproduct.ι_desc]
+            simp only [Pow_map, Functor.mapCocone_ι_app, biproduct.map_desc, IsColimit.fac,
+              NatTrans.comp_app, biproduct.ι_desc]
           uniq := by
             intros; ext i
             simp only [biproduct.ι_desc]
@@ -56,12 +56,12 @@ instance (n : ℕ) {J : Type _} [Category J] : PreservesColimitsOfShape J (pow n
               { pt := s.X
                 ι := {
                       app := fun j => show K.obj j ⟶ (K ⋙ Pow n).obj j from biproduct.ι _ i
-                      naturality' := by
-                        intro X Y f <;> simp only [functor.comp_map, Pow_map, biproduct.ι_map] } ≫
+                      naturality := by
+                        intro X Y f <;> simp only [Functor.comp_map, Pow_map, biproduct.ι_map] } ≫
                     s.ι }
             refine' hc.uniq t (_ ≫ m) _
             intro j
-            simp only [nat_trans.comp_app, ← w, functor.map_cocone_ι_app, Pow_map,
+            simp only [NatTrans.comp_app, ← w, Functor.mapCocone_ι_app, Pow_map,
               biproduct.ι_map_assoc] } }
 
 instance (n : ℕ) : PreservesColimits (pow n : 𝒜 ⥤ 𝒜)
@@ -101,20 +101,20 @@ variable {m n o : ℕ} (f : BasicUniversalMap m n) (g : BasicUniversalMap n o)
 def evalPow : (pow m : 𝒜 ⥤ 𝒜) ⟶ pow n
     where
   app A := biproduct.matrix fun i j => f j i • 𝟙 A
-  naturality' := by
+  naturality := by
     intros; ext i j
-    simp only [Pow_map, biproduct.ι_map_assoc, category.assoc, biproduct.matrix_π, biproduct.map_π,
+    simp only [Pow_map, biproduct.ι_map_assoc, Category.assoc, biproduct.matrix_π, biproduct.map_π,
       biproduct.ι_desc, biproduct.matrix_π_assoc, biproduct.ι_desc_assoc, comp_zsmul, zsmul_comp,
-      category.comp_id, category.id_comp]
+      Category.comp_id, Category.id_comp]
 
 @[simp]
 theorem evalPow_comp : @evalPow 𝒜 _ _ _ _ _ (comp g f) = f.evalPow ≫ g.evalPow :=
   by
   ext A i j
-  simp only [eval_Pow_app, nat_trans.comp_app, category.assoc, biproduct.ι_map_assoc,
+  simp only [eval_Pow_app, NatTrans.comp_app, Category.assoc, biproduct.ι_map_assoc,
     biproduct.matrix_π, biproduct.ι_matrix_assoc, biproduct.lift_desc, biproduct.map_π,
     biproduct.ι_desc, biproduct.matrix_π_assoc, biproduct.ι_desc_assoc, comp_zsmul, zsmul_comp,
-    category.comp_id, category.id_comp]
+    Category.comp_id, Category.id_comp]
   simp only [comp, AddMonoidHom.mk'_apply, HMul.hMul, Matrix.dotProduct, Finset.sum_smul, mul_smul]
   rw [Finset.sum_congr rfl]
   rintro j -
@@ -154,27 +154,27 @@ theorem evalPow_comp : evalPow F (UniversalMap.comp g f) = evalPow F f ≫ evalP
   ext g f : 2
   simp only [AddMonoidHom.compHom_apply_apply, AddMonoidHom.comp_apply, AddMonoidHom.flip_apply,
     CategoryTheory.Preadditive.compHom_apply_apply, comp_of, eval_Pow_of, whisker_right_comp,
-    basic_universal_map.eval_Pow_comp]
+    BasicUniversalMap.evalPow_comp]
 
 theorem evalPow_comp_app (A : 𝒜) :
     (evalPow F (UniversalMap.comp g f)).app A = (evalPow F f).app A ≫ (evalPow F g).app A := by
-  rw [eval_Pow_comp, nat_trans.comp_app]
+  rw [eval_Pow_comp, NatTrans.comp_app]
 
 @[simps (config := { fullyApplied := false })]
 def evalPowFunctor : FreeMat ⥤ 𝒜 ⥤ 𝒜 where
   obj n := pow n ⋙ F
   map m n f := evalPow F f
-  map_id' n := by
+  map_id n := by
     refine' (eval_Pow_of F _).trans _
     ext A : 2; dsimp
     rw [← F.map_id]; congr 1
     ext i j : 2
-    simp only [biproduct.ι_matrix, category.comp_id, biproduct.lift_π, basic_universal_map.id]
+    simp only [biproduct.ι_matrix, Category.comp_id, biproduct.lift_π, BasicUniversalMap.id]
     rw [biproduct.ι_π]
     split_ifs with hij
-    · cases hij; rw [Matrix.one_apply_eq, one_smul, eq_to_hom_refl]
+    · cases hij; rw [Matrix.one_apply_eq, one_smul, CategoryTheory.eqToHom_refl]
     · rw [Matrix.one_apply_ne, zero_smul]; dsimp; rintro rfl; exact hij rfl
-  map_comp' m n o f g := evalPow_comp F _ _
+  map_comp m n o f g := evalPow_comp F _ _
 
 instance evalPowFunctor_additive : (evalPowFunctor F).Additive
     where map_add' m n f g := by dsimp [eval_Pow]; rw [AddMonoidHom.map_add]
@@ -207,9 +207,9 @@ instance HomologicalComplex.functorEvalFlipPreservesColimitsOfShape (J : Type _)
           { pt := s.pt.pt i
             ι :=
               { app := fun j => show (K ⋙ F.pt i).obj j ⟶ s.pt.pt i from (s.ι.app j).f i
-                naturality' := by
+                naturality := by
                   intro a b φ; have := s.ι.naturality φ; dsimp at this ⊢
-                  simp only [category.comp_id] at this ⊢
+                  simp only [Category.comp_id] at this ⊢
                   rw [← this]; rfl } }
         let u :
           ∀ (s : Cocone (K ⋙ HomologicalComplex.functorEval.flip.obj F)) (i j : ℕ),
@@ -220,35 +220,35 @@ instance HomologicalComplex.functorEvalFlipPreservesColimitsOfShape (J : Type _)
               { app := fun k =>
                   show (K ⋙ F.pt i).obj k ⟶ s.pt.pt j from
                     (whiskerLeft K (F.d i j)).app k ≫ (s.ι.app k).f j
-                naturality' := by
+                naturality := by
                   intro a b φ; have := s.ι.naturality φ; dsimp at this ⊢
-                  simp only [category.comp_id] at this ⊢
+                  simp only [Category.comp_id] at this ⊢
                   rw [← this, (F.d i j).naturality_assoc]; rfl } }
         { desc := fun s =>
             { f := fun i => (isColimitOfPreserves (F.pt i) hc).desc (t s i)
               comm' := by
                 intro i j h; dsimp
-                have := (is_colimit_of_preserves (F.X i) hc).uniq (u s i j)
+                have := (CategoryTheory.Limits.isColimitOfPreserves (F.X i) hc).uniq (u s i j)
                 refine' (this _ _).trans (this _ _).symm
                 · intro j'; dsimp
-                  erw [(is_colimit_of_preserves (F.X i) hc).fac_assoc]
+                  erw [(CategoryTheory.Limits.isColimitOfPreserves (F.X i) hc).fac_assoc]
                   apply (s.ι.app j').comm
                 · intro j'; dsimp
-                  rw [nat_trans.naturality_assoc]
-                  erw [(is_colimit_of_preserves (F.X j) hc).fac] }
-          fac := by intros; ext i; dsimp; erw [(is_colimit_of_preserves (F.X i) hc).fac]
+                  rw [NatTrans.naturality_assoc]
+                  erw [(CategoryTheory.Limits.isColimitOfPreserves (F.X j) hc).fac] }
+          fac := by intros; ext i; dsimp; erw [(CategoryTheory.Limits.isColimitOfPreserves (F.X i) hc).fac]
           uniq := by
             intros; ext i
             exact
-              (is_colimit_of_preserves (F.X i) hc).uniq (t s i) (m.f i) fun j =>
+              (CategoryTheory.Limits.isColimitOfPreserves (F.X i) hc).uniq (t s i) (m.f i) fun j =>
                 HomologicalComplex.congr_hom (w j) i } }
 
 instance evalFunctorPreservesColimitsOfShape (BD : Data) (J : Type _) [Category J]
     [PreservesColimitsOfShape J F] : PreservesColimitsOfShape J ((evalFunctor F).obj BD) :=
   by
   refine'
-    @homological_complex.functor_eval_flip_preserves_colimits_of_shape _ _ _ _ J _
-      ((eval_functor' F).obj BD) (id _)
+    @HomologicalComplex.functorEvalFlipPreservesColimitsOfShape _ _ _ _ J _
+      ((BreenDeligne.Data.evalFunctor' F).obj BD) (id _)
   intro i
   show preserves_colimits_of_shape J (Pow (BD.X i) ⋙ F)
   infer_instance
@@ -297,34 +297,34 @@ def evalHomotopy :=
 def evalHomotopy' (A : 𝒜) :=
   (evalPowFunctor F ⋙ (evaluation _ _).obj A).mapHomotopy BD'.Homotopy
 
-attribute [local instance] has_binary_biproducts_of_finite_biproducts
+attribute [local instance] CategoryTheory.Limits.hasBinaryBiproducts_of_finite_biproducts
 
 @[simps]
 def biprod : 𝒜 ⥤ 𝒜 where
   obj A := A ⊞ A
   map A B f := biprod.map f f
-  map_id' A := by
-    ext <;> simp only [biprod.inl_map, biprod.inr_map, category.id_comp, category.comp_id]
-  map_comp' A B C f g := by
-    ext <;> simp only [biprod.inl_map_assoc, biprod.inr_map_assoc, category.assoc]
+  map_id A := by
+    ext <;> simp only [biprod.inl_map, biprod.inr_map, Category.id_comp, Category.comp_id]
+  map_comp A B C f g := by
+    ext <;> simp only [biprod.inl_map_assoc, biprod.inr_map_assoc, Category.assoc]
 
 @[simps (config := { fullyApplied := false })]
 def biprodIsoPowTwoComponents (A : 𝒜) : A ⊞ A ≅ (pow 2).obj A
     where
   hom := biprod.desc (biproduct.ι (fun i : Fin 2 => A) 0) (biproduct.ι (fun i : Fin 2 => A) 1)
   inv := biprod.lift (biproduct.π _ 0) (biproduct.π _ 1)
-  hom_inv_id' := by
+  hom_inv_id := by
     ext <;>
               simp only [biprod.lift_fst, biprod.lift_snd, biprod.inl_desc_assoc,
-                biprod.inr_desc_assoc, biproduct.ι_π_self, category.assoc] <;>
-            erw [category.id_comp] <;>
+                biprod.inr_desc_assoc, biproduct.ι_π_self, Category.assoc] <;>
+            erw [Category.id_comp] <;>
           simp only [biprod.inl_fst, biprod.inl_snd, biprod.inr_fst, biprod.inr_snd] <;>
         rw [biproduct.ι_π_ne] <;>
       decide
-  inv_hom_id' := by
+  inv_hom_id := by
     ext i j
-    erw [category.comp_id]
-    simp only [add_comp, comp_add, biprod.lift_desc, category.assoc]
+    erw [Category.comp_id]
+    simp only [add_comp, comp_add, biprod.lift_desc, Category.assoc]
     fin_cases i with [0, 1] <;> rw [biproduct.ι_π_self_assoc, biproduct.ι_π_ne_assoc, zero_comp]
     swap; · decide
     pick_goal 3; · decide
@@ -337,7 +337,7 @@ def biprodIsoPowTwo : (biprod : 𝒜 ⥤ 𝒜) ≅ pow 2 :=
     ext ⟨i⟩ <;>
       simp only [biproduct.ι_map, Biprod_iso_Pow_two_components_hom, Biprod_map, Pow_map,
         biprod.inl_map_assoc, biprod.inl_desc_assoc, biprod.inr_map_assoc, biprod.inr_desc_assoc,
-        biprod.inr_map, category.assoc, biprod.inr_desc]
+        biprod.inr_map, Category.assoc, biprod.inr_desc]
 
 @[simps]
 def powCompPowComponents (m n : ℕ) (A : 𝒜) : (pow n).obj ((pow m).obj A) ≅ (pow (m * n)).obj A
@@ -348,10 +348,10 @@ def powCompPowComponents (m n : ℕ) (A : 𝒜) : (pow n).obj ((pow m).obj A) �
   inv :=
     biproduct.lift fun j =>
       biproduct.lift fun i => biproduct.π (fun i : Fin _ => A) (finProdFinEquiv (i, j))
-  hom_inv_id' := by
+  hom_inv_id := by
     ext j i j' i' : 4
-    erw [biproduct.ι_desc_assoc, category.comp_id]
-    simp only [biproduct.ι_desc_assoc, category.assoc, biproduct.lift_π]
+    erw [biproduct.ι_desc_assoc, Category.comp_id]
+    simp only [biproduct.ι_desc_assoc, Category.assoc, biproduct.lift_π]
     by_cases hj : j = j'
     · subst hj; rw [biproduct.ι_π_self_assoc]
       by_cases hi : i = i'
@@ -364,10 +364,10 @@ def powCompPowComponents (m n : ℕ) (A : 𝒜) : (pow n).obj ((pow m).obj A) �
     · rw [biproduct.ι_π_ne, biproduct.ι_π_ne_assoc, zero_comp, comp_zero]
       · exact hj
       · simp only [Equiv.apply_eq_iff_eq, Prod.mk.inj_iff, Ne.def, hj, not_false_iff, and_false_iff]
-  inv_hom_id' := by
+  inv_hom_id := by
     ext k k' : 2
-    erw [category.comp_id]
-    simp only [category.assoc, biproduct.lift_desc, sum_comp, comp_sum]
+    erw [Category.comp_id]
+    simp only [Category.assoc, biproduct.lift_desc, sum_comp, comp_sum]
     by_cases h : k = k'
     · subst h
       rw [biproduct.ι_π_self, Finset.sum_eq_single ((fin_prod_fin_equiv.symm k).snd : Fin _),
@@ -405,8 +405,8 @@ def powCompPow (m n : ℕ) : (pow m ⋙ pow n : 𝒜 ⥤ 𝒜) ≅ pow (m * n) :
   NatIso.ofComponents (powCompPowComponents m n) fun A B f =>
     by
     ext ⟨j⟩ ⟨i⟩ ⟨k⟩
-    simp only [biproduct.ι_map, Pow_comp_Pow_components_hom, Pow_map, functor.comp_map,
-      biproduct.ι_map_assoc, category.assoc, biproduct.map_π, biproduct.ι_desc_assoc]
+    simp only [biproduct.ι_map, Pow_comp_Pow_components_hom, Pow_map, Functor.comp_map,
+      biproduct.ι_map_assoc, Category.assoc, biproduct.map_π, biproduct.ι_desc_assoc]
 
 theorem FreeAbelianGroup.eq_zero_induction {α M : Type _} [AddGroup M] (f : FreeAbelianGroup α → M)
     (h1 : ∀ a, f (FreeAbelianGroup.of a) = 0) (h2 : ∀ x y, f (x + y) = f x + f y) : ∀ x, f x = 0 :=
@@ -431,12 +431,12 @@ theorem aux' (m n : ℕ) (f : UniversalMap m n) :
     rw [sub_eq_zero]
     dsimp only [eval_Pow_functor]
     rw [mul_of, eval_Pow_of, eval_Pow_of]
-    dsimp only [whisker_right_app, basic_universal_map.eval_Pow_app]
+    dsimp only [CategoryTheory.whiskerRight_app, BasicUniversalMap.evalPow_app]
     rw [← F.map_comp, ← F.map_comp]
     congr 1
     dsimp only [Pow_comp_Pow, Biprod_iso_Pow_two]
-    erw [nat_iso.of_components_inv_app, nat_iso.of_components_inv_app,
-      nat_iso.of_components_inv_app]
+    erw [NatIso.ofComponents_inv_app, NatIso.ofComponents_inv_app,
+      NatIso.ofComponents_inv_app]
     dsimp only [Pow_comp_Pow_components_inv, Biprod_iso_Pow_two_components_inv, Pow_map]
     apply CategoryTheory.Limits.biproduct.hom_ext
     rintro ⟨j⟩
@@ -444,35 +444,35 @@ theorem aux' (m n : ℕ) (f : UniversalMap m n) :
     refine' fin_prod_fin_equiv.forall_congr_left.mp _
     rintro ⟨b, i⟩
     rw [biproduct.lift_map, biproduct.lift_matrix, biproduct.lift_π, comp_sum, biproduct.lift_map,
-      category.assoc, biproduct.ι_matrix_assoc, biproduct.lift_π]
+      Category.assoc, biproduct.ι_matrix_assoc, biproduct.lift_π]
     rw [Finset.sum_eq_single i]
-    · rw [category.assoc]
+    · rw [Category.assoc]
       ext <;>
-                rw [category.assoc, category.assoc, comp_zsmul, zsmul_comp, comp_zsmul, comp_zsmul,
-                  category.comp_id, category.assoc, category.assoc] <;>
+                rw [Category.assoc, Category.assoc, comp_zsmul, zsmul_comp, comp_zsmul, comp_zsmul,
+                  Category.comp_id, Category.assoc, Category.assoc] <;>
               [rw [biprod.lift_fst]; rw [biprod.lift_snd]] <;>
             rw [biproduct.lift_π, biproduct.lift_π, biproduct.lift_π, biproduct.ι_π,
-              basic_universal_map.mul_apply, Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply,
+              BasicUniversalMap.hMul_apply, Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply,
               Matrix.submatrix_apply, Matrix.kroneckerMap, Equiv.symm_apply_apply,
               Equiv.symm_apply_apply] <;>
           simp only [dite_eq_ite, Equiv.apply_eq_iff_eq, and_true_iff, Prod.mk.inj_iff,
-            eq_self_iff_true, eq_to_hom_refl, Matrix.one_apply, ite_mul, ite_smul, one_mul,
+            eq_self_iff_true, CategoryTheory.eqToHom_refl, Matrix.one_apply, ite_mul, ite_smul, one_mul,
             MulZeroClass.zero_mul, zero_smul, @eq_comm _ b, smul_ite, smul_zero] <;>
         congr 1
     · rintro i' - hi'
       rw [Ne.def, eq_comm] at hi' 
-      rw [category.assoc]
+      rw [Category.assoc]
       ext <;>
-              rw [category.assoc, category.assoc, comp_zsmul, zsmul_comp, comp_zsmul, comp_zsmul,
-                category.comp_id, zero_comp] <;>
+              rw [Category.assoc, Category.assoc, comp_zsmul, zsmul_comp, comp_zsmul, comp_zsmul,
+                Category.comp_id, zero_comp] <;>
             [rw [biprod.lift_fst]; rw [biprod.lift_snd]] <;>
           rw [biproduct.lift_π, biproduct.ι_π] <;>
         simp only [dite_eq_ite, Equiv.apply_eq_iff_eq, and_true_iff, Prod.mk.inj_iff,
-          eq_self_iff_true, eq_to_hom_refl, Equiv.uLift_symm_apply, eq_false hi', and_false_iff,
+          eq_self_iff_true, CategoryTheory.eqToHom_refl, Equiv.uLift_symm_apply, eq_false hi', and_false_iff,
           if_false, smul_zero]
     · intro h; exact (h (Finset.mem_univ _)).elim
   · intro x y
-    simp only [AddMonoidHom.map_add, functor.map_add, comp_add, add_comp, nat_trans.app_add]
+    simp only [AddMonoidHom.map_add, Functor.map_add, comp_add, add_comp, NatTrans.app_add]
     abel
 
 @[simps (config := { fullyApplied := false })]
@@ -489,14 +489,14 @@ def aux :
         fun i j hij => aux' F A (BD'.data.pt i) (BD'.data.pt j) (BD'.data.d i j))
     fun A B f => by
     ext i
-    dsimp only [data.eval_functor, data.eval_functor', eval_Pow, eval_Pow_functor_obj,
-      functor.map_iso_hom, functor.comp_obj, functor.comp_map, functor.flip_obj_map, iso.trans_hom,
-      iso.symm_hom, nat_iso.app_hom, functor.map_homological_complex_obj_X,
+    dsimp only [Data.evalFunctor, Data.evalFunctor', eval_Pow, eval_Pow_functor_obj,
+      Functor.mapIso_hom, Functor.comp_obj, Functor.comp_map, Functor.flip_obj_map, Iso.trans_hom,
+      Iso.symm_hom, NatIso.app_hom, functor.map_homological_complex_obj_X,
       HomologicalComplex.functorEval_map_app_f, HomologicalComplex.comp_f,
       HomologicalComplex.Hom.isoOfComponents_hom_f]
-    rw [← F.map_comp, ← F.map_comp, ← category.assoc, nat_trans.naturality, category.assoc,
-      category.assoc, functor.comp_map, ← functor.map_comp, ← functor.map_comp,
-      nat_trans.naturality]
+    rw [← F.map_comp, ← F.map_comp, ← Category.assoc, NatTrans.naturality, Category.assoc,
+      Category.assoc, Functor.comp_map, ← Functor.map_comp, ← Functor.map_comp,
+      NatTrans.naturality]
 
 -- move this up
 theorem quux (n : ℕ) {N : ℕ} (k : Fin N) (A : 𝒜) :
@@ -508,9 +508,9 @@ theorem quux (n : ℕ) {N : ℕ} (k : Fin N) (A : 𝒜) :
   apply CategoryTheory.Limits.biproduct.hom_ext'
   refine' fin_prod_fin_equiv.forall_congr_left.mp _
   rintro ⟨l, i⟩
-  dsimp only [basic_universal_map.eval_Pow_app]
+  dsimp only [BasicUniversalMap.evalPow_app]
   rw [biproduct.matrix_π, biproduct.matrix_π, biproduct.ι_desc, biproduct.ι_desc]
-  dsimp only [basic_universal_map.proj, basic_universal_map.proj_aux,
+  dsimp only [BasicUniversalMap.proj, BasicUniversalMap.projAux,
     Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply, Matrix.submatrix, Matrix.kroneckerMap,
     Matrix.of_apply]
   simp only [ite_mul, ite_smul, one_mul, one_smul, MulZeroClass.zero_mul, zero_smul,
@@ -527,7 +527,7 @@ theorem quux (n : ℕ) {N : ℕ} (k : Fin N) (A : 𝒜) :
 theorem evalPow_add {m n : ℕ} (f g : BasicUniversalMap m n) (A : 𝒜) :
     (f + g).evalPow.app A = f.evalPow.app A + g.evalPow.app A :=
   by
-  dsimp [basic_universal_map.eval_Pow_app]
+  dsimp [BasicUniversalMap.evalPow_app]
   ext ⟨i⟩ ⟨j⟩
   simp only [biproduct.ι_matrix, biproduct.lift_π, comp_add, add_comp, add_zsmul]
 
@@ -536,21 +536,21 @@ def evalFunctorHomotopy (A : 𝒜) :
       (((Data.evalFunctor F).obj BD'.data).map (biprod.fst : A ⊞ A ⟶ A) +
         ((Data.evalFunctor F).obj BD'.data).map (biprod.snd : A ⊞ A ⟶ A)) :=
   by
-  refine' ((eval_homotopy' F BD' A).symm.compLeft ((aux F BD').inv.app A)).congr _ _ _ _
+  refine' ((BreenDeligne.Package.evalHomotopy' F BD' A).symm.compLeft ((aux F BD').inv.app A)).congr _ _ _ _
   · ext i
-    rw [HomologicalComplex.comp_f, aux_inv_app_f, functor.map_homological_complex_map_f,
-      functor.comp_map, eval_Pow_functor_map, evaluation_obj_map, data.eval_functor_obj_map_f]
-    dsimp only [data.sum, universal_map.sum]
-    rw [eval_Pow_of, whisker_right_app, ← F.map_comp, Fin.sum_univ_two, eval_Pow_add, quux, quux]
+    rw [HomologicalComplex.comp_f, aux_inv_app_f, Functor.mapHomologicalComplex_map_f,
+      Functor.comp_map, eval_Pow_functor_map, evaluation_obj_map, Data.evalFunctor_obj_map_f]
+    dsimp only [Data.sum, UniversalMap.sum]
+    rw [eval_Pow_of, CategoryTheory.whiskerRight_app, ← F.map_comp, Fin.sum_univ_two, eval_Pow_add, quux, quux]
     congr 1
     apply CategoryTheory.Limits.biproduct.hom_ext'; rintro m
-    rw [biproduct.ι_desc_assoc, biproduct.ι_map, category.assoc]
+    rw [biproduct.ι_desc_assoc, biproduct.ι_map, Category.assoc]
     apply CategoryTheory.Limits.biproduct.hom_ext; rintro n
-    rw [category.assoc]
+    rw [Category.assoc]
     apply CategoryTheory.Limits.biprod.hom_ext' <;> [rw [biprod.inl_desc_assoc];
           rw [biprod.inr_desc_assoc]] <;>
-        rw [category.assoc, biproduct.ι_desc_assoc, add_comp, comp_add, biproduct.matrix_π,
-          biproduct.matrix_π, biproduct.ι_desc, biproduct.ι_desc, category.assoc, add_comp,
+        rw [Category.assoc, biproduct.ι_desc_assoc, add_comp, comp_add, biproduct.matrix_π,
+          biproduct.matrix_π, biproduct.ι_desc, biproduct.ι_desc, Category.assoc, add_comp,
           comp_add] <;>
       simp only [biprod.inl_fst_assoc, biprod.inl_snd_assoc, biprod.inr_fst_assoc,
         biprod.inr_snd_assoc, zero_comp, add_zero, zero_add, true_and_iff, Equiv.apply_eq_iff_eq,
@@ -561,17 +561,17 @@ def evalFunctorHomotopy (A : 𝒜) :
       · cases hmn; rw [if_pos rfl, biproduct.ι_π_self]
       · rw [if_neg, biproduct.ι_π_ne] <;> [rw [Ne.def]; skip] <;> exact hmn
   · ext i
-    rw [HomologicalComplex.comp_f, aux_inv_app_f, functor.map_homological_complex_map_f,
-      functor.comp_map, eval_Pow_functor_map, evaluation_obj_map, HomologicalComplex.add_f_apply,
-      data.eval_functor_obj_map_f, data.eval_functor_obj_map_f]
-    dsimp only [data.proj, proj]
-    rw [AddMonoidHom.map_sum, Fin.sum_univ_two, eval_Pow_of, eval_Pow_of, nat_trans.app_add,
-      whisker_right_app, whisker_right_app, comp_add, ← F.map_comp, ← F.map_comp, quux, quux]
+    rw [HomologicalComplex.comp_f, aux_inv_app_f, Functor.mapHomologicalComplex_map_f,
+      Functor.comp_map, eval_Pow_functor_map, evaluation_obj_map, HomologicalComplex.add_f_apply,
+      Data.evalFunctor_obj_map_f, Data.evalFunctor_obj_map_f]
+    dsimp only [Data.proj, proj]
+    rw [AddMonoidHom.map_sum, Fin.sum_univ_two, eval_Pow_of, eval_Pow_of, NatTrans.app_add,
+      CategoryTheory.whiskerRight_app, CategoryTheory.whiskerRight_app, comp_add, ← F.map_comp, ← F.map_comp, quux, quux]
     congr 2 <;>
       · apply CategoryTheory.Limits.biproduct.hom_ext; rintro n
-        rw [biproduct.map_π, category.assoc, biproduct.matrix_π]
+        rw [biproduct.map_π, Category.assoc, biproduct.matrix_π]
         apply CategoryTheory.Limits.biproduct.hom_ext'; rintro m
-        rw [biproduct.ι_desc_assoc, category.assoc]
+        rw [biproduct.ι_desc_assoc, Category.assoc]
         apply CategoryTheory.Limits.biprod.hom_ext' <;> [rw [biprod.inl_desc_assoc];
           rw [biprod.inr_desc_assoc]]
         all_goals

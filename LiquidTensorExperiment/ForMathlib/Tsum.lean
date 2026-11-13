@@ -31,7 +31,7 @@ theorem hasSum_nat_add_iff'' {f : ℕ → ℝ≥0} (k : ℕ) {a : ℝ≥0} :
 theorem sum_add_tsum_nat_add' {f : ℕ → ℝ≥0} (k : ℕ) (h : Summable f) :
     ∑ i in range k, f i + ∑' i, f (i + k) = ∑' i, f i := by
   simpa [add_comm] using
-    ((hasSum_nat_add_iff'' k).1 ((NNReal.summable_nat_add_iff k).2 h).HasSum).unique h.has_sum
+    ((hasSum_nat_add_iff'' k).1 ((NNReal.summable_nat_add_iff k).2 h).HasSum).unique h.hasSum
 
 theorem tsum_eq_zero {ι} (f : ι → ℝ≥0) (h : ∀ b, f b = 0) : ∑' b, f b = 0 := by
   simp only [h, tsum_zero]

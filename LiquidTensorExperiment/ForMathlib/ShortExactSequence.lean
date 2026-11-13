@@ -27,7 +27,7 @@ import LiquidTensorExperiment.ForMathlib.AbelianCategory
 import LiquidTensorExperiment.ForMathlib.FinFunctor
 import LiquidTensorExperiment.ForMathlib.SplitExact
 
-#align_import for_mathlib.short_exact_sequence
+#align_import for_mathlib.ShortExactSequence
 
 noncomputable section
 
@@ -84,16 +84,16 @@ def id (A : ShortExactSequence 𝒞) : A ⟶ A
   fst := 𝟙 _
   snd := 𝟙 _
   trd := 𝟙 _
-  sq1' := by simp only [category.id_comp, category.comp_id]
-  sq2' := by simp only [category.id_comp, category.comp_id]
+  sq1' := by simp only [Category.id_comp, Category.comp_id]
+  sq2' := by simp only [Category.id_comp, Category.comp_id]
 
 def comp {A B C : ShortExactSequence 𝒞} (f : A ⟶ B) (g : B ⟶ C) : A ⟶ C
     where
   fst := f.1 ≫ g.1
   snd := f.2 ≫ g.2
   trd := f.3 ≫ g.3
-  sq1' := by rw [category.assoc, hom.sq1, hom.sq1_assoc]
-  sq2' := by rw [category.assoc, hom.sq2, hom.sq2_assoc]
+  sq1' := by rw [Category.assoc, Hom.sq1, Hom.sq1_assoc]
+  sq2' := by rw [Category.assoc, Hom.sq2, Hom.sq2_assoc]
 
 instance : Category (ShortExactSequence 𝒞) :=
   {
@@ -101,9 +101,9 @@ instance : Category (ShortExactSequence 𝒞) :=
           𝒞)) with
     id := id
     comp := fun A B C f g => comp f g
-    id_comp' := by intros; ext <;> dsimp <;> apply category.id_comp
-    comp_id' := by intros; ext <;> dsimp <;> apply category.comp_id
-    assoc' := by intros; ext <;> dsimp <;> apply category.assoc }
+    id_comp := by intros; ext <;> dsimp <;> apply Category.id_comp
+    comp_id := by intros; ext <;> dsimp <;> apply Category.comp_id
+    assoc := by intros; ext <;> dsimp <;> apply Category.assoc }
 
 @[simp]
 theorem id_fst (A : ShortExactSequence 𝒞) : Hom.fst (𝟙 A) = 𝟙 A.1 :=
@@ -157,12 +157,12 @@ def trd : ShortExactSequence 𝒞 ⥤ 𝒞 where
 @[simps]
 def fNat : fst 𝒞 ⟶ snd 𝒞 where
   app A := A.f
-  naturality' A B f := f.sq1
+  naturality A B f := f.sq1
 
 @[simps]
 def gNat : snd 𝒞 ⟶ trd 𝒞 where
   app A := A.g
-  naturality' A B f := f.sq2
+  naturality A B f := f.sq2
 
 instance : HasZeroMorphisms (ShortExactSequence 𝒞)
     where
@@ -226,15 +226,15 @@ theorem functorMap_naturality {A B : ShortExactSequence 𝒞} (f : A ⟶ B) :
       functor_map f ⟨0, hi⟩ ≫ B.functor.map hij.hom =
           functor_map f ⟨0, hi⟩ ≫ B.functor.map h01 ≫ B.functor.map h12 :=
         _
-      _ = (functor_map f ⟨0, hi⟩ ≫ B.functor.map h01) ≫ B.functor.map h12 := by rw [category.assoc]
+      _ = (functor_map f ⟨0, hi⟩ ≫ B.functor.map h01) ≫ B.functor.map h12 := by rw [Category.assoc]
       _ = (A.functor.map h01 ≫ functor_map f _) ≫ B.functor.map h12 := _
-      _ = A.functor.map h01 ≫ functor_map f _ ≫ B.functor.map h12 := (category.assoc _ _ _)
+      _ = A.functor.map h01 ≫ functor_map f _ ≫ B.functor.map h12 := (Category.assoc _ _ _)
       _ = A.functor.map h01 ≫ A.functor.map h12 ≫ functor_map f _ := _
       _ = A.functor.map hij.hom ≫ functor_map f ⟨2, hj⟩ := _
-    · rw [← functor.map_comp]; congr
+    · rw [← Functor.map_comp]; congr
     · congr 1; exact f.sq1
     · congr 1; exact f.sq2
-    · rw [← functor.map_comp_assoc]; congr
+    · rw [← Functor.map_comp_assoc]; congr
 
 /- warning: category_theory.short_exact_sequence.Functor clashes with category_theory.short_exact_sequence.functor -> CategoryTheory.ShortExactSequence.functor
 Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Functor CategoryTheory.ShortExactSequence.functorₓ'. -/
@@ -244,9 +244,9 @@ def functor : ShortExactSequence 𝒞 ⥤ Fin 3 ⥤ 𝒞
   obj := ShortExactSequence.functor
   map A B f :=
     { app := functorMap f
-      naturality' := fun i j hij => (functorMap_naturality f i j hij.le).symm }
-  map_id' A := by ext i; fin_cases i <;> rfl
-  map_comp' A B C f g := by ext i; fin_cases i <;> rfl
+      naturality := fun i j hij => (functorMap_naturality f i j hij.le).symm }
+  map_id A := by ext i; fin_cases i <;> rfl
+  map_comp A B C f g := by ext i; fin_cases i <;> rfl
 
 end ShortExactSequence
 
@@ -276,12 +276,12 @@ as first and third component, then `f` itself is an isomorphism. -/
 theorem isIso_of_fst_of_trd (h1 : IsIso f.1) (h3 : IsIso f.3) : IsIso f :=
   {
     out := by
-      haveI : is_iso f.2 := snd_is_iso f h1 h3
+      haveI : is_iso f.2 := CategoryTheory.ShortExactSequence.snd_isIso f h1 h3
       refine' ⟨⟨inv f.1, inv f.2, inv f.3, _, _⟩, _, _⟩
-      · dsimp; simp only [is_iso.inv_comp_eq, f.sq1_assoc, category.comp_id, is_iso.hom_inv_id]
-      · dsimp; simp only [is_iso.inv_comp_eq, f.sq2_assoc, category.comp_id, is_iso.hom_inv_id]
-      · ext <;> dsimp <;> simp only [is_iso.hom_inv_id]
-      · ext <;> dsimp <;> simp only [is_iso.inv_hom_id] }
+      · dsimp; simp only [IsIso.inv_comp_eq, f.sq1_assoc, Category.comp_id, IsIso.hom_inv_id]
+      · dsimp; simp only [IsIso.inv_comp_eq, f.sq2_assoc, Category.comp_id, IsIso.hom_inv_id]
+      · ext <;> dsimp <;> simp only [IsIso.hom_inv_id]
+      · ext <;> dsimp <;> simp only [IsIso.inv_hom_id] }
 
 @[simps]
 def isoOfComponents (f₁ : A.1 ≅ B.1) (f₂ : A.2 ≅ B.2) (f₃ : A.3 ≅ B.3)
@@ -290,10 +290,10 @@ def isoOfComponents (f₁ : A.1 ≅ B.1) (f₂ : A.2 ≅ B.2) (f₃ : A.3 ≅ B.
   hom := ⟨f₁.hom, f₂.hom, f₃.hom, sq1, sq2⟩
   inv := by
     refine' ⟨f₁.inv, f₂.inv, f₃.inv, _, _⟩ <;> dsimp
-    rw [iso.inv_comp_eq, ← category.assoc, iso.eq_comp_inv, sq1]
-    rw [iso.inv_comp_eq, ← category.assoc, iso.eq_comp_inv, sq2]
-  hom_inv_id' := by ext <;> apply iso.hom_inv_id
-  inv_hom_id' := by ext <;> apply iso.inv_hom_id
+    rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv, sq1]
+    rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv, sq2]
+  hom_inv_id := by ext <;> apply Iso.hom_inv_id
+  inv_hom_id := by ext <;> apply Iso.inv_hom_id
 
 @[simps]
 def isoOfComponents' (f₁ : A.1 ≅ B.1) (f₂ : A.2 ⟶ B.2) (f₃ : A.3 ≅ B.3)
@@ -301,12 +301,12 @@ def isoOfComponents' (f₁ : A.1 ≅ B.1) (f₂ : A.2 ⟶ B.2) (f₃ : A.3 ≅ B
   let F : A ⟶ B := ⟨f₁.hom, f₂, f₃.hom, sq1, sq2⟩
   { hom := F
     inv := by
-      haveI : is_iso F.2 := snd_is_iso _ inferInstance inferInstance
+      haveI : is_iso F.2 := CategoryTheory.ShortExactSequence.snd_isIso _ inferInstance inferInstance
       refine' ⟨f₁.inv, inv F.2, f₃.inv, _, _⟩ <;> dsimp
-      rw [iso.inv_comp_eq, ← category.assoc, is_iso.eq_comp_inv, sq1]
-      rw [is_iso.inv_comp_eq, ← category.assoc, iso.eq_comp_inv, sq2]
-    hom_inv_id' := by ext <;> try apply iso.hom_inv_id; apply is_iso.hom_inv_id
-    inv_hom_id' := by ext <;> try apply iso.inv_hom_id; apply is_iso.inv_hom_id }
+      rw [Iso.inv_comp_eq, ← Category.assoc, IsIso.eq_comp_inv, sq1]
+      rw [IsIso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv, sq2]
+    hom_inv_id := by ext <;> try apply Iso.hom_inv_id; apply IsIso.hom_inv_id
+    inv_hom_id := by ext <;> try apply Iso.inv_hom_id; apply IsIso.inv_hom_id }
 
 end Iso
 
@@ -329,16 +329,16 @@ theorem exact_of_split {A B C : 𝒜} (f : A ⟶ B) (g : B ⟶ C) (χ : C ⟶ B)
   { w := hfg
     Epi :=
       by
-      let ψ : (kernel_subobject g : 𝒜) ⟶ image_subobject f :=
-        subobject.arrow _ ≫ φ ≫ factor_thru_image_subobject f
+      let ψ : (kernel_subobject g : 𝒜) ⟶ CategoryTheory.Limits.imageSubobject f :=
+        Subobject.arrow _ ≫ φ ≫ CategoryTheory.Limits.factorThruImageSubobject f
       suffices ψ ≫ imageToKernel f g hfg = 𝟙 _ by convert epi_of_epi ψ _; rw [this]; infer_instance
-      rw [← cancel_mono (subobject.arrow _)]; swap; · infer_instance
-      simp only [imageToKernel_arrow, image_subobject_arrow_comp, category.id_comp, category.assoc]
+      rw [← cancel_mono (Subobject.arrow _)]; swap; · infer_instance
+      simp only [imageToKernel_arrow, CategoryTheory.Limits.imageSubobject_arrow_comp, Category.id_comp, Category.assoc]
       calc
         (kernel_subobject g).arrow ≫ φ ≫ f = (kernel_subobject g).arrow ≫ 𝟙 B := _
-        _ = (kernel_subobject g).arrow := category.comp_id _
-      rw [← H, preadditive.comp_add]
-      simp only [add_zero, zero_comp, kernel_subobject_arrow_comp_assoc] }
+        _ = (kernel_subobject g).arrow := Category.comp_id _
+      rw [← H, Preadditive.comp_add]
+      simp only [add_zero, zero_comp, CategoryTheory.Limits.kernelSubobject_arrow_comp_assoc] }
 
 -- move this
 theorem exact_inl_snd (A B : 𝒜) : Exact (biprod.inl : A ⟶ A ⊞ B) biprod.snd :=
@@ -399,14 +399,14 @@ theorem mkSplit_split (A B : 𝒜) : (mkSplit A B).split :=
 theorem Splitting.split {A : ShortExactSequence 𝒜} (i : Splitting A) : A.split :=
   by
   refine' ⟨i.hom.2 ≫ biprod.fst ≫ i.inv.1, i.hom.3 ≫ biprod.inr ≫ i.inv.2, _⟩
-  simp only [category.assoc, ← hom.sq1_assoc, hom.sq2]; dsimp
-  simp only [biprod.inl_fst_assoc, biprod.inr_snd_assoc, category.comp_id, category.assoc, ←
+  simp only [Category.assoc, ← Hom.sq1_assoc, Hom.sq2]; dsimp
+  simp only [biprod.inl_fst_assoc, biprod.inr_snd_assoc, Category.comp_id, Category.assoc, ←
     comp_fst, ← comp_snd_assoc, ← comp_trd, i.to_iso.hom_inv_id, i.to_iso.inv_hom_id]
   dsimp
   simp only [true_and_iff, biprod.inr_fst_assoc, zero_comp, eq_self_iff_true, comp_zero,
-    category.id_comp]
-  simp only [hom.sq1, ← hom.sq2_assoc, ← comp_add]
-  simp only [← category.assoc, ← add_comp, biprod.total, category.comp_id, ← comp_snd,
+    Category.id_comp]
+  simp only [Hom.sq1, ← Hom.sq2_assoc, ← comp_add]
+  simp only [← Category.assoc, ← add_comp, biprod.total, Category.comp_id, ← comp_snd,
     i.to_iso.hom_inv_id]
   rfl
 
@@ -415,10 +415,10 @@ def LeftSplit.splitting {A : ShortExactSequence 𝒜} (h : A.LeftSplit) : A.Spli
   toIso :=
     isoOfComponents' (Iso.refl _) (biprod.lift h.some A.g) (Iso.refl _)
       (by
-        dsimp; simp only [category.id_comp]; ext
-        · simpa only [biprod.inl_fst, biprod.lift_fst, category.assoc] using h.some_spec.symm
-        · simp only [exact.w, f_comp_g, biprod.lift_snd, category.assoc, exact_inl_snd])
-      (by dsimp; simp only [category.comp_id, biprod.lift_snd])
+        dsimp; simp only [Category.id_comp]; ext
+        · simpa only [biprod.inl_fst, biprod.lift_fst, Category.assoc] using h.choose_spec.symm
+        · simp only [Exact.w, f_comp_g, biprod.lift_snd, Category.assoc, exact_inl_snd])
+      (by dsimp; simp only [Category.comp_id, biprod.lift_snd])
   fst_eq_id := rfl
   trd_eq_id := rfl
 
@@ -427,11 +427,11 @@ def RightSplit.splitting {A : ShortExactSequence 𝒜} (h : A.RightSplit) : A.Sp
   toIso :=
     Iso.symm <|
       isoOfComponents' (Iso.refl _) (biprod.desc A.f h.some) (Iso.refl _)
-        (by dsimp; simp only [biprod.inl_desc, category.id_comp])
+        (by dsimp; simp only [biprod.inl_desc, Category.id_comp])
         (by
-          dsimp; simp only [category.comp_id]; ext
-          · simp only [exact.w, f_comp_g, biprod.inl_desc_assoc, exact_inl_snd]
-          · simpa only [biprod.inr_snd, biprod.inr_desc_assoc] using h.some_spec)
+          dsimp; simp only [Category.comp_id]; ext
+          · simp only [Exact.w, f_comp_g, biprod.inl_desc_assoc, exact_inl_snd]
+          · simpa only [biprod.inr_snd, biprod.inr_desc_assoc] using h.choose_spec)
   fst_eq_id := rfl
   trd_eq_id := rfl
 

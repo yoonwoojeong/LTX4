@@ -57,7 +57,7 @@ def limitComplex : HomologicalComplex V c :=
   refine' ⟨fun k => limit.π (F ⋙ eval V c i) k ≫ (F.obj k).d i j, _⟩
   · intro x y f
     dsimp
-    rw [CategoryTheory.Category.id_comp, category.assoc, ← hom.comm, ← category.assoc]
+    rw [CategoryTheory.Category.id_comp, Category.assoc, ← hom.comm, ← Category.assoc]
     congr 1
     exact (limit.w _ _).symm
   · intro i j r
@@ -72,14 +72,14 @@ def limitComplexCone : Cone F where
   pt := limitComplex F
   π :=
     { app := fun x => { f := fun i => limit.π (F ⋙ eval V c i) x }
-      naturality' := fun X Y f => by ext; dsimp; rw [category.id_comp]; exact (limit.w _ _).symm }
+      naturality := fun X Y f => by ext; dsimp; rw [Category.id_comp]; exact (limit.w _ _).symm }
 
 def limitComplexConeIsLimit : IsLimit (limitComplexCone F) :=
   isLimitOfIsLimitEval _ _
     (by
       intro i
-      apply (limit.is_limit _).ofIsoLimit
-      exact cones.ext (iso.refl _) fun _ => (category.id_comp _).symm)
+      apply (limit.isLimit _).ofIsoLimit
+      exact Cones.ext (iso.refl _) fun _ => (Category.id_comp _).symm)
 
 def evalMapLimitComplexCone (i : ι) :
     (eval V c i).mapCone (limitComplexCone F) ≅ (getLimitCone (F ⋙ eval V c i)).1 :=
@@ -156,15 +156,15 @@ def colimitComplexCocone : Cocone F
   pt := colimitComplex F
   ι :=
     { app := fun x => { f := fun i => colimit.ι (F ⋙ eval V c i) x }
-      naturality' := fun X Y f => by ext; dsimp; rw [category.comp_id];
+      naturality := fun X Y f => by ext; dsimp; rw [Category.comp_id];
         exact colimit.w (F ⋙ eval V c x) _ }
 
 def colimitComplexCoconeIsColimit : IsColimit (colimitComplexCocone F) :=
   isColimitOfIsColimitEval _ _
     (by
       intro i
-      apply (colimit.is_colimit _).ofIsoColimit
-      exact cocones.ext (iso.refl _) fun _ => category.comp_id _)
+      apply (colimit.isColimit _).ofIsoColimit
+      exact Cocones.ext (iso.refl _) fun _ => Category.comp_id _)
 
 def evalMapColimitComplexCocone (i : ι) :
     (eval V c i).mapCocone (colimitComplexCocone F) ≅ (getColimitCocone (F ⋙ eval V c i)).1 :=
@@ -369,12 +369,12 @@ def isKernelOfEval (g : Y ⟶ Z) (w : f ≫ g = 0)
     (h : ∀ i, IsLimit (KernelFork.ofι (f.f i) (congr_f w i))) : IsLimit (KernelFork.ofι f w) :=
   by
   refine' CategoryTheory.Limits.IsLimit.ofIsoLimit (HomologicalComplex.kernelComplexIsKernel g) _
-  fapply cones.ext
-  fapply hom.iso_of_components
-  intro i; exact limit.iso_limit_cone ⟨_, h i⟩
-  · intro i j r; dsimp; rw [← iso.comp_inv_eq, category.assoc, ← iso.eq_inv_comp]; ext; simp
+  fapply Cones.ext
+  fapply Hom.isoOfComponents
+  intro i; exact limit.isoLimitCone ⟨_, h i⟩
+  · intro i j r; dsimp; rw [← Iso.comp_inv_eq, Category.assoc, ← Iso.eq_inv_comp]; ext; simp
   · rintro (_ | _)
-    · ext; dsimp; rw [← iso.inv_comp_eq]; simp
+    · ext; dsimp; rw [← Iso.inv_comp_eq]; simp
     · ext; dsimp; simp [show f.f x ≫ g.f x = _ from congr_f w x]
 
 def isCokernelOfEval (g : Y ⟶ Z) (w : f ≫ g = 0)
@@ -382,9 +382,9 @@ def isCokernelOfEval (g : Y ⟶ Z) (w : f ≫ g = 0)
     IsColimit (CokernelCofork.ofπ g w) :=
   by
   refine' CategoryTheory.Limits.IsColimit.ofIsoColimit (HomologicalComplex.cokernelComplexIsCokernel f) _
-  fapply cocones.ext
-  fapply hom.iso_of_components
-  intro i; exact colimit.iso_colimit_cocone ⟨_, h i⟩
+  fapply Cocones.ext
+  fapply Hom.isoOfComponents
+  intro i; exact colimit.isoColimitCocone ⟨_, h i⟩
   · intro i j r; ext; dsimp; simp
   · rintro (_ | _)
     · ext; dsimp; simpa using (congr_arg (fun f => hom.f f x) w).symm
@@ -430,16 +430,16 @@ def normalMono [Mono f] : NormalMono f
   isLimit := by
     apply HomologicalComplex.isKernelOfEval
     intro i
-    exact abelian.mono_is_kernel_of_cokernel _ (colimit.is_colimit _)
+    exact Abelian.monoIsKernelOfCokernel _ (colimit.isColimit _)
 
 def normalEpi [Epi f] : NormalEpi f where
   w := kernelComplex f
   g := kernelComplexι f
   w := by ext; simp
   isColimit := by
-    apply is_cokernel_of_eval
+    apply HomologicalComplex.isCokernelOfEval
     intro i
-    exact abelian.epi_is_cokernel_of_kernel _ (limit.is_limit _)
+    exact Abelian.epiIsCokernelOfKernel _ (limit.isLimit _)
 
 end NormalMono
 

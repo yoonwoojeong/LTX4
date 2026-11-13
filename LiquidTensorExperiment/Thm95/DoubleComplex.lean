@@ -8,7 +8,7 @@ import LiquidTensorExperiment.NormedSpectral
 import LiquidTensorExperiment.Thm95.ModifyComplex
 import LiquidTensorExperiment.Thm95.PolyhedralIso
 
-#align_import thm95.double_complex
+#align_import Thm95.doubleComplex
 
 /-!
 # The double complex that is the protagonist in the proof of Theorem 9.5
@@ -47,14 +47,14 @@ def cechAugmentationMap : ((cechNerve r' Λ M N).right.obj (mk 0)).unop ⟶ (hom
   (hom M).map (cosimplicialAugmentationMap Λ N).op
 
 theorem cechNerve_hom_zero :
-    (cechNerve.{u} r' Λ M N).Hom.app (mk 0) = (cechAugmentationMap.{u} r' Λ M N).op :=
+    (cechNerve.{u} r' Λ M N).hom.app (mk 0) = (cechAugmentationMap.{u} r' Λ M N).op :=
   by
-  dsimp only [Cech_nerve, Cech_augmentation_map, cosimplicial_object.augmented.whiskering_obj]
-  simp only [whisker_right_app, category.id_comp, functor.right_op_map, nat_trans.comp_app,
-    functor.const_comp_inv_app]
+  dsimp only [Cech_nerve, Cech_augmentation_map, CosimplicialObject.Augmented.whiskeringObj]
+  simp only [CategoryTheory.whiskerRight_app, Category.id_comp, Functor.rightOp_map, NatTrans.comp_app,
+    Functor.constComp_inv_app]
   congr 2
-  dsimp only [augmented_cosimplicial, augmented_Cech_conerve]
-  rw [cosimplicial_object.augment_hom_zero]
+  dsimp only [PolyhedralLatticeCat.augmentedCosimplicial, augmented_Cech_conerve]
+  rw [CosimplicialObject.augment_hom_zero]
   rfl
 
 theorem PolyhedralLatticeCat.cechAugmentationMap_eq_homSum :
@@ -63,22 +63,22 @@ theorem PolyhedralLatticeCat.cechAugmentationMap_eq_homSum :
   by
   dsimp only [Thm95.cechAugmentationMap, Hom_cosimplicial_zero_iso,
     Hom_cosimplicial_zero_iso_aux_rfl, Hom_cosimplicial_zero_iso']
-  rw [iso.refl_trans, iso.refl_trans]
-  dsimp only [iso.trans_inv, functor.map_iso_hom, functor.map_iso_inv, iso.symm_inv, op_comp]
-  simp only [category.assoc, ← (Hom M).map_comp, augmentation_eq_diagonal, iso.op_hom, ← op_comp]
+  rw [Iso.refl_trans, Iso.refl_trans]
+  dsimp only [Iso.trans_inv, Functor.mapIso_hom, Functor.mapIso_inv, Iso.symm_inv, op_comp]
+  simp only [Category.assoc, ← (Hom M).map_comp, augmentation_eq_diagonal, Iso.op_hom, ← op_comp]
   dsimp only [Hom_rescale_iso, Hom_finsupp_iso]
   ext f l : 2
-  exact finsupp_sum_diagonal_embedding Λ N r' M f l
+  exact PolyhedralLatticeCat.finsupp_sum_diagonalEmbedding Λ N r' M f l
 
 def cosimplicialSystemOfComplexes : CosimplicialObject.Augmented SystemOfComplexes :=
   (CosimplicialObject.Augmented.whiskeringObj.{u} _ _ (BD.system κ r V r')).obj (cechNerve r' Λ M N)
 
 theorem cosimplicialSystemOfComplexes_hom_zero :
-    (cosimplicialSystemOfComplexes BD κ r r' V Λ M N).Hom.app (mk 0) =
+    (cosimplicialSystemOfComplexes BD κ r r' V Λ M N).hom.app (mk 0) =
       (BD.system κ r V r').map (cechAugmentationMap.{u} r' Λ M N).op :=
   by
-  ext : 2; dsimp [cosimplicial_system_of_complexes]
-  rw [category.id_comp, Cech_nerve_hom_zero]
+  ext : 2; dsimp [Thm95.cosimplicialSystemOfComplexes]
+  rw [Category.id_comp, Cech_nerve_hom_zero]
 
 @[simps pt d]
 def doubleComplexAux : CochainComplex SystemOfComplexes ℕ :=
@@ -130,17 +130,17 @@ theorem doubleComplex.rowMap_zero_one :
       (BD.system κ r V r').map (cechAugmentationMap r' Λ M N).op :=
   by
   ext c i : 4
-  dsimp only [SystemOfDoubleComplexes.rowMap_app_f, SystemOfDoubleComplexes.d, double_complex,
-    HomologicalComplex.asFunctor_obj, double_complex_aux_rescaled, HomologicalComplex.modify,
-    SystemOfComplexes.rescaleNatTrans, nat_trans.id_app, SystemOfComplexes.rescaleFunctor,
-    functor.id_map, double_complex_aux, op_unop]
-  erw [category.comp_id, ← Cech_nerve_hom_zero]
+  dsimp only [SystemOfDoubleComplexes.rowMap_app_f, SystemOfDoubleComplexes.d, Thm95.doubleComplex,
+    HomologicalComplex.asFunctor_obj, Thm95.doubleComplexAuxRescaled, HomologicalComplex.modify,
+    SystemOfComplexes.rescaleNatTrans, NatTrans.id_app, SystemOfComplexes.rescaleFunctor,
+    Functor.id_map, Thm95.doubleComplexAux, op_unop]
+  erw [Category.comp_id, ← Cech_nerve_hom_zero]
   simp only [dite_eq_ite, BreenDeligne.Data.system_map, if_true, eq_self_iff_true,
-    cosimplicial_object.augmented.to_cocomplex_d_2, eq_to_hom_refl, category.comp_id]
-  dsimp only [cosimplicial_object.augmented.to_cocomplex_d, cosimplicial_system_of_complexes,
-    cosimplicial_object.augmented.whiskering_obj]
-  simp only [BreenDeligne.Data.system_map, whisker_right_app, category.id_comp, nat_trans.comp_app,
-    functor.const_comp_inv_app]
+    CosimplicialObject.Augmented.toCocomplexD_2, CategoryTheory.eqToHom_refl, Category.comp_id]
+  dsimp only [CosimplicialObject.Augmented.toCocomplexD, Thm95.cosimplicialSystemOfComplexes,
+    CosimplicialObject.Augmented.whiskeringObj]
+  simp only [BreenDeligne.Data.system_map, CategoryTheory.whiskerRight_app, Category.id_comp, NatTrans.comp_app,
+    Functor.constComp_inv_app]
   rfl
 
 theorem doubleComplex.row (m : ℕ) :
@@ -183,11 +183,11 @@ theorem doubleComplex.d_one_normNoninc (c : ℝ≥0) (q : ℕ) :
   have : (2 : ℝ) = ∑ i : Fin 2, 1 := by
     simp only [Finset.card_fin, mul_one, Nat.cast_bit0, Finset.sum_const, nsmul_eq_mul,
       Nat.cast_one]
-  dsimp [SystemOfComplexes.rescaleFunctor, double_complex_aux,
-    cosimplicial_object.augmented.to_cocomplex_d]
-  erw [category.comp_id, if_pos rfl]
-  dsimp [cosimplicial_object.coboundary]
-  simp only [← nat_trans.app_hom_apply, AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, ←
+  dsimp [SystemOfComplexes.rescaleFunctor, Thm95.doubleComplexAux,
+    CosimplicialObject.Augmented.toCocomplexD]
+  erw [Category.comp_id, if_pos rfl]
+  dsimp [CosimplicialObject.coboundary]
+  simp only [← NatTrans.appHom_apply, AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, ←
     HomologicalComplex.Hom.fAddMonoidHom_apply, this]
   apply norm_sum_le_of_le
   rintro i -
@@ -212,11 +212,11 @@ theorem doubleComplex.d_two_normNoninc (c : ℝ≥0) (p q : ℕ) :
   have : ((p + 3 : ℕ) : ℝ) = ∑ i : Fin (p + 3), 1 := by
     simp only [Finset.card_fin, mul_one, Finset.sum_const, nsmul_eq_mul, Nat.cast_id, Nat.cast_bit1,
       Nat.cast_add, Nat.cast_one]
-  dsimp [SystemOfComplexes.rescaleFunctor, double_complex_aux,
-    cosimplicial_object.augmented.to_cocomplex_d]
-  erw [category.comp_id, if_pos rfl]
-  dsimp [cosimplicial_object.coboundary]
-  simp only [← nat_trans.app_hom_apply, AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, ←
+  dsimp [SystemOfComplexes.rescaleFunctor, Thm95.doubleComplexAux,
+    CosimplicialObject.Augmented.toCocomplexD]
+  erw [Category.comp_id, if_pos rfl]
+  dsimp [CosimplicialObject.coboundary]
+  simp only [← NatTrans.appHom_apply, AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, ←
     HomologicalComplex.Hom.fAddMonoidHom_apply, this]
   apply norm_sum_le_of_le
   rintro i -
@@ -235,7 +235,7 @@ theorem doubleComplex.d_normNoninc (c : ℝ≥0) (q : ℕ) :
 -- see above: currently we can only prove this for the columns
 theorem doubleComplexAdmissible : (doubleComplex BD κ r r' V Λ M N).Admissible :=
   SystemOfDoubleComplexes.Admissible.mk' (doubleComplex.rowAdmissible _)
-    (by rintro _ _ _ _ rfl; apply double_complex.d_norm_noninc)
+    (by rintro _ _ _ _ rfl; apply doubleComplex.d_normNoninc)
 
 end Thm95
 

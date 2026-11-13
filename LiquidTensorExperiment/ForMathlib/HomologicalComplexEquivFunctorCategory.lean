@@ -20,10 +20,10 @@ variable {C : Type u} [Category.{v} C] {Z : C → Prop}
 @[simps]
 def liftIso {X Y : FullSubcategory Z} (h : X.obj ≅ Y.obj) : X ≅ Y
     where
-  hom := h.Hom
+  hom := h.hom
   inv := h.inv
-  hom_inv_id' := h.hom_inv_id
-  inv_hom_id' := h.inv_hom_id
+  hom_inv_id := h.hom_inv_id
+  inv_hom_id := h.inv_hom_id
 
 end
 
@@ -34,9 +34,9 @@ def WalkingComplex (c : ComplexShape ι) :=
   ι
 
 inductive WalkingComplexHom : WalkingComplex c → WalkingComplex c → Type u'
-  | id : ∀ i, walking_complex_hom i i
-  | d : ∀ {i j}, c.Rel i j → walking_complex_hom i j
-  | zero : ∀ i j, walking_complex_hom i j
+  | id : ∀ i, HomologicalComplex.WalkingComplexHom i i
+  | d : ∀ {i j}, c.Rel i j → HomologicalComplex.WalkingComplexHom i j
+  | zero : ∀ i j, HomologicalComplex.WalkingComplexHom i j
 
 section
 
@@ -49,20 +49,20 @@ def walkingComplexHomComp (i j k : WalkingComplex c) :
   cases' f with _ _ _ r
   · exact g
   · cases g;
-    exacts [walking_complex_hom.d r, walking_complex_hom.zero _ _, walking_complex_hom.zero _ _]
-  · exact walking_complex_hom.zero _ _
+    exacts [WalkingComplexHom.d r, WalkingComplexHom.zero _ _, WalkingComplexHom.zero _ _]
+  · exact WalkingComplexHom.zero _ _
 
 instance : CategoryStruct (WalkingComplex c)
     where
-  Hom := WalkingComplexHom
+  hom := WalkingComplexHom
   id := WalkingComplexHom.id
   comp := by
     intro i j k f g
     cases' f with _ _ _ r
     · exact g
     · cases g;
-      exacts [walking_complex_hom.d r, walking_complex_hom.zero _ _, walking_complex_hom.zero _ _]
-    · exact walking_complex_hom.zero _ _
+      exacts [WalkingComplexHom.d r, WalkingComplexHom.zero _ _, WalkingComplexHom.zero _ _]
+    · exact WalkingComplexHom.zero _ _
 
 end
 
@@ -131,7 +131,7 @@ def functorToComplex (F : WalkingComplex c ⥤ V) (hF : ∀ i j, F.map (0 : i �
   d i j := if r : c.Rel i j then F.map (walkingComplexD r) else 0
   d_comp_d' := by
     introv r r'
-    rw [dif_pos r, dif_pos r', ← F.map_comp, walking_complex_hom_d_comp_d, hF]
+    rw [dif_pos r, dif_pos r', ← F.map_comp, HomologicalComplex.walkingComplex_hom_d_comp_d, hF]
 
 variable (c V)
 
@@ -166,7 +166,7 @@ def complexEquivFunctorCounit : functorToComplexFunctor V c ⋙ complexToFunctor
       liftIso <|
         NatIso.ofComponents (fun i => Iso.refl _)
           (by introv ; cases' F with F hF; cases f <;> dsimp <;> simp [*, hF]))
-    (by introv ; ext; dsimp; erw [nat_trans.comp_app, nat_trans.comp_app]; dsimp; simp)
+    (by introv ; ext; dsimp; erw [NatTrans.comp_app, NatTrans.comp_app]; dsimp; simp)
 
 @[simps]
 def complexEquivFunctor :
@@ -177,7 +177,7 @@ def complexEquivFunctor :
   inverse := functorToComplexFunctor V c
   unitIso := complexEquivFunctorUnit V c
   counitIso := complexEquivFunctorCounit V c
-  functor_unitIso_comp' := by intro x; ext; erw [nat_trans.comp_app, nat_trans.id_app]; dsimp; simp
+  functor_unitIso_comp' := by intro x; ext; erw [NatTrans.comp_app, NatTrans.id_app]; dsimp; simp
 
 instance : IsEquivalence (complexToFunctorFunctor V c) :=
   IsEquivalence.ofEquivalence (complexEquivFunctor V c)

@@ -34,15 +34,15 @@ instance {C : Type (u + 1)} [Category.{u} C] : AB4 (C ⥤ Ab.{u + 1}) :=
   rw [CategoryTheory.NatTrans.mono_iff_mono_app]
   intro c
   let eX : (∐ fun a : α => X a).obj c ≅ ∐ fun a : α => (X a).obj c :=
-    (is_colimit_of_preserves ((evaluation _ _).obj c)
-            (colimit.is_colimit _)).coconePointUniqueUpToIso
-        (colimit.is_colimit _) ≪≫
-      has_colimit.iso_of_nat_iso (discrete.nat_iso fun _ => iso.refl _)
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation _ _).obj c)
+            (colimit.isColimit _)).coconePointUniqueUpToIso
+        (colimit.isColimit _) ≪≫
+      HasColimit.isoOfNatIso (Discrete.natIso fun _ => iso.refl _)
   let eY : (∐ fun a : α => Y a).obj c ≅ ∐ fun a : α => (Y a).obj c :=
-    (is_colimit_of_preserves ((evaluation _ _).obj c)
-            (colimit.is_colimit _)).coconePointUniqueUpToIso
-        (colimit.is_colimit _) ≪≫
-      has_colimit.iso_of_nat_iso (discrete.nat_iso fun _ => iso.refl _)
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation _ _).obj c)
+            (colimit.isColimit _)).coconePointUniqueUpToIso
+        (colimit.isColimit _) ≪≫
+      HasColimit.isoOfNatIso (Discrete.natIso fun _ => iso.refl _)
   let tt : (∐ fun a : α => (X a).obj c) ⟶ ∐ fun a : α => (Y a).obj c :=
     sigma.desc fun a => (f a).app c ≫ sigma.ι _ a
   have : mono tt := by
@@ -52,16 +52,16 @@ instance {C : Type (u + 1)} [Category.{u} C] : AB4 (C ⥤ Ab.{u + 1}) :=
     apply hf
   suffices t.app c = eX.hom ≫ tt ≫ eY.inv by rw [this]; infer_instance
   dsimp [eX, tt, t, eY]
-  apply (is_colimit_of_preserves ((evaluation _ _).obj c) (colimit.is_colimit _)).hom_ext
+  apply (CategoryTheory.Limits.isColimitOfPreserves ((evaluation _ _).obj c) (colimit.isColimit _)).hom_ext
   intro a
-  dsimp [is_colimit.cocone_point_unique_up_to_iso]
-  simp only [category.assoc, ← nat_trans.comp_app, colimit.ι_desc]
+  dsimp [IsColimit.coconePointUniqueUpToIso]
+  simp only [Category.assoc, ← NatTrans.comp_app, colimit.ι_desc]
   slice_rhs 0 1 =>
-    erw [(is_colimit_of_preserves ((evaluation _ _).obj c) (colimit.is_colimit _)).fac]
+    erw [(CategoryTheory.Limits.isColimitOfPreserves ((evaluation _ _).obj c) (colimit.isColimit _)).fac]
   slice_rhs 0 1 => erw [colimit.ι_desc]
   dsimp
-  simp only [category.id_comp, colimit.ι_desc, cofan.mk_ι_app, category.assoc,
-    has_colimit.iso_of_nat_iso_ι_inv, discrete.nat_iso_inv_app, functor.map_cocone_ι_app,
+  simp only [Category.id_comp, colimit.ι_desc, Cofan.mk_ι_app, Category.assoc,
+    HasColimit.isoOfNatIso_ι_inv, Discrete.natIso_inv_app, Functor.mapCocone_ι_app,
     colimit.cocone_ι, evaluation_obj_map]
   dsimp; simp; infer_instance
 

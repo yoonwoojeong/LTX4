@@ -47,7 +47,7 @@ theorem CategoryTheory.CochainComplex.exact_cone_in_cone_out (i : ℤ) (X Y : Co
   by
   refine' (HomologicalComplex.six_term_exactSeq (cone.in f) (cone.out f) _ i (i + 1) rfl).pair
   intro n
-  refine' (cone.termwise_split _ _).ShortExact
+  refine' (cone.termwiseSplit _ _).ShortExact
 
 /-
 lemma _root_.category_theory.cochain_complex.exact_to_cone_in
@@ -62,12 +62,12 @@ theorem CategoryTheory.Abelian.exact_neg_left (X Y Z : A) (f : X ⟶ Y) (g : Y �
     Exact (-f) g :=
   by
   refine' Preadditive.exact_of_iso_of_exact' f g (-f) g _ (iso.refl _) (iso.refl _) _ _ h
-  · have : (-𝟙 X) ≫ (-𝟙 X) = 𝟙 X := by simp only [preadditive.comp_neg, category.comp_id, neg_neg]
+  · have : (-𝟙 X) ≫ (-𝟙 X) = 𝟙 X := by simp only [Preadditive.comp_neg, Category.comp_id, neg_neg]
     exact ⟨-𝟙 X, -𝟙 X, this, this⟩
   ·
-    simp only [preadditive.comp_neg, category.comp_id, iso.refl_hom, category.id_comp,
-      preadditive.neg_comp, neg_neg]
-  · simp only [iso.refl_hom, category.id_comp, category.comp_id]
+    simp only [Preadditive.comp_neg, Category.comp_id, Iso.refl_hom, Category.id_comp,
+      Preadditive.neg_comp, neg_neg]
+  · simp only [Iso.refl_hom, Category.id_comp, Category.comp_id]
 
 theorem CategoryTheory.Abelian.exact_neg_left_iff (X Y Z : A) (f : X ⟶ Y) (g : Y ⟶ Z) :
     Exact (-f) g ↔ Exact f g :=
@@ -80,10 +80,10 @@ theorem CategoryTheory.Abelian.exact_neg_right (X Y Z : A) (f : X ⟶ Y) (g : Y 
     Exact f (-g) :=
   by
   refine' Preadditive.exact_of_iso_of_exact' f g f (-g) (iso.refl _) (iso.refl _) _ _ _ h
-  · have : (-𝟙 Z) ≫ (-𝟙 Z) = 𝟙 Z := by simp only [preadditive.comp_neg, category.comp_id, neg_neg]
+  · have : (-𝟙 Z) ≫ (-𝟙 Z) = 𝟙 Z := by simp only [Preadditive.comp_neg, Category.comp_id, neg_neg]
     exact ⟨-𝟙 Z, -𝟙 Z, this, this⟩
-  · simp only [iso.refl_hom, category.id_comp, category.comp_id]
-  · simp only [preadditive.comp_neg, category.comp_id, iso.refl_hom, category.id_comp]
+  · simp only [Iso.refl_hom, Category.id_comp, Category.comp_id]
+  · simp only [Preadditive.comp_neg, Category.comp_id, Iso.refl_hom, Category.id_comp]
 
 theorem CategoryTheory.Abelian.exact_neg_right_iff (X Y Z : A) (f : X ⟶ Y) (g : Y ⟶ Z) :
     Exact f (-g) ↔ Exact f g :=
@@ -94,7 +94,7 @@ theorem CategoryTheory.Abelian.exact_neg_right_iff (X Y Z : A) (f : X ⟶ Y) (g 
 
 instance homologyFunctorHomological (i : ℤ) : homologicalFunctor (HH i) :=
   by
-  apply homological_of_rotate
+  apply CategoryTheory.Triangulated.homologicalOfRotate
   intro T hT
   erw [mem_distinguished_iff_exists_iso_cone] at hT 
   obtain ⟨X, Y, f, ⟨E⟩⟩ := hT
@@ -104,20 +104,20 @@ instance homologyFunctorHomological (i : ℤ) : homologicalFunctor (HH i) :=
     ⟨E.hom.rotate, E.inv.rotate, _, _⟩
   rotate_left
   · ext <;> dsimp
-    · change (E.hom ≫ E.inv).hom₂ = _; rw [iso.hom_inv_id]; rfl
-    · change (E.hom ≫ E.inv).hom₃ = _; rw [iso.hom_inv_id]; rfl
-    · simp only [← functor.map_comp]
+    · change (E.hom ≫ E.inv).hom₂ = _; rw [Iso.hom_inv_id]; rfl
+    · change (E.hom ≫ E.inv).hom₃ = _; rw [Iso.hom_inv_id]; rfl
+    · simp only [← Functor.map_comp]
       change (CategoryTheory.shiftFunctor 𝒦 (1 : ℤ)).map (E.hom ≫ E.inv).hom₁ = _
-      rw [iso.hom_inv_id]; rfl
+      rw [Iso.hom_inv_id]; rfl
   · ext <;> dsimp
-    · change (E.inv ≫ E.hom).hom₂ = _; rw [iso.inv_hom_id]; rfl
-    · change (E.inv ≫ E.hom).hom₃ = _; rw [iso.inv_hom_id]; rfl
-    · simp only [← functor.map_comp]
+    · change (E.inv ≫ E.hom).hom₂ = _; rw [Iso.inv_hom_id]; rfl
+    · change (E.inv ≫ E.hom).hom₃ = _; rw [Iso.inv_hom_id]; rfl
+    · simp only [← Functor.map_comp]
       change (CategoryTheory.shiftFunctor 𝒦 (1 : ℤ)).map (E.inv ≫ E.hom).hom₁ = _
-      rw [iso.inv_hom_id]; rfl
+      rw [Iso.inv_hom_id]; rfl
   refine' homological_of_exists_aux _ _ _ E'.inv _
   dsimp
-  simp only [functor.map_neg]
+  simp only [Functor.map_neg]
   apply CategoryTheory.Abelian.exact_neg_right
   apply CategoryTheory.CochainComplex.exact_cone_in_cone_out
 
@@ -132,10 +132,10 @@ def homologyShiftIso (i j : ℤ) :
       intro X Y f
       rw [← quotient_map_out f]
       dsimp
-      erw [homotopy_category.shift_functor_map_quotient]
-      rw [← homology_functor_map_factors]
-      erw [(homology_shift_iso A i j).Hom.naturality]
-      erw [← homology_functor_map_factors]
+      erw [HomotopyCategory.shiftFunctor_map_quotient]
+      rw [← HomotopyCategory.homology'Functor_map_factors]
+      erw [(homology_shift_iso A i j).hom.naturality]
+      erw [← HomotopyCategory.homology'Functor_map_factors]
       rfl)
 
 def homologyZeroShiftIso (i : ℤ) :
@@ -153,10 +153,10 @@ theorem isAcyclic_iff (X : 𝒦) :
   · intro h
     constructor
     intro i
-    apply is_zero_of_iso_of_zero (h i)
-    apply (homology_zero_shift_iso A i).app _
+    apply CategoryTheory.Limits.isZero_of_iso_of_zero (h i)
+    apply (HomotopyCategory.homologyZeroShiftIso A i).app _
   · intro h i
-    apply (is_acyclic.cond _ i).of_iso ((homology_zero_shift_iso A _).app _)
+    apply (IsAcyclic.cond _ i).of_iso ((HomotopyCategory.homologyZeroShiftIso A _).app _)
     assumption
 
 theorem isQuasiIso_iff {X Y : 𝒦} (f : X ⟶ Y) :
@@ -167,37 +167,37 @@ theorem isQuasiIso_iff {X Y : 𝒦} (f : X ⟶ Y) :
     constructor
     intro i
     specialize h i
-    have := (homology_zero_shift_iso A i).Hom.naturality f
-    rw [← is_iso.inv_comp_eq] at this 
+    have := (HomotopyCategory.homologyZeroShiftIso A i).hom.naturality f
+    rw [← IsIso.inv_comp_eq] at this 
     rw [← this]
-    apply (config := { instances := false }) is_iso.comp_is_iso
+    apply (config := { instances := false }) IsIso.comp_isIso
     infer_instance
-    apply (config := { instances := false }) is_iso.comp_is_iso
+    apply (config := { instances := false }) IsIso.comp_isIso
     exact h
     infer_instance
   · intro h i
-    have := (homology_zero_shift_iso A i).Hom.naturality f
-    rw [← is_iso.eq_comp_inv] at this 
+    have := (HomotopyCategory.homologyZeroShiftIso A i).hom.naturality f
+    rw [← IsIso.eq_comp_inv] at this 
     erw [this]
-    apply (config := { instances := false }) is_iso.comp_is_iso
-    apply (config := { instances := false }) is_iso.comp_is_iso
+    apply (config := { instances := false }) IsIso.comp_isIso
+    apply (config := { instances := false }) IsIso.comp_isIso
     infer_instance
-    apply is_quasi_iso.cond
+    apply IsQuasiIso.cond
     infer_instance
 
 instance isIso_of_is_quasi_iso' {X Y : 𝒦} (f : X ⟶ Y) [h : IsQuasiIso f] (i : ℤ) :
     IsIso ((HomotopyCategory.homology'Functor _ _ 0).map (f⟦i⟧')) :=
   by
-  rw [← is_quasi_iso_iff] at h 
+  rw [← HomotopyCategory.isQuasiIso_iff] at h 
   apply h
 
 instance isIso_of_isQuasiIso {X Y : 𝒦} (f : X ⟶ Y) [IsQuasiIso f] (i : ℤ) :
-    IsIso ((HomotopyCategory.homology'Functor _ _ i).map f) := by apply is_quasi_iso.cond
+    IsIso ((HomotopyCategory.homology'Functor _ _ i).map f) := by apply IsQuasiIso.cond
 
 instance isQuasiIsoComp {X Y Z : 𝒦} (f : X ⟶ Y) (g : Y ⟶ Z) [IsQuasiIso f] [IsQuasiIso g] :
     IsQuasiIso (f ≫ g) := by
   constructor; intro i
-  simp only [functor.map_comp]
+  simp only [Functor.map_comp]
   infer_instance
 
 instance isQuasiIsoOfIsIso {X Y : 𝒦} (f : X ⟶ Y) [IsIso f] : IsQuasiIso f :=
@@ -227,9 +227,9 @@ theorem isQuasiIso_iff_isAcyclic (T : triangle 𝒦) (hT : T ∈ (dist_triang �
     IsQuasiIso T.mor₁ ↔ IsAcyclic T.obj₃ :=
   by
   let H := homology'Functor A (ComplexShape.up ℤ) 0
-  rw [← is_acyclic_iff]
+  rw [← HomotopyCategory.isAcyclic_iff]
   let S : ℤ → triangle 𝒦 := fun i => T⟦i⟧
-  have hS : ∀ i : ℤ, S i ∈ (dist_triang 𝒦) := by apply pretriangulated.shift_of_dist_triangle;
+  have hS : ∀ i : ℤ, S i ∈ (dist_triang 𝒦) := by apply Pretriangulated.shift_of_dist_triangle;
     assumption
   have hSmor₁ : ∀ i, (S i).mor₁ = i.neg_one_pow • T.mor₁⟦i⟧' := by intro i; rfl
   have aux : ∀ i, is_iso (H.map (S i).mor₁) ↔ is_iso (H.map (T.mor₁⟦i⟧')) := by intro i;
@@ -239,44 +239,44 @@ theorem isQuasiIso_iff_isAcyclic (T : triangle 𝒦) (hT : T ∈ (dist_triang �
   · intro i
     have : is_iso (H.map (S i).rotate.mor₃) :=
       by
-      dsimp [triangle.rotate_mor₃]
-      rw [functor.map_neg, isIso_neg_iff]
+      dsimp [Triangle.rotate_mor₃]
+      rw [Functor.map_neg, isIso_neg_iff]
       let EE :
         (CategoryTheory.shiftFunctor 𝒦 i ⋙ CategoryTheory.shiftFunctor 𝒦 (1 : ℤ)) ⋙ H ≅
           homology'Functor _ _ (i + 1) :=
         by
-        refine' iso_whisker_right _ _ ≪≫ homology_zero_shift_iso _ (i + 1)
+        refine' CategoryTheory.isoWhiskerRight _ _ ≪≫ HomotopyCategory.homologyZeroShiftIso _ (i + 1)
         refine' (shift_functor_add _ _ _).symm
       suffices is_iso ((homology'Functor _ _ (i + 1)).map T.mor₁)
         by
         have hhh := EE.hom.naturality T.mor₁
-        rw [← is_iso.eq_comp_inv] at hhh 
-        dsimp only [functor.comp_map] at hhh 
-        simp only [functor.map_zsmul]
+        rw [← IsIso.eq_comp_inv] at hhh 
+        dsimp only [Functor.comp_map] at hhh 
+        simp only [Functor.map_zsmul]
         rw [isIso_negOnePow_iff]
         rw [hhh]
-        apply (config := { instances := false }) is_iso.comp_is_iso
-        apply (config := { instances := false }) is_iso.comp_is_iso
+        apply (config := { instances := false }) IsIso.comp_isIso
+        apply (config := { instances := false }) IsIso.comp_isIso
         all_goals
           first
           | infer_instance
           | assumption
-      apply is_quasi_iso.cond
-    have : is_iso (H.map (S i).mor₁) := by simp only [← is_quasi_iso_iff, ← aux] at hh ; exact hh i
+      apply IsQuasiIso.cond
+    have : is_iso (H.map (S i).mor₁) := by simp only [← HomotopyCategory.isQuasiIso_iff, ← aux] at hh ; exact hh i
     have E' := fun i : ℤ => five_term_exact_seq' H (S i) (hS i)
-    apply is_zero_of_exact_seq_of_is_iso_of_is_iso _ _ _ _ (E' i)
-  · simp only [← is_quasi_iso_iff, ← aux]
+    apply CategoryTheory.isZero_of_exactSeq_of_is_iso_of_is_iso _ _ _ _ (E' i)
+  · simp only [← HomotopyCategory.isQuasiIso_iff, ← aux]
     intro i
-    have E := five_term_exact_seq H (S i) (hS i)
+    have E := CategoryTheory.Triangulated.five_term_exactSeq H (S i) (hS i)
     apply E.is_iso_of_zero_of_zero
-    · apply is_zero.eq_of_src
+    · apply IsZero.eq_of_src
       let EE :
         (CategoryTheory.shiftFunctor 𝒦 i ⋙ CategoryTheory.shiftFunctor 𝒦 (-1 : ℤ)) ⋙ H ≅
           CategoryTheory.shiftFunctor 𝒦 (i + -1) ⋙ H :=
-        by refine' iso_whisker_right _ _; refine' (shift_functor_add _ _ _).symm
+        by refine' CategoryTheory.isoWhiskerRight _ _; refine' (shift_functor_add _ _ _).symm
       let e := EE.app T.obj₃
       -- let e := (homology_zero_shift_iso _ (-1 : ℤ)).app (S i).obj₃,
-      refine' is_zero_of_iso_of_zero _ e.symm;
+      refine' CategoryTheory.Limits.isZero_of_iso_of_zero _ e.symm;
       clear e
       exact hh _
     · apply (hh i).eq_of_tgt
@@ -284,32 +284,32 @@ theorem isQuasiIso_iff_isAcyclic (T : triangle 𝒦) (hT : T ∈ (dist_triang �
 /-- If `A → B → C → A[1]` is a distinguished triangle, and `A → B` is a quasi-isomorphism,
 then `C` is acyclic. -/
 theorem isAcyclicOfDistTriangOfIsQuasiIso (T : triangle 𝒦) (hT : T ∈ (dist_triang 𝒦))
-    [h : IsQuasiIso T.mor₁] : IsAcyclic T.obj₃ := by rwa [← is_quasi_iso_iff_is_acyclic T hT]
+    [h : IsQuasiIso T.mor₁] : IsAcyclic T.obj₃ := by rwa [← HomotopyCategory.isQuasiIso_iff_isAcyclic T hT]
 
 instance isAcyclicShift (T : 𝒦) [h : IsAcyclic T] (i : ℤ) : IsAcyclic (T⟦i⟧) :=
   by
-  rw [← is_acyclic_iff]
+  rw [← HomotopyCategory.isAcyclic_iff]
   intro j
   let H := homology'Functor A (ComplexShape.up ℤ) 0
   let e : H.obj (T⟦i⟧⟦j⟧) ≅ (homology'Functor A (ComplexShape.up ℤ) (i + j)).obj T :=
-    _ ≪≫ (homology_zero_shift_iso _ (i + j)).app T
+    _ ≪≫ (HomotopyCategory.homologyZeroShiftIso _ (i + j)).app T
   swap
-  · let e := (iso_whisker_right (shift_functor_add _ i j).symm H).app T
+  · let e := (CategoryTheory.isoWhiskerRight (shift_functor_add _ i j).symm H).app T
     refine' _ ≪≫ e
     refine' iso.refl _
-  apply is_zero_of_iso_of_zero _ e.symm
-  apply is_acyclic.cond
+  apply CategoryTheory.Limits.isZero_of_iso_of_zero _ e.symm
+  apply IsAcyclic.cond
 
 instance isQuasiIsoShift (X Y : 𝒦) (f : X ⟶ Y) [IsQuasiIso f] (i : ℤ) : IsQuasiIso (f⟦i⟧') :=
   by
-  rw [← is_quasi_iso_iff]
+  rw [← HomotopyCategory.isQuasiIso_iff]
   intro j
-  have := (CategoryTheory.shiftFunctorAdd 𝒦 i j).Hom.naturality f
+  have := (CategoryTheory.shiftFunctorAdd 𝒦 i j).hom.naturality f
   apply_fun fun e => (homology'Functor _ _ 0).map e at this 
-  simp only [functor.map_comp, functor.comp_map] at this 
-  rw [← is_iso.inv_comp_eq] at this 
+  simp only [Functor.map_comp, Functor.comp_map] at this 
+  rw [← IsIso.inv_comp_eq] at this 
   rw [← this]
-  apply is_iso.comp_is_iso
+  apply IsIso.comp_isIso
 
 theorem hom_K_projective_bijective {X Y : 𝒦} (P : 𝒦) [IsKProjective P] (f : X ⟶ Y)
     [hf : IsQuasiIso f] : Function.Bijective fun e : P ⟶ X => e ≫ f :=
@@ -320,24 +320,24 @@ theorem hom_K_projective_bijective {X Y : 𝒦} (P : 𝒦) [IsKProjective P] (f 
     2. Use LES assoc. to `Hom(P,-)`, proved in `for_mathlib/derived/homological.lean`.
     3. Use lemma above + def of K-projective to see that `Hom(P,Z) = 0`.
     -/
-  obtain ⟨Z, g, h, hT⟩ := pretriangulated.distinguished_cocone_triangle _ _ f
-  let T := triangle.mk _ f g h
+  obtain ⟨Z, g, h, hT⟩ := Pretriangulated.distinguished_cocone_triangle _ _ f
+  let T := Triangle.mk _ f g h
   change T ∈ _ at hT 
   let H : 𝒦 ⥤ Ab := preadditive_yoneda.flip.obj (Opposite.op P)
   have EE : exact_seq Ab [arrow.mk (H.map T.inv_rotate.mor₁), arrow.mk (H.map f), H.map g] :=
     by
-    apply exact_seq.cons
-    apply homological_functor.cond H T.inv_rotate
-    apply inv_rotate_mem_distinguished_triangles
+    apply ExactSeq.cons
+    apply homologicalFunctor.cond H T.inv_rotate
+    apply HomotopyCategory.inv_rotate_mem_distinguishedTriangles
     assumption
-    rw [← exact_iff_exact_seq]
-    apply homological_functor.cond H T hT
+    rw [← CategoryTheory.exact_iff_exactSeq]
+    apply homologicalFunctor.cond H T hT
   constructor
   · intro e₁ e₂ hh
     let ee := (EE.extract 0 2).pair
     rw [AddCommGroupCat.exact_iff] at ee 
     dsimp at hh 
-    rw [← sub_eq_zero, ← preadditive.sub_comp] at hh 
+    rw [← sub_eq_zero, ← Preadditive.sub_comp] at hh 
     change _ ∈ (H.map f).ker at hh 
     rw [← ee] at hh 
     obtain ⟨g, hg⟩ := hh
@@ -347,9 +347,9 @@ theorem hom_K_projective_bijective {X Y : 𝒦} (P : 𝒦) [IsKProjective P] (f 
       change is_acyclic (T.obj₃⟦(-1 : ℤ)⟧)
       apply (config := { instances := false }) HomotopyCategory.isAcyclicShift
       haveI : is_quasi_iso T.mor₁ := hf
-      apply is_acyclic_of_dist_triang_of_is_quasi_iso
+      apply HomotopyCategory.isAcyclicOfDistTriangOfIsQuasiIso
       exact hT
-    have : g' = 0 := by apply is_K_projective.cond
+    have : g' = 0 := by apply IsKProjective.cond
     change g' ≫ _ = _ at hg 
     rw [this, zero_comp] at hg 
     rw [← sub_eq_zero]
@@ -359,10 +359,10 @@ theorem hom_K_projective_bijective {X Y : 𝒦} (P : 𝒦) [IsKProjective P] (f 
       by
       have : is_acyclic Z := by
         change is_acyclic T.obj₃
-        apply (config := { instances := false }) is_acyclic_of_dist_triang_of_is_quasi_iso
+        apply (config := { instances := false }) HomotopyCategory.isAcyclicOfDistTriangOfIsQuasiIso
         assumption
         exact hf
-      apply is_K_projective.cond
+      apply IsKProjective.cond
     let ee := (EE.extract 1 3).pair
     rw [AddCommGroupCat.exact_iff] at ee 
     change _ ∈ (H.map g).ker at this 
@@ -370,7 +370,7 @@ theorem hom_K_projective_bijective {X Y : 𝒦} (P : 𝒦) [IsKProjective P] (f 
 
 instance (X : 𝒦) [IsBoundedAbove X] (i : ℤ) : IsBoundedAbove (X⟦i⟧) :=
   by
-  obtain ⟨a, ha⟩ := is_bounded_above.cond X
+  obtain ⟨a, ha⟩ := IsBoundedAbove.cond X
   use a - i
   intro j hj
   apply ha
@@ -383,7 +383,7 @@ theorem isKProjectiveOfIso (P Q : 𝒦) [IsKProjective P] (e : P ≅ Q) : IsKPro
   apply_fun fun q => e.hom ≫ q
   dsimp
   rw [comp_zero]
-  apply is_K_projective.cond
+  apply IsKProjective.cond
   intro a b h
   apply_fun fun q => e.inv ≫ q at h 
   simpa using h
@@ -397,7 +397,7 @@ instance isKProjectiveShift (P : 𝒦) [IsKProjective P] (i : ℤ) : IsKProjecti
   haveI : is_K_projective (P⟦i⟧⟦-i⟧) := is_K_projective_of_iso _ _ e.symm
   apply (CategoryTheory.shiftFunctor 𝒦 (-i)).map_injective
   simp
-  apply is_K_projective.cond
+  apply IsKProjective.cond
 
 theorem isQuasiIsoOfTriangle (T₁ T₂ : triangle 𝒦) (h₁ : T₁ ∈ (dist_triang 𝒦))
     (h₂ : T₂ ∈ (dist_triang 𝒦)) (f : T₁ ⟶ T₂) [IsQuasiIso f.hom₁] [IsQuasiIso f.hom₂] :
@@ -405,46 +405,46 @@ theorem isQuasiIsoOfTriangle (T₁ T₂ : triangle 𝒦) (h₁ : T₁ ∈ (dist_
   by
   -- Another application of the five lemma...
   let H : 𝒦 ⥤ _ := HomotopyCategory.homology'Functor _ _ 0
-  rw [← is_quasi_iso_iff]
+  rw [← HomotopyCategory.isQuasiIso_iff]
   intro i
   let S₁ := T₁⟦i⟧
   let S₂ := T₂⟦i⟧
   let g : S₁ ⟶ S₂ := f⟦i⟧'
   have aux1 : exact (H.map S₁.mor₁) (H.map S₁.mor₂) :=
     by
-    apply homological_functor.cond
-    apply pretriangulated.shift_of_dist_triangle
+    apply homologicalFunctor.cond
+    apply Pretriangulated.shift_of_dist_triangle
     assumption
   have aux2 : exact (H.map S₁.mor₂) (H.map S₁.mor₃) :=
     by
-    apply homological_functor.cond H S₁.rotate
-    apply pretriangulated.rot_of_dist_triangle
-    apply pretriangulated.shift_of_dist_triangle
+    apply homologicalFunctor.cond H S₁.rotate
+    apply Pretriangulated.rot_of_distTriang
+    apply Pretriangulated.shift_of_dist_triangle
     assumption
   have aux3 : exact (H.map S₁.mor₃) (H.map S₁.rotate.mor₃) :=
     by
-    apply homological_functor.cond H S₁.rotate.rotate
-    apply pretriangulated.rot_of_dist_triangle
-    apply pretriangulated.rot_of_dist_triangle
-    apply pretriangulated.shift_of_dist_triangle
+    apply homologicalFunctor.cond H S₁.rotate.rotate
+    apply Pretriangulated.rot_of_distTriang
+    apply Pretriangulated.rot_of_distTriang
+    apply Pretriangulated.shift_of_dist_triangle
     assumption
   have aux4 : exact (H.map S₂.mor₁) (H.map S₂.mor₂) :=
     by
-    apply homological_functor.cond
-    apply pretriangulated.shift_of_dist_triangle
+    apply homologicalFunctor.cond
+    apply Pretriangulated.shift_of_dist_triangle
     assumption
   have aux5 : exact (H.map S₂.mor₂) (H.map S₂.mor₃) :=
     by
-    apply homological_functor.cond H S₂.rotate
-    apply pretriangulated.rot_of_dist_triangle
-    apply pretriangulated.shift_of_dist_triangle
+    apply homologicalFunctor.cond H S₂.rotate
+    apply Pretriangulated.rot_of_distTriang
+    apply Pretriangulated.shift_of_dist_triangle
     assumption
   have aux6 : exact (H.map S₂.mor₃) (H.map S₂.rotate.mor₃) :=
     by
-    apply homological_functor.cond H S₂.rotate.rotate
-    apply pretriangulated.rot_of_dist_triangle
-    apply pretriangulated.rot_of_dist_triangle
-    apply pretriangulated.shift_of_dist_triangle
+    apply homologicalFunctor.cond H S₂.rotate.rotate
+    apply Pretriangulated.rot_of_distTriang
+    apply Pretriangulated.rot_of_distTriang
+    apply Pretriangulated.shift_of_dist_triangle
     assumption
   have : is_iso (H.map g.hom₁) :=
     by
@@ -457,23 +457,23 @@ theorem isQuasiIsoOfTriangle (T₁ T₂ : triangle 𝒦) (h₁ : T₁ ∈ (dist_
   have : is_iso (H.map (g.hom₁⟦(1 : ℤ)⟧')) :=
     by
     change is_iso (H.map (f.hom₁⟦i⟧'⟦(1 : ℤ)⟧'))
-    have := (CategoryTheory.shiftFunctorAdd 𝒦 i 1).Hom.naturality f.hom₁
+    have := (CategoryTheory.shiftFunctorAdd 𝒦 i 1).hom.naturality f.hom₁
     apply_fun fun e => H.map e at this 
-    simp only [H.map_comp, functor.comp_map] at this 
-    rw [← is_iso.inv_comp_eq] at this 
+    simp only [H.map_comp, Functor.comp_map] at this 
+    rw [← IsIso.inv_comp_eq] at this 
     rw [← this]
-    apply is_iso.comp_is_iso
+    apply IsIso.comp_isIso
   have : is_iso (H.map (g.hom₂⟦(1 : ℤ)⟧')) :=
     by
     change is_iso (H.map (f.hom₂⟦i⟧'⟦(1 : ℤ)⟧'))
-    have := (CategoryTheory.shiftFunctorAdd 𝒦 i 1).Hom.naturality f.hom₂
+    have := (CategoryTheory.shiftFunctorAdd 𝒦 i 1).hom.naturality f.hom₂
     apply_fun fun e => H.map e at this 
-    simp only [H.map_comp, functor.comp_map] at this 
-    rw [← is_iso.inv_comp_eq] at this 
+    simp only [H.map_comp, Functor.comp_map] at this 
+    rw [← IsIso.inv_comp_eq] at this 
     rw [← this]
-    apply is_iso.comp_is_iso
+    apply IsIso.comp_isIso
   refine'
-    @abelian.is_iso_of_is_iso_of_is_iso_of_is_iso_of_is_iso A _ _ (H.obj S₁.obj₁) (H.obj S₁.obj₂)
+    @Abelian.isIso_of_epi_of_isIso_of_isIso_of_mono A _ _ (H.obj S₁.obj₁) (H.obj S₁.obj₂)
       (H.obj S₁.obj₃) (H.obj (S₁.obj₁⟦(1 : ℤ)⟧)) (H.obj S₂.obj₁) (H.obj S₂.obj₂) (H.obj S₂.obj₃)
       (H.obj (S₂.obj₁⟦(1 : ℤ)⟧)) (H.map S₁.mor₁) (H.map S₁.mor₂) (H.map S₁.mor₃) (H.map S₂.mor₁)
       (H.map S₂.mor₂) (H.map S₂.mor₃) (H.map g.hom₁) (H.map g.hom₂) (H.map g.hom₃)
@@ -483,11 +483,11 @@ theorem isQuasiIsoOfTriangle (T₁ T₂ : triangle 𝒦) (h₁ : T₁ ∈ (dist_
   · simp only [← H.map_comp, g.comm₁]
   · simp only [← H.map_comp, g.comm₂]
   · simp only [← H.map_comp, g.comm₃]
-  · simp only [← functor.map_comp]
+  · simp only [← Functor.map_comp]
     congr 1
     dsimp
-    simp only [preadditive.comp_neg, preadditive.neg_comp, neg_inj, ← functor.map_comp, f.comm₁,
-      preadditive.zsmul_comp, preadditive.comp_zsmul]
+    simp only [Preadditive.comp_neg, Preadditive.neg_comp, neg_inj, ← Functor.map_comp, f.comm₁,
+      Preadditive.zsmul_comp, Preadditive.comp_zsmul]
 
 theorem isKProjectiveOfTriangle (T : triangle 𝒦) (hT : T ∈ (dist_triang 𝒦)) [IsKProjective T.obj₁]
     [IsKProjective T.obj₂] : IsKProjective T.obj₃ :=
@@ -497,7 +497,7 @@ theorem isKProjectiveOfTriangle (T : triangle 𝒦) (hT : T ∈ (dist_triang �
   let H : 𝒦 ⥤ Abᵒᵖ := (preadditive_yoneda.obj Y).rightOp
   haveI : homological_functor H := inferInstance
   -- sanity check
-  have e := homological_functor.cond H T.rotate (rotate_mem_distinguished_triangles _ hT)
+  have e := homologicalFunctor.cond H T.rotate (HomotopyCategory.rotate_mem_distinguishedTriangles _ hT)
   dsimp [H] at e 
   let a := _; let b := _; change exact a b at e ; have e' : exact b.unop a.unop := e.unop
   dsimp at e' 
@@ -505,7 +505,7 @@ theorem isKProjectiveOfTriangle (T : triangle 𝒦) (hT : T ∈ (dist_triang �
   let a' := _; let b' := _; change AddMonoidHom.range a' = AddMonoidHom.ker b' at e' 
   have : f ∈ b'.ker := by
     change _ ≫ _ = 0
-    apply (config := { instances := false }) is_K_projective.cond
+    apply (config := { instances := false }) IsKProjective.cond
     dsimp
     infer_instance
     infer_instance
@@ -513,7 +513,7 @@ theorem isKProjectiveOfTriangle (T : triangle 𝒦) (hT : T ∈ (dist_triang �
   obtain ⟨g, hg⟩ := this
   dsimp at hg 
   rw [← hg]
-  have : g = 0 := by apply is_K_projective.cond
+  have : g = 0 := by apply IsKProjective.cond
   simp [this]
 
 variable [EnoughProjectives A]
@@ -522,27 +522,27 @@ theorem exists_bounded_K_projective_replacement_of_bounded (a : ℤ) (X : 𝒦) 
     ∃ (P : 𝒦) (_ : IsKProjective P) (hP : P.BoundedBy a) (f : P ⟶ X),
       IsQuasiIso f ∧ ∀ k, Projective (P.as.pt k) :=
   by
-  use projective.replacement X.as a H
-  refine' ⟨⟨_⟩, _, (Quotient _ _).map (projective.replacement.hom X.as a H), ⟨_⟩, _⟩
+  use Projective.replacement X.as a H
+  refine' ⟨⟨_⟩, _, (Quotient _ _).map (Projective.replacement.hom X.as a H), ⟨_⟩, _⟩
   · intro Y hY f
     convert
       eq_of_homotopy _ _
-        (projective.null_homotopic_of_projective_to_acyclic f.out a
-          (projective.replacement_is_projective X.as a H)
-          (projective.replacement_is_bounded X.as a H) hY.1)
+        (Projective.nullHomotopicOfProjectiveToAcyclic f.out a
+          (Projective.replacement_is_projective X.as a H)
+          (Projective.replacement_is_bounded X.as a H) hY.1)
     simp
-  · apply projective.replacement_is_bounded
+  · apply Projective.replacement_is_bounded
   · intro i
-    erw [← homology_functor_map_factors]
+    erw [← HomotopyCategory.homology'Functor_map_factors]
     infer_instance
-  · intro k; dsimp; apply projective.replacement_is_projective
+  · intro k; dsimp; apply Projective.replacement_is_projective
 
 theorem exists_K_projective_replacement_of_uniformly_bounded_above {α : Type _} (X : α → 𝒦)
     [IsUniformlyBoundedAbove X] :
     ∃ (P : α → 𝒦) (_ : ∀ a, IsKProjective (P a)) (_ : IsUniformlyBoundedAbove P) (f :
       ∀ a, P a ⟶ X a), (∀ a, IsQuasiIso (f a)) ∧ ∀ a k, Projective ((P a).as.pt k) :=
   by
-  obtain ⟨a, H⟩ := is_uniformly_bounded_above.cond X
+  obtain ⟨a, H⟩ := IsUniformlyBoundedAbove.cond X
   have := fun t => exists_bounded_K_projective_replacement_of_bounded a _ (H t)
   choose P H1 H2 f H3 H4 using this
   refine' ⟨P, H1, ⟨⟨a, H2⟩⟩, f, H3, H4⟩
@@ -551,7 +551,7 @@ theorem exists_K_projective_replacement_of_bounded (X : 𝒦) [IsBoundedAbove X]
     ∃ (P : 𝒦) (_ : IsKProjective P) (_ : IsBoundedAbove P) (f : P ⟶ X),
       IsQuasiIso f ∧ ∀ k, Projective (P.as.pt k) :=
   by
-  obtain ⟨a, H⟩ := is_bounded_above.cond X
+  obtain ⟨a, H⟩ := IsBoundedAbove.cond X
   have := exists_bounded_K_projective_replacement_of_bounded a _ H
   choose P H1 H2 f H3 H4 using this
   refine' ⟨P, H1, ⟨⟨a, H2⟩⟩, f, H3, H4⟩
@@ -563,7 +563,7 @@ instance isKProjectiveOfBoundedTermwiseProjective (P : BoundedHomotopyCategory A
     · have h := HomotopyCategory.eq_of_homotopy f.out 0 H
       simpa only [HomotopyCategory.quotient_map_out] using h
     exact
-      projective.null_homotopic_of_projective_to_acyclic _ P.bdd.1.some hP P.bdd.1.choose_spec hY.1⟩
+      Projective.nullHomotopicOfProjectiveToAcyclic _ P.bdd.1.some hP P.bdd.1.choose_spec hY.1⟩
 
 end HomotopyCategory
 

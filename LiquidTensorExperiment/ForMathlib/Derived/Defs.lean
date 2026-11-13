@@ -30,9 +30,9 @@ theorem isAcyclicOfIso {X Y : 𝒦} (e : X ≅ Y) [IsAcyclic X] : IsAcyclic Y :=
   by
   constructor
   intro i
-  let e' : (homology'Functor A c i).obj X ≅ (homology'Functor A c i).obj Y := functor.map_iso _ e
-  apply is_zero_of_iso_of_zero _ e'
-  apply is_acyclic.cond X i
+  let e' : (homology'Functor A c i).obj X ≅ (homology'Functor A c i).obj Y := Functor.mapIso _ e
+  apply CategoryTheory.Limits.isZero_of_iso_of_zero _ e'
+  apply IsAcyclic.cond X i
 
 /- ./././Mathport/Syntax/Translate/Command.lean:394:30: infer kinds are unsupported in Lean 4: #[`cond] [] -/
 /-- An object of `homotopy_category A c` is "K-projective" if the only map from
@@ -70,7 +70,7 @@ class IsUniformlyBoundedAbove {α : Type _} (X : α → 𝒦) : Prop where
 instance isBoundedAboveOfIsUniformlyBoundedAbove {α : Type _} (X : α → 𝒦)
     [IsUniformlyBoundedAbove X] (a) : IsBoundedAbove (X a) :=
   by
-  obtain ⟨n, hn⟩ := is_uniformly_bounded_above.cond X
+  obtain ⟨n, hn⟩ := IsUniformlyBoundedAbove.cond X
   exact ⟨⟨n, hn a⟩⟩
 
 end HomotopyCategory

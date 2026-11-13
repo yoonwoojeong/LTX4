@@ -53,11 +53,11 @@ def filtration (r' : ℝ≥0) : ℝ≥0 ⥤ ProFiltPseuNormGrpWithTinv.{u} r' �
   obj c :=
     { obj := fun M => PseudoNormedGroup.filtrationObj M c
       map := fun M N f => ⟨f.level c, f.level_continuous c⟩
-      map_id' := by intros; ext; rfl
-      map_comp' := by intros; ext; rfl }
+      map_id := by intros; ext; rfl
+      map_comp := by intros; ext; rfl }
   map c₁ c₂ h := { app := fun M => @Filtration.castLe _ _ c₁ c₂ ⟨leOfHom h⟩ }
-  map_id' := by intros; ext; rfl
-  map_comp' := by intros; ext; rfl
+  map_id := by intros; ext; rfl
+  map_comp := by intros; ext; rfl
 
 open SemiNormedGroupCat Opposite Profinite PseudoNormedGroup CategoryTheory BreenDeligne
 
@@ -125,7 +125,7 @@ def tinv₀ {r' : ℝ≥0} (c c₂ : ℝ≥0) [Fact (c ≤ r' * c₂)] :
     (filtration.{u} r').obj c ⟶ (filtration r').obj c₂
     where
   app M := tinv₀Hom M c c₂
-  naturality' M₁ M₂ f := by ext x; exact (f.map_Tinv _).symm
+  naturality M₁ M₂ f := by ext x; exact (f.map_tinv _).symm
 
 theorem tinv₀_comp_res {r' : ℝ≥0} (c₁ c₂ c₃ c₄ : ℝ≥0) [Fact (c₁ ≤ r' * c₂)] [Fact (c₃ ≤ r' * c₄)]
     [Fact (c₂ ≤ c₄)] [Fact (c₁ ≤ c₃)] : tinv₀ c₁ c₂ ≫ res r' c₂ c₄ = res r' c₁ c₃ ≫ tinv₀ c₃ c₄ :=
@@ -149,7 +149,7 @@ def castLe (r' c₁ c₂ : ℝ≥0) [Fact (c₁ ≤ c₂)] (n : ℕ) :
     filtrationPow.{u} r' c₁ n ⟶ filtrationPow r' c₂ n
     where
   app M := Filtration.castLe _ c₁ c₂
-  naturality' M N f := by ext; rfl
+  naturality M N f := by ext; rfl
 
 theorem castLe_refl (r' c : ℝ≥0) (n : ℕ) : castLe r' c c n = 𝟙 _ := by ext; rfl
 
@@ -191,20 +191,20 @@ def evalFP [ϕ.Suitable c₁ c₂] : filtrationPow.{u} r' c₁ m ⟶ filtrationP
   app M :=
     { toFun := ϕ.evalPng₀ M c₁ c₂
       continuous_toFun := ϕ.evalPng₀_continuous M c₁ c₂ }
-  naturality' M₁ M₂ f := by
+  naturality M₁ M₂ f := by
     ext1 x
     change
-      ϕ.eval_png₀ M₂ c₁ c₂ ((filtrationPow r' c₁ m).map f x) =
-        (filtrationPow r' c₂ n).map f (ϕ.eval_png₀ M₁ c₁ c₂ x)
+      ϕ.evalPng₀ M₂ c₁ c₂ ((filtrationPow r' c₁ m).map f x) =
+        (filtrationPow r' c₂ n).map f (ϕ.evalPng₀ M₁ c₁ c₂ x)
     ext j
-    dsimp only [filtrationPow_map, filtration_obj_map_apply, basic_universal_map.eval_png₀_coe,
+    dsimp only [filtrationPow_map, filtration_obj_map_apply, BasicUniversalMap.evalPng₀_coe,
       ComphausFilteredPseudoNormedGroupWithTinvHom.level_coe, comp_to_fun, coe_to_add_monoid_hom]
-    simp only [basic_universal_map.eval_png_apply, pi_map_to_fun, f.map_sum, f.map_zsmul]
+    simp only [BasicUniversalMap.evalPng_apply, ProfinitelyFilteredPseudoNormedGroupWithTinv.piMap_to_fun, f.map_sum, f.map_zsmul]
 
 theorem evalFP_comp (g : BasicUniversalMap m n) (f : BasicUniversalMap l m) [hg : g.Suitable c₂ c₃]
     [hf : f.Suitable c₁ c₂] [(BasicUniversalMap.comp g f).Suitable c₁ c₃] :
     (BasicUniversalMap.comp g f).evalFP r' c₁ c₃ = f.evalFP r' c₁ c₂ ≫ g.evalFP r' c₂ c₃ := by ext;
-  dsimp; rw [eval_png_comp]; rfl
+  dsimp; rw [BreenDeligne.BasicUniversalMap.evalPng_comp]; rfl
 
 theorem castLe_comp_evalFP [Fact (c₁ ≤ c₂)] [ϕ.Suitable c₂ c₄] [ϕ.Suitable c₁ c₃] [Fact (c₃ ≤ c₄)] :
     castLe r' c₁ c₂ m ≫ ϕ.evalFP r' c₂ c₄ = ϕ.evalFP r' c₁ c₃ ≫ castLe r' c₃ c₄ n := by ext; rfl
@@ -217,11 +217,11 @@ theorem tinv_comp_evalFP (r' c₁ c₂ c₃ c₄ : ℝ≥0) [Fact (c₁ ≤ r' *
   by
   ext M x : 3
   change
-    ϕ.eval_png₀ M c₂ c₄ ((Tinv r' c₁ c₂ m).app M x) =
-      (Tinv r' c₃ c₄ n).app M (ϕ.eval_png₀ M c₁ c₃ x)
+    ϕ.evalPng₀ M c₂ c₄ ((Tinv r' c₁ c₂ m).app M x) =
+      (Tinv r' c₃ c₄ n).app M (ϕ.evalPng₀ M c₁ c₃ x)
   ext j
   dsimp
-  simp only [eval_png_apply, ComphausFilteredPseudoNormedGroupHom.map_sum,
+  simp only [BreenDeligne.BasicUniversalMap.evalPng_apply, ComphausFilteredPseudoNormedGroupHom.map_sum,
     ComphausFilteredPseudoNormedGroupHom.map_zsmul, pi_Tinv_apply]
 
 theorem mulIso_evalFP (N : ℕ) [ϕ.Suitable c₂ c₁] (M) :
@@ -232,7 +232,7 @@ theorem mulIso_evalFP (N : ℕ) [ϕ.Suitable c₂ c₁] (M) :
   by
   ext x i j
   dsimp [mul]
-  simp only [eval_png_apply, Equiv.symm_apply_apply, Matrix.submatrix_apply, Matrix.kronecker]
+  simp only [BreenDeligne.BasicUniversalMap.evalPng_apply, Equiv.symm_apply_apply, Matrix.submatrix_apply, Matrix.kronecker]
   rw [← fin_prod_fin_equiv.sum_comp, ← Finset.univ_product_univ, Finset.sum_product,
     Finset.sum_comm]
   simp only [Equiv.symm_apply_apply, Matrix.one_apply, boole_mul, ite_smul, zero_smul,

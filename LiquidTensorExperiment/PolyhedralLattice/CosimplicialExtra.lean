@@ -24,7 +24,7 @@ variable (hg : ∀ i l, (g i) (Λ.diagonalEmbedding N l) = g₀ l)
 theorem cosimplicialLift_mk (l) :
     Λ.cosimplicialLift N m g₀ g hg (QuotientAddGroup.mk l) = Finsupp.liftAddHom g l :=
   by
-  dsimp only [cosimplicial_lift, lift']
+  dsimp only [PolyhedralLatticeCat.cosimplicialLift, lift']
   have :=
     QuotientAddGroup.lift_mk' (L (Λ.diagonal_embedding N) (m + 1))
       (lift'_w (Λ.diagonal_embedding N) m g₀ g hg _) l
@@ -37,7 +37,7 @@ theorem cosimplicialLift_mem_filtration (c : ℝ≥0)
   intro c' l' hl'
   rw [SeminormedAddCommGroup.mem_filtration_iff] at hl' 
   obtain ⟨l, rfl, hl⟩ := PolyhedralLattice.norm_lift _ l'
-  erw [cosimplicial_lift_mk]
+  erw [PolyhedralLatticeCat.cosimplicialLift_mk]
   rw [Finsupp.liftAddHom_apply, Finsupp.sum_fintype]
   swap; · intro; rw [AddMonoidHom.map_zero]
   simp only [← coe_nnnorm, NNReal.eq_iff] at hl 

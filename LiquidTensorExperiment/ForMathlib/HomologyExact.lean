@@ -29,14 +29,14 @@ theorem ExactSeq.isIso_of_zero_of_zero {A B C D : 𝓐} {f : A ⟶ B} {g : B ⟶
 theorem Exact.homology'_isZero {X Y Z : 𝓐} (f : X ⟶ Y) (g : Y ⟶ Z) (hfg : Exact f g) :
     IsZero (homology' f g hfg.w) :=
   by
-  rw [preadditive.exact_iff_homology_zero] at hfg 
+  rw [Preadditive.exact_iff_homology'_zero] at hfg 
   rcases hfg with ⟨w, ⟨e⟩⟩
-  exact is_zero_of_iso_of_zero (is_zero_zero _) e.symm
+  exact CategoryTheory.Limits.isZero_of_iso_of_zero (is_zero_zero _) e.symm
 
 theorem exact_of_homology'_isZero {X Y Z : 𝓐} {f : X ⟶ Y} {g : Y ⟶ Z} {w : f ≫ g = 0}
     (H : IsZero (homology' f g w)) : Exact f g :=
   by
-  rw [preadditive.exact_iff_homology_zero]
+  rw [Preadditive.exact_iff_homology'_zero]
   refine' ⟨w, ⟨_⟩⟩
   exact H.iso_zero
 
@@ -45,8 +45,8 @@ namespace Limits
 namespace IsZero
 
 theorem exact {X Y Z : 𝓐} (hY : IsZero Y) (f : X ⟶ Y) (g : Y ⟶ Z) : Exact f g := by
-  simp only [abelian.exact_iff, hY.eq_of_tgt f 0, hY.eq_of_tgt (limits.kernel.ι g) 0,
-    limits.zero_comp, eq_self_iff_true, and_true_iff]
+  simp only [Abelian.exact_iff, hY.eq_of_tgt f 0, hY.eq_of_tgt (Limits.kernel.ι g) 0,
+    Limits.zero_comp, eq_self_iff_true, and_true_iff]
 
 theorem homology'_isZero {X Y Z : 𝓐} (hY : IsZero Y) (f : X ⟶ Y) (g : Y ⟶ Z) (w : f ≫ g = 0) :
     IsZero (homology' f g w) :=
@@ -57,12 +57,12 @@ theorem isIso {X Y : 𝓐} (hX : IsZero X) (hY : IsZero Y) (f : X ⟶ Y) : IsIso
 
 theorem op {X : 𝓐} (h : IsZero X) : IsZero (op X) :=
   by
-  rw [is_zero_iff_id_eq_zero] at h ⊢
+  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero] at h ⊢
   rw [← op_id, h, op_zero]
 
 theorem unop {X : 𝓐ᵒᵖ} (h : IsZero X) : IsZero (unop X) :=
   by
-  rw [is_zero_iff_id_eq_zero] at h ⊢
+  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero] at h ⊢
   rw [← unop_id, h, unop_zero]
 
 end IsZero

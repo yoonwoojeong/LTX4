@@ -113,30 +113,30 @@ def complexRescaleIso (N : ℝ≥0) :
       · rfl)
     (by
       intro i j hij
-      apply arrow.mk_injective
-      dsimp only [data.complex_obj_d, universal_map.eval_CLCFPTinv, universal_map.eval_CLCFPTinv₂,
+      apply Arrow.mk_injective
+      dsimp only [Data.complex_obj_d, UniversalMap.evalCLCFPTinv, UniversalMap.evalCLCFPTinv₂,
         _root_.id, SemiNormedGroupCat.equalizer.mapNat_app, cLCTinv.mapIso_hom, cLCTinv.map,
-        unop_op, filtrationCastEq, iso.op_hom]
-      simp only [SemiNormedGroupCat.equalizer.map_comp_map, universal_map.eval_CLCFP_rescale, ←
-        cLCFP.res_def', nat_iso.app_hom, functor.map_iso_hom, filtration_map_app,
-        filtrationPowRescaleIso, iso.refl_trans]
+        unop_op, filtrationCastEq, Iso.op_hom]
+      simp only [SemiNormedGroupCat.equalizer.map_comp_map, UniversalMap.evalCLCFP_rescale, ←
+        cLCFP.res_def', NatIso.app_hom, Functor.mapIso_hom, filtration_map_app,
+        filtrationPowRescaleIso, Iso.refl_trans]
       apply SemiNormedGroupCat.equalizer.map_congr
       · have :=
-          @universal_map.res_comp_eval_CLCFP V r' (c * (κ i * N⁻¹)) (c * κ i * N⁻¹)
+          @UniversalMap.res_comp_evalCLCFP V r' (c * (κ i * N⁻¹)) (c * κ i * N⁻¹)
             (c * (κ j * N⁻¹)) (c * κ j * N⁻¹) (BD.X j) (BD.X i) (BD.d j i) ⟨(mul_assoc _ _ _).le⟩ _
             _ ⟨(mul_assoc _ _ _).le⟩
-        replace := nat_trans.congr_app this.symm (op M)
+        replace := NatTrans.congr_app this.symm (op M)
         replace := congr_arg arrow.mk this
         refine' (this.trans _).symm
-        apply arrow.mk_comp_congr; · rfl; · rw [universal_map.eval_CLCFP_rescale]
+        apply Arrow.mk_comp_congr; · rfl; · rw [UniversalMap.evalCLCFP_rescale]
       · have :=
-          @universal_map.res_comp_eval_CLCFP V r' (r' * (c * (κ i * N⁻¹))) (r' * (c * κ i) * N⁻¹)
+          @UniversalMap.res_comp_evalCLCFP V r' (r' * (c * (κ i * N⁻¹))) (r' * (c * κ i) * N⁻¹)
             (r' * (c * (κ j * N⁻¹))) (r' * (c * κ j) * N⁻¹) (BD.X j) (BD.X i) (BD.d j i)
             ⟨le_of_eq <| by simp only [mul_assoc]⟩ _ _ ⟨le_of_eq <| by simp only [mul_assoc]⟩
-        replace := nat_trans.congr_app this.symm (op M)
+        replace := NatTrans.congr_app this.symm (op M)
         replace := congr_arg arrow.mk this
         refine' (this.trans _).symm
-        apply arrow.mk_comp_congr; · rfl; · rw [universal_map.eval_CLCFP_rescale]
+        apply Arrow.mk_comp_congr; · rfl; · rw [UniversalMap.evalCLCFP_rescale]
       any_goals rfl)
 
 noncomputable def systemRescaleIso (N : ℝ≥0) :
@@ -146,9 +146,9 @@ noncomputable def systemRescaleIso (N : ℝ≥0) :
     (by
       intro c₁ c₂ h
       ext i : 2
-      apply arrow.mk_injective
+      apply Arrow.mk_injective
       erw [HomologicalComplex.comp_f, HomologicalComplex.comp_f]
-      dsimp only [data.system_obj, cLCFPTinv₂.res, complexRescaleIso,
+      dsimp only [Data.system_obj, cLCFPTinv₂.res, complexRescaleIso,
         HomologicalComplex.Hom.isoOfComponents, cLCTinv.mapIso_hom, cLCTinv.mapNat_app]
       simp only [cLCTinv.map_comp_map]
       rfl)
@@ -176,44 +176,44 @@ variable (c₁ c₂ : ℝ≥0) (N : ℕ) [Fact (0 < N)]
 variable (M : ProFiltPseuNormGrpWithTinv.{u} r')
 
 theorem evalFP_hMul [g.Suitable c₂ c₁] :
-    (cLC V).map (filtrationPow.mulIso.{u, u} r' c₁ M N n).Hom.op ≫
+    (cLC V).map (filtrationPow.mulIso.{u, u} r' c₁ M N n).hom.op ≫
         (cLC V).map
           ((BasicUniversalMap.evalFP r' c₂ c₁ g).app
               (ProFiltPseuNormGrpWithTinv.of r' (M ^ N))).op =
       (cLC V).map ((BasicUniversalMap.evalFP r' c₂ c₁ ((BasicUniversalMap.mul N) g)).app M).op ≫
-        (cLC V).map (filtrationPow.mulIso.{u, u} r' c₂ M N m).Hom.op :=
+        (cLC V).map (filtrationPow.mulIso.{u, u} r' c₂ M N m).hom.op :=
   by
   simp only [← (cLC V).map_comp, ← op_comp]; congr 2
-  rw [← iso.inv_comp_eq, ← category.assoc, ← iso.eq_comp_inv]
-  exact basic_universal_map.mul_iso_eval_FP r' c₁ c₂ g N M
+  rw [← Iso.inv_comp_eq, ← Category.assoc, ← Iso.eq_comp_inv]
+  exact BasicUniversalMap.mulIso_evalFP r' c₁ c₂ g N M
 
 theorem evalCLCFP_hMul [ϕ.Suitable c₂ c₁] {_ : (UniversalMap.mul N ϕ).Suitable c₂ c₁} :
     ((UniversalMap.mul N ϕ).evalCLCFP V r' c₁ c₂).app (op M) ≫
-        (cLC V).map (filtrationPow.mulIso.{u, u} r' c₂ M N m).op.Hom =
-      (cLC V).map (filtrationPow.mulIso.{u, u} r' c₁ M N n).op.Hom ≫
+        (cLC V).map (filtrationPow.mulIso.{u, u} r' c₂ M N m).op.hom =
+      (cLC V).map (filtrationPow.mulIso.{u, u} r' c₁ M N n).op.hom ≫
         ((ϕ.evalCLCFP V r' c₁ c₂).app (op (ProFiltPseuNormGrpWithTinv.of r' (M ^ N))) : _) :=
   by
-  dsimp only [universal_map.eval_CLCFP, whisker_right_app]
-  simp only [universal_map.eval_LCFP_eq_eval_LCFP', universal_map.eval_LCFP', ←
-    nat_trans.app_hom_apply, ← functor.map_add_hom_apply, AddMonoidHom.map_sum,
+  dsimp only [UniversalMap.evalCLCFP, CategoryTheory.whiskerRight_app]
+  simp only [UniversalMap.evalLCFP_eq_evalLCFP', UniversalMap.evalLCFP', ←
+    NatTrans.appHom_apply, ← Functor.mapAddHom_apply, AddMonoidHom.map_sum,
     AddMonoidHom.map_zsmul]
-  rw [preadditive.sum_comp, preadditive.comp_sum]
+  rw [Preadditive.sum_comp, Preadditive.comp_sum]
   symm; have hN : 0 < N := Fact.out _
-  apply Finset.sum_bij fun g hg => basic_universal_map.mul N g
-  · intro g hg; rw [universal_map.mem_support_mul N hN]; refine' ⟨g, hg, rfl⟩
+  apply Finset.sum_bij fun g hg => BasicUniversalMap.mul N g
+  · intro g hg; rw [UniversalMap.mem_support_hMul N hN]; refine' ⟨g, hg, rfl⟩
   · intro g hg
-    simp only [preadditive.comp_zsmul, preadditive.zsmul_comp, universal_map.coeff_mul N hN]
+    simp only [Preadditive.comp_zsmul, Preadditive.zsmul_comp, UniversalMap.coeff_hMul N hN]
     congr 1
-    have : g.suitable c₂ c₁ := universal_map.suitable_of_mem_support _ _ _ _ hg; skip
-    rw [← basic_universal_map.eval_LCFP_eq_eval_LCFP' _ _ _ _ g this, ←
-      basic_universal_map.eval_LCFP_eq_eval_LCFP']
-    swap; · apply basic_universal_map.mul_suitable
-    dsimp only [basic_universal_map.eval_LCFP, nat_trans.app_hom_apply, functor.map_add_hom_apply,
-      whisker_right_app, nat_trans.op_app, unop_op]
-    simp only [← functor.comp_map]
+    have : g.suitable c₂ c₁ := UniversalMap.suitable_of_mem_support _ _ _ _ hg; skip
+    rw [← BasicUniversalMap.evalLCFP_eq_evalLCFP' _ _ _ _ g this, ←
+      BasicUniversalMap.evalLCFP_eq_evalLCFP']
+    swap; · apply BasicUniversalMap.hMul_suitable
+    dsimp only [BasicUniversalMap.evalLCFP, NatTrans.appHom_apply, Functor.mapAddHom_apply,
+      CategoryTheory.whiskerRight_app, NatTrans.op_app, unop_op]
+    simp only [← Functor.comp_map]
     apply eval_FP_mul
-  · intro g₁ g₂ hg₁ hg₂ H; exact basic_universal_map.mul_injective N hN H
-  · intro g; rw [universal_map.mem_support_mul N hN]; rintro ⟨g', h1, h2⟩; exact ⟨g', h1, h2⟩
+  · intro g₁ g₂ hg₁ hg₂ H; exact BasicUniversalMap.hMul_injective N hN H
+  · intro g; rw [UniversalMap.mem_support_hMul N hN]; rintro ⟨g', h1, h2⟩; exact ⟨g', h1, h2⟩
 
 def mulComplexIso (c : ℝ≥0) :
     (((Data.mul N).obj BD).complex κ r V r' c).obj (op M) ≅
@@ -228,10 +228,10 @@ def mulComplexIso (c : ℝ≥0) :
       · rfl)
     (by
       intro i j hij
-      apply arrow.mk_injective
-      dsimp only [data.complex_obj_d, universal_map.eval_CLCFPTinv, universal_map.eval_CLCFPTinv₂,
+      apply Arrow.mk_injective
+      dsimp only [Data.complex_obj_d, UniversalMap.evalCLCFPTinv, UniversalMap.evalCLCFPTinv₂,
         _root_.id, SemiNormedGroupCat.equalizer.mapNat_app, cLCTinv.mapIso_hom, cLCTinv.map,
-        data.mul_obj_d]
+        Data.mul_obj_d]
       simp only [SemiNormedGroupCat.equalizer.map_comp_map]
       apply SemiNormedGroupCat.equalizer.map_congr
       · rw [eval_CLCFP_mul]
@@ -247,9 +247,9 @@ def mulSystemIso (N : ℕ) [Fact (0 < N)] (M : ProFiltPseuNormGrpWithTinv.{u} r'
     (by
       intro c₁ c₂ hc
       ext i : 2
-      apply arrow.mk_injective
+      apply Arrow.mk_injective
       erw [HomologicalComplex.comp_f, HomologicalComplex.comp_f]
-      dsimp only [data.system_obj, cLCFPTinv₂.res, mul_complex_iso,
+      dsimp only [Data.system_obj, cLCFPTinv₂.res, Thm95.mulComplexIso,
         HomologicalComplex.Hom.isoOfComponents, cLCTinv.mapIso_hom, cLCTinv.mapNat_app]
       simp only [cLCTinv.map_comp_map]
       rfl)
@@ -266,11 +266,11 @@ def mulRescaleIsoRowOne (N : ℕ) [Fact (0 < N)] (N' : ℝ≥0) (h : N' = N)
 theorem mulRescaleIsoRowOne_strict (N : ℕ) [Fact (0 < N)] (N' : ℝ≥0) (h : N' = N)
     (Λ : PolyhedralLatticeCat.{u}) (M : ProFiltPseuNormGrpWithTinv.{u} r') (c : ℝ≥0) (i : ℕ)
     (x : (((Data.mul N).obj BD).system (rescaleConstants κ N') r V r').obj (op (hom Λ M)) c i) :
-    ‖((mulRescaleIsoRowOne BD κ r V N N' h Λ M).Hom x)‖ = ‖x‖ :=
+    ‖((mulRescaleIsoRowOne BD κ r V N N' h Λ M).hom x)‖ = ‖x‖ :=
   by
   apply NormedAddGroupHom.norm_eq_of_isometry
   refine' Isometry.comp (Isometry.comp _ _) _
-  · apply data.system_map_iso_isometry
+  · apply Data.system_mapIso_isometry
   · dsimp only; apply cLCTinv.mapIso_isometry
   · apply cLCTinv.mapIso_isometry
 
@@ -282,7 +282,7 @@ theorem quux (N : ℕ) [Fact (0 < N)] (M : ProFiltPseuNormGrpWithTinv.{u} r') (c
         ((BasicUniversalMap.evalFP r' c₂ c₁
                 ((Finset.univ : Finset (Fin N)).Sum (BasicUniversalMap.proj i))).app
             M).op :=
-  by dsimp only [universal_map.sum]; rw [universal_map.eval_CLCFP_of]; rfl
+  by dsimp only [UniversalMap.sum]; rw [UniversalMap.evalCLCFP_of]; rfl
 
 theorem bar (N : ℕ) [Fact (0 < N)] (Λ : PolyhedralLatticeCat.{u})
     (M : ProFiltPseuNormGrpWithTinv.{u} r') (c₁ c₂ : ℝ≥0) (hc : c₁ * N⁻¹ = c₂) (n : ℕ)
@@ -292,18 +292,18 @@ theorem bar (N : ℕ) [Fact (0 < N)] (Λ : PolyhedralLatticeCat.{u})
               ((ProFiltPseuNormGrpWithTinv.pow r' n).obj
                 (ProFiltPseuNormGrpWithTinv.of r' (hom Λ M ^ N)))).inv ≫
         ((filtration r').obj c₁).map ((ProFiltPseuNormGrpWithTinv.pow r' n).map (Λ.homSum N r' M)) =
-      (filtrationPow.mulIso.{u, u} r' c₂ (hom.{u, u} Λ M) N n).Hom ≫
+      (filtrationPow.mulIso.{u, u} r' c₂ (hom.{u, u} Λ M) N n).hom ≫
         (BasicUniversalMap.evalFP.{u} r' c₂ c₁ (Finset.univ.Sum (BasicUniversalMap.proj n))).app
           (hom.{u, u} Λ M) :=
   by
-  dsimp only [filtrationPowRescaleIso]; rw [iso.refl_trans]
-  dsimp only [filtrationPow.mulIso_hom, nat_iso.app_inv, functor.map_iso_inv, pow_obj,
+  dsimp only [filtrationPowRescaleIso]; rw [Iso.refl_trans]
+  dsimp only [filtrationPow.mulIso_hom, NatIso.app_inv, Functor.mapIso_inv, pow_obj,
     ProFiltPseuNormGrpWithTinv.coe_of, filtration_map_app]
   ext x i : 3
   erw [comp_apply, comp_apply]
   dsimp only [filtration_obj_map_apply, powPowX_hom_apply, ContinuousMap.coe_mk,
     ComphausFilteredPseudoNormedGroupWithTinvHom.level_coe, Subtype.coe_mk, Filtration.castLe_apply,
-    PseudoNormedGroup.coe_castLe, basic_universal_map.eval_FP, basic_universal_map.eval_png₀,
+    PseudoNormedGroup.coe_castLe, BasicUniversalMap.evalFP, BasicUniversalMap.evalPng₀,
     ProFiltPseuNormGrpWithTinv.pow_map, ProfinitelyFilteredPseudoNormedGroupWithTinv.piMap_to_fun]
   rw [← ComphausFilteredPseudoNormedGroupHom.coe_toAddMonoidHom, ←
     ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply]
@@ -313,15 +313,15 @@ theorem bar (N : ℕ) [Fact (0 < N)] (Λ : PolyhedralLatticeCat.{u})
   intro j
   simp only [ComphausFilteredPseudoNormedGroupHom.coe_toAddMonoidHom,
     ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply,
-    basic_universal_map.eval_png_apply, ProFiltPseuNormGrpWithTinv.powPowX_hom_to_fun,
+    BasicUniversalMap.evalPng_apply, ProFiltPseuNormGrpWithTinv.powPowX_hom_to_fun,
     ProFiltPseuNormGrpWithTinv.powPowXEquiv_symm_apply, Equiv.invFun_as_coe, Equiv.symm_symm,
     Equiv.trans_apply, Equiv.symm_trans_apply, Equiv.arrowCongr_apply, Function.comp,
     Equiv.refl_apply, Equiv.curry_symm_apply, Function.uncurry, Equiv.prodComm_symm,
     Equiv.prodComm_apply, Prod.fst_swap, Prod.snd_swap]
   rw [← fin_prod_fin_equiv.sum_comp]; swap; · infer_instance
-  simp only [basic_universal_map.proj, Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply,
+  simp only [BasicUniversalMap.proj, Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply,
     Matrix.submatrix_apply, Equiv.punitProd_symm_apply, Matrix.kronecker, Matrix.one_apply,
-    basic_universal_map.proj_aux, Equiv.symm_apply_apply, boole_mul, ← ite_and, @eq_comm _ i,
+    BasicUniversalMap.projAux, Equiv.symm_apply_apply, boole_mul, ← ite_and, @eq_comm _ i,
     boole_mul, Matrix.kroneckerMap, Subtype.val_eq_coe]
   simp_rw [ite_smul, one_smul, zero_smul]
   convert (Finset.sum_ite_eq' Finset.univ (j, i) fun p => x.val p.2 p.1).symm using 2
@@ -341,13 +341,13 @@ theorem foo (N : ℕ) [Fact (0 < N)] (Λ : PolyhedralLatticeCat.{u})
                   ((ProFiltPseuNormGrpWithTinv.pow r' i).obj
                     (ProFiltPseuNormGrpWithTinv.of r' (hom Λ M ^ N)))).op.inv =
       (UniversalMap.evalCLCFP V r' c₁ c₂ (UniversalMap.sum i N)).app (op (hom Λ M)) ≫
-        (cLC V).map (filtrationPow.mulIso.{u, u} r' c₂ (hom Λ M) N i).op.Hom :=
+        (cLC V).map (filtrationPow.mulIso.{u, u} r' c₂ (hom Λ M) N i).op.hom :=
   by
   rw [← (cLC V).map_comp]
   dsimp only [filtrationPow, CategoryTheory.Functor.op_map, CategoryTheory.Functor.comp_map,
     filtrationCastEq, Quiver.Hom.unop_op]
-  rw [iso.op_inv, quux, ← (cLC V).map_comp, iso.op_hom, ← op_comp, ← op_comp]
-  swap; · exact @basic_universal_map.suitable_of_suitable_of _ _ _ _ _ H
+  rw [Iso.op_inv, quux, ← (cLC V).map_comp, Iso.op_hom, ← op_comp, ← op_comp]
+  swap; · exact @BasicUniversalMap.suitable_of_suitable_of _ _ _ _ _ H
   congr 2
   apply bar
 
@@ -357,26 +357,26 @@ theorem rowMap_eq_sum_comp (N : ℕ) [Fact (0 < N)] (N' : ℝ≥0) (h : N' = N)
     (Thm95.doubleComplex BD κ r r' V Λ M N).rowMap 0 1 =
       (Iso.refl ((BD.system κ r V r').obj (op (hom Λ M)))).inv ≫
         (bDSystemMap (BD.Sum N) κ (rescaleConstants κ N') r V).app (op (hom Λ M)) ≫
-          (Thm95.mulRescaleIsoRowOne BD κ r V N N' h Λ M).Hom :=
+          (Thm95.mulRescaleIsoRowOne BD κ r V N N' h Λ M).hom :=
   by
   subst h
-  dsimp only [iso.refl_inv]
-  erw [category.id_comp]
-  rw [← iso.comp_inv_eq]
+  dsimp only [Iso.refl_inv]
+  erw [Category.id_comp]
+  rw [← Iso.comp_inv_eq]
   rw [Thm95.doubleComplex.rowMap_zero_one]
-  dsimp only [mul_rescale_iso_row_one, iso.trans_inv, nat_trans.comp_app, functor.map_iso_inv]
-  simp only [← category.assoc, ← (BD.system κ r V r').map_comp, ← nat_trans.comp_app, iso.op_inv, ←
+  dsimp only [Thm95.mulRescaleIsoRowOne, Iso.trans_inv, NatTrans.comp_app, Functor.mapIso_inv]
+  simp only [← Category.assoc, ← (BD.system κ r V r').map_comp, ← NatTrans.comp_app, Iso.op_inv, ←
     op_comp, PolyhedralLatticeCat.cechAugmentationMap_eq_homSum]
-  rw [iso.comp_inv_eq]
+  rw [Iso.comp_inv_eq]
   ext c i : 4
-  apply arrow.mk_injective
-  erw [nat_trans.comp_app, nat_trans.comp_app, HomologicalComplex.comp_f, HomologicalComplex.comp_f]
-  dsimp only [BD_system_map_app_app, BD_map_app_f, data.sum_f, data.system_map, data.complex,
-    data.complex₂_map_f, mul_system_iso, systemRescaleIso, complexRescaleIso, mul_complex_iso]
-  erw [nat_iso.of_components_hom_app, nat_iso.of_components_inv_app]
+  apply Arrow.mk_injective
+  erw [NatTrans.comp_app, NatTrans.comp_app, HomologicalComplex.comp_f, HomologicalComplex.comp_f]
+  dsimp only [BD_system_map_app_app, BD_map_app_f, Data.sum_f, Data.system_map, Data.complex,
+    Data.complex₂_map_f, Thm95.mulSystemIso, systemRescaleIso, complexRescaleIso, Thm95.mulComplexIso]
+  erw [NatIso.ofComponents_hom_app, NatIso.ofComponents_inv_app]
   dsimp only [HomologicalComplex.Hom.isoOfComponents_hom_f,
     HomologicalComplex.Hom.isoOfComponents_inv_f]
-  dsimp only [cLCFPTinv₂, universal_map.eval_CLCFPTinv₂, cLCTinv.mapIso_hom, cLCTinv.mapIso_inv,
+  dsimp only [cLCFPTinv₂, UniversalMap.evalCLCFPTinv₂, cLCTinv.mapIso_hom, cLCTinv.mapIso_inv,
     cLCTinv.f_map, _root_.id, cLCTinv.map, SemiNormedGroupCat.equalizer.mapNat_app, unop_op]
   rw [SemiNormedGroupCat.equalizer.map_comp_map, SemiNormedGroupCat.equalizer.map_comp_map]
   apply SemiNormedGroupCat.equalizer.map_congr

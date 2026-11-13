@@ -4,7 +4,7 @@ import LiquidTensorExperiment.PseudoNormedGroup.WithTinv
 import Mathlib.Topology.Connected.Basic
 import LiquidTensorExperiment.Facts.Default
 
-#align_import polyhedral_lattice.pseudo_normed_group
+#align_import polyhedral_lattice.pseudoNormedGroup
 
 /-!
 
@@ -89,7 +89,7 @@ theorem incl_inducing : Inducing (@incl Λ r' M _ _ c) :=
   ⟨rfl⟩
 
 theorem incl_continuous : Continuous (@incl Λ r' M _ _ c) :=
-  (incl_inducing _ _ _ _).Continuous
+  (incl_inducing _ _ _ _).continuous
 
 instance : T2Space (filtration (Λ →+ M) c) :=
   (incl_embedding Λ r' M c).T2Space
@@ -141,7 +141,7 @@ instance : CompactSpace (filtration (Λ →+ M) c)
     rw [← (incl_inducing Λ r' M c).isCompact_iff]
     apply IsClosed.isCompact
     rw [Set.image_univ]
-    exact incl_range_is_closed _ _ _ _
+    exact PolyhedralLattice.AddMonoidHom.incl_range_isClosed _ _ _ _
 
 theorem continuous_iff {X : Type _} [TopologicalSpace X] (ϕ : X → filtration (Λ →+ M) c) :
     Continuous ϕ ↔ ∀ l : Λ, Continuous fun x => incl c (ϕ x) l :=
@@ -209,14 +209,14 @@ def tinv : ComphausFilteredPseudoNormedGroupHom (Λ →+ M) (Λ →+ M) :=
   ComphausFilteredPseudoNormedGroupHom.mk' tinv'
     (by
       refine' ⟨r'⁻¹, fun c => ⟨Tinv'_mem_filtration c, _⟩⟩
-      rw [add_monoid_hom.continuous_iff]
+      rw [AddMonoidHom.continuous_iff]
       intro l
       haveI : ∀ a, Fact (a ≤ r' * (r'⁻¹ * a)) := fun a =>
         ⟨by simp [mul_inv_cancel_left₀ (ne_of_gt (Fact.out _ : 0 < r'))]⟩
       refine'
         (@continuous_cast_le _ _ _ _ (id _)).comp
           ((@Tinv₀_continuous r' M _ (c * ‖l‖₊) (r'⁻¹ * (c * ‖l‖₊)) _).comp
-            ((continuous_apply l).comp (add_monoid_hom.incl_continuous Λ r' M c)))
+            ((continuous_apply l).comp (AddMonoidHom.incl_continuous Λ r' M c)))
       rw [mul_assoc]; exact ⟨le_rfl⟩)
 
 instance : ProfinitelyFilteredPseudoNormedGroupWithTinv r' (Λ →+ M) :=

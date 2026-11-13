@@ -35,14 +35,14 @@ def NatTrans.kernelFunctor {F G : C ⥤ D} (η : F ⟶ G) : C ⥤ D
     where
   obj X := kernel (η.app X)
   map X Y f := kernel.map _ _ (F.map f) (G.map f) (η.naturality f).symm
-  map_id' X := by ext; simp
-  map_comp' X Y Z f g := by ext; simp
+  map_id X := by ext; simp
+  map_comp X Y Z f g := by ext; simp
 
 @[simps]
 def NatTrans.kernelι {F G : C ⥤ D} (η : F ⟶ G) : η.kernelFunctor ⟶ F
     where
   app X := kernel.ι _
-  naturality' X Y f := by simp
+  naturality X Y f := by simp
 
 @[simps]
 def NatTrans.kernelFork {F G : C ⥤ D} (η : F ⟶ G) : KernelFork η :=
@@ -52,8 +52,8 @@ def NatTrans.kernelFork {F G : C ⥤ D} (η : F ⟶ G) : KernelFork η :=
 def NatTrans.isLimitKernelFork {F G : C ⥤ D} (η : F ⟶ G) : IsLimit η.kernelFork :=
   isLimitAux _
     (fun S =>
-      { app := fun X => kernel.lift _ (S.ι.app X) <| by simp [← nat_trans.comp_app]
-        naturality' := fun X Y f => by ext; dsimp; simp })
+      { app := fun X => kernel.lift _ (S.ι.app X) <| by simp [← NatTrans.comp_app]
+        naturality := fun X Y f => by ext; dsimp; simp })
     (by
       intro S
       ext
@@ -76,25 +76,25 @@ def NatTrans.kernelObjIso {F G : C ⥤ D} (η : F ⟶ G) (X : C) : (kernel η).o
 
 @[simp, reassoc]
 theorem NatTrans.kernelObjIso_hom_ι {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
-    (NatTrans.kernelObjIso η X).Hom ≫ kernel.ι (η.app X) = (kernel.ι η).app X :=
+    (NatTrans.kernelObjIso η X).hom ≫ kernel.ι (η.app X) = (kernel.ι η).app X :=
   by
   have h :=
-    ((limit.is_limit _).uniqueUpToIso η.is_limit_kernel_fork).Hom.w walking_parallel_pair.zero
+    ((limit.isLimit _).uniqueUpToIso η.isLimitKernelFork).hom.w WalkingParallelPair.zero
   apply_fun fun e => e.app X at h 
   exact h
 
 @[simp, reassoc]
 theorem NatTrans.kernelObjIso_inv_ι {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
-    (NatTrans.kernelObjIso η X).inv ≫ (kernel.ι η).app X = kernel.ι _ := by simp [iso.inv_comp_eq]
+    (NatTrans.kernelObjIso η X).inv ≫ (kernel.ι η).app X = kernel.ι _ := by simp [Iso.inv_comp_eq]
 
 @[simps]
 def NatTrans.cokernelKernelιIso [HasCokernels D] {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
     cokernel ((kernel.ι η).app X) ≅ cokernel (kernel.ι (η.app X))
     where
-  Hom := cokernel.map _ _ (NatTrans.kernelObjIso _ _).Hom (𝟙 _) (by simp)
+  hom := cokernel.map _ _ (NatTrans.kernelObjIso _ _).hom (𝟙 _) (by simp)
   inv := cokernel.map _ _ (NatTrans.kernelObjIso _ _).inv (𝟙 _) (by simp)
-  hom_inv_id' := by ext; dsimp; simp
-  inv_hom_id' := by ext; dsimp; simp
+  hom_inv_id := by ext; dsimp; simp
+  inv_hom_id := by ext; dsimp; simp
 
 end Kernels
 
@@ -107,14 +107,14 @@ def NatTrans.cokernelFunctor {F G : C ⥤ D} (η : F ⟶ G) : C ⥤ D
     where
   obj X := cokernel (η.app X)
   map X Y f := cokernel.map _ _ (F.map f) (G.map f) (η.naturality f).symm
-  map_id' X := by ext; simp
-  map_comp' X Y Z f g := by ext; simp
+  map_id X := by ext; simp
+  map_comp X Y Z f g := by ext; simp
 
 @[simps]
 def NatTrans.cokernelπ {F G : C ⥤ D} (η : F ⟶ G) : G ⟶ η.cokernelFunctor
     where
   app X := cokernel.π _
-  naturality' X Y f := by simp
+  naturality X Y f := by simp
 
 @[simps]
 def NatTrans.cokernelCofork {F G : C ⥤ D} (η : F ⟶ G) : CokernelCofork η :=
@@ -124,8 +124,8 @@ def NatTrans.cokernelCofork {F G : C ⥤ D} (η : F ⟶ G) : CokernelCofork η :
 def NatTrans.isColimitCokernelCofork {F G : C ⥤ D} (η : F ⟶ G) : IsColimit η.cokernelCofork :=
   isColimitAux _
     (fun S =>
-      { app := fun X => cokernel.desc _ (S.π.app X) <| by simp [← nat_trans.comp_app]
-        naturality' := fun X Y f => by ext; dsimp; simp })
+      { app := fun X => cokernel.desc _ (S.π.app X) <| by simp [← NatTrans.comp_app]
+        naturality := fun X Y f => by ext; dsimp; simp })
     (by
       intro S
       ext
@@ -149,27 +149,27 @@ def NatTrans.cokernelObjIso {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
 
 @[simp, reassoc]
 theorem NatTrans.cokernelObjIso_π_hom {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
-    (cokernel.π η).app X ≫ (NatTrans.cokernelObjIso η X).Hom = cokernel.π _ :=
+    (cokernel.π η).app X ≫ (NatTrans.cokernelObjIso η X).hom = cokernel.π _ :=
   by
   have h :=
-    ((colimit.is_colimit _).uniqueUpToIso η.is_colimit_cokernel_cofork).Hom.w
-      walking_parallel_pair.one
+    ((colimit.isColimit _).uniqueUpToIso η.isColimitCokernelCofork).hom.w
+      WalkingParallelPair.one
   apply_fun fun e => e.app X at h 
   exact h
 
 @[simp, reassoc]
 theorem NatTrans.cokernelObjIso_π_inv {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
     cokernel.π (η.app X) ≫ (NatTrans.cokernelObjIso η X).inv = (cokernel.π η).app X := by
-  simp [iso.comp_inv_eq]
+  simp [Iso.comp_inv_eq]
 
 @[simps]
 def NatTrans.kernelCokernelπIso [HasKernels D] {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
     kernel ((cokernel.π η).app X) ≅ kernel (cokernel.π (η.app X))
     where
-  Hom := kernel.map _ _ (𝟙 _) (NatTrans.cokernelObjIso η X).Hom (by simp)
+  hom := kernel.map _ _ (𝟙 _) (NatTrans.cokernelObjIso η X).hom (by simp)
   inv := kernel.map _ _ (𝟙 _) (NatTrans.cokernelObjIso η X).inv (by simp)
-  hom_inv_id' := by ext; dsimp; simp
-  inv_hom_id' := by ext; dsimp; simp
+  hom_inv_id := by ext; dsimp; simp
+  inv_hom_id := by ext; dsimp; simp
 
 end Cokernels
 
@@ -181,13 +181,13 @@ theorem NatTrans.coimageImageComparison_app {F G : C ⥤ D} (η : F ⟶ G) (X : 
     (NatTrans.cokernelKernelιIso _ _).inv ≫
         (NatTrans.cokernelObjIso _ _).inv ≫
           (Abelian.coimageImageComparison η).app X ≫
-            (NatTrans.kernelObjIso _ _).Hom ≫ (NatTrans.kernelCokernelπIso _ _).Hom =
+            (NatTrans.kernelObjIso _ _).hom ≫ (NatTrans.kernelCokernelπIso _ _).hom =
       Abelian.coimageImageComparison (η.app X) :=
   by
-  dsimp [abelian.coimage_image_comparison]
+  dsimp [Abelian.coimageImageComparison]
   ext
-  dsimp [nat_trans.cokernel_obj_iso, is_colimit.cocone_point_unique_up_to_iso]
-  dsimp [nat_trans.kernel_obj_iso, is_limit.cone_point_unique_up_to_iso]
+  dsimp [NatTrans.cokernelObjIso, IsColimit.coconePointUniqueUpToIso]
+  dsimp [NatTrans.kernelObjIso, IsLimit.conePointUniqueUpToIso]
   simp
 
 end CokernelsAndKernels
@@ -203,7 +203,7 @@ instance : AdditiveCategory (C ⥤ D) :=
       intro J _
       constructor
       intro F
-      apply limits.has_biproduct.of_has_product }
+      apply Limits.HasBiproduct.of_hasProduct }
 
 end Additivity
 
@@ -219,17 +219,17 @@ instance functor_category_isIso_coim_to_im_app {F G : C ⥤ D} (η : F ⟶ G) (X
     IsIso ((Abelian.coimageImageComparison η).app X) :=
   by
   have :
-    (abelian.coimage_image_comparison η).app X =
-      (nat_trans.cokernel_obj_iso _ _).Hom ≫
-        (nat_trans.cokernel_kernel_ι_iso _ _).Hom ≫
-          abelian.coimage_image_comparison _ ≫
-            (nat_trans.kernel_cokernel_π_iso _ _).inv ≫ (nat_trans.kernel_obj_iso _ _).inv :=
+    (Abelian.coimageImageComparison η).app X =
+      (NatTrans.cokernelObjIso _ _).hom ≫
+        (NatTrans.cokernelKernelιIso _ _).hom ≫
+          Abelian.coimageImageComparison _ ≫
+            (NatTrans.kernelCokernelπIso _ _).inv ≫ (NatTrans.kernelObjIso _ _).inv :=
     by
-    rw [← nat_trans.coimage_image_comparison_app]
-    simp only [category.assoc, iso.inv_hom_id, iso.inv_hom_id_assoc, iso.hom_inv_id,
-      iso.hom_inv_id_assoc, category.comp_id]
+    rw [← NatTrans.coimageImageComparison_app]
+    simp only [Category.assoc, Iso.inv_hom_id, Iso.inv_hom_id_assoc, Iso.hom_inv_id,
+      Iso.hom_inv_id_assoc, Category.comp_id]
   rw [this]
-  apply is_iso.comp_is_iso
+  apply IsIso.comp_isIso
 
 instance functor_category_isIso_coim_to_im {F G : C ⥤ D} (η : F ⟶ G) :
     IsIso (Abelian.coimageImageComparison η) :=
@@ -241,29 +241,29 @@ instance functorCategoryIsAbelian : Abelian (C ⥤ D) :=
 theorem NatTrans.exact_iff_forall {F G H : C ⥤ D} (η : F ⟶ G) (γ : G ⟶ H) :
     Exact η γ ↔ ∀ j, Exact (η.app j) (γ.app j) :=
   by
-  simp_rw [abelian.exact_iff]
+  simp_rw [Abelian.exact_iff]
   constructor
   · rintro ⟨h1, h2⟩ j
     constructor
     · apply_fun fun e => e.app j at h1 ; simpa using h1
     · apply_fun fun e => e.app j at h2 
-      simp only [nat_trans.comp_app, nat_trans.app_zero] at h2 
-      let eK : (kernel γ).obj j ≅ kernel (γ.app j) := nat_trans.kernel_obj_iso γ j
-      let eQ : (cokernel η).obj j ≅ cokernel (η.app j) := nat_trans.cokernel_obj_iso η j
+      simp only [NatTrans.comp_app, NatTrans.app_zero] at h2 
+      let eK : (kernel γ).obj j ≅ kernel (γ.app j) := NatTrans.kernelObjIso γ j
+      let eQ : (cokernel η).obj j ≅ cokernel (η.app j) := NatTrans.cokernelObjIso η j
       have : kernel.ι (γ.app j) = eK.inv ≫ (kernel.ι γ).app j := by simp; rw [this]; clear this
       have : cokernel.π (η.app j) = (cokernel.π η).app j ≫ eQ.hom := by simp; rw [this]; clear this
-      simp only [category.assoc, reassoc_of h2, zero_comp, comp_zero]
+      simp only [Category.assoc, reassoc_of h2, zero_comp, comp_zero]
   · intro h
     constructor
     · ext j
       exact (h j).1
     · ext j
       dsimp
-      let eK : (kernel γ).obj j ≅ kernel (γ.app j) := nat_trans.kernel_obj_iso γ j
-      let eQ : (cokernel η).obj j ≅ cokernel (η.app j) := nat_trans.cokernel_obj_iso η j
+      let eK : (kernel γ).obj j ≅ kernel (γ.app j) := NatTrans.kernelObjIso γ j
+      let eQ : (cokernel η).obj j ≅ cokernel (η.app j) := NatTrans.cokernelObjIso η j
       have : (kernel.ι γ).app j = eK.hom ≫ kernel.ι _ := by simp; rw [this]; clear this
       have : (cokernel.π η).app j = cokernel.π _ ≫ eQ.inv := by simp; rw [this]; clear this
-      simp only [category.assoc, reassoc_of (h j).2, comp_zero, zero_comp]
+      simp only [Category.assoc, reassoc_of (h j).2, comp_zero, zero_comp]
 
 /- ./././Mathport/Syntax/Translate/Basic.lean:339:40: warning: unsupported option pp.universes -/
 set_option pp.universes true

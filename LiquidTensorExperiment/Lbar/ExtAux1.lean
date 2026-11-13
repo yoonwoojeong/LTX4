@@ -131,9 +131,9 @@ theorem ExtQprime_iso_aux_system_obj_aux_aux (X Y : Profinite.{u}) (f : X ⟶ Y)
             ((SemiNormedGroupCat.locallyConstant.{u, u}.obj V).map f.op)) =
       (Condensed.OfTopAb.presheaf _).map f.op ≫ (lCCIsoCondOfTopAb V).inv.app (op X) :=
   by
-  simp only [← nat_iso.app_inv, iso.inv_comp_eq]
-  simp only [← category.assoc, iso.eq_comp_inv]
-  ext1 t; dsimp [forget₂, has_forget₂.forget₂, lCCIsoCondOfTopAb, lCCIsoCondOfTopAbAddEquiv] at t ⊢
+  simp only [← NatIso.app_inv, Iso.inv_comp_eq]
+  simp only [← Category.assoc, Iso.eq_comp_inv]
+  ext1 t; dsimp [forget₂, HasForget₂.forget₂, lCCIsoCondOfTopAb, lCCIsoCondOfTopAbAddEquiv] at t ⊢
   simp only [comp_apply, NormedAddGroupHom.coe_toAddMonoidHom, AddEquiv.coe_toAddMonoidHom,
     AddEquiv.coe_mk]
   dsimp only [Condensed.OfTopAb.presheaf, AddMonoidHom.mk'_apply]
@@ -177,26 +177,26 @@ def extQprimeIsoAuxSystemObjAux :
       (freeCond.mapFreeAb ⋙ FreeAb.eval (Condensed.{u} Ab.{u + 1})) ⋙
         (preadditiveYoneda.obj V.toCond).rightOp :=
   by
-  refine' nat_iso.of_components _ _
+  refine' NatIso.ofComponents _ _
   · intro X
-    dsimp only [functor.comp_obj, functor.right_op, functor.op_obj, FreeAb.eval, functor.map_FreeAb]
-    refine' iso.op _
+    dsimp only [Functor.comp_obj, Functor.rightOp, Functor.op_obj, FreeAb.eval, Functor.mapFreeAb]
+    refine' Iso.op _
     refine' preadditiveYonedaObjObjCondensedSetToCondensedAb _ _ ≪≫ _
     let e := (Condensed_Ab_to_presheaf.map_iso (condensedLCCIsoOfTopAb V)).app (op X.as)
     refine' e.symm ≪≫ extQprimeIsoAuxSystemObjAux' V X.as
   · intro X Y f
     apply freeAb_naturality_helper; clear f X Y; intro X Y f
-    dsimp only [id.def, iso.trans_hom, iso.op_hom, op_comp, iso.symm_hom, functor.map_iso_inv,
-      functor.comp_map, functor.right_op_map, functor.op_map, iso.app_inv, FreeAb.eval,
-      functor.map_FreeAb, FreeAb.of_functor]
-    simp only [category.assoc, ← op_comp]; congr 1
+    dsimp only [id.def, Iso.trans_hom, Iso.op_hom, op_comp, Iso.symm_hom, Functor.mapIso_inv,
+      Functor.comp_map, Functor.rightOp_map, Functor.op_map, Iso.app_inv, FreeAb.eval,
+      Functor.mapFreeAb, FreeAb.ofFunctor]
+    simp only [Category.assoc, ← op_comp]; congr 1
     simp only [FreeAbelianGroup.map_of_apply, FreeAbelianGroup.lift.of, id.def,
-      functor.right_op_map, Quiver.Hom.unop_op]
+      Functor.rightOp_map, Quiver.Hom.unop_op]
     erw [← preadditiveYonedaObjObjCondensedSetToCondensedAb_natural'_assoc]
     congr 1
     dsimp [condensedLCCIsoOfTopAb]
     erw [extQprimeIsoAuxSystemObjAux'_natural]
-    simp only [← category.assoc]; congr 1
+    simp only [← Category.assoc]; congr 1
     rw [← Ab.ulift.map_comp]
     rw [ExtQprime_iso_aux_system_obj_aux_aux]
     ext; rfl
@@ -222,11 +222,11 @@ def embedHomComplexNatIso (X : HomologicalComplex (Condensed.{u} Ab.{u + 1}) (Co
       | -[i+1] => Iso.refl _)
     (by
       rintro i (j | (_ | j)) (rfl : _ = _)
-      · apply is_zero.eq_of_src
-        refine' functor.map_is_zero _ _
-        dsimp; apply is_zero.op; exact is_zero_zero _
-      · refine' (category.id_comp _).trans (category.comp_id _).symm
-      · refine' (category.id_comp _).trans (category.comp_id _).symm)
+      · apply IsZero.eq_of_src
+        refine' Functor.map_isZero _ _
+        dsimp; apply IsZero.op; exact is_zero_zero _
+      · refine' (Category.id_comp _).trans (Category.comp_id _).symm
+      · refine' (Category.id_comp _).trans (Category.comp_id _).symm)
 
 /-
 lemma embed_hom_complex_nat_iso_homology_iso (X : homological_complex (Condensed.{u} Ab.{u+1})
@@ -301,7 +301,7 @@ instance sigmaQprimeIntBoundedAbove :
   by
   refine' ⟨⟨1, _⟩⟩
   intro a ha
-  refine' is_zero.of_iso _ (HomotopyCategory.coproductIso _ _)
+  refine' IsZero.of_iso _ (HomotopyCategory.coproductIso _ _)
   apply CategoryTheory.isZero_colimit
   intro
   exact ChainComplex.boundedByOne _ _ ha
@@ -324,21 +324,21 @@ theorem extCoproductIso_naturality_shift (A : Type u) [Category.{v} A] [Abelian 
       (extCoproductIso _ _ _).hom ≫
         Pi.lift fun j => Pi.π _ (ULift.up (ULift.down j + 1)) ≫ ((ext i).map (e _).op).app Y :=
   by
-  dsimp only [Ext_coproduct_iso, Ext, Ext0, Ext_iso, functor.comp_map, whiskering_left,
-    whisker_left, iso.trans_hom, functor.map_iso, preadditive_yoneda_coproduct_iso, functor.flip,
-    pi_iso, as_iso, preadditive_yoneda_coproduct_to_product]
-  simp only [category.assoc]
-  simp only [Quiver.Hom.unop_op, iso.op_hom, replacement_iso_hom, iso.op_inv, replacement_iso_inv,
-    iso.symm_mk]
+  dsimp only [Ext_coproduct_iso, Ext, Ext0, Ext_iso, Functor.comp_map, CategoryTheory.whiskeringLeft,
+    whisker_left, Iso.trans_hom, Functor.mapIso, CategoryTheory.preadditiveYonedaCoproductIso, Functor.flip,
+    pi_iso, CategoryTheory.asIso, CategoryTheory.preadditiveYonedaCoproductToProduct]
+  simp only [Category.assoc]
+  simp only [Quiver.Hom.unop_op, Iso.op_hom, BoundedHomotopyCategory.replacementIso_hom, Iso.op_inv, BoundedHomotopyCategory.replacementIso_inv,
+    Iso.symm_mk]
   apply limit.hom_ext
   intro j
-  simp only [category.assoc, limit.lift_π, fan.mk_π_app, limit.lift_π_assoc]
-  simp only [← functor.map_comp, ← op_comp]
+  simp only [Category.assoc, limit.lift_π, Fan.mk_π_app, limit.lift_π_assoc]
+  simp only [← Functor.map_comp, ← op_comp]
   congr 2
-  simp only [category.assoc]
+  simp only [Category.assoc]
   apply lift_ext (∐ X).π; swap; infer_instance
   dsimp [Quiver.Hom.unop_op]
-  simp only [category.assoc, lift_lifts, lift_lifts_assoc]
+  simp only [Category.assoc, lift_lifts, lift_lifts_assoc]
   dsimp [uniform_π, coproductShift]
-  simp only [colimit.ι_desc_assoc, cofan.mk_ι_app, category.assoc, colimit.ι_desc, lift_lifts_assoc]
+  simp only [colimit.ι_desc_assoc, Cofan.mk_ι_app, Category.assoc, colimit.ι_desc, lift_lifts_assoc]
 

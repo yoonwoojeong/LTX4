@@ -1,6 +1,6 @@
 import LiquidTensorExperiment.BreenDeligne.Constants
 
-#align_import breen_deligne.eg
+#align_import BreenDeligne.eg
 
 open scoped NNReal
 
@@ -29,7 +29,7 @@ def σπ (n : ℕ) :=
   UniversalMap.proj n 2 - UniversalMap.sum n 2
 
 theorem σπ_comp_hMul_two {m n} (f : UniversalMap m n) : comp (σπ n) (mul 2 f) = comp f (σπ m) := by
-  simp only [σπ, AddMonoidHom.map_sub, AddMonoidHom.sub_apply, sum_comp_mul, proj_comp_mul]
+  simp only [σπ, AddMonoidHom.map_sub, AddMonoidHom.sub_apply, BreenDeligne.UniversalMap.sum_comp_hMul, proj_comp_mul]
 
 /-- The `i`-th map of this BD package is inductively defined
 as the simplest solution to the homotopy condition,
@@ -84,12 +84,12 @@ def h : Homotopy (bD.proj 2) (bD.Sum 2)
     · dsimp; rw [dif_pos rfl, dif_neg, comp_zero, zero_add]
       swap; · decide
       dsimp [BD, hmap, map, σπ]
-      erw [dif_pos rfl, category.id_comp, ← sub_eq_iff_eq_add]; rfl
+      erw [dif_pos rfl, Category.id_comp, ← sub_eq_iff_eq_add]; rfl
     · rw [dif_pos rfl, dif_pos]; swap; · rfl
       dsimp [BD, hmap, map, σπ]
-      erw [dif_pos rfl, dif_pos rfl, category.id_comp]
+      erw [dif_pos rfl, dif_pos rfl, Category.id_comp]
       dsimp [Nat.succ_eq_add_one]
-      erw [hmap, category.comp_id, ← sub_eq_iff_eq_add, add_sub, eq_comm, sub_eq_iff_eq_add']
+      erw [hmap, Category.comp_id, ← sub_eq_iff_eq_add, add_sub, eq_comm, sub_eq_iff_eq_add']
       rfl
 
 end Eg

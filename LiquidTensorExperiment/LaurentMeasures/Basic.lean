@@ -223,7 +223,7 @@ instance : AddCommGroup (ℒ S) :=
       { toFun := fun s m => n • F s m
         summable' := fun s =>
           by
-          have := @Summable.const_smul _ _ _ _ _ _ _ _ _ n.nat_abs (F.nnreal_summable s)
+          have := @Summable.const_smul _ _ _ _ _ _ _ _ _ n.natAbs (F.nnreal_summable s)
           simpa only [nsmul_eq_mul, NNReal.coe_natAbs, Algebra.id.smul_eq_mul, Int.nnnorm_hMul,
             mul_assoc] }
     zsmul_zero' := fun F => by ext;
@@ -418,7 +418,7 @@ theorem exists_bdd_filtration {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : 
       apply h.trans
       rwa [lt_neg, neg_zero]
   rw [← NNReal.coe_lt_coe, NNReal.coe_zpow, coe_nnnorm]
-  have := Real.lt_rpow_of_log_lt (laurent_measures.norm_nonneg F) hr₀ hFd1
+  have := Real.lt_rpow_of_log_lt (LaurentMeasures.norm_nonneg F) hr₀ hFd1
   rwa [Real.rpow_int_cast _ d] at this 
 
 def bddFiltration {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : (r : ℝ) < 1) (F : ℒ S) : ℤ :=
@@ -496,7 +496,7 @@ theorem mkSeq_compat_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r 
   · intro A
     rw [← Finset.sum_attach]
     refine' le_trans _ (F A).bound
-    simp_rw [mk_seq_compat _ compat]
+    simp_rw [LaurentMeasures.mkSeq_compat _ compat]
     simp only [LaurentMeasuresBdd.nnnorm_def, Finset.univ_eq_attach, NNReal.coe_sum, NNReal.coe_mul,
       NNReal.coe_zpow]
     apply @Finset.single_le_sum S ℝ _ fun s => ∑ i : A, ‖F A s i‖ * (r : ℝ) ^ (i : ℤ)
@@ -511,7 +511,7 @@ theorem mkSeq_compat_nNReal_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasure
     Summable fun k : ℤ => ‖mkSeq F s k‖₊ * r ^ k :=
   by
   rw [← NNReal.summable_coe]
-  simpa only [Nonneg.coe_mul, coe_nnnorm, NNReal.coe_zpow] using mk_seq_compat_summable F compat s
+  simpa only [Nonneg.coe_mul, coe_nnnorm, NNReal.coe_zpow] using LaurentMeasures.mkSeq_compat_summable F compat s
 
 theorem mkSeq_compat_sum_le {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
     (compat : ∀ (A B : Finset ℤ) (h : B ≤ A), transition h (F _) = F _) :
@@ -537,7 +537,7 @@ theorem mkSeq_compat_sum_le {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S 
   rw [← Finset.sum_attach]
   apply Finset.sum_congr rfl
   rintro i -
-  simp_rw [mk_seq_compat _ compat]
+  simp_rw [LaurentMeasures.mkSeq_compat _ compat]
 
 theorem exists_of_compat {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
     (compat : ∀ (A B : Finset ℤ) (h : B ≤ A), transition h (F _) = F _) :
@@ -545,7 +545,7 @@ theorem exists_of_compat {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c
   by
   let G : ℒ S := ⟨mk_seq F, mk_seq_compat_nnreal_summable _ compat⟩
   use G
-  · apply mk_seq_compat_sum_le _ compat
+  · apply LaurentMeasures.mkSeq_compat_sum_le _ compat
   · intro k
     ext s i
     change F _ _ _ = _
@@ -612,7 +612,7 @@ def laurentMeasuresBddHomeo (c : ℝ≥0) [Fact (0 < r)] :
     continuous_toFun := continuous_induced_dom
     continuous_invFun :=
       by
-      have : Inducing (laurent_measures_bdd_equiv r S c) := ⟨rfl⟩
+      have : Inducing (LaurentMeasures.laurentMeasuresBddEquiv r S c) := ⟨rfl⟩
       rw [this.continuous_iff]
       dsimp
       simp only [Equiv.self_comp_symm]
@@ -634,7 +634,7 @@ theorem truncate_continuous (c : ℝ≥0) [Fact (0 < r)] (A : Finset ℤ) :
   let g₁ :=
     (Profinite.limitCone (laurentMeasuresBddFunctor.{u} r S c ⋙ FintypeCat.toProfinite)).π.app
       (Opposite.op <| ULift.up A)
-  let g₂ := laurent_measures_bdd_homeo r S c
+  let g₂ := LaurentMeasures.laurentMeasuresBddHomeo r S c
   change Continuous (g₁ ∘ g₂)
   continuity
 
@@ -645,7 +645,7 @@ theorem continuous_iff (c : ℝ≥0) [Fact (0 < r)] {α : Type _} [TopologicalSp
   constructor
   · intro hf A; continuity
   · intro h
-    rw [← (laurent_measures_bdd_homeo r S c).comp_continuous_iff]
+    rw [← (LaurentMeasures.laurentMeasuresBddHomeo r S c).comp_continuous_iff]
     apply Continuous.subtype_mk
     apply continuous_pi
     intro A
@@ -804,7 +804,7 @@ def shift [hr : Fact (0 < r)] (k : ℤ) : ComphausFilteredPseudoNormedGroupHom (
           refine' Finset.sum_le_sum fun s _ => le_of_eq _
           trans ∑' n, ‖F s n‖₊ * r ^ n * r ^ (-k)
           · refine' ((Equiv.addLeft (-k : ℤ)).tsum_eq _).symm.trans _
-            simp only [Equiv.coe_addLeft, shift_add_monoid_hom_apply_to_fun, neg_add_cancel_comm,
+            simp only [Equiv.coe_addLeft, LaurentMeasures.shiftAddMonoidHom_apply_to_fun, neg_add_cancel_comm,
               zpow_add₀ hr.out.ne', zpow_neg_one, mul_comm (r ^ (-k)), mul_assoc]
           ext
           simp only [Nonneg.coe_mul, NNReal.coe_tsum, coe_nnnorm, NNReal.coe_zpow, tsum_mul_right])
@@ -818,7 +818,7 @@ instance [Fact (0 < r)] : ProfinitelyFilteredPseudoNormedGroupWithTinv r (ℒ S)
       by
       refine' ComphausFilteredPseudoNormedGroupHom.mkOfBoundBoundBy _ _ _ hF
       intro c'
-      have := @shift.shift_spec r S _ 1 c'
+      have := @Shift.shift_spec r S _ 1 c'
       rwa [zpow_neg_one] at this  }
 
 @[simp]

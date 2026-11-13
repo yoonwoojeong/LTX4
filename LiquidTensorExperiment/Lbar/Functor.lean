@@ -58,8 +58,8 @@ def fintypeLbar : FintypeCat ⥤ ProFiltPseuNormGrpWithTinv₁ r'
       strict' := map_strict r' f
       continuous' := map_continuous r' f
       map_Tinv' := map_tinv r' f }
-  map_id' := by intros; ext1 x; exact map_id x
-  map_comp' := by intro X Y Z f g; ext1 x; exact map_comp f x g
+  map_id := by intros; ext1 x; exact map_id x
+  map_comp := by intro X Y Z f g; ext1 x; exact map_comp f x g
 
 namespace Lbar
 

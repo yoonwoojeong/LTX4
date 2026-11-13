@@ -55,14 +55,14 @@ theorem cofanPointIsoColimit_conj_eq_desc
   by
   ext j
   dsimp only [cofanPointIsoColimit]
-  rw [colimit.ι_desc, cofan.mk_ι_app, colimit.comp_cocone_point_unique_up_to_iso_inv_assoc]
-  simp only [← category.assoc]; rw [← iso.eq_comp_inv]; simp only [category.assoc]
-  rw [colimit.comp_cocone_point_unique_up_to_iso_inv]
-  dsimp only [sigmaShift, BoundedHomotopyCategory.cofan, cofan.mk_ι_app, of_hom,
+  rw [colimit.ι_desc, Cofan.mk_ι_app, colimit.comp_coconePointUniqueUpToIso_inv_assoc]
+  simp only [← Category.assoc]; rw [← Iso.eq_comp_inv]; simp only [Category.assoc]
+  rw [colimit.comp_coconePointUniqueUpToIso_inv]
+  dsimp only [sigmaShift, BoundedHomotopyCategory.cofan, Cofan.mk_ι_app, of_hom,
     HomotopyCategory.colimitCofan]
-  erw [← functor.map_comp, colimit.ι_desc]
-  dsimp only [sigmaShiftCone, discrete.nat_trans_app]
-  refine' functor.map_comp _ _ _
+  erw [← Functor.map_comp, colimit.ι_desc]
+  dsimp only [sigmaShiftCone, Discrete.natTrans_app]
+  refine' Functor.map_comp _ _ _
 
 def piExtIsoExtSigma (i : ℤ) :
     (∏ fun k : ULift ℕ =>
@@ -76,7 +76,7 @@ def piExtIsoExtSigma (i : ℤ) :
     ((ext i).flip.obj ((single (Condensed Ab) 0).obj V.toCond)).mapIso
       (by
         refine'
-          iso.op (cofanPointIsoColimit fun k : ULift ℕ => (qprimeFP r' BD.data κ₂ M).obj (ι k)))
+          Iso.op (cofanPointIsoColimit fun k : ULift ℕ => (qprimeFP r' BD.data κ₂ M).obj (ι k)))
 
 -- move me
 @[simp]
@@ -107,7 +107,7 @@ theorem extCoproductIso_naturality_inv (A : Type u) [Category.{v} A] [Abelian A]
         ((ext i).map (Sigma.desc fun b => g b ≫ Sigma.ι X₂ b : ∐ X₁ ⟶ ∐ X₂).op).app Y =
       (Pi.lift fun b => Pi.π _ b ≫ ((ext i).map (g b).op).app Y) ≫ (extCoproductIso _ _ _).inv :=
   by
-  rw [iso.inv_comp_eq, ← category.assoc, iso.eq_comp_inv]
+  rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv]
   apply Ext_coproduct_iso_naturality
 
 end Preps

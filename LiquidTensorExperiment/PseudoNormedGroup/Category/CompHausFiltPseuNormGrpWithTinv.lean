@@ -32,7 +32,7 @@ attribute [local instance] bundled_hom
 has_coe_to_sort[has_coe_to_sort] α (Sort*) -/
 deriving instance
   «./././Mathport/Syntax/Translate/Command.lean:43:9: unsupported derive handler λ α,
-  has_coe_to_sort[has_coe_to_sort] α (Sort*)», LargeCategory, ConcreteCategory for
+  CoeSort[CoeSort] α (Sort*)», LargeCategory, ConcreteCategory for
   CompHausFiltPseuNormGrpWithTinv
 
 end CompHausFiltPseuNormGrpWithTinv

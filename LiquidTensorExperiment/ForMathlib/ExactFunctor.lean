@@ -26,15 +26,15 @@ theorem Exact.epi_lift {X Y Z : A} {f : X ⟶ Y} {g : Y ⟶ Z} (e : Exact f g) :
 
 theorem Exact.epi_of_exact_zero_right {X Y Z : A} {f : X ⟶ Y} (e : Exact f (0 : Y ⟶ Z)) : Epi f :=
   by
-  rw [abelian.epi_iff_cokernel_π_eq_zero]
-  rw [abelian.exact_iff] at e 
+  rw [Abelian.epi_iff_cokernel_π_eq_zero]
+  rw [Abelian.exact_iff] at e 
   cases' e with e1 e2
   simpa using e2
 
 theorem Exact.mono_of_exact_zero_left {X Y Z : A} {f : Y ⟶ Z} (e : Exact (0 : X ⟶ Y) f) : Mono f :=
   by
-  rw [abelian.mono_iff_kernel_ι_eq_zero]
-  rw [abelian.exact_iff] at e 
+  rw [Abelian.mono_iff_kernel_ι_eq_zero]
+  rw [Abelian.exact_iff] at e 
   cases' e with e1 e2
   simpa using e2
 
@@ -71,7 +71,7 @@ theorem isIso_cokernelComparison_of_exact (hh : F.exact) {X Y : A} (f : X ⟶ Y)
     IsIso (cokernelComparison f F) :=
   by
   have : CategoryTheory.Exact (F.map f) (F.map (cokernel.π f)) := by apply hh;
-    exact abelian.exact_cokernel f
+    exact Abelian.exact_cokernel f
   dsimp [cokernel_comparison]
   apply (config := { instances := false }) is_iso_of_mono_of_epi
   infer_instance
@@ -86,16 +86,16 @@ def preservesCoequalizersOfExact (hh : F.exact) {X Y : A} (f g : X ⟶ Y) :
     PreservesColimit (parallelPair f g) F :=
   preservesColimitOfPreservesColimitCocone (coforkOfCokernelIsColimit _ _)
     (by
-      let e : parallel_pair f g ⋙ F ≅ parallel_pair (F.map f) (F.map g) :=
-        diagram_iso_parallel_pair _
-      equiv_rw (is_colimit.precompose_inv_equiv e _).symm
-      apply is_colimit.of_iso_colimit (cofork_of_cokernel_is_colimit (F.map f) (F.map g))
-      haveI := is_iso_cokernel_comparison_of_exact F hh (f - g)
+      let e : CategoryTheory.Limits.parallelPair f g ⋙ F ≅ CategoryTheory.Limits.parallelPair (F.map f) (F.map g) :=
+        CategoryTheory.Limits.diagramIsoParallelPair _
+      equiv_rw (IsColimit.precomposeInvEquiv e _).symm
+      apply IsColimit.ofIsoColimit (CategoryTheory.Limits.coforkOfCokernelIsColimit (F.map f) (F.map g))
+      haveI := CategoryTheory.Functor.isIso_cokernelComparison_of_exact F hh (f - g)
       refine'
-        cocones.ext
-          (cokernel.map_iso (F.map f - F.map g) (F.map (f - g)) (iso.refl _) (iso.refl _)
+        Cocones.ext
+          (cokernel.mapIso (F.map f - F.map g) (F.map (f - g)) (iso.refl _) (iso.refl _)
               (by simp) ≪≫
-            as_iso (cokernel_comparison (f - g) F))
+            CategoryTheory.asIso (cokernel_comparison (f - g) F))
           _
       rintro (_ | _)
       tidy)
@@ -103,21 +103,21 @@ def preservesCoequalizersOfExact (hh : F.exact) {X Y : A} (f g : X ⟶ Y) :
 def preservesFiniteColimitsOfExact (hh : F.exact) : PreservesFiniteColimits F :=
   by
   apply (config := { instances := false })
-    preserves_finite_colimits_of_preserves_coequalizers_and_finite_coproducts
+    CategoryTheory.Limits.preservesFiniteColimitsOfPreservesCoequalizersAndFiniteCoproducts
   any_goals infer_instance
   · constructor
     intro K
-    apply (config := { instances := false }) preserves_colimit_of_iso_diagram
-    exact (diagram_iso_parallel_pair K).symm
-    apply preserves_coequalizers_of_exact F hh
+    apply (config := { instances := false }) CategoryTheory.Limits.preservesColimitOfIsoDiagram
+    exact (CategoryTheory.Limits.diagramIsoParallelPair K).symm
+    apply CategoryTheory.Functor.preservesCoequalizersOfExact F hh
   · intro J hI
-    apply preserves_coproducts_of_shape_of_preserves_biproducts_of_shape
+    apply CategoryTheory.Limits.preservesCoproductsOfShapeOfPreservesBiproductsOfShape
 
 theorem isIso_kernelComparison_of_exact (hh : F.exact) {X Y : A} (f : X ⟶ Y) :
     IsIso (kernelComparison f F) :=
   by
   have : CategoryTheory.Exact (F.map (kernel.ι f)) (F.map f) := by apply hh; exact exact_kernel_ι
-  dsimp [kernel_comparison]
+  dsimp [CategoryTheory.Limits.kernelComparison]
   apply (config := { instances := false }) is_iso_of_mono_of_epi
   infer_instance
   constructor
@@ -132,16 +132,16 @@ def preservesEqualizersOfExact (hh : F.exact) {X Y : A} (f g : X ⟶ Y) :
     PreservesLimit (parallelPair f g) F :=
   preservesLimitOfPreservesLimitCone (forkOfKernelIsLimit _ _)
     (by
-      let e : parallel_pair f g ⋙ F ≅ parallel_pair (F.map f) (F.map g) :=
-        diagram_iso_parallel_pair _
-      equiv_rw (is_limit.postcompose_hom_equiv e _).symm
-      apply is_limit.of_iso_limit (fork_of_kernel_is_limit (F.map f) (F.map g))
-      haveI := is_iso_kernel_comparison_of_exact F hh (f - g)
+      let e : CategoryTheory.Limits.parallelPair f g ⋙ F ≅ CategoryTheory.Limits.parallelPair (F.map f) (F.map g) :=
+        CategoryTheory.Limits.diagramIsoParallelPair _
+      equiv_rw (IsLimit.postcomposeHomEquiv e _).symm
+      apply IsLimit.ofIsoLimit (CategoryTheory.Limits.forkOfKernelIsLimit (F.map f) (F.map g))
+      haveI := CategoryTheory.Functor.isIso_kernelComparison_of_exact F hh (f - g)
       symm
       refine'
-        cones.ext
-          (as_iso (kernel_comparison (f - g) F) ≪≫
-            kernel.map_iso (F.map (f - g)) (F.map f - F.map g) (iso.refl _) (iso.refl _) (by simp))
+        Cones.ext
+          (CategoryTheory.asIso (CategoryTheory.Limits.kernelComparison (f - g) F) ≪≫
+            kernel.mapIso (F.map (f - g)) (F.map f - F.map g) (iso.refl _) (iso.refl _) (by simp))
           _
       rintro (_ | _)
       tidy)
@@ -149,15 +149,15 @@ def preservesEqualizersOfExact (hh : F.exact) {X Y : A} (f g : X ⟶ Y) :
 def preservesFiniteLimitsOfExact (h : F.exact) : PreservesFiniteLimits F :=
   by
   apply (config := { instances := false })
-    preserves_finite_limits_of_preserves_equalizers_and_finite_products
+    CategoryTheory.Limits.preservesFiniteLimitsOfPreservesEqualizersAndFiniteProducts
   any_goals infer_instance
   · constructor
     intro K
-    apply (config := { instances := false }) preserves_limit_of_iso_diagram
-    exact (diagram_iso_parallel_pair K).symm
-    apply preserves_equalizers_of_exact F h
+    apply (config := { instances := false }) CategoryTheory.Limits.preservesLimitOfIsoDiagram
+    exact (CategoryTheory.Limits.diagramIsoParallelPair K).symm
+    apply CategoryTheory.Functor.preservesEqualizersOfExact F h
   · intro J hJ
-    apply preserves_products_of_shape_of_preserves_biproducts_of_shape
+    apply CategoryTheory.Limits.preservesProductsOfShapeOfPreservesBiproductsOfShape
 
 variable [PreservesFiniteLimits F] [PreservesFiniteColimits F]
 
@@ -169,7 +169,7 @@ def homologyNatIso :
   NatIso.ofComponents
     (fun S => ((HomologyIsoDatum.tautological' S.1.f S.1.g S.2).applyExactFunctor F).Iso)
     fun S₁ S₂ φ => by
-    simp only [comp_map, iso.hom_inv_id_assoc,
+    simp only [comp_map, Iso.hom_inv_id_assoc,
       ((HomologyMapDatum.tautological' φ).mapExactFunctor F).homology'_map_eq]
 
 def homology'Iso {X Y Z : A} (f : X ⟶ Y) (g : Y ⟶ Z) (w w') :
@@ -201,51 +201,51 @@ def homology'FunctorIso {M : Type _} (c : ComplexShape M) (i : M) :
           ShortComplex.functorHomologicalComplex B c i ⋙ ShortComplex.homologyFunctor :=
       _
     _ ≅ F.map_homological_complex _ ⋙ homology'Functor B c i := _
-  · exact iso_whisker_right (ShortComplex.homologyFunctorIso A c i) F
+  · exact CategoryTheory.isoWhiskerRight (ShortComplex.homologyFunctorIso A c i) F
   · apply associator
-  · exact iso_whisker_left _ F.homology_nat_iso
+  · exact CategoryTheory.isoWhiskerLeft _ F.homology_nat_iso
   · symm; apply associator
-  · exact iso_whisker_right (ShortComplex.functorHomologicalComplexMap F c i) _
+  · exact CategoryTheory.isoWhiskerRight (ShortComplex.functorHomologicalComplexMap F c i) _
   · apply associator
-  · exact iso_whisker_left _ (ShortComplex.homologyFunctorIso B c i).symm
+  · exact CategoryTheory.isoWhiskerLeft _ (ShortComplex.homologyFunctorIso B c i).symm
 
 variable {F G}
 
 def naturality_homologyNatIso_app (S : ShortComplex A) :
-    φ.app S.homology' ≫ G.homologyNatIso.Hom.app S =
-      F.homologyNatIso.Hom.app S ≫ ShortComplex.homologyFunctor.map (φ.mapShortComplex.app S) :=
+    φ.app S.homology' ≫ G.homologyNatIso.hom.app S =
+      F.homologyNatIso.hom.app S ≫ ShortComplex.homologyFunctor.map (φ.mapShortComplex.app S) :=
   by
   let h := HomologyIsoDatum.tautological' S.obj.f S.obj.g S.zero
-  simpa [← cancel_epi (h.apply_exact_functor F).Iso.Hom, iso.hom_inv_id_assoc] using
-    (h.map_nat_trans φ).homology'_map_eq.symm
+  simpa [← cancel_epi (h.applyExactFunctor F).Iso.Hom, Iso.hom_inv_id_assoc] using
+    (h.mapNatTrans φ).homology'_map_eq.symm
 
 /-- naturality of `homology_functor_iso` on the variable `F` -/
 theorem naturality_homology'FunctorIso_hom_app {M : Type _} {c : ComplexShape M}
     (X : HomologicalComplex A c) (i : M) :
-    φ.app ((homology'Functor A c i).obj X) ≫ (G.homology'FunctorIso c i).Hom.app X =
-      (F.homology'FunctorIso c i).Hom.app X ≫
+    φ.app ((homology'Functor A c i).obj X) ≫ (G.homology'FunctorIso c i).hom.app X =
+      (F.homology'FunctorIso c i).hom.app X ≫
         (homology'Functor B c i).map ((NatTrans.mapHomologicalComplex φ c).app X) :=
   by
-  dsimp only [homology_functor_iso, iso.trans, iso_whisker_left, whiskering_left, whisker_left,
-    iso_whisker_right, whiskering_right, whisker_right, map_iso, associator, iso.symm,
-    ShortComplex.homologyFunctorIso, nat_iso.of_components, iso.refl]
-  simp only [category.assoc, nat_trans.comp_app, category.id_comp, F.map_id, G.map_id]
-  erw [category.id_comp, category.id_comp, category.comp_id]
+  dsimp only [homology_functor_iso, Iso.trans, CategoryTheory.isoWhiskerLeft, CategoryTheory.whiskeringLeft, whisker_left,
+    CategoryTheory.isoWhiskerRight, whiskering_right, whisker_right, map_iso, associator, iso.symm,
+    ShortComplex.homologyFunctorIso, NatIso.ofComponents, iso.refl]
+  simp only [Category.assoc, NatTrans.comp_app, Category.id_comp, F.map_id, G.map_id]
+  erw [Category.id_comp, Category.id_comp, Category.comp_id]
   slice_lhs 1 2 =>
-    erw [naturality_homology_nat_iso_app φ ((ShortComplex.functorHomologicalComplex A c i).obj X)]
-  rw [category.assoc, ← short_complex.homology_functor.map_comp]
+    erw [CategoryTheory.Functor.naturality_homologyNatIso_app φ ((ShortComplex.functorHomologicalComplex A c i).obj X)]
+  rw [Category.assoc, ← short_complex.homologyFunctor.map_comp]
   simpa only [ShortComplex.naturality_functorHomologicalComplexMap,
-    short_complex.homology_functor.map_comp]
+    short_complex.homologyFunctor.map_comp]
 
 theorem naturality_homology'FunctorIso {M : Type _} (c : ComplexShape M) (i : M) :
-    (𝟙 (homology'Functor A c i) ◫ φ) ≫ (G.homology'FunctorIso c i).Hom =
-      (F.homology'FunctorIso c i).Hom ≫
+    (𝟙 (homology'Functor A c i) ◫ φ) ≫ (G.homology'FunctorIso c i).hom =
+      (F.homology'FunctorIso c i).hom ≫
         NatTrans.mapHomologicalComplex φ c ◫ 𝟙 (homology'Functor B c i) :=
   by
   ext1; ext1 X
-  simp only [nat_trans.comp_app, nat_trans.hcomp_app, nat_trans.id_app, G.map_id, category.comp_id]
-  erw [category.id_comp]
-  apply naturality_homology_functor_iso_hom_app
+  simp only [NatTrans.comp_app, NatTrans.hcomp_app, NatTrans.id_app, G.map_id, Category.comp_id]
+  erw [Category.id_comp]
+  apply CategoryTheory.Functor.naturality_homology'FunctorIso_hom_app
 
 variable (F)
 
@@ -255,7 +255,7 @@ def homologyFunctorIsoOnHomotopyCategory {M : Type _} (c : ComplexShape M) (i : 
   NatIso.ofComponents (fun X => (F.homology'FunctorIso c i).app X.as) fun X Y f =>
     by
     nth_rw 1 [← HomotopyCategory.quotient_map_out f]
-    erw [(F.homology_functor_iso c i).Hom.naturality (Quot.out f)]
+    erw [(F.homology_functor_iso c i).hom.naturality (Quot.out f)]
     rfl
 
 def mapQuasiIsoOnHomotopyCategory {M : Type _} {c : ComplexShape M} {X₁ X₂ : HomotopyCategory A c}
@@ -269,13 +269,13 @@ def mapQuasiIsoOnHomotopyCategory {M : Type _} {c : ComplexShape M} {X₁ X₂ :
     let e : F₁ ≅ F₂ := F.homology_functor_iso_on_homotopy_category c i
     have h := e.hom.naturality φ
     rw [← cancel_epi (e.inv.app X₁)] at h 
-    conv_rhs at h => rw [← category.assoc, ← nat_trans.comp_app, e.inv_hom_id]
-    rw [nat_trans.id_app, category.id_comp] at h 
+    conv_rhs at h => rw [← Category.assoc, ← NatTrans.comp_app, e.inv_hom_id]
+    rw [NatTrans.id_app, Category.id_comp] at h 
     rw [← h]
     haveI : is_iso (F₁.map φ) := by
       haveI := hφ.cond
       dsimp only [F₁, Functor.Comp]
-      apply functor.map_is_iso
+      apply Functor.map_isIso
     infer_instance⟩
 
 end Functor

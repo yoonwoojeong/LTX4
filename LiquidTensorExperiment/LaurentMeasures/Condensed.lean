@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.LaurentMeasures.Functor
 import LiquidTensorExperiment.Condensed.Ab
 
-#align_import laurent_measures.condensed
+#align_import LaurentMeasures.condensed
 
 noncomputable section
 

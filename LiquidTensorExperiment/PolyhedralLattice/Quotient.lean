@@ -35,7 +35,7 @@ instance [H : Fact L.saturated] : NoZeroSMulDivisors ℤ (Λ ⧸ L)
     by
     intro n x h
     obtain ⟨x, rfl⟩ : ∃ y, L.normed_mk y = x := Quotient.surjective_Quotient_mk'' x
-    have : L.normed_mk (n • x) = n • L.normed_mk x := L.normed_mk.to_add_monoid_hom.map_zsmul x n
+    have : L.normed_mk (n • x) = n • L.normed_mk x := L.normed_mk.toAddMonoidHom.map_zsmul x n
     simp only [← this, π_apply_eq_zero_iff] at h ⊢
     exact add_subgroup.saturated_iff_zsmul.mp H.1 _ _ h
 
@@ -46,7 +46,7 @@ instance quotient_finite : Module.Finite ℤ (Λ ⧸ L) :=
 
 instance quotient_free [H : Fact L.saturated] : Module.Free ℤ (Λ ⧸ L) :=
   by
-  let φ := L.normed_mk.to_add_monoid_hom.to_int_linear_map
+  let φ := L.normed_mk.toAddMonoidHom.toIntLinearMap
   suffices Submodule.span ℤ (Set.range (φ ∘ Module.Free.chooseBasis ℤ Λ)) = ⊤
     by
     obtain ⟨n, b⟩ := Module.free_of_finite_type_torsion_free this
@@ -59,7 +59,7 @@ open PseudoNormedGroup
 
 theorem norm_lift (y : Λ ⧸ L) : ∃ x, L.normedMk x = y ∧ ‖x‖ = ‖y‖ :=
   by
-  have hq : L.normed_mk.is_quotient := NormedAddGroupHom.isQuotientQuotient _
+  have hq : L.normed_mk.IsQuotient := NormedAddGroupHom.isQuotientQuotient _
   let s ε := {x | L.normed_mk x = y ∧ ‖x‖₊ ≤ ‖y‖₊ + ε}
   have hs : ∀ ε, (s ε).Finite := by
     intro ε
@@ -112,14 +112,14 @@ instance [H : Fact L.saturated] : PolyhedralLattice (Λ ⧸ L)
     refine' ⟨c, key, _⟩; swap
     · show L.normed_mk x = _
       rw [H1, map_sum, Fintype.sum_congr]
-      intro; exact L.normed_mk.to_add_monoid_hom.map_nsmul _ _
+      intro; exact L.normed_mk.toAddMonoidHom.map_nsmul _ _
     · apply le_antisymm
       · rw [key]
         exact (norm_sum_le _ _).trans (Finset.sum_le_sum fun i hi => norm_nsmul_le _ _)
       · simp only [← hx, H2]
         apply Finset.sum_le_sum
         rintro i -
-        have hq : L.normed_mk.is_quotient := NormedAddGroupHom.isQuotientQuotient _
+        have hq : L.normed_mk.IsQuotient := NormedAddGroupHom.isQuotientQuotient _
         exact mul_le_mul le_rfl (hq.norm_le _) (norm_nonneg _) (Nat.cast_nonneg _)
 
 end PolyhedralLattice

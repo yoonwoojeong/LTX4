@@ -33,18 +33,18 @@ theorem Profinite.mono_free'_toCondensedFreePfpng_aux (S B : Profinite.{u}) (b :
     simp only [Function.comp_apply, Finsupp.mapDomain_single, free'Lift_eq_finsupp_lift]
     dsimp [Profinite.condensedFreePfpngSpecialize]
     simp only [← comp_apply]
-    erw [limits.limit.lift_π]
+    erw [Limits.limit.lift_π]
     simp only [Finsupp.sum_single_index, zero_smul, one_zsmul]
     ext i
     dsimp [Profinite.condensedFreePfpngSpecializeCone, Finsupp.single, Profinite.freePfpngπ,
       Profinite.toFreePfpng]
     erw [ProFiltPseuNormGrp₁.limit_π_coe_eq]
-    simp only [← comp_apply, category.assoc]
-    dsimp [Profinite.freePfpngLevelIso, limits.is_limit.cone_point_unique_up_to_iso]
-    simp only [← comp_apply, category.assoc]
-    erw [(limits.is_limit_of_preserves (ProFiltPseuNormGrp₁.level.obj 1)
-          (limits.limit.is_limit (S.fintype_diagram ⋙ freePfpngFunctor))).fac]
-    erw [limits.limit.lift_π]
+    simp only [← comp_apply, Category.assoc]
+    dsimp [Profinite.freePfpngLevelIso, Limits.IsLimit.conePointUniqueUpToIso]
+    simp only [← comp_apply, Category.assoc]
+    erw [(Limits.isLimitOfPreserves (ProFiltPseuNormGrp₁.level.obj 1)
+          (Limits.limit.isLimit (S.fintype_diagram ⋙ freePfpngFunctor))).fac]
+    erw [Limits.limit.lift_π]
     rfl
 
 theorem Profinite.specialization_eq_zero_of_eq_zero (S B : Profinite.{u}) (b : B)
@@ -57,7 +57,7 @@ theorem Profinite.specialization_eq_zero_of_eq_zero (S B : Profinite.{u}) (b : B
   apply_fun fun e => S.condensed_free_pfpng_specialize B b e at ht 
   rw [AddMonoidHom.map_zero] at ht 
   apply_fun fun e =>
-    limits.limit.π (S.fintype_diagram ⋙ forget FintypeCat ⋙ AddCommGroupCat.free' ⋙ Ab.ulift) T e at
+    Limits.limit.π (S.fintype_diagram ⋙ forget FintypeCat ⋙ AddCommGroupCat.free' ⋙ Ab.ulift) T e at
     ht 
   rw [AddMonoidHom.map_zero] at ht 
   apply_fun ULift.down at ht 
@@ -74,8 +74,8 @@ theorem Profinite.adj'_homEquiv_symm_eq_free'Lift (S B : Profinite.{u}) :
       free'Lift (S.toCondensedFreePfpng.val.app (op B)) :=
   by
   ext u v; dsimp [free'Lift]
-  simp only [adjunction.hom_equiv_counit, whiskering_right_obj_map, nat_trans.comp_app,
-    whisker_right_app, adjunction.whisker_right_counit_app_app]
+  simp only [Adjunction.homEquiv_counit, CategoryTheory.whiskeringRight_obj_map, NatTrans.comp_app,
+    CategoryTheory.whiskerRight_app, Adjunction.whiskerRight_counit_app_app]
 
 open scoped BigOperators
 
@@ -83,7 +83,7 @@ theorem Finsupp.mapDomain_ne_zero_of_ne_zero_of_injOn {α β γ : Type _} [AddCo
     (ht : t ≠ 0) (f : α → γ) (hinj : Set.InjOn f t.support) : t.mapDomain f ≠ 0 :=
   by
   contrapose! ht
-  have : ∀ (e : γ) (he : e ∈ (t.map_domain f).support), ∃ (q : α) (hq : q ∈ t.support), f q = e :=
+  have : ∀ (e : γ) (he : e ∈ (t.mapDomain f).support), ∃ (q : α) (hq : q ∈ t.support), f q = e :=
     by
     intro e he; by_contra c; push_neg at c 
     simp only [Finsupp.mem_support_iff, Ne.def] at he 
@@ -93,7 +93,7 @@ theorem Finsupp.mapDomain_ne_zero_of_ne_zero_of_injOn {α β γ : Type _} [AddCo
     intro a ha
     dsimp [Finsupp.single]; rw [if_neg]; apply c; exact ha
   choose q hq hh using this
-  let ι : (t.map_domain f).support → t.support := fun e => ⟨q e.1 e.2, hq e.1 e.2⟩
+  let ι : (t.mapDomain f).support → t.support := fun e => ⟨q e.1 e.2, hq e.1 e.2⟩
   have hι : Function.Surjective ι := by
     rintro ⟨e, he⟩; use f e
     · simp only [Finsupp.mem_support_iff, Ne.def]
@@ -101,7 +101,7 @@ theorem Finsupp.mapDomain_ne_zero_of_ne_zero_of_injOn {α β γ : Type _} [AddCo
       simpa using he
     · ext; dsimp
       apply hinj; apply hq; apply he; apply hh
-  have : (t.map_domain f).support = ∅ := by simpa using ht
+  have : (t.mapDomain f).support = ∅ := by simpa using ht
   suffices t.support = ∅ by simpa using this
   by_contra c; change _ ≠ _ at c 
   erw [← Finset.nonempty_iff_ne_empty] at c 
@@ -205,7 +205,7 @@ theorem Profinite.mono_free'_toCondensedFreePfpng_induction_aux (n : ℕ) :
           · dsimp [i]; rw [ee.apply_symm_apply]; rfl
     let f₀ : ∀ i : E₀, S.to_Condensed.val.obj (op B) → S.to_Condensed.val.obj (op (X₀ i)) :=
       fun i => S.to_Condensed.val.map (π₀ i).op
-    let t₀ : ∀ i : E₀, S.to_Condensed.val.obj (op (X₀ i)) →₀ ℤ := fun i => t.map_domain (f₀ i)
+    let t₀ : ∀ i : E₀, S.to_Condensed.val.obj (op (X₀ i)) →₀ ℤ := fun i => t.mapDomain (f₀ i)
     have card₀ : ∀ i : E₀, (t₀ i).support.card ≤ n :=
       by
       intro i; suffices (t₀ i).support.card < n + 1 by exact nat.lt_succ_iff.mp this
@@ -236,7 +236,7 @@ theorem Profinite.mono_free'_toCondensedFreePfpng_induction_aux (n : ℕ) :
       rfl
     have map₀ :
       ∀ (i : E₀) (b : ↥(X₀ i)),
-        Finsupp.mapDomain (fun f : S.to_Condensed.val.obj (op (X₀ i)) => f.down.to_fun b) (t₀ i) =
+        Finsupp.mapDomain (fun f : S.to_Condensed.val.obj (op (X₀ i)) => f.down.toFun b) (t₀ i) =
           0 :=
       by
       intro i b; dsimp [t₀]; rw [← Finsupp.mapDomain_comp]
@@ -252,7 +252,7 @@ theorem Profinite.mono_free'_toCondensedFreePfpng_induction_aux (n : ℕ) :
       obtain ⟨i, q, hq⟩ := surj₁ e₀ x
       use⟨e₀, i⟩, q; dsimp [π]; rw [hq, hx]
     · intro a
-      dsimp [π]; rw [functor.map_comp]
+      dsimp [π]; rw [Functor.map_comp]
       erw [Finsupp.mapDomain_comp]
       apply key
 
@@ -265,7 +265,7 @@ instance Profinite.mono_free'ToCondensedFreePfpng (S : Profinite.{u}) :
   dsimp at t ht 
   replace ht : free'Lift e t = 0; · rwa [← S.adj'_hom_equiv_symm_eq_free'_lift]
   let ι : ∀ b : B, S.to_Condensed.val.obj (op B) → S := fun b f => (ULift.down f).1 b
-  have aux : ∀ b : B, t.map_domain (ι b) = 0 := fun b =>
+  have aux : ∀ b : B, t.mapDomain (ι b) = 0 := fun b =>
     S.specialization_eq_zero_of_eq_zero B b t ht
   dsimp
   apply Profinite.mono_free'_toCondensedFreePfpng_induction_aux

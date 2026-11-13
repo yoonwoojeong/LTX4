@@ -49,10 +49,10 @@ def bDMap₂ (a₁ a₂ b₁ b₂ : ℕ → ℝ≥0) [∀ i : ℕ, Fact (b₁ i 
     { f := fun i => ((f.f i).evalCLCFPTinv₂ r V r' (a₁ i) (b₁ i) (a₂ i) (b₂ i)).app M
       comm' := by
         intro i j _
-        dsimp [data.complex₂_obj_d, data.complex₂_d]
+        dsimp [Data.complex₂_obj_d, Data.complex₂D]
         have : f.f j ≫ BD₁.d j i = BD₂.d j i ≫ f.f i := f.comm j i
-        simp only [← nat_trans.comp_app, ← universal_map.eval_CLCFPTinv₂_comp r V r', this] }
-  naturality' := by
+        simp only [← NatTrans.comp_app, ← UniversalMap.evalCLCFPTinv₂_comp r V r', this] }
+  naturality := by
     intro M₁ M₂ g; ext i : 2
     exact ((f.f i).evalCLCFPTinv₂ r V r' (a₁ i) (b₁ i) (a₂ i) (b₂ i)).naturality g
 
@@ -73,14 +73,14 @@ def bDSystemMap [∀ i, (f.f i).Suitable (c_₂ i) (c_₁ i)] :
     where
   app M :=
     { app := fun c => (bDMap f c_₁ c_₂ r V c.unop).app M
-      naturality' := fun x y hxy => by
+      naturality := fun x y hxy => by
         ext i : 2
         erw [comp_f, comp_f]
-        dsimp only [data.system_obj, BD_map, BD_map₂_app_f]
+        dsimp only [Data.system_obj, BD_map, BD_map₂_app_f]
         haveI : Fact (y.unop ≤ x.unop) := ⟨le_of_hom hxy.unop⟩
         exact
-          nat_trans.congr_app (universal_map.res_comp_eval_CLCFPTinv₂ r V r' _ _ _ _ _ _ _ _ _) M }
-  naturality' M₁ M₂ g := by
+          NatTrans.congr_app (UniversalMap.res_comp_evalCLCFPTinv₂ r V r' _ _ _ _ _ _ _ _ _) M }
+  naturality M₁ M₂ g := by
     ext c : 2
     exact (BD_map f c_₁ c_₂ r V c.unop).naturality _
 

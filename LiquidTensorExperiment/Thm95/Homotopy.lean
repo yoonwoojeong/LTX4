@@ -57,10 +57,10 @@ def nSHH {M : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ} (q q' : ℕ) (c : ℝ≥0) 
         c q :=
   if hqm : q' ≤ m + 1 then
     by
-    refine' (universal_map.eval_CLCFPTinv _ _ _ _ _ _).app _
-    · exact (data.homotopy_mul BD.data BD.homotopy (N₂ r r' BD κ' m)).hom q q'
+    refine' (UniversalMap.evalCLCFPTinv _ _ _ _ _ _).app _
+    · exact (Data.homotopyMul BD.data BD.homotopy (N₂ r r' BD κ' m)).hom q q'
     · dsimp
-      refine' universal_map.suitable.le _ _ (c * (κ' q' * κ q')) _ inferInstance le_rfl _
+      refine' UniversalMap.Suitable.le _ _ (c * (κ' q' * κ q')) _ inferInstance le_rfl _
       calc
         c * (κ' q' * κ q') = κ' q' * (c * κ q') := mul_left_comm _ _ _
         _ ≤ k' κ' m * (c * κ q') := (mul_le_mul' (κ'_le_k' _ _ hqm) le_rfl)
@@ -71,7 +71,7 @@ theorem norm_nSHH_le {M : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ} (q : ℕ) (hqm 
     ‖(@nSHH BD r r' _ _ _ _ V _ κ κ' _ m _ M q (q + 1) c)‖ ≤ h r r' BD κ' m :=
   by
   rw [nSHH, dif_pos (Nat.succ_le_succ hqm)]
-  apply universal_map.norm_eval_CLCFPTinv₂_le
+  apply UniversalMap.norm_evalCLCFPTinv₂_le
   exact bound_by_H r r' BD κ' _ hqm
 
 end nSHH
@@ -100,8 +100,8 @@ def nSHδRes {BD : Data} [BD.Suitable κ] {r r' : ℝ≥0} [Fact (0 < r)] [Fact 
   f i := (@cLCFPTinv.res r V _ _ r' _ _ _ _ _ (NSH_δ_res' _ _ _)).app M
   comm' := by
     intro i j hij
-    dsimp [data.system_obj, data.complex]
-    exact nat_trans.congr_app (universal_map.res_comp_eval_CLCFPTinv r V r' _ _ _ _ _) M
+    dsimp [Data.system_obj, Data.complex]
+    exact NatTrans.congr_app (UniversalMap.res_comp_evalCLCFPTinv r V r' _ _ _ _ _) M
 
 variable {κ'}
 
@@ -121,8 +121,8 @@ theorem norm_nSHδ_le {M : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ} (c : ℝ≥0) 
       (NormedAddGroupHom.norm_comp_le_of_le' (r ^ b r r' BD κ' m) (N r r' BD κ' m) _ (mul_comm _ _)
         _ _)
       _
-  · apply universal_map.norm_eval_CLCFPTinv₂_le
-    apply universal_map.proj_bound_by
+  · apply UniversalMap.norm_evalCLCFPTinv₂_le
+    apply UniversalMap.proj_boundBy
   · refine' @cLCFPTinv.norm_res_le_pow r V _ _ r' _ _ _ _ _ _ _ ⟨_⟩ _
     dsimp only [unop_op, rescaleConstants]
     simp only [← mul_assoc, mul_right_comm _ c]
@@ -154,13 +154,13 @@ def nSHAux (M) : NSHAuxType BD r r' V κ κ' m Λ (n₂ r r' BD κ' m) M :=
       haveI hqm_ : Fact (q ≤ m) := ⟨hqm⟩
       rw [nSHδ, nSHH, nSHH, dif_pos (Nat.succ_le_succ hqm), dif_pos (hqm.trans (Nat.le_succ _))]
       erw [HomologicalComplex.comp_f]
-      dsimp only [unop_op, nSHδRes_f, data.system_res_def, Quiver.Hom.apply, BD_system_map_app_app,
-        BD_map_app_f, data.system_obj_d]
-      simp only [← universal_map.eval_CLCFPTinv_def]
-      have hcomm := (data.homotopy_mul BD.data BD.homotopy (N₂ r r' BD κ' m)).comm q
-      simp only [universal_map.res_comp_eval_CLCFPTinv_absorb, hcomm, ← nat_trans.app_add,
-        add_assoc, ← nat_trans.comp_app, ← category.assoc, ← universal_map.eval_CLCFPTinv_comp,
-        universal_map.eval_CLCFPTinv_comp_res_absorb, ← universal_map.eval_CLCFPTinv_add]
+      dsimp only [unop_op, nSHδRes_f, Data.system_res_def, Quiver.Hom.apply, BD_system_map_app_app,
+        BD_map_app_f, Data.system_obj_d]
+      simp only [← UniversalMap.evalCLCFPTinv_def]
+      have hcomm := (Data.homotopyMul BD.data BD.homotopy (N₂ r r' BD κ' m)).comm q
+      simp only [UniversalMap.res_comp_evalCLCFPTinv_absorb, hcomm, ← NatTrans.app_add,
+        add_assoc, ← NatTrans.comp_app, ← Category.assoc, ← UniversalMap.evalCLCFPTinv_comp,
+        UniversalMap.evalCLCFPTinv_comp_res_absorb, ← UniversalMap.evalCLCFPTinv_add]
       congr 2
       rw [← add_assoc, add_comm, @prevD_eq _ _ _ _ _ _ _ _ q (q + 1)]
       swap; · dsimp; rfl

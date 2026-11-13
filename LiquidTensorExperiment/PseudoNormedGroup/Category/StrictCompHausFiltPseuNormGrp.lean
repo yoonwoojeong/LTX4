@@ -134,16 +134,16 @@ theorem trans_continuous {c₁ c₂ : ℝ≥0} (h : c₁ ≤ c₂) :
     Continuous (trans h : ConePointTypeFilt G c₁ → ConePointTypeFilt G c₂) :=
   by
   -- ;-)
-  let η := (cone_point_diagram G).map (as_small.up.map <| hom_of_le <| h)
-  let hS := CompHaus.limitConeIsLimit.{_, u} ((cone_point_diagram G).obj (as_small.up.obj c₂))
-  let T := CompHaus.limitCone.{_, u} ((cone_point_diagram G).obj (as_small.up.obj c₁))
-  exact (hS.map T η).Continuous
+  let η := (CompHausFiltPseuNormGrp₁.conePointDiagram G).map (as_small.up.map <| hom_of_le <| h)
+  let hS := CompHaus.limitConeIsLimit.{_, u} ((CompHausFiltPseuNormGrp₁.conePointDiagram G).obj (as_small.up.obj c₂))
+  let T := CompHaus.limitCone.{_, u} ((CompHausFiltPseuNormGrp₁.conePointDiagram G).obj (as_small.up.obj c₁))
+  exact (hS.map T η).continuous
 
 theorem continuous_apply {c : ℝ≥0} (j : J) : Continuous fun t : ConePointTypeFilt G c => t j :=
   by
   change
     Continuous
-      ((fun u : ∀ j, filtration (G.obj j) c => u j) ∘ fun u : cone_point_type_filt G c => ⇑u)
+      ((fun u : ∀ j, filtration (G.obj j) c => u j) ∘ fun u : CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c => ⇑u)
   apply Continuous.comp
   apply continuous_apply
   apply continuous_subtype_val
@@ -176,7 +176,7 @@ theorem continuous_neg {c} : Continuous fun x : ConePointTypeFilt G c => -x :=
   apply Continuous.subtype_mk
   apply continuous_pi
   intro j
-  change Continuous ((fun x => -x) ∘ fun a : cone_point_type_filt G c => a j)
+  change Continuous ((fun x => -x) ∘ fun a : CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c => a j)
   apply Continuous.comp
   apply ComphausFilteredPseudoNormedGroup.continuous_neg'
   apply continuous_apply
@@ -188,7 +188,7 @@ theorem continuous_add' {c1 c2} :
   apply continuous_pi
   intro j
   let A :
-    cone_point_type_filt G c1 × cone_point_type_filt G c2 →
+    CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c1 × CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c2 →
       (∀ j : J, filtration (G.obj j) c1) × ∀ j : J, filtration (G.obj j) c2 :=
     fun t => (t.1, t.2)
   let B :
@@ -256,7 +256,7 @@ theorem incl_injective (c : ℝ≥0) :
   obtain ⟨d, h1, h2, h⟩ := h
   dsimp at h1 h2 h 
   rw [show h1 = h2 by rfl] at h 
-  apply cone_point_type_filt.trans_injective h2
+  apply ConePointTypeFilt.trans_injective h2
   exact h
 
 @[simp]
@@ -290,10 +290,10 @@ theorem coe_incl_preimage_apply {c} (x : ConePointTypeFilt G c) (j : J) :
     ((incl c x).preimage j : G.obj j) = x j :=
   by
   let e := c ⊔ (incl c x).index
-  change _ = (cast_le' le_sup_left (x j) : G.obj j)
-  rw [← cone_point_type_filt.trans_apply (le_sup_left : _ ≤ e) x j]
-  rw [← coe_cast_le' (le_sup_right : _ ≤ e)]
-  rw [← cone_point_type_filt.trans_apply]
+  change _ = (PseudoNormedGroup.castLe' le_sup_left (x j) : G.obj j)
+  rw [← ConePointTypeFilt.trans_apply (le_sup_left : _ ≤ e) x j]
+  rw [← PseudoNormedGroup.coe_castLe' (le_sup_right : _ ≤ e)]
+  rw [← ConePointTypeFilt.trans_apply]
   congr 2
   apply incl_injective
   simp
@@ -323,17 +323,17 @@ theorem incl_add_incl (c₁ c₂ : ℝ≥0) (x₁ : ConePointTypeFilt G c₁) (x
   apply Quotient.sound'
   refine' ⟨max _ _, le_max_left _ _, le_max_right _ _, _⟩
   ext
-  simp only [cone_point_type_filt.trans_apply, cone_point_type_filt.add'_apply_coe, coe_cast_le,
-    coe_incl_preimage_apply, coe_cast_le']
+  simp only [ConePointTypeFilt.trans_apply, ConePointTypeFilt.add'_apply_coe, coe_cast_le,
+    coe_incl_preimage_apply, PseudoNormedGroup.coe_castLe']
 
 theorem zero_add (x : ConePointType G) : 0 + x = x :=
   by
   conv_rhs => rw [← x.preimage_spec]
   apply Quotient.sound'
-  refine' ⟨(0 : cone_point_type G).index + x.index, by simp, by simp, _⟩
+  refine' ⟨(0 : CompHausFiltPseuNormGrp₁.ConePointType G).index + x.index, by simp, by simp, _⟩
   dsimp
   ext j : 3
-  simp only [cone_point_type_filt.trans_apply, cone_point_type_filt.add'_apply_coe, coe_cast_le']
+  simp only [ConePointTypeFilt.trans_apply, ConePointTypeFilt.add'_apply_coe, PseudoNormedGroup.coe_castLe']
   simp only [add_left_eq_self]
   apply coe_incl_preimage_apply
 
@@ -343,8 +343,8 @@ theorem add_comm (x y : ConePointType G) : x + y = y + x :=
   refine' ⟨x.index + y.index, le_refl _, le_of_eq (by dsimp; rw [add_comm]), _⟩
   dsimp
   ext j : 3
-  simp only [cone_point_type_filt.trans_apply, cone_point_type_filt.add'_apply_coe, coe_cast_le,
-    coe_cast_le']
+  simp only [ConePointTypeFilt.trans_apply, ConePointTypeFilt.add'_apply_coe, coe_cast_le,
+    PseudoNormedGroup.coe_castLe']
   rw [add_comm]
 
 theorem add_zero (x : ConePointType G) : x + 0 = x := by rw [add_comm]; apply zero_add
@@ -355,8 +355,8 @@ theorem add_assoc (x y z : ConePointType G) : x + y + z = x + (y + z) :=
   refine' ⟨_, le_sup_left, le_sup_right, _⟩
   dsimp
   ext j : 3
-  simp only [cone_point_type_filt.trans_apply, cone_point_type_filt.add'_apply_coe, coe_cast_le,
-    coe_cast_le']
+  simp only [ConePointTypeFilt.trans_apply, ConePointTypeFilt.add'_apply_coe, coe_cast_le,
+    PseudoNormedGroup.coe_castLe']
   erw [coe_incl_preimage_apply, coe_incl_preimage_apply]
   simp [add_assoc]
 
@@ -366,8 +366,8 @@ theorem add_left_neg (x : ConePointType G) : -x + x = 0 :=
   refine' ⟨_, le_sup_left, le_sup_right, _⟩
   dsimp
   ext j : 3
-  simp only [cone_point_type_filt.trans_apply, cone_point_type_filt.zero_apply,
-    cone_point_type_filt.add'_apply_coe, coe_cast_le, filtration.coe_zero, coe_cast_le']
+  simp only [ConePointTypeFilt.trans_apply, ConePointTypeFilt.zero_apply,
+    ConePointTypeFilt.add'_apply_coe, coe_cast_le, filtration.coe_zero, PseudoNormedGroup.coe_castLe']
   erw [coe_incl_preimage_apply]
   simp
 
@@ -402,8 +402,8 @@ def filtHomeo (c : ℝ≥0) : filt G c ≃ₜ ConePointTypeFilt G c :=
   Homeomorph.homeomorphOfContinuousOpen (filtEquiv G c).symm continuous_induced_dom
     (by
       intro U hU
-      have : Inducing (filt_equiv G c).symm := ⟨rfl⟩
-      rw [this.is_open_iff] at hU 
+      have : Inducing (CompHausFiltPseuNormGrp₁.ConePointType.filtEquiv G c).symm := ⟨rfl⟩
+      rw [this.isOpen_iff] at hU 
       obtain ⟨U, hU, rfl⟩ := hU
       simpa)
 
@@ -417,10 +417,10 @@ def filtIso (c : ℝ≥0) :
     CompHaus.of (filt G c) ≅
       (CompHaus.limitCone.{_, u} ((conePointDiagram G).obj (AsSmall.up.obj c))).pt
     where
-  Hom := (filtHomeo G c).toContinuousMap
+  hom := (filtHomeo G c).toContinuousMap
   inv := (filtHomeo G c).symm.toContinuousMap
-  hom_inv_id' := by ext1; simp
-  inv_hom_id' := by ext1; simp
+  hom_inv_id := by ext1; simp
+  inv_hom_id := by ext1; simp
 
 variable {G}
 
@@ -481,44 +481,44 @@ instance : ComphausFilteredPseudoNormedGroup (ConePointType G)
   continuous_add' := by
     intro c1 c2
     let E :
-      filtration (cone_point_type G) c1 × filtration (cone_point_type G) c2 →
-        cone_point_type_filt G c1 × cone_point_type_filt G c2 :=
+      filtration (CompHausFiltPseuNormGrp₁.ConePointType G) c1 × filtration (CompHausFiltPseuNormGrp₁.ConePointType G) c2 →
+        CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c1 × CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c2 :=
       fun t => ⟨(filt_homeo G c1) t.1, (filt_homeo G c2) t.2⟩
     let E' :
-      cone_point_type_filt G c1 × cone_point_type_filt G c2 →
-        filtration (cone_point_type G) c1 × filtration (cone_point_type G) c2 :=
+      CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c1 × CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c2 →
+        filtration (CompHausFiltPseuNormGrp₁.ConePointType G) c1 × filtration (CompHausFiltPseuNormGrp₁.ConePointType G) c2 :=
       fun t => ⟨(filt_homeo G c1).symm t.1, (filt_homeo G c2).symm t.2⟩
     have hE'E : E' ∘ E = id := by dsimp [E, E']; ext; simp; simp
     have :
       (filt_homeo G (c1 + c2)).symm ∘
-          (fun t : cone_point_type_filt G c1 × cone_point_type_filt G c2 => t.1.add' t.2) ∘ E =
+          (fun t : CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c1 × CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c2 => t.1.add' t.2) ∘ E =
         add' :=
       by
       suffices
         add' ∘ E' =
           (filt_homeo G (c1 + c2)).toEquiv.symm ∘
-            fun t : cone_point_type_filt G c1 × cone_point_type_filt G c2 => t.1.add' t.2
+            fun t : CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c1 × CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c2 => t.1.add' t.2
         by
         erw [← Function.comp.assoc, ← this, Function.comp.assoc, hE'E]
         simp
       dsimp only [filt_homeo, Homeomorph.homeomorphOfContinuousOpen, E']
       ext
-      dsimp [filt_homeo, filt_equiv, E, E']
+      dsimp [filt_homeo, CompHausFiltPseuNormGrp₁.ConePointType.filtEquiv, E, E']
       simp
     rw [← this]; clear this
     apply Continuous.comp (Homeomorph.continuous _)
     apply Continuous.comp
-    apply cone_point_type_filt.continuous_add'
+    apply ConePointTypeFilt.continuous_add'
     dsimp [E]
     continuity
   continuous_neg' := by
     intro c
     have :
-      (neg' : filtration (cone_point_type G) c → filtration (cone_point_type G) c) =
+      (neg' : filtration (CompHausFiltPseuNormGrp₁.ConePointType G) c → filtration (CompHausFiltPseuNormGrp₁.ConePointType G) c) =
         (filt_homeo G c).symm ∘ (fun x => -x) ∘ filt_homeo G c :=
       by
       suffices
-        (neg' : filtration (cone_point_type G) c → filtration (cone_point_type G) c) ∘
+        (neg' : filtration (CompHausFiltPseuNormGrp₁.ConePointType G) c → filtration (CompHausFiltPseuNormGrp₁.ConePointType G) c) ∘
             (filt_homeo G c).toEquiv.symm =
           (filt_homeo G c).toEquiv.symm ∘ fun x => -x
         by
@@ -527,27 +527,27 @@ instance : ComphausFilteredPseudoNormedGroup (ConePointType G)
       dsimp only [filt_homeo, Homeomorph.homeomorphOfContinuousOpen]
       simp only [Equiv.symm_symm]
       ext
-      dsimp [filt_equiv]
+      dsimp [CompHausFiltPseuNormGrp₁.ConePointType.filtEquiv]
       simp
     rw [this]
-    simp [cone_point_type_filt.continuous_neg]
+    simp [ConePointTypeFilt.continuous_neg]
   continuous_castLe := by
     rintro c₁ c₂ ⟨h⟩
-    change Continuous (cast_le' h)
-    have : cast_le' h = (filt_homeo G c₂).symm ∘ cone_point_type_filt.trans h ∘ filt_homeo G c₁ :=
+    change Continuous (PseudoNormedGroup.castLe' h)
+    have : PseudoNormedGroup.castLe' h = (filt_homeo G c₂).symm ∘ ConePointTypeFilt.trans h ∘ filt_homeo G c₁ :=
       by
       suffices
-        cast_le' h ∘ (filt_homeo G c₁).toEquiv.symm =
-          (filt_homeo G c₂).toEquiv.symm ∘ cone_point_type_filt.trans h
+        PseudoNormedGroup.castLe' h ∘ (filt_homeo G c₁).toEquiv.symm =
+          (filt_homeo G c₂).toEquiv.symm ∘ ConePointTypeFilt.trans h
         by
         erw [← Function.comp.assoc, ← this, Function.comp.assoc, Equiv.symm_comp_self]
         simp
       dsimp only [filt_homeo, Homeomorph.homeomorphOfContinuousOpen]
       simp only [Equiv.symm_symm]
       ext
-      dsimp [filt_equiv]
+      dsimp [CompHausFiltPseuNormGrp₁.ConePointType.filtEquiv]
       simp
-    simp [this, cone_point_type_filt.trans_continuous]
+    simp [this, ConePointTypeFilt.trans_continuous]
 
 end ConePointType
 
@@ -560,45 +560,45 @@ def proj (j : J) : conePoint G ⟶ G.obj j
     where
   toFun x := x.preimage j
   map_zero' := by
-    rw [cone_point_type.zero_def]
-    simp only [cone_point_type.coe_incl_preimage_apply, cone_point_type_filt.zero_apply,
+    rw [ConePointType.zero_def]
+    simp only [ConePointType.coe_incl_preimage_apply, ConePointTypeFilt.zero_apply,
       filtration.coe_zero]
   map_add' := by
     intro x y
-    rw [cone_point_type.add_def x y]
-    simp only [cone_point_type.coe_incl_preimage_apply, cone_point_type_filt.add'_apply_coe]
+    rw [ConePointType.add_def x y]
+    simp only [ConePointType.coe_incl_preimage_apply, ConePointTypeFilt.add'_apply_coe]
   strict' := by
     rintro c x ⟨x, rfl⟩
-    simp only [cone_point_type.coe_incl_preimage_apply, Subtype.coe_prop]
+    simp only [ConePointType.coe_incl_preimage_apply, Subtype.coe_prop]
   continuous' := by
     intro c
     dsimp
-    let E : filtration (cone_point_type G) c → filtration (G.obj j) c := fun t =>
-      ((cone_point_type.filt_homeo G c) t) j
+    let E : filtration (CompHausFiltPseuNormGrp₁.ConePointType G) c → filtration (G.obj j) c := fun t =>
+      ((ConePointType.filtHomeo G c) t) j
     suffices Continuous E by
       convert this
       ext ⟨t, t, rfl⟩
       dsimp [E]
-      simp only [cone_point_type.coe_incl_preimage_apply]
+      simp only [ConePointType.coe_incl_preimage_apply]
       congr 2
-      apply_fun (cone_point_type.filt_homeo G c).symm
+      apply_fun (ConePointType.filtHomeo G c).symm
       simp only [Homeomorph.symm_apply_apply]
       ext; rfl
     dsimp [E]
-    change Continuous ((fun u : cone_point_type_filt G c => u j) ∘ cone_point_type.filt_homeo G c)
+    change Continuous ((fun u : CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c => u j) ∘ ConePointType.filtHomeo G c)
     simp only [Homeomorph.comp_continuous_iff']
-    apply cone_point_type_filt.continuous_apply
+    apply ConePointTypeFilt.continuous_apply
 
 def limitCone : Cone G where
   pt := conePoint G
   π :=
     { app := fun j => proj G j
-      naturality' := by
+      naturality := by
         intro i j e
         ext
         dsimp
-        simp only [comp_apply, category.id_comp]
-        have := (cone_point_type.preimage x).2 e
+        simp only [comp_apply, Category.id_comp]
+        have := (ConePointType.preimage x).2 e
         apply_fun fun e => (e : G.obj j) at this 
         exact this.symm }
 
@@ -622,8 +622,8 @@ theorem limitConeLiftMap_map_zero {D : Cone G} : limitConeLiftMap G D 0 = 0 :=
   refine' ⟨_, le_sup_left, le_sup_right, _⟩
   dsimp
   ext j
-  simp only [cone_point_type_filt.trans_apply, cone_point_type_filt.zero_apply, coe_cast_le,
-    filtration.coe_zero, coe_cast_le']
+  simp only [ConePointTypeFilt.trans_apply, ConePointTypeFilt.zero_apply, coe_cast_le,
+    filtration.coe_zero, PseudoNormedGroup.coe_castLe']
   apply (D.π.app j).map_zero
 
 theorem limitConeLiftMap_map_add {D : Cone G} (a b : D.pt) :
@@ -633,15 +633,15 @@ theorem limitConeLiftMap_map_add {D : Cone G} (a b : D.pt) :
   refine' ⟨_, le_sup_left, le_sup_right, _⟩
   dsimp
   ext j
-  dsimp [limit_cone_lift_map]
-  simp only [cone_point_type_filt.trans_apply, cone_point_type.coe_incl_preimage_apply,
-    cone_point_type_filt.add'_apply_coe, coe_cast_le, coe_cast_le']
+  dsimp [CompHausFiltPseuNormGrp₁.limitConeLiftMap]
+  simp only [ConePointTypeFilt.trans_apply, ConePointType.coe_incl_preimage_apply,
+    ConePointTypeFilt.add'_apply_coe, coe_cast_le, PseudoNormedGroup.coe_castLe']
   exact (D.π.app j).map_add a b
 
 theorem limitConeLiftMap_strict {D : Cone G} {x : D.pt} (c : ℝ≥0) (hx : x ∈ filtration D.pt c) :
     limitConeLiftMap G D x ∈ filtration (ConePointType G) c :=
   by
-  dsimp [limit_cone_lift_map]
+  dsimp [CompHausFiltPseuNormGrp₁.limitConeLiftMap]
   change _ ∈ Set.range _
   refine' ⟨⟨fun j => (D.π.app j).level ⟨x, hx⟩, _⟩, _⟩
   · intro i j e
@@ -663,8 +663,8 @@ def limitConeLift (D : Cone G) : D.pt ⟶ conePoint G
   strict' c x hx := limitConeLiftMap_strict G c hx
   continuous' := by
     intro c
-    rw [(cone_point_type.filt_homeo G c).Inducing.continuous_iff]
-    let E : filtration D.X c → cone_point_type_filt G c := fun t =>
+    rw [(ConePointType.filtHomeo G c).Inducing.continuous_iff]
+    let E : filtration D.X c → CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c := fun t =>
       ⟨fun j => (D.π.app j).level t, _⟩
     swap;
     · intro i j e
@@ -672,13 +672,13 @@ def limitConeLift (D : Cone G) : D.pt ⟶ conePoint G
       dsimp
       simp
     have :
-      cone_point_type.filt_homeo G c ∘
-          PseudoNormedGroup.level (limit_cone_lift_map G D)
-            (fun c x hx => limit_cone_lift_map_strict G c hx) c =
+      ConePointType.filtHomeo G c ∘
+          PseudoNormedGroup.level (CompHausFiltPseuNormGrp₁.limitConeLiftMap G D)
+            (fun c x hx => CompHausFiltPseuNormGrp₁.limitConeLiftMap_strict G c hx) c =
         E :=
       by
       ext1
-      apply_fun (cone_point_type.filt_homeo G c).symm
+      apply_fun (ConePointType.filtHomeo G c).symm
       dsimp [E]
       simp only [Homeomorph.symm_apply_apply]
       ext
@@ -686,7 +686,7 @@ def limitConeLift (D : Cone G) : D.pt ⟶ conePoint G
       refine' ⟨_, le_sup_left, le_sup_right, _⟩
       ext
       dsimp
-      simp only [cone_point_type_filt.trans_apply, coe_cast_le, coe_cast_le']
+      simp only [ConePointTypeFilt.trans_apply, coe_cast_le, PseudoNormedGroup.coe_castLe']
       rfl
     rw [this]
     apply Continuous.subtype_mk
@@ -702,18 +702,18 @@ def limitConeIsLimit : IsLimit (limitCone G)
     intro S j
     ext
     change (limit_cone G).π.app j _ = _
-    dsimp [limit_cone_lift, limit_cone, limit_cone_lift_map, proj]
+    dsimp [limit_cone_lift, limit_cone, CompHausFiltPseuNormGrp₁.limitConeLiftMap, proj]
     simpa
   uniq := by
     intro S m h
     ext
-    dsimp [limit_cone_lift, limit_cone_lift_map]
+    dsimp [limit_cone_lift, CompHausFiltPseuNormGrp₁.limitConeLiftMap]
     rw [← (m x).preimage_spec]
     apply Quotient.sound'
     refine' ⟨_, le_sup_left, le_sup_right, _⟩
     ext j
     dsimp
-    simp only [cone_point_type_filt.trans_apply, coe_cast_le, coe_cast_le']
+    simp only [ConePointTypeFilt.trans_apply, coe_cast_le, PseudoNormedGroup.coe_castLe']
     specialize h j
     apply_fun fun e => e x at h 
     exact h
@@ -733,27 +733,27 @@ instance (c : ℝ≥0) : PreservesLimit G (level.obj c) :=
       fac := by
         intro S j
         dsimp
-        rw [category.assoc]
+        rw [Category.assoc]
         convert
-          (CompHaus.limitConeIsLimit.{_, u} ((cone_point_diagram G).obj (as_small.up.obj c))).fac S
+          (CompHaus.limitConeIsLimit.{_, u} ((CompHausFiltPseuNormGrp₁.conePointDiagram G).obj (as_small.up.obj c))).fac S
             j
         ext ⟨t, ht⟩
-        dsimp [limit_cone, cone_point_type.filt_iso, cone_point_type.filt_homeo,
-          Homeomorph.homeomorphOfContinuousOpen, cone_point_type.filt_equiv, level, proj,
+        dsimp [limit_cone, ConePointType.filtIso, ConePointType.filtHomeo,
+          Homeomorph.homeomorphOfContinuousOpen, ConePointType.filtEquiv, level, proj,
           CompHaus.limitCone, TopCat.limitCone]
         simpa
       uniq := by
         intro S m hm
-        rw [iso.eq_comp_inv]
+        rw [Iso.eq_comp_inv]
         apply
-          (CompHaus.limitConeIsLimit.{_, u} ((cone_point_diagram G).obj (as_small.up.obj c))).uniq
+          (CompHaus.limitConeIsLimit.{_, u} ((CompHausFiltPseuNormGrp₁.conePointDiagram G).obj (as_small.up.obj c))).uniq
         intro j
-        rw [← hm, category.assoc]
+        rw [← hm, Category.assoc]
         congr 1
-        rw [← iso.eq_inv_comp]
+        rw [← Iso.eq_inv_comp]
         ext ⟨t, ht⟩
-        dsimp [limit_cone, cone_point_type.filt_iso, cone_point_type.filt_homeo,
-          Homeomorph.homeomorphOfContinuousOpen, cone_point_type.filt_equiv, level, proj,
+        dsimp [limit_cone, ConePointType.filtIso, ConePointType.filtHomeo,
+          Homeomorph.homeomorphOfContinuousOpen, ConePointType.filtEquiv, level, proj,
           CompHaus.limitCone, TopCat.limitCone]
         simpa }
 
@@ -769,22 +769,22 @@ theorem mem_filtration_iff_of_isLimit (C : Cone G) (hC : IsLimit C) (c : ℝ≥0
     apply (C.π.app j).Strict h
   · intro h
     let E := limit_cone G
-    let e : C ≅ E := hC.unique_up_to_iso (limit_cone_is_limit _)
-    let eX : C.X ≅ E.X := (cones.forget _).mapIso e
+    let e : C ≅ E := hC.uniqueUpToIso (limit_cone_is_limit _)
+    let eX : C.X ≅ E.X := (Cones.forget _).mapIso e
     let w := eX.hom x
     have hw : ∀ j, E.π.app j w ∈ filtration (G.obj j) c :=
       by
       intro j
       dsimp only [w]
       change (eX.hom ≫ E.π.app _) _ ∈ _
-      dsimp only [eX, functor.map_iso, cones.forget]
+      dsimp only [eX, Functor.mapIso, Cones.forget]
       convert h j
       simp
     suffices w ∈ filtration (limit_cone G).pt c
       by
       convert eX.inv.strict this
       change _ = (eX.hom ≫ eX.inv) x
-      rw [iso.hom_inv_id]
+      rw [Iso.hom_inv_id]
       rfl
     change ∃ z, _
     refine' ⟨⟨fun j => ⟨_, hw _⟩, _⟩, _⟩
@@ -793,13 +793,13 @@ theorem mem_filtration_iff_of_isLimit (C : Cone G) (hC : IsLimit C) (c : ℝ≥0
       dsimp
       change (E.π.app i ≫ G.map f) _ = _
       rw [E.w]
-    · obtain ⟨i, z, hz⟩ := cone_point_type.incl_jointly_surjective w
+    · obtain ⟨i, z, hz⟩ := ConePointType.incl_jointly_surjective w
       let d : ℝ≥0 := i ⊔ c
       conv_rhs => rw [← hz]
-      rw [← cone_point_type.incl_trans (le_sup_left : i ≤ d)]
-      rw [← cone_point_type.incl_trans (le_sup_right : c ≤ d)]
+      rw [← ConePointType.incl_trans (le_sup_left : i ≤ d)]
+      rw [← ConePointType.incl_trans (le_sup_right : c ≤ d)]
       congr 1
-      dsimp [cone_point_type_filt.trans]
+      dsimp [ConePointTypeFilt.trans]
       ext j
       dsimp
       change E.π.app j _ = _
@@ -811,26 +811,26 @@ theorem isLimit_ext (C : Cone G) (hC : IsLimit C) (x y : C.pt)
     (h : ∀ j, C.π.app j x = C.π.app j y) : x = y :=
   by
   let E := limit_cone G
-  let e : C ≅ E := hC.unique_up_to_iso (limit_cone_is_limit _)
-  let eX : C.X ≅ E.X := (cones.forget _).mapIso e
+  let e : C ≅ E := hC.uniqueUpToIso (limit_cone_is_limit _)
+  let eX : C.X ≅ E.X := (Cones.forget _).mapIso e
   apply_fun eX.hom
   swap
   · intro a b hh
     apply_fun fun e => eX.inv e at hh 
     change (eX.hom ≫ eX.inv) _ = (eX.hom ≫ eX.inv) _ at hh 
-    simpa only [iso.hom_inv_id] using hh
+    simpa only [Iso.hom_inv_id] using hh
   have hh : ∀ j, (E.π.app j) (eX.hom x) = (E.π.app j) (eX.hom y) :=
     by
     intro j
     change (eX.hom ≫ E.π.app j) x = (eX.hom ≫ E.π.app j) y
     convert h j using 2
     all_goals simp
-  obtain ⟨ca, a, ha⟩ := cone_point_type.incl_jointly_surjective (eX.hom x)
-  obtain ⟨cb, b, hb⟩ := cone_point_type.incl_jointly_surjective (eX.hom y)
+  obtain ⟨ca, a, ha⟩ := ConePointType.incl_jointly_surjective (eX.hom x)
+  obtain ⟨cb, b, hb⟩ := ConePointType.incl_jointly_surjective (eX.hom y)
   rw [← ha, ← hb] at hh ⊢
   let d : ℝ≥0 := ca ⊔ cb
-  rw [← cone_point_type.incl_trans (le_sup_left : ca ≤ d)] at hh ⊢
-  rw [← cone_point_type.incl_trans (le_sup_right : cb ≤ d)] at hh ⊢
+  rw [← ConePointType.incl_trans (le_sup_left : ca ≤ d)] at hh ⊢
+  rw [← ConePointType.incl_trans (le_sup_right : cb ≤ d)] at hh ⊢
   congr 1
   ext j
   specialize hh j

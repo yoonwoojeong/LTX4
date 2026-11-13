@@ -70,8 +70,8 @@ def linearEval (X : Type _) [TopologicalSpace X] (x : X) : LocallyConstant X ℝ
 theorem continuous_eval (X : Type _) [TopologicalSpace X] [CompactSpace X] (x : X) :
     Continuous fun e : LocallyConstant X ℝ => e x :=
   by
-  change Continuous (linear_eval X x)
-  let E := LinearMap.mkContinuousOfExistsBound (linear_eval X x) _
+  change Continuous (LocallyConstant.linearEval X x)
+  let E := LinearMap.mkContinuousOfExistsBound (LocallyConstant.linearEval X x) _
   swap
   use 1; intro e; rw [one_mul]; apply nnnorm_apply_le_nnnorm
   exact E.continuous
@@ -86,7 +86,7 @@ theorem indicator_continuous {X Y : Type _} [TopologicalSpace X] [TopologicalSpa
   constructor; intro V hV
   set W : Set X := (U : Set X).indicator f ⁻¹' V
   by_cases h0 : (0 : Y) ∈ V
-  · suffices W = f ⁻¹' V ∪ Uᶜ by rw [this]; exact (hV.preimage hf).union U.clopen.compl.is_open
+  · suffices W = f ⁻¹' V ∪ Uᶜ by rw [this]; exact (hV.preimage hf).union U.clopen.compl.isOpen
     classical
     ext x
     simp only [Set.mem_preimage, Set.mem_union, Set.mem_compl_iff, SetLike.mem_coe,
@@ -94,7 +94,7 @@ theorem indicator_continuous {X Y : Type _} [TopologicalSpace X] [TopologicalSpa
     split_ifs with hxU
     · simp only [hxU, not_true, or_false_iff]
     · simp only [h0, hxU, true_iff_iff, not_false_iff, or_true_iff]
-  · suffices W = f ⁻¹' V ∩ U by rw [this]; exact (hV.preimage hf).inter U.clopen.is_open
+  · suffices W = f ⁻¹' V ∩ U by rw [this]; exact (hV.preimage hf).inter U.clopen.isOpen
     classical
     ext x
     simp only [Set.mem_preimage, Set.mem_union, Set.mem_compl_iff, SetLike.mem_coe,
@@ -136,7 +136,7 @@ def indicatorLC {X : Type _} [TopologicalSpace X] (U : Clopens X) : LocallyConst
   IsLocallyConstant s :=
     by
     rcases indicator_one_inverse_image (↑U) s with (h | h | h | h) <;> rw [h]
-    exacts [isOpen_univ, U.clopen.is_open, Uᶜ.clopen.IsOpen, isOpen_empty]
+    exacts [isOpen_univ, U.clopen.isOpen, Uᶜ.clopen.IsOpen, isOpen_empty]
 
 theorem indicator_apply {X : Type _} [TopologicalSpace X] (U : Clopens X) (x) :
     U.indicator x = if x ∈ U then 1 else 0 :=
@@ -170,9 +170,9 @@ theorem mem_fibre_iff {X : Type _} [TopologicalSpace X] (T : DiscreteQuotient X)
     T.proj b ∈ DiscreteQuotient.fibre _ (equivBot a) ↔ b ∈ DiscreteQuotient.fibre T a :=
   by
   obtain ⟨a, rfl⟩ := DiscreteQuotient.proj_surjective _ a
-  dsimp [fibre, equiv_bot]
+  dsimp [fibre, DiscreteQuotient.equivBot]
   let TT : DiscreteQuotient T := ⊥
-  change T.proj b ∈ equiv_bot ⁻¹' {equiv_bot (T.proj a)} ↔ T.proj b ∈ {T.proj a}
+  change T.proj b ∈ DiscreteQuotient.equivBot ⁻¹' {DiscreteQuotient.equivBot (T.proj a)} ↔ T.proj b ∈ {T.proj a}
   simp
 
 theorem mem_fibre_iff' {X : Type _} [TopologicalSpace X] (T : DiscreteQuotient X)
@@ -229,15 +229,15 @@ theorem LocallyConstant.eq_sum {X : Type _} [TopologicalSpace X] [CompactSpace X
   ext t
   simp_rw [LocallyConstant.sum_apply, LocallyConstant.smul_apply]
   suffices
-    ∑ x : ↥e.discrete_quotient,
-        e.locally_constant_lift x • (e.discrete_quotient.fibre x).indicatorLC t =
-      ∑ x in {e.discrete_quotient.proj t},
-        e.locally_constant_lift x • (e.discrete_quotient.fibre x).indicatorLC t
+    ∑ x : ↥e.discreteQuotient,
+        e.locally_constant_lift x • (e.discreteQuotient.fibre x).indicatorLC t =
+      ∑ x in {e.discreteQuotient.proj t},
+        e.locally_constant_lift x • (e.discreteQuotient.fibre x).indicatorLC t
     by
     simp_rw [this, Algebra.id.smul_eq_mul, Finset.sum_singleton]
     convert (mul_one _).symm
     rw [TopologicalSpace.Clopens.indicatorLC_apply, if_pos]
-    change e.discrete_quotient.proj t ∈ _; simp
+    change e.discreteQuotient.proj t ∈ _; simp
   -- clopens is missing some `mem_mk` lemma...
   symm
   apply Finset.sum_subset; simp only [Finset.subset_univ]
@@ -245,7 +245,7 @@ theorem LocallyConstant.eq_sum {X : Type _} [TopologicalSpace X] [CompactSpace X
   convert smul_zero _
   rw [TopologicalSpace.Clopens.indicatorLC_apply, if_neg]
   contrapose! ht
-  change e.discrete_quotient.proj t ∈ _ at ht 
+  change e.discreteQuotient.proj t ∈ _ at ht 
   exact finset.mem_singleton.mpr (set.mem_singleton_iff.mp ht).symm
 
 /-- Given a point `x : X` is a discrete topological space `X`,
@@ -314,10 +314,10 @@ def ContinuousMap.comapLC {X Y : Type _} [TopologicalSpace X] [CompactSpace X] [
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
   cont := by
-    apply (f.comap_LC_linear_map.mk_continuous_of_exists_bound _).Continuous
+    apply (f.comapLCLinearMap.mkContinuousOfExistsBound _).continuous
     use 1; intro e; rw [one_mul]
     by_cases IsEmpty X
-    · have : f.comap_LC_linear_map e = 0; ext x; exact h.elim x; rw [this]
+    · have : f.comapLCLinearMap e = 0; ext x; exact h.elim x; rw [this]
       simp
     change Sup _ ≤ _
     apply csSup_le
@@ -397,18 +397,18 @@ theorem bddLCComap {X Y : Type _} {p c : ℝ≥0} [Fact (0 < p)] [TopologicalSpa
   have :
     S₁ =
       ∑ t in finset.univ.image ι,
-        ‖(((comap f.comap_LC) μ) (T.fibre t).indicatorLC)‖₊ ^ (p : ℝ) :=
+        ‖(((comap f.comapLC) μ) (T.fibre t).indicatorLC)‖₊ ^ (p : ℝ) :=
     by
     symm; apply Finset.sum_subset; simp only [Finset.subset_univ]
     intro x _ hx
     --simp only [finset.mem_image, finset.mem_univ, exists_true_left, not_exists] at hx,
-    suffices ((comap f.comap_LC) μ) (T.fibre x).indicatorLC = 0
+    suffices ((comap f.comapLC) μ) (T.fibre x).indicatorLC = 0
       by
       simp only [this, nnnorm_zero, NNReal.rpow_eq_zero_iff, eq_self_iff_true, Ne.def,
         NNReal.coe_eq_zero, true_and_iff]
       exact ne_of_gt (Fact.out (0 < p))
     -- the `change` below is faster than `dsimp [comap]`
-    change μ (f.comap_LC (T.fibre x).indicatorLC) = 0
+    change μ (f.comapLC (T.fibre x).indicatorLC) = 0
     convert μ.map_zero
     refine' LocallyConstant.ext fun t => _
     dsimp only [ContinuousMap.comapLC, TopologicalSpace.Clopens.indicatorLC_apply]

@@ -31,13 +31,13 @@ def π₃ : ShortComplex C ⥤ C where
 def φ₁₂ : (π₁ : ShortComplex C ⥤ C) ⟶ π₂
     where
   app S := S.1.f
-  naturality' S₁ S₂ f := (ComposableMorphisms.Hom.comm₁₂ f).symm
+  naturality S₁ S₂ f := (ComposableMorphisms.Hom.comm₁₂ f).symm
 
 @[simps]
 def φ₂₃ : (π₂ : ShortComplex C ⥤ C) ⟶ π₃
     where
   app S := S.1.g
-  naturality' S₁ S₂ f := (ComposableMorphisms.Hom.comm₂₃ f).symm
+  naturality S₁ S₂ f := (ComposableMorphisms.Hom.comm₂₃ f).symm
 
 end ShortComplex
 

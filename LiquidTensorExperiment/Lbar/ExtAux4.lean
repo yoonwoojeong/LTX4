@@ -47,7 +47,7 @@ theorem HomotopyCategory.colimitCofanBdd {A : Type u} [Category.{v} A] [Abelian 
   dsimp [HomotopyCategory.colimitCofan]
   let e : (∐ fun a : α => (X a).val.as).pt i ≅ ∐ fun a : α => (X a).val.as.pt i :=
     HomotopyCategory.coproductIso _ _
-  refine' is_zero_of_iso_of_zero _ e.symm
+  refine' CategoryTheory.Limits.isZero_of_iso_of_zero _ e.symm
   apply CategoryTheory.isZero_colimit
   rintro ⟨j⟩
   apply hn j _ hi
@@ -71,16 +71,16 @@ def tinv2IsoOfBicartesianAux1 (i : ℤ) :
   apply Commsq.ofEq
   dsimp only [shiftSubId, qprimeFP.shiftSubId]
   simp only [sub_comp, comp_sub, HomologicalComplex.ofHom_sub, CategoryTheory.op_sub,
-    functor.map_sub, op_id, CategoryTheory.Functor.map_id, ofHom_id, nat_trans.app_sub,
-    nat_trans.id_app, category.comp_id, category.id_comp]
+    Functor.map_sub, op_id, CategoryTheory.Functor.map_id, ofHom_id, NatTrans.app_sub,
+    NatTrans.id_app, Category.comp_id, Category.id_comp]
   apply congr_arg₂ _ _ rfl
-  rw [← iso.eq_comp_inv]
-  dsimp only [piExtIsoExtSigma, iso.trans_hom, iso.trans_inv, iso.symm_hom, iso.symm_inv,
-    functor.map_iso_hom, iso.op_hom, op_comp, functor.flip_obj_map, functor.map_iso_inv]
-  simp only [category.assoc, ← nat_trans.comp_app_assoc, ← functor.map_comp_assoc, ←
-    functor.map_comp, iso.op_inv, ← op_comp]
+  rw [← Iso.eq_comp_inv]
+  dsimp only [piExtIsoExtSigma, Iso.trans_hom, Iso.trans_inv, Iso.symm_hom, Iso.symm_inv,
+    Functor.mapIso_hom, Iso.op_hom, op_comp, Functor.flip_obj_map, Functor.mapIso_inv]
+  simp only [Category.assoc, ← NatTrans.comp_app_assoc, ← Functor.map_comp_assoc, ←
+    Functor.map_comp, Iso.op_inv, ← op_comp]
   rw [cofanPointIsoColimit_conj_eq_desc]
-  rw [iso.eq_inv_comp]
+  rw [Iso.eq_inv_comp]
   have :=
     extCoproductIso_naturality_shift _ (fun k : ULift ℕ => (qprimeFP r' BD.data κ₂ M).obj (ι k))
       (fun k =>
@@ -95,19 +95,19 @@ theorem extCoproductIso_π (A : Type u) [Category.{v} A] [Abelian A] [EnoughProj
     (i : ℤ) (Y) (k) :
     (extCoproductIso X i Y).hom ≫ Pi.π _ k = ((ext i).map <| Quiver.Hom.op <| Sigma.ι _ _).app Y :=
   by
-  dsimp only [Ext_coproduct_iso, iso.trans_hom, pi_iso, preadditive_yoneda_coproduct_iso,
-    as_iso_hom, preadditive_yoneda_coproduct_to_product]
-  simp only [category.assoc, limit.lift_π, limit.lift_π_assoc, fan.mk_π_app]
-  dsimp only [Ext_iso, iso.symm_hom, functor.map_iso_hom, functor.map_iso_inv]
-  simp only [← functor.map_comp, iso.op_hom, iso.op_inv, ← op_comp]
-  dsimp only [Ext, Ext0, functor.comp_map, whiskering_left_obj_map, whisker_left_app,
-    functor.flip_map_app, replacement_iso]
+  dsimp only [Ext_coproduct_iso, Iso.trans_hom, pi_iso, CategoryTheory.preadditiveYonedaCoproductIso,
+    CategoryTheory.asIso_hom, CategoryTheory.preadditiveYonedaCoproductToProduct]
+  simp only [Category.assoc, limit.lift_π, limit.lift_π_assoc, Fan.mk_π_app]
+  dsimp only [Ext_iso, Iso.symm_hom, Functor.mapIso_hom, Functor.mapIso_inv]
+  simp only [← Functor.map_comp, Iso.op_hom, Iso.op_inv, ← op_comp]
+  dsimp only [Ext, Ext0, Functor.comp_map, CategoryTheory.whiskeringLeft_obj_map, CategoryTheory.whiskerLeft_app,
+    Functor.flip_map_app, BoundedHomotopyCategory.replacementIso]
   congr 2
-  simp only [category.assoc, iso.inv_comp_eq, Quiver.Hom.unop_op, unop_op, op_unop]
+  simp only [Category.assoc, Iso.inv_comp_eq, Quiver.Hom.unop_op, unop_op, op_unop]
   apply lift_unique
-  simp only [category.assoc, iso.inv_comp_eq, Quiver.Hom.unop_op, unop_op, op_unop]
+  simp only [Category.assoc, Iso.inv_comp_eq, Quiver.Hom.unop_op, unop_op, op_unop]
   erw [lift_lifts]
-  simp only [uniform_π, colimit.ι_desc, cofan.mk_ι_app, lift_lifts_assoc]
+  simp only [uniform_π, colimit.ι_desc, Cofan.mk_ι_app, lift_lifts_assoc]
   rfl
 
 theorem Tinv2_iso_of_bicartesian_aux_2 [∀ c n, Fact (κ₂ c n ≤ r' * κ c n)] (j)
@@ -125,10 +125,10 @@ theorem Tinv2_iso_of_bicartesian_aux_2 [∀ c n, Fact (κ₂ c n ≤ r' * κ c n
       (qprimeFP.tinv _ _ _ _).app _ ≫
         Sigma.ι (fun k : ULift.{u + 1, 0} ℕ => (qprimeFP.{u} r' BD.data κ M).obj (ι k)) j.1 :=
   by
-  rw [← iso.eq_comp_inv];
-  simp only [category.assoc, cofanPointIsoColimit, colimit.comp_cocone_point_unique_up_to_iso_inv]
-  dsimp only [BoundedHomotopyCategory.cofan, cofan.mk_ι_app, of_hom, HomotopyCategory.colimitCofan,
-    qprimeFP.tinv, whisker_right_app, ChainComplex.toBoundedHomotopyCategory, functor.comp_map]
+  rw [← Iso.eq_comp_inv];
+  simp only [Category.assoc, cofanPointIsoColimit, colimit.comp_coconePointUniqueUpToIso_inv]
+  dsimp only [BoundedHomotopyCategory.cofan, Cofan.mk_ι_app, of_hom, HomotopyCategory.colimitCofan,
+    qprimeFP.tinv, CategoryTheory.whiskerRight_app, ChainComplex.toBoundedHomotopyCategory, Functor.comp_map]
   erw [←
     (HomotopyCategory.quotient.{u + 1, u + 2, 0} (Condensed.{u, u + 1, u + 2} Ab.{u + 1})
         (ComplexShape.up.{0} ℤ)).map_comp]
@@ -155,10 +155,10 @@ theorem Tinv2_iso_of_bicartesian_aux_3 [∀ c n, Fact (κ₂ c n ≤ κ c n)]
       (qprimeFP.ι _ κ₂ κ M).app _ ≫
         Sigma.ι (fun k : ULift.{u + 1, 0} ℕ => (qprimeFP.{u} r' BD.data κ M).obj (ι k)) j.1 :=
   by
-  simp only [← category.assoc]; rw [← iso.eq_comp_inv]
-  simp only [category.assoc, cofanPointIsoColimit, colimit.comp_cocone_point_unique_up_to_iso_inv]
-  dsimp only [BoundedHomotopyCategory.cofan, cofan.mk_ι_app, of_hom, HomotopyCategory.colimitCofan,
-    qprimeFP.ι, whisker_right_app, ChainComplex.toBoundedHomotopyCategory, functor.comp_map]
+  simp only [← Category.assoc]; rw [← Iso.eq_comp_inv]
+  simp only [Category.assoc, cofanPointIsoColimit, colimit.comp_coconePointUniqueUpToIso_inv]
+  dsimp only [BoundedHomotopyCategory.cofan, Cofan.mk_ι_app, of_hom, HomotopyCategory.colimitCofan,
+    qprimeFP.ι, CategoryTheory.whiskerRight_app, ChainComplex.toBoundedHomotopyCategory, Functor.comp_map]
   erw [←
     (HomotopyCategory.quotient.{u + 1, u + 2, 0} (Condensed.{u, u + 1, u + 2} Ab.{u + 1})
         (ComplexShape.up.{0} ℤ)).map_comp]
@@ -190,37 +190,37 @@ theorem tinv2_iso_of_bicartesian_aux [NormedWithAut r V] [∀ c n, Fact (κ₂ c
     Commsq.Bicartesian.of_iso (piExtIsoExtSigma _ _ _ _ _ _) (piExtIsoExtSigma _ _ _ _ _ _)
       (piExtIsoExtSigma _ _ _ _ _ _) (piExtIsoExtSigma _ _ _ _ _ _) h1 h2 h2 h3 H1
   apply tinv2IsoOfBicartesianAux1
-  · clear h1; apply Commsq.ofEq; rw [← iso.eq_comp_inv]
+  · clear h1; apply Commsq.ofEq; rw [← Iso.eq_comp_inv]
     apply limit.hom_ext; rintro ⟨j⟩; rw [lim_map_π]
     dsimp [piExtIsoExtSigma]
-    simp only [category.assoc]
+    simp only [Category.assoc]
     have :=
       extCoproductIso_π _ (fun k : ULift.{u + 1, 0} ℕ => (qprimeFP.{u} r' BD.data κ₂ M).obj (ι k)) i
         ((single.{u + 1, u + 2} (Condensed.{u, u + 1, u + 2} Ab.{u + 1}) 0).obj V.to_Cond) j
-    rw [this, ← nat_trans.comp_app, ← functor.map_comp, ← op_comp]
+    rw [this, ← NatTrans.comp_app, ← Functor.map_comp, ← op_comp]
     clear this
     erw [colimit.ι_desc]
     dsimp [extTinv2, ExtQprime.tinv2]
     simp only [sub_comp, comp_sub]
     refine' congr_arg₂ _ _ _
-    · simp only [← nat_trans.comp_app, ← functor.map_comp, ← op_comp]
+    · simp only [← NatTrans.comp_app, ← Functor.map_comp, ← op_comp]
       rw [Tinv2_iso_of_bicartesian_aux_2]
       swap
       · apply HomotopyCategory.colimitCofanBdd
-      simp only [functor.map_comp, op_comp, nat_trans.comp_app, category.assoc]
+      simp only [Functor.map_comp, op_comp, NatTrans.comp_app, Category.assoc]
       have :=
         extCoproductIso_π _ (fun k : ULift.{u + 1, 0} ℕ => (qprimeFP.{u} r' BD.data κ M).obj (ι k))
           i ((single.{u + 1, u + 2} (Condensed.{u, u + 1, u + 2} Ab.{u + 1}) 0).obj V.to_Cond) j
-      rw [← iso.eq_inv_comp] at this 
+      rw [← Iso.eq_inv_comp] at this 
       rw [← reassoc_of this]; rfl
-    · simp only [category.assoc, nat_trans.naturality, ← nat_trans.comp_app_assoc, ←
-        functor.map_comp_assoc, ← functor.map_comp, ← nat_trans.comp_app, ← op_comp]
+    · simp only [Category.assoc, NatTrans.naturality, ← NatTrans.comp_app_assoc, ←
+        Functor.map_comp_assoc, ← Functor.map_comp, ← NatTrans.comp_app, ← op_comp]
       rw [Tinv2_iso_of_bicartesian_aux_3]
-      simp only [functor.map_comp, op_comp, nat_trans.comp_app, category.assoc]
+      simp only [Functor.map_comp, op_comp, NatTrans.comp_app, Category.assoc]
       have :=
         extCoproductIso_π _ (fun k : ULift.{u + 1, 0} ℕ => (qprimeFP.{u} r' BD.data κ M).obj (ι k))
           i ((single.{u + 1, u + 2} (Condensed.{u, u + 1, u + 2} Ab.{u + 1}) 0).obj V.to_Cond) j
-      rw [← iso.eq_inv_comp] at this 
+      rw [← Iso.eq_inv_comp] at this 
       rw [← reassoc_of this]
       rfl
       · apply HomotopyCategory.colimitCofanBdd
@@ -254,7 +254,7 @@ theorem tinv2_iso_of_bicartesian [NormedWithAut r V] [∀ c n, Fact (κ₂ c n �
       _ (tinv2_iso_of_bicartesian_aux _ _ _ _ _ _ _ _ _ H1)
       (tinv2_iso_of_bicartesian_aux _ _ _ _ _ _ _ _ _ H2)
   delta extTinv2 at this 
-  simpa only [op_id, CategoryTheory.Functor.map_id, category.id_comp, nat_trans.id_app]
+  simpa only [op_id, CategoryTheory.Functor.map_id, Category.id_comp, NatTrans.id_app]
 
 theorem tinv2_iso_of_bicartesian' [NormedWithAut r V] [∀ c n, Fact (κ₂ c n ≤ κ c n)]
     [∀ c n, Fact (κ₂ c n ≤ r' * κ c n)]

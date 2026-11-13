@@ -23,7 +23,7 @@ variable {P : Type u} {N : Type u'} [Category.{v} P] [Category.{v'} N] (M : Pᵒ
 
 variable (f : Arrow P)
 
-variable [∀ n : ℕ, HasWidePullback f.right (fun i : Fin (n + 1) => f.left) fun i => f.Hom]
+variable [∀ n : ℕ, HasWidePullback f.right (fun i : Fin (n + 1) => f.left) fun i => f.hom]
 
 variable [Arrow.Split f] [Preadditive N]
 
@@ -36,21 +36,21 @@ def contractingHomotopy' : Homotopy (𝟙 (f.conerve M).toCocomplex) 0
     simp only [HomologicalComplex.id_f, Homotopy.dNext_cochainComplex,
       HomologicalComplex.zero_f_apply, add_zero]
     rcases i with (_ | _ | i)
-    · rw [← is_contracting_homotopy_zero, Homotopy.prevD_zero_cochainComplex]
-      simp only [eq_self_iff_true, dif_pos, eq_to_hom_refl, category.id_comp, add_zero]
-    · rw [← is_contracting_homotopy_one, Homotopy.prevD_succ_cochainComplex]
-      simp only [eq_self_iff_true, dif_pos, eq_to_hom_refl, category.id_comp, add_zero]
-    · rw [← is_contracting_homotopy, Homotopy.prevD_succ_cochainComplex]
-      simp only [eq_self_iff_true, dif_pos, eq_to_hom_refl, category.id_comp, add_zero]
+    · rw [← CategoryTheory.Arrow.is_contractingHomotopy_zero, Homotopy.prevD_zero_cochainComplex]
+      simp only [eq_self_iff_true, dif_pos, CategoryTheory.eqToHom_refl, Category.id_comp, add_zero]
+    · rw [← CategoryTheory.Arrow.is_contractingHomotopy_one, Homotopy.prevD_succ_cochainComplex]
+      simp only [eq_self_iff_true, dif_pos, CategoryTheory.eqToHom_refl, Category.id_comp, add_zero]
+    · rw [← CategoryTheory.Arrow.is_contractingHomotopy, Homotopy.prevD_succ_cochainComplex]
+      simp only [eq_self_iff_true, dif_pos, CategoryTheory.eqToHom_refl, Category.id_comp, add_zero]
 
 variable [HasEqualizers N] [HasCokernels N] [HasImages N] [HasImageMaps N]
 
 theorem conerve_toCocomplex_homology'_isZero (i : ℕ) :
     IsZero ((f.conerve M).toCocomplex.homology' i) :=
   by
-  rw [is_zero_iff_id_eq_zero]
-  simpa only [CategoryTheory.Functor.map_id, functor.map_zero] using
-    homology'_map_eq_of_homotopy (f.contracting_homotopy' M) i
+  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero]
+  simpa only [CategoryTheory.Functor.map_id, Functor.map_zero] using
+    homology'_map_eq_of_homotopy (f.contractingHomotopy' M) i
 
 end Contravariant
 
@@ -60,7 +60,7 @@ variable {P : Type u} {N : Type u'} [Category.{v} P] [Category.{v'} N] (M : P �
 
 variable (f : Arrow P)
 
-variable [∀ n : ℕ, HasWidePullback f.right (fun i : Fin (n + 1) => f.left) fun i => f.Hom]
+variable [∀ n : ℕ, HasWidePullback f.right (fun i : Fin (n + 1) => f.left) fun i => f.hom]
 
 variable [Arrow.Split f] [Preadditive N]
 
@@ -74,24 +74,24 @@ def covariantContractingHomotopy' : Homotopy (𝟙 (f.nerve M).toComplex) 0
       HomologicalComplex.zero_f_apply, add_zero]
     rcases i with (_ | _ | i)
     · rw [← covariant_is_contracting_homotopy_zero, Homotopy.dNext_zero_chainComplex]
-      simp only [eq_self_iff_true, eq_to_hom_refl, dite_eq_ite, if_true,
-        Homotopy.prevD_chainComplex, category.comp_id, zero_add]
+      simp only [eq_self_iff_true, CategoryTheory.eqToHom_refl, dite_eq_ite, if_true,
+        Homotopy.prevD_chainComplex, Category.comp_id, zero_add]
     · rw [← covariant_is_contracting_homotopy_one, Homotopy.dNext_succ_chainComplex]
-      simp only [simplicial_object.augmented.to_complex_d_2, eq_self_iff_true, eq_to_hom_refl,
-        category.id_comp, dite_eq_ite, if_true, category.comp_id, Homotopy.prevD_chainComplex]
+      simp only [SimplicialObject.Augmented.toComplexD_2, eq_self_iff_true, CategoryTheory.eqToHom_refl,
+        Category.id_comp, dite_eq_ite, if_true, Category.comp_id, Homotopy.prevD_chainComplex]
       rw [add_comm]
     · rw [← covariant_is_contracting_homotopy, Homotopy.dNext_succ_chainComplex]
-      simp only [simplicial_object.augmented.to_complex_d_2, eq_self_iff_true, eq_to_hom_refl,
-        category.id_comp, dite_eq_ite, if_true, category.comp_id, Homotopy.prevD_chainComplex]
+      simp only [SimplicialObject.Augmented.toComplexD_2, eq_self_iff_true, CategoryTheory.eqToHom_refl,
+        Category.id_comp, dite_eq_ite, if_true, Category.comp_id, Homotopy.prevD_chainComplex]
       rw [add_comm]
 
 variable [HasEqualizers N] [HasCokernels N] [HasImages N] [HasImageMaps N]
 
 theorem nerve_toComplex_homology'_isZero (i : ℕ) : IsZero ((f.nerve M).toComplex.homology' i) :=
   by
-  rw [is_zero_iff_id_eq_zero]
-  simpa only [CategoryTheory.Functor.map_id, functor.map_zero] using
-    homology'_map_eq_of_homotopy (f.covariant_contracting_homotopy' M) i
+  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero]
+  simpa only [CategoryTheory.Functor.map_id, Functor.map_zero] using
+    homology'_map_eq_of_homotopy (f.covariantContractingHomotopy' M) i
 
 end Covariant
 

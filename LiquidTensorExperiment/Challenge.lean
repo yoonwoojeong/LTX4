@@ -32,7 +32,7 @@ variable (p' p : ℝ≥0) [Fact (0 < p')] [Fact (p' < p)] [Fact (p ≤ 1)]
 theorem liquidTensorExperiment (S : Profinite.{0}) (V : PBanachCat.{0} p) :
     ∀ i > 0, ext i (ℳ_{p'}S) V ≅ 0 := by
   intro i hi
-  apply is_zero.iso_zero
+  apply IsZero.isoZero
   revert i
   haveI : Fact (0 < (p : ℝ)) := ⟨lt_trans (Fact.out _ : 0 < p') (Fact.out _)⟩
   haveI : Fact (p' < 1) := ⟨lt_of_lt_of_le (Fact.out _ : p' < p) (Fact.out _)⟩

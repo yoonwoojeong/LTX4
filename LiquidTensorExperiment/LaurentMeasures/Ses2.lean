@@ -42,7 +42,7 @@ def ΘFintypeNatTrans :
     fintypeLaurentMeasures.{u} r ⋙ pFPNGT₁ToCHFPNG₁ₑₗ.{u} r ⟶ RealMeasures.functor.{u} p
     where
   app S := Θ p S
-  naturality' S T f := by ext x t; apply θ_natural
+  naturality S T f := by ext x t; apply θ_natural
 
 end Theta
 

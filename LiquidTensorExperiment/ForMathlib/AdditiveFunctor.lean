@@ -25,8 +25,8 @@ theorem additive_of_map_fst_add_snd [HasBinaryBiproducts 𝒜]
     map_add' := fun A B f g =>
       by
       have : f + g = biprod.lift f g ≫ (biprod.fst + biprod.snd) := by
-        rw [preadditive.comp_add, biprod.lift_fst, biprod.lift_snd]
-      rw [this, F.map_comp, h, preadditive.comp_add, ← F.map_comp, ← F.map_comp, biprod.lift_fst,
+        rw [Preadditive.comp_add, biprod.lift_fst, biprod.lift_snd]
+      rw [this, F.map_comp, h, Preadditive.comp_add, ← F.map_comp, ← F.map_comp, biprod.lift_fst,
         biprod.lift_snd] }
 
 noncomputable def objBiprodIso (F : 𝒜 ⥤ ℬ) [F.Additive] (A B : 𝒜) [HasBinaryBiproduct A B]
@@ -38,7 +38,7 @@ instance forget₂_additive (R : Type _) [Ring R] : (forget₂ (ModuleCat R) Add
 
 theorem map_isZero {X : 𝒜} [F.Additive] (hX : Limits.IsZero X) : Limits.IsZero (F.obj X) :=
   by
-  rw [limits.is_zero.iff_id_eq_zero] at hX ⊢
+  rw [Limits.IsZero.iff_id_eq_zero] at hX ⊢
   convert congr_arg (@CategoryTheory.Functor.map _ _ _ _ F _ _) hX <;> simp
 
 end Functor

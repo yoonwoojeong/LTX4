@@ -6,7 +6,7 @@ import LiquidTensorExperiment.Lbar.Ext
 import LiquidTensorExperiment.FreePfpng.Acyclic
 import LiquidTensorExperiment.ChallengeNotations
 
-#align_import laurent_measures.ext
+#align_import LaurentMeasures.ext
 
 universe u
 
@@ -54,11 +54,11 @@ theorem epi_and_isIso (V : SemiNormedGroupCat.{0}) [NormedWithAut r V] [Complete
   · rw [← isZero_iff_epi_and_isIso _ _ (Condensed.ofTopAb V) (Invpoly.shortExact p' S)]
     intro i hi
     apply (free_pfpng_acyclic S V i hi).of_iso _
-    apply iso.app _ _
+    apply Iso.app _ _
     refine' (ext' i).mapIso _
-    exact (as_iso ((condFreePfpngToNormedFreePfpng.{0, 0} p').app S)).op
-  · rw [← nat_trans.comp_app, condensifyMap_comp_Tinv2, nat_trans.comp_app]
-  · rw [← nat_trans.comp_app, condensifyMap_comp_Tinv2, nat_trans.comp_app]
+    exact (CategoryTheory.asIso ((condFreePfpngToNormedFreePfpng.{0, 0} p').app S)).op
+  · rw [← NatTrans.comp_app, condensifyMap_comp_Tinv2, NatTrans.comp_app]
+  · rw [← NatTrans.comp_app, condensifyMap_comp_Tinv2, NatTrans.comp_app]
 
 end LaurentMeasures
 

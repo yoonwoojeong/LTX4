@@ -54,22 +54,22 @@ def cechSplitting [Split f] (n : ℕ) : f.cechNerve _[n] ⟶ f.cechNerve _[n + 1
 theorem cechSplitting_face_zero [Split f] (n : ℕ) : f.cechSplitting n ≫ f.cechNerve.δ 0 = 𝟙 _ :=
   by
   ext j
-  dsimp [cech_splitting, simplicial_object.δ]
-  simp only [category.id_comp, category.assoc, wide_pullback.lift_π]
+  dsimp [CategoryTheory.Arrow.cechSplitting, CategoryTheory.SimplicialObject.δ]
+  simp only [Category.id_comp, Category.assoc, WidePullback.lift_π]
   split_ifs
   · exfalso
     exact Fin.succ_ne_zero _ h
   · congr
-    dsimp [simplicial_object.δ, SimplexCategory.δ]
+    dsimp [CategoryTheory.SimplicialObject.δ, SimplexCategory.δ]
     simp
-  · dsimp [simplicial_object.δ, cech_splitting]
+  · dsimp [CategoryTheory.SimplicialObject.δ, CategoryTheory.Arrow.cechSplitting]
     simp
 
 theorem face_π (n : ℕ) (i : Fin (n + 1)) (j : Fin (n + 2)) :
     (f.cechNerve.δ j : f.cechNerve _[n + 1] ⟶ _) ≫ WidePullback.π _ i =
       WidePullback.π _ (j.succAboveEmb i) :=
   by
-  change wide_pullback.lift _ _ _ ≫ _ = _
+  change WidePullback.lift _ _ _ ≫ _ = _
   simpa
 
 theorem cechSplitting_face [Split f] (n : ℕ) (j : Fin (n + 3)) (hj : j ≠ 0) :
@@ -77,23 +77,23 @@ theorem cechSplitting_face [Split f] (n : ℕ) (j : Fin (n + 3)) (hj : j ≠ 0) 
   by
   ext k
   swap
-  · dsimp [cech_splitting, simplicial_object.δ]
+  · dsimp [CategoryTheory.Arrow.cechSplitting, CategoryTheory.SimplicialObject.δ]
     simp
-  · dsimp [cech_splitting, simplicial_object.δ]
-    simp only [category.assoc, limits.wide_pullback.lift_π]
+  · dsimp [CategoryTheory.Arrow.cechSplitting, CategoryTheory.SimplicialObject.δ]
+    simp only [Category.assoc, Limits.WidePullback.lift_π]
     split_ifs with h1 h2
     · simp
     · refine' False.elim (h2 _)
-      change j.succ_above k = 0 at h1 
+      change j.succAboveEmb k = 0 at h1 
       change k = 0
       rwa [← Fin.succAbove_eq_zero_iff hj]
     · refine' False.elim (h1 _)
       erw [h]
-      change j.succ_above 0 = 0
+      change j.succAboveEmb 0 = 0
       rw [Fin.succAbove_eq_zero_iff hj]
     · simp only [CategoryTheory.Limits.WidePullback.lift_π]
       congr
-      change (j.succ_above k).pred h1 = (j.pred hj).succAboveEmb (k.pred h)
+      change (j.succAboveEmb k).pred h1 = (j.pred hj).succAboveEmb (k.pred h)
       rw [Fin.pred_succAbove_pred]
       rfl
 
@@ -136,8 +136,8 @@ theorem is_contractingHomotopy_zero :
   rw [if_pos]
   swap; · simp
   delta conerve
-  dsimp [to_cocomplex_d, to_cocomplex_obj, contracting_homotopy]
-  simp only [category.id_comp, category.comp_id]
+  dsimp [CategoryTheory.CosimplicialObject.Augmented.toCocomplexD, CategoryTheory.CosimplicialObject.Augmented.toCocomplexObj, CategoryTheory.Arrow.contractingHomotopy]
+  simp only [Category.id_comp, Category.comp_id]
   simp_rw [← M.map_comp, ← op_comp, ← M.map_id, ← op_id]
   congr 2
   simp
@@ -155,21 +155,21 @@ theorem is_contractingHomotopy_one :
   swap; · decide
   dsimp
   delta conerve
-  dsimp only [to_cocomplex_d, cosimplicial_object.coboundary, whiskering, whiskering_obj, drop,
-    to_cocomplex_obj, comma.snd, cosimplicial_object.whiskering, whiskering_right,
-    contracting_homotopy]
+  dsimp only [CategoryTheory.CosimplicialObject.Augmented.toCocomplexD, CosimplicialObject.coboundary, whiskering, whiskering_obj, drop,
+    CategoryTheory.CosimplicialObject.Augmented.toCocomplexObj, Comma.snd, CosimplicialObject.whiskering, whiskering_right,
+    CategoryTheory.Arrow.contractingHomotopy]
   simp_rw [Fin.sum_univ_succ]
-  simp only [Fin.val_zero, Fin.sum_univ_zero, Fin.val_one, one_zsmul, preadditive.add_comp, pow_one,
-    Fin.succ_zero_eq_one', category.id_comp, neg_smul, category.comp_id, preadditive.neg_comp,
+  simp only [Fin.val_zero, Fin.sum_univ_zero, Fin.val_one, one_zsmul, Preadditive.add_comp, pow_one,
+    Fin.succ_zero_eq_one', Category.id_comp, neg_smul, Category.comp_id, Preadditive.neg_comp,
     pow_zero]
   rw [add_assoc]
   congr 1
-  · dsimp [cosimplicial_object.δ]
+  · dsimp [CategoryTheory.CosimplicialObject.δ]
     simp_rw [← M.map_comp, ← M.map_id, ← op_id, ← op_comp]
     congr 2
-    dsimp [cech_splitting]
+    dsimp [CategoryTheory.Arrow.cechSplitting]
     ext j
-    · simp only [wide_pullback.lift_π, category.id_comp, category.assoc]
+    · simp only [WidePullback.lift_π, Category.id_comp, Category.assoc]
       split_ifs
       · cases j
         injection h with hh
@@ -181,14 +181,14 @@ theorem is_contractingHomotopy_one :
           OrderEmbedding.toOrderHom_coe, Fin.zero_succAbove, Fin.succ_zero_eq_one',
           Fin.one_eq_zero_iff, Nat.one_ne_zero]
         rfl
-    · simp only [wide_pullback.lift_base, category.assoc, category.id_comp]
-  · dsimp [cosimplicial_object.δ]
+    · simp only [WidePullback.lift_base, Category.assoc, Category.id_comp]
+  · dsimp [CategoryTheory.CosimplicialObject.δ]
     rw [add_assoc, neg_add_eq_zero, ← M.map_comp]
-    simp only [zero_comp, category.id_comp, zero_add, functor.map_comp, ← M.map_comp, ← op_comp]
+    simp only [zero_comp, Category.id_comp, zero_add, Functor.map_comp, ← M.map_comp, ← op_comp]
     congr 2
-    dsimp [cech_splitting]
+    dsimp [CategoryTheory.Arrow.cechSplitting]
     ext j
-    · simp only [wide_pullback.lift_π, category.assoc]
+    · simp only [WidePullback.lift_π, Category.assoc]
       split_ifs
       · rfl
       · refine' False.elim (h _)
@@ -196,7 +196,7 @@ theorem is_contractingHomotopy_one :
         rw [Fin.succAbove_eq_zero_iff]
         · simp
         · exact top_ne_bot
-    · simp only [wide_pullback.lift_base, category.assoc, category.comp_id]
+    · simp only [WidePullback.lift_base, Category.assoc, Category.comp_id]
 
 theorem is_contractingHomotopy (n : ℕ) :
     (f.conerve M).toCocomplex.d (n + 2) (n + 3) ≫ f.contractingHomotopy M (n + 2) +
@@ -206,36 +206,36 @@ theorem is_contractingHomotopy (n : ℕ) :
   dsimp
   erw [if_pos]
   swap; rfl
-  dsimp only [to_cocomplex_d]
+  dsimp only [CategoryTheory.CosimplicialObject.Augmented.toCocomplexD]
   rw [if_pos]
   swap; rfl
-  dsimp only [cosimplicial_object.coboundary]
-  simp only [preadditive.sum_comp, preadditive.comp_sum]
+  dsimp only [CosimplicialObject.coboundary]
+  simp only [Preadditive.sum_comp, Preadditive.comp_sum]
   erw [Fin.sum_univ_succ, add_assoc, ← Finset.sum_add_distrib]
   rw [← add_zero (𝟙 ((conerve M f).toCocomplexObj (n + 2)))]
-  dsimp only [cosimplicial_object.δ]
+  dsimp only [CategoryTheory.CosimplicialObject.δ]
   congr 1
   · delta conerve
-    dsimp [to_cocomplex_obj, contracting_homotopy]
+    dsimp [CategoryTheory.CosimplicialObject.Augmented.toCocomplexObj, CategoryTheory.Arrow.contractingHomotopy]
     simp only [CategoryTheory.Category.comp_id, one_zsmul, pow_zero]
     simp_rw [← M.map_id, ← M.map_comp, ← op_comp, ← op_id]
     congr 2
-    apply cech_splitting_face_zero
+    apply CategoryTheory.Arrow.cechSplitting_face_zero
   · apply Fintype.sum_eq_zero
     intro i
-    simp only [category.comp_id, add_zero, functor.comp_map, Fin.val_succ, preadditive.comp_zsmul,
-      preadditive.zsmul_comp]
+    simp only [Category.comp_id, add_zero, Functor.comp_map, Fin.val_succ, Preadditive.comp_zsmul,
+      Preadditive.zsmul_comp]
     suffices
-      (drop.obj (conerve M f)).map (SimplexCategory.δ i.succ) ≫ contracting_homotopy M f (n + 2) =
-        contracting_homotopy M f (n + 1) ≫ (drop.obj (conerve M f)).map (SimplexCategory.δ i)
+      (drop.obj (conerve M f)).map (SimplexCategory.δ i.succ) ≫ CategoryTheory.Arrow.contractingHomotopy M f (n + 2) =
+        CategoryTheory.Arrow.contractingHomotopy M f (n + 1) ≫ (drop.obj (conerve M f)).map (SimplexCategory.δ i)
       by
       rw [this, pow_succ]
       simp
     delta conerve
-    dsimp [contracting_homotopy]
+    dsimp [CategoryTheory.Arrow.contractingHomotopy]
     simp_rw [← M.map_comp, ← op_comp]
     congr 2
-    convert cech_splitting_face _ _ _ (Fin.succ_ne_zero _)
+    convert CategoryTheory.Arrow.cechSplitting_face _ _ _ (Fin.succ_ne_zero _)
     funext
     congr
     simp
@@ -274,8 +274,8 @@ theorem covariant_is_contracting_homotopy_zero :
   rw [if_pos]
   swap; · simp
   delta nerve
-  dsimp [to_complex_obj, to_complex_d, covariant_contracting_homotopy]
-  simp only [category.id_comp, category.comp_id]
+  dsimp [CategoryTheory.SimplicialObject.Augmented.toComplexObj, CategoryTheory.SimplicialObject.Augmented.toComplexD, CategoryTheory.Arrow.covariantContractingHomotopy]
+  simp only [Category.id_comp, Category.comp_id]
   simp_rw [← M.map_comp, ← M.map_id]
   congr 2
   simp
@@ -285,21 +285,21 @@ theorem covariant_is_contracting_homotopy_one :
         (f.nerve M).toComplex.d 1 0 ≫ f.covariantContractingHomotopy M 0 =
       𝟙 _ :=
   by
-  dsimp [covariant_contracting_homotopy]
+  dsimp [CategoryTheory.Arrow.covariantContractingHomotopy]
   rw [if_pos]; rw [if_pos]; any_goals decide
-  dsimp [to_complex_d, simplicial_object.boundary, simplicial_object.δ]
+  dsimp [CategoryTheory.SimplicialObject.Augmented.toComplexD, SimplicialObject.boundary, CategoryTheory.SimplicialObject.δ]
   delta nerve
-  dsimp [to_complex_obj]
+  dsimp [CategoryTheory.SimplicialObject.Augmented.toComplexObj]
   simp only [Fin.sum_univ_succ, Fin.val_zero, pow_zero, one_zsmul, Fintype.univ_ofSubsingleton,
     Nat.add_def, Fin.mk_zero, Fin.val_succ, pow_one, neg_smul, Finset.sum_singleton,
-    preadditive.comp_add, category.id_comp, preadditive.comp_neg, category.comp_id]
+    Preadditive.comp_add, Category.id_comp, Preadditive.comp_neg, Category.comp_id]
   simp only [← M.map_comp]
   rw [add_assoc]
   convert add_zero _
   swap
   · symm
     convert M.map_id _
-    dsimp [arrow.cech_splitting]
+    dsimp [Arrow.cechSplitting]
     ext ⟨j, hj⟩; simp
     rw [dif_neg]; rfl
     dsimp [SimplexCategory.δ]
@@ -307,9 +307,9 @@ theorem covariant_is_contracting_homotopy_one :
     simp
   · rw [neg_add_eq_zero]
     congr 1
-    dsimp [cech_splitting]
+    dsimp [CategoryTheory.Arrow.cechSplitting]
     ext ⟨j, hj⟩
-    · simp only [category.assoc, wide_pullback.lift_π]; dsimp [SimplexCategory.δ]
+    · simp only [Category.assoc, WidePullback.lift_π]; dsimp [SimplexCategory.δ]
       rw [dif_pos]; have : j = 0 := by simpa using hj; subst this
       dsimp [SimplexCategory.δ]; decide
     · simp
@@ -320,33 +320,33 @@ theorem covariant_is_contracting_homotopy (n : ℕ) :
       𝟙 _ :=
   by
   dsimp; rw [if_pos]; rw [if_pos]; swap; · rfl; swap; · rfl
-  simp only [category.comp_id, category.id_comp]
-  dsimp only [to_complex_d, simplicial_object.boundary]
-  simp only [preadditive.sum_comp, preadditive.comp_sum]
+  simp only [Category.comp_id, Category.id_comp]
+  dsimp only [CategoryTheory.SimplicialObject.Augmented.toComplexD, SimplicialObject.boundary]
+  simp only [Preadditive.sum_comp, Preadditive.comp_sum]
   rw [Fin.sum_univ_succ, add_assoc, ← Finset.sum_add_distrib]
   convert add_zero _
   · apply Fintype.sum_eq_zero; intro j
     have : ((j.succ : Fin _) : ℕ) = (j : ℕ) + 1 := by simp; rw [this]; clear this
     rw [pow_succ]
-    simp only [neg_mul, one_mul, neg_smul, preadditive.comp_neg]
+    simp only [neg_mul, one_mul, neg_smul, Preadditive.comp_neg]
     rw [neg_add_eq_zero]
-    simp only [preadditive.comp_zsmul, preadditive.zsmul_comp]
+    simp only [Preadditive.comp_zsmul, Preadditive.zsmul_comp]
     congr 1
-    dsimp [covariant_contracting_homotopy, simplicial_object.δ]
+    dsimp [CategoryTheory.Arrow.covariantContractingHomotopy, CategoryTheory.SimplicialObject.δ]
     delta nerve
     dsimp [whiskering]
     simp only [← M.map_comp]
     congr 1
-    convert cech_splitting_face _ _ _ (Fin.succ_ne_zero _); funext i
+    convert CategoryTheory.Arrow.cechSplitting_face _ _ _ (Fin.succ_ne_zero _); funext i
     congr; simp
-  · dsimp [covariant_contracting_homotopy]
+  · dsimp [CategoryTheory.Arrow.covariantContractingHomotopy]
     simp only [pow_zero, one_zsmul]
     delta nerve
-    dsimp [arrow.cech_splitting, simplicial_object.whiskering, simplicial_object.δ]
+    dsimp [Arrow.cechSplitting, SimplicialObject.whiskering, CategoryTheory.SimplicialObject.δ]
     rw [← M.map_comp]; symm
     convert M.map_id _
     ext ⟨j, hj⟩
-    simp only [category.assoc, wide_pullback.lift_π]
+    simp only [Category.assoc, WidePullback.lift_π]
     rw [dif_neg]; dsimp; simpa; dsimp [SimplexCategory.δ]
     intro c; apply_fun fun e => e.1 at c ; simpa using c
     simp; dsimp; simp

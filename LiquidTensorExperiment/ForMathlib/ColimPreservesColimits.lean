@@ -2,7 +2,7 @@ import Mathlib.CategoryTheory.Limits.FunctorCategory
 import Mathlib.CategoryTheory.Limits.Preserves.Basic
 import Mathlib.Tactic.ApplyFun
 
-#align_import for_mathlib.colim_preserves_colimits
+#align_import for_mathlib.colimPreservesColimits
 
 open CategoryTheory
 
@@ -21,37 +21,37 @@ noncomputable def isColimitColimMapCocone {K : Type v} [SmallCategory K] (F : K 
         { app := fun j =>
             (isColimitOfPreserves ((evaluation J C).obj j) hT).desc
               ⟨S.pt,
-                { app := fun k => by apply limits.colimit.ι (F.obj k) j ≫ S.ι.app k
-                  naturality' := by
+                { app := fun k => by apply Limits.colimit.ι (F.obj k) j ≫ S.ι.app k
+                  naturality := by
                     intro k₁ k₂ f
                     dsimp
                     simp [← S.w f] }⟩
-          naturality' := by
+          naturality := by
             intro j₁ j₂ f
-            apply (limits.is_colimit_of_preserves ((evaluation J C).obj j₁) hT).hom_ext; intro k
+            apply (Limits.isColimitOfPreserves ((evaluation J C).obj j₁) hT).hom_ext; intro k
             dsimp
-            simp only [category.comp_id]
-            erw [(limits.is_colimit_of_preserves ((evaluation J C).obj j₁) hT).fac]
-            rw [← nat_trans.naturality_assoc]
-            erw [(limits.is_colimit_of_preserves ((evaluation J C).obj j₂) hT).fac]
+            simp only [Category.comp_id]
+            erw [(Limits.isColimitOfPreserves ((evaluation J C).obj j₁) hT).fac]
+            rw [← NatTrans.naturality_assoc]
+            erw [(Limits.isColimitOfPreserves ((evaluation J C).obj j₂) hT).fac]
             simp }⟩
   fac := by
     intro S k
     ext j; dsimp
-    simp only [colimit.map_desc, colimit.ι_desc, cocones.precompose_obj_ι, nat_trans.comp_app]
-    apply (limits.is_colimit_of_preserves ((evaluation J C).obj j) hT).fac
+    simp only [colimit.map_desc, colimit.ι_desc, Cocones.precompose_obj_ι, NatTrans.comp_app]
+    apply (Limits.isColimitOfPreserves ((evaluation J C).obj j) hT).fac
   uniq := by
     intro S m hm
     ext j
     simp only [colimit.ι_desc]
-    apply (limits.is_colimit_of_preserves ((evaluation J C).obj j) hT).hom_ext; intro k
+    apply (Limits.isColimitOfPreserves ((evaluation J C).obj j) hT).hom_ext; intro k
     dsimp
     specialize hm k
     dsimp at hm 
     apply_fun fun e => colimit.ι _ j ≫ e at hm 
     simp only [colimit.ι_map_assoc] at hm 
     rw [hm]
-    erw [(limits.is_colimit_of_preserves ((evaluation J C).obj j) hT).fac]
+    erw [(Limits.isColimitOfPreserves ((evaluation J C).obj j) hT).fac]
 
 noncomputable instance colimPreservesColimits : PreservesColimits (colim : (J ⥤ C) ⥤ C) :=
   by

@@ -1,6 +1,6 @@
 import LiquidTensorExperiment.ForMathlib.Ab4
 
-#align_import for_mathlib.is_quasi_iso_sigma
+#align_import for_mathlib.isQuasiIsoSigma
 
 open CategoryTheory
 
@@ -20,30 +20,30 @@ instance isQuasiIsoSigma [AB4 A] {α : Type v} (X : α → HomotopyCategory A (C
   let F := homology'Functor _ _ _
   let t := _; change is_iso (F.map t)
   let eP : F.obj (∐ fun a : α => P a) ≅ ∐ fun a => F.obj (P a) :=
-    (is_colimit_of_preserves F (colimit.is_colimit _)).coconePointUniqueUpToIso
-        (colimit.is_colimit _) ≪≫
-      has_colimit.iso_of_nat_iso (discrete.nat_iso fun _ => iso.refl _)
+    (CategoryTheory.Limits.isColimitOfPreserves F (colimit.isColimit _)).coconePointUniqueUpToIso
+        (colimit.isColimit _) ≪≫
+      HasColimit.isoOfNatIso (Discrete.natIso fun _ => iso.refl _)
   let eX : F.obj (∐ fun a : α => X a) ≅ ∐ fun a => F.obj (X a) :=
-    (is_colimit_of_preserves F (colimit.is_colimit _)).coconePointUniqueUpToIso
-        (colimit.is_colimit _) ≪≫
-      has_colimit.iso_of_nat_iso (discrete.nat_iso fun _ => iso.refl _)
+    (CategoryTheory.Limits.isColimitOfPreserves F (colimit.isColimit _)).coconePointUniqueUpToIso
+        (colimit.isColimit _) ≪≫
+      HasColimit.isoOfNatIso (Discrete.natIso fun _ => iso.refl _)
   let tt : (∐ fun a => F.obj (P a)) ⟶ ∐ fun a => F.obj (X a) :=
     sigma.desc fun a : α => F.map (π a) ≫ sigma.ι _ a
   suffices F.map t = eP.hom ≫ tt ≫ eX.inv by rw [this]; infer_instance
   dsimp [eP, tt, eX]
-  apply (is_colimit_of_preserves F (colimit.is_colimit (discrete.functor P))).hom_ext
+  apply (CategoryTheory.Limits.isColimitOfPreserves F (colimit.isColimit (Discrete.functor P))).hom_ext
   intro i
-  simp only [functor.map_cocone_ι_app, colimit.cocone_ι, category.assoc,
-    has_colimit.iso_of_nat_iso_hom_desc_assoc]
-  erw [(is_colimit_of_preserves F (colimit.is_colimit (discrete.functor P))).fac_assoc]
+  simp only [Functor.mapCocone_ι_app, colimit.cocone_ι, Category.assoc,
+    HasColimit.isoOfNatIso_hom_desc_assoc]
+  erw [(CategoryTheory.Limits.isColimitOfPreserves F (colimit.isColimit (Discrete.functor P))).fac_assoc]
   rw [← F.map_comp, colimit.ι_desc]
   dsimp
-  simp only [functor.map_comp, colimit.ι_desc_assoc, cocones.precompose_obj_ι, nat_trans.comp_app,
-    discrete.nat_iso_hom_app, cofan.mk_ι_app, category.assoc,
-    has_colimit.iso_of_nat_iso_ι_inv_assoc, discrete.nat_iso_inv_app,
-    colimit.comp_cocone_point_unique_up_to_iso_inv, functor.map_cocone_ι_app, colimit.cocone_ι]
+  simp only [Functor.map_comp, colimit.ι_desc_assoc, Cocones.precompose_obj_ι, NatTrans.comp_app,
+    Discrete.natIso_hom_app, Cofan.mk_ι_app, Category.assoc,
+    HasColimit.isoOfNatIso_ι_inv_assoc, Discrete.natIso_inv_app,
+    colimit.comp_coconePointUniqueUpToIso_inv, Functor.mapCocone_ι_app, colimit.cocone_ι]
   dsimp
-  simp only [category.id_comp]
+  simp only [Category.id_comp]
 
 end HomotopyCategory
 

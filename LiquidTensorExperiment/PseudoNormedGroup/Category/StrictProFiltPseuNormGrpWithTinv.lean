@@ -108,7 +108,7 @@ def tinvLimitFun' {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWi
     ext1
     show (K.map f) (Tinv _) = Tinv _
     erw [(K.map f).map_tinv]; congr 1
-    simpa only [functor.comp_map, Subtype.val_eq_coe, Subtype.ext_iff] using x.2 f⟩
+    simpa only [Functor.comp_map, Subtype.val_eq_coe, Subtype.ext_iff] using x.2 f⟩
 
 def tinvLimitFun {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r) :
     (ProFiltPseuNormGrp₁.limitCone (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r)).pt →
@@ -179,12 +179,12 @@ def tinvLimit {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTi
         let F : filtration X c → filtration X (r⁻¹ * c) := fun x =>
           ⟨Tinv_limit_add_monoid_hom r K x, Tinv_limit_aux _ _ _ _ x.2⟩
         change Continuous F
-        let e := filt_homeo (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ)
+        let e := CompHausFiltPseuNormGrp₁.ConePointType.filtHomeo (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ)
         suffices Continuous (e (r⁻¹ * c) ∘ F ∘ (e c).symm) by simpa
         let I : ∀ j : J, ComphausFilteredPseudoNormedGroupHom (K.obj j) (K.obj j) := fun j => Tinv
         let G :
-          cone_point_type_filt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) c →
-            cone_point_type_filt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) (r⁻¹ * c) :=
+          CompHausFiltPseuNormGrp₁.ConePointTypeFilt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) c →
+            CompHausFiltPseuNormGrp₁.ConePointTypeFilt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) (r⁻¹ * c) :=
           fun x => ⟨fun j => ⟨I j (x j).1, _⟩, _⟩
         rotate_left
         · apply Tinv_bound_by; exact (x j).2
@@ -201,7 +201,7 @@ def tinvLimit {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTi
           apply continuous_pi
           intro i
           let G1 :
-            cone_point_type_filt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) c →
+            CompHausFiltPseuNormGrp₁.ConePointTypeFilt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) c →
               filtration (K.obj i) c :=
             fun x => x i
           let G2 : filtration (K.obj i) c → filtration (K.obj i) (r⁻¹ * c) := fun x => ⟨I i x, _⟩
@@ -210,7 +210,7 @@ def tinvLimit {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTi
           apply Continuous.comp
           · apply ComphausFilteredPseudoNormedGroupHom.continuous; intro x; rfl
           · let G11 :
-              cone_point_type_filt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) c →
+              CompHausFiltPseuNormGrp₁.ConePointTypeFilt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) c →
                 ∀ j : J, filtration (K.obj j) c :=
               fun x => x
             let G12 : (∀ j : J, filtration (K.obj j) c) → filtration (K.obj i) c := fun x => x i
@@ -252,7 +252,7 @@ def limitCone {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTi
             change _ = Tinv (proj _ _ (incl _ _))
             dsimp [proj]
             simpa }
-      naturality' := by
+      naturality := by
         intro i j e
         ext1 x
         have := (ProFiltPseuNormGrp₁.limitCone (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r)).π.naturality e

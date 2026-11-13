@@ -19,7 +19,7 @@ theorem strictIso_inv {A B : SemiNormedGroupCat} (f : A ≅ B) [StrictIso f] (b 
   by
   have : b = f.hom (f.inv b) := by change b = (f.inv ≫ f.hom) b; simp
   conv_rhs => rw [this]
-  rw [strict_iso_hom]
+  rw [SemiNormedGroupCat.strictIso_hom]
 
 end SemiNormedGroupCat
 

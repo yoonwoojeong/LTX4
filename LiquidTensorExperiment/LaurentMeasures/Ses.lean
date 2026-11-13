@@ -52,19 +52,19 @@ variable {M₁ M₂ : Type u} [ComphausFilteredPseudoNormedGroup M₁]
 def cfpngHomAdd (f g : ComphausFilteredPseudoNormedGroupHom M₁ M₂) :
     ComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
   by
-  apply mk_of_bound (f.to_add_monoid_hom + g.to_add_monoid_hom) (f.bound.some + g.bound.some)
+  apply mk_of_bound (f.toAddMonoidHom + g.toAddMonoidHom) (f.bound.some + g.bound.some)
   intro c
   refine' ⟨_, _⟩
   · intro x hx
     simp only [ComphausFilteredPseudoNormedGroupHom.coe_mk]
     simp only [AddMonoidHom.add_apply, coe_to_add_monoid_hom]
-    convert PseudoNormedGroup.add_mem_filtration (f.bound.some_spec hx) (g.bound.some_spec hx)
+    convert PseudoNormedGroup.add_mem_filtration (f.bound.choose_spec hx) (g.bound.choose_spec hx)
     rw [add_mul]
   let f₀ : filtration M₁ c → filtration M₂ (f.bound.some * c) := fun x =>
-    ⟨f x, f.bound.some_spec x.2⟩
+    ⟨f x, f.bound.choose_spec x.2⟩
   have hf₀ : Continuous f₀ := f.continuous _ fun x => rfl
   let g₀ : filtration M₁ c → filtration M₂ (g.bound.some * c) := fun x =>
-    ⟨g x, g.bound.some_spec x.2⟩
+    ⟨g x, g.bound.choose_spec x.2⟩
   have hg₀ : Continuous g₀ := g.continuous _ fun x => rfl
   simp only [AddMonoidHom.add_apply, coe_to_add_monoid_hom]
   haveI : Fact (f.bound.some * c + g.bound.some * c ≤ (f.bound.some + g.bound.some) * c) :=
@@ -84,14 +84,14 @@ def cfpngHomAdd (f g : ComphausFilteredPseudoNormedGroupHom M₁ M₂) :
 def cfpngHomNeg (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) :
     ComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
   by
-  apply mk_of_bound (-f.to_add_monoid_hom) f.bound.some
+  apply mk_of_bound (-f.toAddMonoidHom) f.bound.some
   intro c
   refine' ⟨_, _⟩
   · intro x hx
     simp only [ComphausFilteredPseudoNormedGroupHom.coe_mk]
-    convert PseudoNormedGroup.neg_mem_filtration (f.bound.some_spec hx)
+    convert PseudoNormedGroup.neg_mem_filtration (f.bound.choose_spec hx)
   let f₀ : filtration M₁ c → filtration M₂ (f.bound.some * c) := fun x =>
-    ⟨f x, f.bound.some_spec x.2⟩
+    ⟨f x, f.bound.choose_spec x.2⟩
   have hf₀ : Continuous f₀ := f.continuous _ fun x => rfl
   exact (continuous_neg' _).comp hf₀
 
@@ -208,9 +208,9 @@ theorem Nnreal.tsum_geom_arit_inequality (f : ℤ → ℝ) {r' : ℝ} (hr'1 : 0 
   have := fun s : Finset ℤ => NNReal.rpow_sum_le_sum_rpow s (fun i => ‖f i‖₊) hr'1 hr'2
   dsimp only at this 
   have s1' :=
-    Filter.Tendsto.comp (Continuous.tendsto (NNReal.continuous_rpow_const hr'1.le) _) hs1.has_sum
+    Filter.Tendsto.comp (Continuous.tendsto (NNReal.continuous_rpow_const hr'1.le) _) hs1.hasSum
   dsimp [Function.comp] at s1' 
-  apply tendsto_le_of_eventuallyLE s1' hs2.has_sum
+  apply tendsto_le_of_eventuallyLE s1' hs2.hasSum
   delta Filter.EventuallyLE
   convert Filter.univ_sets _
   ext x
@@ -252,7 +252,7 @@ theorem θ_bound : ∀ c : ℝ≥0, ∀ F : ℒ S, F ∈ filtration (ℒ S) c �
         ∑' n : ℤ, ‖((F s n : ℝ) * 2⁻¹ ^ n)‖₊ ^ (p : ℝ) :=
     by
     intro s hs
-    apply nnreal.tsum_geom_arit_inequality fun n => F s n * 2⁻¹ ^ n
+    apply Nnreal.tsum_geom_arit_inequality fun n => F s n * 2⁻¹ ^ n
     · norm_num; exact Fact.out _
     · suffices : p ≤ 1; assumption_mod_cast; exact Fact.out _
     · dsimp only
@@ -555,7 +555,7 @@ def geomBNat (ε : ℝ) (hε : 0 < ε) :
     · intro a ha
       rw [Finset.not_nonempty_iff_eq_empty] at H 
       finish
-  let hA := this.some_spec
+  let hA := this.choose_spec
   specialize hA (Finset.range B) h_incl
   rw [Real.dist_0_eq_abs, ← Real.norm_eq_abs] at hA 
   intro F
@@ -600,7 +600,7 @@ def geomBInt (ε : ℝ) (hε : 0 < ε) :
   convert hB using 1
   apply congr_arg
   exact
-    ((eq_le_int_nat B).symm.tsum_eq fun b : { n : ℤ // ↑B ≤ n } =>
+    ((LaurentMeasuresSes.eqLeIntNat B).symm.tsum_eq fun b : { n : ℤ // ↑B ≤ n } =>
         (F.1 PUnit.unit b.1 : ℝ) * 2⁻¹ ^ b.1).symm
 
 def geomB (ε : ℝ) (hε : 0 < ε) : ℤ :=
@@ -872,10 +872,10 @@ theorem speed_aux (ε η : ℝ) (η₀ : ℝ≥0) (hη₀ : η = η₀) (y : clo
     (hG : G ∈ U c F (geom_B c (↑η₀ ^ (p : ℝ) / 2 ^ p.val) h_pos'')) : |ξ G - ξ F| < ε - |ξ F - y| :=
   by
   repeat' rw [hξ]
-  rw [← real_measures.dist_eq, ←
-    Real.rpow_lt_rpow_iff (Real.rpow_nonneg_of_nonneg (real_measures.norm_nonneg _) _)
+  rw [← RealMeasures.dist_eq, ←
+    Real.rpow_lt_rpow_iff (Real.rpow_nonneg_of_nonneg (RealMeasures.norm_nonneg _) _)
       (sub_nonneg.mpr (le_of_lt hF)) hp,
-    ← Real.rpow_mul (real_measures.norm_nonneg _), inv_mul_cancel (ne_of_gt hp), Real.rpow_one, ←
+    ← Real.rpow_mul (RealMeasures.norm_nonneg _), inv_mul_cancel (ne_of_gt hp), Real.rpow_one, ←
     hη]
   apply speed_aux'; assumption'
 

@@ -280,7 +280,7 @@ theorem isPolyhedralCone_of_equiv {Λ' : Type u} [AddCommGroup Λ'] [Module ℚ 
   by
   rcases hC with ⟨ι, hι, l, rfl⟩
   refine' ⟨ι, hι, fun i => _, _⟩
-  apply (l i).comp e.symm.to_linear_map
+  apply (l i).comp e.symm.toLinearMap
   ext x
   simp only [Submodule.mem_map, Function.comp_apply, LinearMap.coe_comp, mem_indexDownOne,
     LinearEquiv.coe_toLinearMap, LinearMap.coe_restrictScalars]

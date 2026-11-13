@@ -2,7 +2,7 @@ import Mathlib.Analysis.NormedSpace.lpSpace
 import Mathlib.Topology.Instances.Real
 import LiquidTensorExperiment.Banach
 
-#align_import pBanach.lp
+#align_import PBanachCat.lp
 
 open scoped NNReal BigOperators uniformity TopologicalSpace
 
@@ -19,7 +19,7 @@ deriving
 
 variable (p : ℝ≥0)
 
-instance : CoeFun (lpType p) fun f => ℕ → ℝ := by dsimp [lp_type]; infer_instance
+instance : CoeFun (lpType p) fun f => ℕ → ℝ := by dsimp [PBanachCat.lpType]; infer_instance
 
 instance : NNNorm (lpType p) :=
   NNNorm.mk fun f => ∑' n : ℕ, ‖f n‖₊ ^ (p : ℝ)
@@ -32,7 +32,7 @@ variable {p} [Fact (0 < p)]
 
 theorem lpType.summable (f : lpType p) : Summable fun n => |f n| ^ (p : ℝ) :=
   by
-  have := f.2; dsimp [lp_type, lp, Memℓp] at this 
+  have := f.2; dsimp [PBanachCat.lpType, lp, Memℓp] at this 
   rw [if_neg] at this ; rwa [if_neg] at this 
   · exact ENNReal.coe_ne_top
   · refine' ne_of_gt _
@@ -55,13 +55,13 @@ theorem lpType.triangle (f g : lpType p) : ‖f + g‖ ≤ ‖f‖ + ‖g‖ :=
     · exact_mod_cast (Fact.out (0 < p)).le
     · exact_mod_cast Fact.out (p ≤ 1)
   refine' le_trans (tsum_le_tsum this _ _) (le_of_eq _)
-  · have hh := lp_type.summable (f + g); dsimp at hh ; exact hh
+  · have hh := lpType.summable (f + g); dsimp at hh ; exact hh
   · apply Summable.add
-    exact lp_type.summable f
-    exact lp_type.summable g
+    exact lpType.summable f
+    exact lpType.summable g
   apply tsum_add
-  exact lp_type.summable f
-  exact lp_type.summable g
+  exact lpType.summable f
+  exact lpType.summable g
 
 instance : PseudoMetricSpace (lpType p)
     where
@@ -79,7 +79,7 @@ instance : PseudoMetricSpace (lpType p)
     simp_rw [this]
   dist_triangle := by
     intro f g h
-    have := lp_type.triangle (f - g) (g - h)
+    have := lpType.triangle (f - g) (g - h)
     rw [show f - g + (g - h) = f - h by abel] at this 
     exact this
 
@@ -100,11 +100,11 @@ def hasPNorm : HasPNorm (lpType p) p :=
         any_goals exact abs_nonneg _
       simp_rw [this]
       rw [tsum_mul_left]
-    Triangle := by intro f g; apply lp_type.triangle
+    Triangle := by intro f g; apply lpType.triangle
     uniformity := rfl }
 
 instance : NormedAddCommGroup (lpType p) :=
-  normed_add_comm_group.of_core _
+  normed_add_comm_group.ofCore _
     { norm_eq_zero_iff := by
         intro f; dsimp; constructor
         · intro hf
@@ -115,7 +115,7 @@ instance : NormedAddCommGroup (lpType p) :=
             simpa using this.1
             apply abs_nonneg
           refine' le_antisymm (le_trans _ (le_of_eq hf)) _
-          · apply le_tsum (lp_type.summable f) n
+          · apply le_tsum (lpType.summable f) n
             intro m hm; dsimp
             apply Real.rpow_nonneg_of_nonneg
             exact abs_nonneg _
@@ -298,7 +298,7 @@ instance : ContinuousSMul ℝ (lpType p) := by
 theorem uniformContinuous_coe : UniformContinuous (fun f n => f n : lpType p → ℕ → ℝ) :=
   by
   rw [uniformContinuous_pi]; intro i
-  rw [normed_add_comm_group.uniformity_basis_dist.uniform_continuous_iff
+  rw [normed_add_comm_group.uniformity_basis_dist.uniformContinuous_iff
       NormedAddCommGroup.uniformity_basis_dist]
   intro ε hε; dsimp
   refine' ⟨ε ^ (p : ℝ), _, _⟩
@@ -309,7 +309,7 @@ theorem uniformContinuous_coe : UniformContinuous (fun f n => f n : lpType p →
     rw [Real.rpow_lt_rpow_iff] at this ; assumption; exact abs_nonneg _; exact le_of_lt hε
     exact_mod_cast Fact.out (0 < p)
   refine' lt_of_le_of_lt _ hfg
-  apply le_tsum (lp_type.summable (f - g)) i
+  apply le_tsum (lpType.summable (f - g)) i
   intro j _; apply Real.rpow_nonneg_of_nonneg; exact abs_nonneg _
 
 theorem sum_rpow_le_norm (p : ℝ≥0) [Fact (0 < p)] (F : lpType p) (S : Finset ℕ) :
@@ -317,7 +317,7 @@ theorem sum_rpow_le_norm (p : ℝ≥0) [Fact (0 < p)] (F : lpType p) (S : Finset
   by
   apply sum_le_tsum
   intro i hi; apply Real.rpow_nonneg_of_nonneg; exact abs_nonneg _
-  exact lp_type.summable _
+  exact lpType.summable _
 
 theorem sum_rpow_le_of_tendsto (p : ℝ≥0) [Fact (0 < p)] {C : ℝ} {F : ℕ → lpType p}
     (hCF : ∀ᶠ k in Filter.atTop, ‖F k‖ ≤ C) {f : ℕ → ℝ}
@@ -331,14 +331,14 @@ theorem sum_rpow_le_of_tendsto (p : ℝ≥0) [Fact (0 < p)] {C : ℝ} {F : ℕ �
     have : Continuous fun f : ∀ a, ℝ => f a := continuous_apply a
     refine' this.norm.rpow_const _
     intro _; right; apply le_of_lt; exact_mod_cast Fact.out (0 < p)
-  refine' le_of_tendsto (hG.continuous_at.tendsto.comp hf) _
+  refine' le_of_tendsto (hG.continuousAt.tendsto.comp hf) _
   refine' hCF.mono _
   intro k hCFk
   refine' (sum_rpow_le_norm _ (F k) s).trans _; assumption
 
 theorem norm_le_of_forall_sum_le (p : ℝ≥0) [Fact (0 < p)] (f : lpType p) (C)
     (hf : ∀ s : Finset ℕ, ∑ i in s, |f i| ^ (p : ℝ) ≤ C) : ‖f‖ ≤ C := by
-  apply tsum_le_of_sum_le; exact lp_type.summable f; assumption
+  apply tsum_le_of_sum_le; exact lpType.summable f; assumption
 
 theorem norm_le_of_tendsto (p : ℝ≥0) [Fact (0 < p)] {C : ℝ} (F : ℕ → lpType p)
     (hCF : ∀ᶠ k in Filter.atTop, ‖F k‖ ≤ C) (f : lpType p)
@@ -357,15 +357,15 @@ instance : CompleteSpace (lpType p) :=
   obtain ⟨f, hf⟩ := cauchySeq_tendsto_of_complete ((uniform_continuous_coe p).comp_cauchySeq hu)
   have hf' : Memℓp f p :=
     by
-    obtain ⟨C, hC, H⟩ := hu.bounded_range.exists_pos_norm_le
+    obtain ⟨C, hC, H⟩ := hu.isBounded_range.exists_pos_norm_le
     replace H : ∀ n, ‖u n‖ ≤ C := fun n => H _ ⟨n, rfl⟩
     apply memℓp_gen'; swap; use C
     intro S; simp only [Real.norm_eq_abs, ENNReal.coe_toReal]
     apply sum_rpow_le_of_tendsto; apply Filter.eventually_of_forall; exact H; assumption
   refine' ⟨⟨f, hf'⟩, _⟩
-  rw [metric.nhds_basis_closed_ball.tendsto_right_iff]
+  rw [metric.nhds_basis_closedBall.tendsto_right_iff]
   intro ε hε
-  have hε' : {p : lp_type p × lp_type p | ‖p.1 - p.2‖ < ε} ∈ 𝓤 (lp_type p) :=
+  have hε' : {p : PBanachCat.lpType p × PBanachCat.lpType p | ‖p.1 - p.2‖ < ε} ∈ 𝓤 (PBanachCat.lpType p) :=
     normed_add_comm_group.uniformity_basis_dist.mem_of_mem hε
   refine' (hu.eventually_eventually hε').mono _; clear hε'
   rintro n (hn : ∀ᶠ j in Filter.atTop, ‖u n - u j‖ < _)

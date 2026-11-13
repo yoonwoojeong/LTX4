@@ -195,12 +195,12 @@ theorem emb (r' S c) : ClosedEmbedding (@embAux r' S c) :=
     closed_range :=
       by
       have :
-        range emb_aux =
+        range LbarBdd.embAux =
           ⋂ x : { y : ℕ × ℕ // y.1 ≤ y.2 },
             {F : ∀ M, LbarBdd r' S c M | transition r' x.2 (F x.val.2) = F x.val.1} :=
         by
         ext
-        simp only [emb_aux, Prod.forall, mem_Inter, mem_set_of_eq, Subtype.range_coe_subtype,
+        simp only [LbarBdd.embAux, Prod.forall, mem_Inter, Set.mem_setOf_eq, Subtype.range_coe_subtype,
           Subtype.forall]
       rw [this]
       apply isClosed_iInter

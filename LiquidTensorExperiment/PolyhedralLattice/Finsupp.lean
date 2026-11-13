@@ -44,7 +44,7 @@ theorem norm_single (i : ι) (l : Λ) : ‖single i l‖ = ‖l‖ := by
 variable (ι Λ)
 
 instance [Fintype ι] : NormedAddCommGroup (ι →₀ Λ) :=
-  normed_add_comm_group.of_core _ <|
+  normed_add_comm_group.ofCore _ <|
     { norm_eq_zero_iff := fun x => by
         simp only [norm_def, Sum, ← coe_nnnorm, ← NNReal.coe_sum, NNReal.coe_eq_zero, coe_zero,
           Finset.sum_eq_zero_iff, nnnorm_eq_zero, mem_support_iff, ext_iff, Pi.zero_apply,
@@ -86,7 +86,7 @@ variable {Λ x} [Fintype J] (hx : GeneratesNorm x)
 
 theorem finsupp [Fintype ι] : GeneratesNorm (finsuppGenerators ι Λ x) :=
   by
-  dsimp only [finsupp_generators]
+  dsimp only [GeneratesNorm.finsuppGenerators]
   intro l
   have := fun i => hx (l i)
   choose c H1 H2 using this

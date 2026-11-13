@@ -69,7 +69,7 @@ theorem final_boss_aux₃ [NormedWithAut r V] (X : Profinite) :
   by
   dsimp [AbstractCompletion.compareEquiv]
   refine' (NormedAddGroupHom.continuous _).comp _
-  refine' ((LocallyConstant.pkg X V).uniformContinuous_compare _).Continuous
+  refine' ((LocallyConstant.pkg X V).uniformContinuous_compare _).continuous
 
 example {β : Type _} [UniformSpace β] (a : AbstractCompletion β) : UniformSpace a.Space := by
   infer_instance
@@ -79,20 +79,20 @@ theorem final_boss_aux₄ [NormedWithAut r V] (X : Profinite) :
       fun x : C(X, V) =>
       (LocallyConstant.pkg X V).compare UniformSpace.Completion.cPkg.{u}
         { toFun := vTInv r V ∘ x.toFun
-          continuous_toFun := NormedWithAut.t.inv.Continuous.comp x.2 } :=
+          continuous_toFun := NormedWithAut.t.inv.continuous.comp x.2 } :=
   by
-  let e : C(X, V) → C(X, V) := fun e => ⟨vTInv r V ∘ e, (vTInv r V).Continuous.comp e.2⟩
+  let e : C(X, V) → C(X, V) := fun e => ⟨vTInv r V ∘ e, (vTInv r V).continuous.comp e.2⟩
   have he : Continuous e :=
-    ContinuousMap.continuous_comp (⟨vTInv r V, (vTInv r V).Continuous⟩ : C(V, V))
+    ContinuousMap.continuous_comp (⟨vTInv r V, (vTInv r V).continuous⟩ : C(V, V))
   refine' Continuous.comp _ he
-  refine' ((LocallyConstant.pkg X V).uniformContinuous_compare _).Continuous
+  refine' ((LocallyConstant.pkg X V).uniformContinuous_compare _).continuous
 
 theorem final_boss [NormedWithAut r V] (X : Profinite)
     (x : (Condensed.OfTopAb.presheaf V).obj (op X)) :
     (LocallyConstant.mapHom (vTInv r V)).Completion ((lCCIsoCondOfTopAbAddEquiv X V).symm x) =
       (lCCIsoCondOfTopAbAddEquiv X V).symm
         { toFun := NormedWithAut.t.inv ∘ x.1
-          continuous_toFun := NormedWithAut.t.inv.Continuous.comp x.2 } :=
+          continuous_toFun := NormedWithAut.t.inv.continuous.comp x.2 } :=
   by
   rw [final_boss_aux₁]
   rw [final_boss_aux₁]
@@ -193,7 +193,7 @@ theorem toCond_val_map (X Y : Profinite.{u}) (f : X ⟶ Y) :
   by ext x; rw [toCond_val_map_apply]
 
 theorem massive_aux₂ (X Y : Profinite.{u}) (f : X ⟶ Y) (x : V.toCond.val.obj (op.{u + 2} Y)) :
-    UniformSpace.Completion.map.{u, u} (LocallyConstant.comapHom.{u, u, u} f f.Continuous)
+    UniformSpace.Completion.map.{u, u} (LocallyConstant.comapHom.{u, u, u} f f.continuous)
         ((LocallyConstant.pkg.{u} Y ↥V).compare UniformSpace.Completion.cPkg.{u} x.down) =
       ((LocallyConstant.pkg.{u} X ↥V).compare UniformSpace.Completion.cPkg.{u})
         ((V.toCond.val.map f.op) x).down :=
@@ -202,8 +202,8 @@ theorem massive_aux₂ (X Y : Profinite.{u}) (f : X ⟶ Y) (x : V.toCond.val.obj
   apply AbstractCompletion.induction_on (LocallyConstant.pkg.{u} Y V) x
   · apply isClosed_eq
     · apply uniform_space.completion.continuous_map.comp
-      apply (AbstractCompletion.uniformContinuous_compare _ _).Continuous
-    · apply (AbstractCompletion.uniformContinuous_compare _ _).Continuous.comp
+      apply (AbstractCompletion.uniformContinuous_compare _ _).continuous
+    · apply (AbstractCompletion.uniformContinuous_compare _ _).continuous.comp
       let φ : C(Y, V) → C(X, V) := _; change Continuous φ
       let ψ := V.to_Cond.val.map f.op; have hψ : φ = ULift.down ∘ ψ ∘ ULift.up := rfl
       rw [hψ]; clear hψ
@@ -219,9 +219,9 @@ theorem massive_aux₂ (X Y : Profinite.{u}) (f : X ⟶ Y) (x : V.toCond.val.obj
     simp only [AbstractCompletion.compare_coe, toCond_val_map_apply, UniformSpace.Completion.map]
     rw [AbstractCompletion.map_coe]
     swap
-    · let this.1 : SeminormedAddCommGroup (LocallyConstant (↥X.to_CompHaus.to_Top) ↥V) :=
+    · let this.1 : SeminormedAddCommGroup (LocallyConstant (↥X.to_CompHaus.toTop) ↥V) :=
         LocallyConstant.seminormedAddCommGroup
-      let this.1 : SeminormedAddCommGroup (LocallyConstant (↥Y.to_CompHaus.to_Top) ↥V) :=
+      let this.1 : SeminormedAddCommGroup (LocallyConstant (↥Y.to_CompHaus.toTop) ↥V) :=
         LocallyConstant.seminormedAddCommGroup
       exact NormedAddGroupHom.uniformContinuous _
     have :
@@ -250,17 +250,17 @@ theorem massive_aux (X Y : Profinite.{u}) (f : X ⟶ Y) :
           Ab.ulift.{u + 1, u}.map ((lCCIsoCondOfTopAb.{u} V).inv.app (op.{u + 2} X)) ≫
             (extQprimeIsoAuxSystemObjAux'.{u} V X).hom :=
   by
-  dsimp only [functor.map_FreeAb, FreeAb.of_functor, FreeAb.eval]
+  dsimp only [Functor.mapFreeAb, FreeAb.ofFunctor, FreeAb.eval]
   simp only [FreeAbelianGroup.map_of_apply, FreeAbelianGroup.lift.of, id]
-  dsimp only [functor.right_op_map, Quiver.Hom.op_unop, Quiver.Hom.unop_op]
+  dsimp only [Functor.rightOp_map, Quiver.Hom.op_unop, Quiver.Hom.unop_op]
   rw [massive_aux₁_assoc]; congr 1
   ext1 x; simp only [comp_apply]
   dsimp only [extQprimeIsoAuxSystemObjAux', lCCIsoCondOfTopAb, lCCIsoCondOfTopAbAddEquiv,
-    lCCIsoCondOfTopAbEquiv, cLC, lC, functor.comp_map, Condensed.ofTopAb]
+    lCCIsoCondOfTopAbEquiv, cLC, lC, Functor.comp_map, Condensed.ofTopAb]
   simp only [AddEquiv.to_fun_eq_coe, NormedAddGroupHom.completion_coe_to_fun,
     AddEquiv.to_AddCommGroup_iso_hom, AddEquiv.coe_toAddMonoidHom, AddEquiv.trans_apply,
     AddEquiv.uLift_apply, Equiv.toFun_as_coe, Equiv.uLift_apply_2, Ab.uLift_map_apply_down,
-    AddEquiv.coe_mk, nat_iso.of_components_inv_app, AddEquiv.toAddCommGroupCatIso, AddEquiv.mk_symm,
+    AddEquiv.coe_mk, NatIso.ofComponents_inv_app, AddEquiv.toAddCommGroupCatIso, AddEquiv.mk_symm,
     SemiNormedGroupCat.forget₂_ab_map, NormedAddGroupHom.coe_toAddMonoidHom]
   let F :=
     SemiNormedGroupCat.completion.{u + 1}.map
@@ -308,16 +308,16 @@ theorem massive (X Y : FreeAb Profinite.{u}) (f : X ⟶ Y) :
               (extQprimeIsoAuxSystemObjAux'.{u} V X.as).hom) ≫
           𝟙 _ :=
   by
-  simp only [condensedAbToPresheaf_map, category.assoc, category.comp_id, functor.comp_map]
-  dsimp only [condensedLCCIsoOfTopAb, Sheaf.iso.mk_inv_val, iso_whisker_right_inv,
-    whisker_right_app]
+  simp only [condensedAbToPresheaf_map, Category.assoc, Category.comp_id, Functor.comp_map]
+  dsimp only [condensedLCCIsoOfTopAb, Sheaf.Iso.mk_inv_val, CategoryTheory.isoWhiskerRight_inv,
+    CategoryTheory.whiskerRight_app]
   apply FreeAbelianGroup.induction_on f <;> clear f
-  · simp only [functor.map_zero, unop_zero, comp_zero, op_zero, zero_comp]
+  · simp only [Functor.map_zero, unop_zero, comp_zero, op_zero, zero_comp]
   · apply massive_aux
   · intro f hf
-    simp only [functor.map_neg, unop_neg, op_neg, comp_neg, neg_comp, hf]
+    simp only [Functor.map_neg, unop_neg, op_neg, comp_neg, neg_comp, hf]
   · intro f g hf hg
-    simp only [functor.map_add, unop_add, op_add, comp_add, add_comp, hf, hg]
+    simp only [Functor.map_add, unop_add, op_add, comp_add, add_comp, hf, hg]
 
 theorem homComplexQprimeFPNatIsoAuxSystem_naturality_in_c (c₁ c₂) (h : c₁ ⟶ c₂) :
     (homComplexQprimeFPNatIsoAuxSystem r' BD κ M V c₂).hom ≫ CategoryTheory.Functor.map _ h.op =
@@ -417,9 +417,9 @@ theorem another_aux_lemma [NormedWithAut r V] (X : Profinite) :
     ((preadditiveYonedaObjObjCondensedSetToCondensedAb V.toCond X).hom ≫
         (condensedAbToPresheaf.mapIso (condensedLCCIsoOfTopAb V)).inv.app (op X) ≫
           by
-          refine' nat_trans.app _ _
+          refine' NatTrans.app _ _
           refine' Condensed_Ab_to_presheaf.map _
-          refine' Sheaf.hom.mk _
+          refine' Sheaf.Hom.mk _
           dsimp [condensedLCC]
           refine' whisker_right _ _
           refine' whisker_right _ _
@@ -432,18 +432,18 @@ theorem another_aux_lemma [NormedWithAut r V] (X : Profinite) :
   have := preadditiveYonedaObjObjCondensedSetToCondensedAb_natural (toCondTInv r V) X
   erw [← reassoc_of this]
   congr 1
-  dsimp only [condensedAbToPresheaf, functor.map_iso_inv, nat_iso.app_inv, Sheaf_to_presheaf_map,
-    id, whisker_right_app, SemiNormedGroupCat.lCC, curry, uncurry, curry_obj, functor.comp_map]
-  simp only [CategoryTheory.Functor.map_id, category.comp_id]
-  rw [← nat_trans.comp_app]
-  rw [← Sheaf.hom.comp_val]
+  dsimp only [condensedAbToPresheaf, Functor.mapIso_inv, NatIso.app_inv, Sheaf_to_presheaf_map,
+    id, CategoryTheory.whiskerRight_app, SemiNormedGroupCat.lCC, curry, uncurry, CategoryTheory.curryObj, Functor.comp_map]
+  simp only [CategoryTheory.Functor.map_id, Category.comp_id]
+  rw [← NatTrans.comp_app]
+  rw [← Sheaf.Hom.comp_val]
   -- how to make those commute?
   ext ⟨x⟩
-  dsimp only [condensedLCCIsoOfTopAb, Sheaf.iso.mk, iso_whisker_right, toCondTInv, Ab.ulift]
+  dsimp only [condensedLCCIsoOfTopAb, Sheaf.Iso.mk, CategoryTheory.isoWhiskerRight, toCondTInv, Ab.ulift]
   simp only [comp_apply]
   dsimp [Condensed.ofTopAbMap]
   simp only [comp_apply]
-  dsimp [lCCIsoCondOfTopAb, forget₂, has_forget₂.forget₂]
+  dsimp [lCCIsoCondOfTopAb, forget₂, HasForget₂.forget₂]
   apply final_boss
 
 theorem hom_complex_QprimeFP_nat_iso_auxSystem_naturality_in_tInv_aux (c : ℝ≥0) [NormedWithAut r V]
@@ -473,8 +473,8 @@ theorem hom_complex_QprimeFP_nat_iso_auxSystem_naturality_in_tInv_aux (c : ℝ�
     rw nat_iso.of_components_inv_app,
     dsimp only [unop_op],
     -/
-  dsimp only [forget₂, has_forget₂.forget₂, extQprimeIsoAuxSystemObjAux,
-    nat_iso.of_components_hom_app, id, iso.op, iso.trans_hom, iso.symm, nat_iso.app_inv,
+  dsimp only [forget₂, HasForget₂.forget₂, extQprimeIsoAuxSystemObjAux,
+    NatIso.ofComponents_hom_app, id, Iso.op, Iso.trans_hom, iso.symm, NatIso.app_inv,
     auxSystem.tInv, Quiver.Hom.op_unop, Quiver.Hom.unop_op, HomologicalComplex.unop]
   simp only [comp_apply]
   let X : Profinite := (((BreenDeligne.fPsystem r' BD ⟨M⟩ κ).obj c).pt n).as
@@ -493,15 +493,15 @@ theorem hom_complex_QprimeFP_nat_iso_auxSystem_naturality_in_tInv_aux (c : ℝ�
   congr 1; dsimp only [s]
   simp only [← comp_apply]
   congr 1
-  simp only [category.assoc]
+  simp only [Category.assoc]
   erw [← another_aux_lemma r V X]
   congr 2
-  ext1 ⟨x⟩; dsimp only [Ab.ulift, condensedAbToPresheaf, whisker_right_app, Sheaf_to_presheaf]
+  ext1 ⟨x⟩; dsimp only [Ab.ulift, condensedAbToPresheaf, CategoryTheory.whiskerRight_app, Sheaf_to_presheaf]
   ext1
   dsimp
   congr 2
-  dsimp only [SemiNormedGroupCat.lCC, curry, curry_obj, functor.comp_map, uncurry]
-  simp only [CategoryTheory.Functor.map_id, category.comp_id]
+  dsimp only [SemiNormedGroupCat.lCC, curry, CategoryTheory.curryObj, Functor.comp_map, uncurry]
+  simp only [CategoryTheory.Functor.map_id, Category.comp_id]
   rfl
 
 theorem homComplexQprimeFPNatIsoAuxSystem_naturality_in_tInv (c : ℝ≥0) [NormedWithAut r V] :
@@ -514,16 +514,16 @@ theorem homComplexQprimeFPNatIsoAuxSystem_naturality_in_tInv (c : ℝ≥0) [Norm
             _) =
       by
         let e := preadditive_yoneda.map (toCondTInv r V)
-        let e' := nat_trans.map_homological_complex e (ComplexShape.down ℕ).symm
+        let e' := NatTrans.mapHomologicalComplex e (ComplexShape.down ℕ).symm
         let Q := ((qprimeFPNat r' BD κ M).obj c).op
         exact e'.app Q ≫ (homComplexQprimeFPNatIsoAuxSystem.{u} r' BD κ M V c).hom :=
   by
   ext n : 2; ext1 t
   dsimp [homComplexQprimeFPNatIsoAuxSystem]
   simp only [comp_apply]
-  dsimp [nat_iso.map_homological_complex, forget₂Unop]
+  dsimp [NatIso.mapHomologicalComplex, forget₂Unop]
   erw [id_apply]; erw [id_apply]
-  erw [functor.map_homological_complex_map_f]
+  erw [Functor.mapHomologicalComplex_map_f]
   apply hom_complex_QprimeFP_nat_iso_auxSystem_naturality_in_tInv_aux
 
 namespace ExtQprimeIsoAuxSystemObjNaturalitySetup
@@ -616,7 +616,7 @@ theorem aux₁ (c₁ c₂ : ℝ≥0) (h : c₁ ⟶ c₂) (n : ℕ) :
         (homology'Functor.{u + 1, u + 2, 0} Ab.{u + 1} (ComplexShape.up.{0} ℕ) n).map
           (homComplexQprimeFPNatIsoAuxSystem.{u} r' BD κ M V c₁).hom :=
   by
-  rw [← functor.map_comp, ← functor.map_comp]
+  rw [← Functor.map_comp, ← Functor.map_comp]
   congr 1
   erw [← homComplexQprimeFPNatIsoAuxSystem_naturality_in_c]
 
@@ -636,7 +636,7 @@ theorem aux₂ (c₁ c₂ : ℝ≥0) (h : c₁ ⟶ c₂) (n : ℕ) :
         (HomologicalComplex.homologyEmbedNatIso.{0, 0, u + 2, u + 1} Ab.{u + 1}
                 ComplexShape.Embedding.natUpIntDown n (-↑n) (by cases n <;> rfl)).hom.app
           (homComplexNat.{u} ((qprimeFPNat.{u} r' BD κ M).obj c₁) V.toCond) :=
-  by erw [nat_trans.naturality]
+  by erw [NatTrans.naturality]
 
 theorem aux₃ (c₁ c₂ : ℝ≥0) (h : c₁ ⟶ c₂) (n : ℕ) :
     (homology'Functor.{u + 1, u + 2, 0} Ab.{u + 1} (ComplexShape.up.{0} ℤ).symm (-↑n)).map
@@ -656,15 +656,15 @@ theorem aux₃ (c₁ c₂ : ℝ≥0) (h : c₁ ⟶ c₂) (n : ℕ) :
         (homology'Functor.{u + 1, u + 2, 0} Ab.{u + 1} (ComplexShape.up.{0} ℤ).symm (-↑n)).map
           (embedHomComplexNatIso.{u} ((qprimeFPNat.{u} r' BD κ M).obj c₁) V.toCond).hom :=
   by
-  dsimp only [functor.op_map, functor.comp_map]
-  erw [← functor.map_comp]
-  erw [← functor.map_comp]
+  dsimp only [Functor.op_map, Functor.comp_map]
+  erw [← Functor.map_comp]
+  erw [← Functor.map_comp]
   congr 1
   ext ((_ | k) | k) : 2
-  · refine' (category.id_comp _).trans (category.comp_id _).symm
-  · apply is_zero.eq_of_tgt
+  · refine' (Category.id_comp _).trans (Category.comp_id _).symm
+  · apply IsZero.eq_of_tgt
     exact is_zero_zero _
-  · refine' (category.id_comp _).trans (category.comp_id _).symm
+  · refine' (Category.id_comp _).trans (Category.comp_id _).symm
 
 /-
 lemma naturality_helper {c₂ : ℝ≥0} (n : ℕ) :
@@ -682,7 +682,7 @@ theorem QprimeFP_acyclic (c) (k i : ℤ) (hi : 0 < i) :
   by
   rcases k with ((_ | k) | k)
   · apply free_acyclic; exact hi
-  · rw [← functor.flip_obj_obj]; refine' functor.map_is_zero _ _; refine' (is_zero_zero _).op
+  · rw [← Functor.flip_obj_obj]; refine' Functor.map_isZero _ _; refine' (is_zero_zero _).op
   · apply free_acyclic; exact hi
 
 theorem extQprimeIsoAuxSystemObj_natrality (c₁ c₂ : ℝ≥0) (h : c₁ ⟶ c₂) (n : ℕ) :
@@ -691,7 +691,7 @@ theorem extQprimeIsoAuxSystemObj_natrality (c₁ c₂ : ℝ≥0) (h : c₁ ⟶ c
       ((ext n).map ((qprimeFP r' BD κ _).map h).op).app _ ≫
         (extQprimeIsoAuxSystemObj r' BD κ M V c₁ n).hom :=
   by
-  dsimp only [extQprimeIsoAuxSystemObj, iso.trans_hom, id, functor.map_iso_hom]
+  dsimp only [extQprimeIsoAuxSystemObj, Iso.trans_hom, id, Functor.mapIso_hom]
   haveI :
     ((HomotopyCategory.quotient.{u + 1, u + 2, 0} (Condensed.{u, u + 1, u + 2} Ab.{u + 1})
             (ComplexShape.up.{0} ℤ)).obj
@@ -708,15 +708,15 @@ theorem extQprimeIsoAuxSystemObj_natrality (c₁ c₂ : ℝ≥0) (h : c₁ ⟶ c
   rotate_left
   · intro k i hi; apply QprimeFP_acyclic; exact hi
   · intro k i hi; apply QprimeFP_acyclic; exact hi
-  dsimp only [functor.comp_map] at this 
+  dsimp only [Functor.comp_map] at this 
   erw [reassoc_of this]; clear this
-  simp only [category.assoc, nat_iso.app_hom]
+  simp only [Category.assoc, NatIso.app_hom]
   congr 1
   rw [ExtQprimeIsoAuxSystemObjNaturalitySetup.aux₁ r' BD κ M V c₁ c₂ h n]
-  simp only [← category.assoc]; congr 1
-  simp only [category.assoc]
+  simp only [← Category.assoc]; congr 1
+  simp only [Category.assoc]
   rw [ExtQprimeIsoAuxSystemObjNaturalitySetup.aux₂ r' BD κ M V c₁ c₂ h n]
-  simp only [← category.assoc]; congr 1
+  simp only [← Category.assoc]; congr 1
   exact ExtQprimeIsoAuxSystemObjNaturalitySetup.aux₃ r' BD κ M V c₁ c₂ h n
 
 --- OLD PROOF FROM HERE
@@ -804,7 +804,7 @@ theorem aux₁ :
         (homology'Functor.{u + 1, u + 2, 0} Ab.{u + 1} (ComplexShape.up.{0} ℕ) n).map
           (homComplexQprimeFPNatIsoAuxSystem.{u} r' BD κ₂ M V (unop.{1} c)).hom :=
   by
-  simp only [← functor.map_comp, functor.comp_map]; congr 1
+  simp only [← Functor.map_comp, Functor.comp_map]; congr 1
   apply homComplexQprimeFPNatIsoAuxSystem_naturality_in_tinv
 
 theorem aux₂ :
@@ -826,15 +826,15 @@ theorem aux₂ :
           (embedHomComplexNatIso.{u} ((qprimeFPNat.{u} r' BD κ₂ M).obj (unop.{1} c))
               V.toCond).hom :=
   by
-  dsimp only [functor.op_map, functor.comp_map]
-  erw [← functor.map_comp]
-  erw [← functor.map_comp]
+  dsimp only [Functor.op_map, Functor.comp_map]
+  erw [← Functor.map_comp]
+  erw [← Functor.map_comp]
   congr 1
   ext ((_ | k) | k) : 2
-  · refine' (category.id_comp _).trans (category.comp_id _).symm
-  · apply is_zero.eq_of_tgt
+  · refine' (Category.id_comp _).trans (Category.comp_id _).symm
+  · apply IsZero.eq_of_tgt
     exact is_zero_zero _
-  · refine' (category.id_comp _).trans (category.comp_id _).symm
+  · refine' (Category.id_comp _).trans (Category.comp_id _).symm
 
 end ExtQprimeIsoAuxSystemCommTinvSetup
 
@@ -847,8 +847,8 @@ theorem extQprimeIsoAuxSystem_comm_tinv [∀ c n, Fact (κ₂ c n ≤ κ c n)]
       ExtQprime.tinv r' BD κ κ₂ M V n ≫ (extQprimeIsoAuxSystem r' BD κ₂ M V n).hom :=
   by
   ext c : 2
-  dsimp only [extQprimeIsoAuxSystemObj, extQprimeIsoAuxSystem, iso.trans_hom, id,
-    functor.map_iso_hom, nat_iso.of_components_hom_app, nat_trans.comp_app]
+  dsimp only [extQprimeIsoAuxSystemObj, extQprimeIsoAuxSystem, Iso.trans_hom, id,
+    Functor.mapIso_hom, NatIso.ofComponents_hom_app, NatTrans.comp_app]
   haveI :
     ((HomotopyCategory.quotient.{u + 1, u + 2, 0} (Condensed.{u, u + 1, u + 2} Ab.{u + 1})
             (ComplexShape.up.{0} ℤ)).obj
@@ -865,12 +865,12 @@ theorem extQprimeIsoAuxSystem_comm_tinv [∀ c n, Fact (κ₂ c n ≤ κ c n)]
   rotate_left
   · intro k i hi; apply QprimeFP_acyclic; exact hi
   · intro k i hi; apply QprimeFP_acyclic; exact hi
-  erw [reassoc_of this]; clear this; simp only [category.assoc]; congr 1
-  dsimp only [whisker_right_app]
+  erw [reassoc_of this]; clear this; simp only [Category.assoc]; congr 1
+  dsimp only [CategoryTheory.whiskerRight_app]
   rw [ExtQprimeIsoAuxSystemCommTinvSetup.aux₁ r' BD κ κ₂ M V c n]
-  simp only [← category.assoc]; congr 1; simp only [category.assoc]
-  erw [← nat_trans.naturality]
-  simp only [← category.assoc]; congr 1
+  simp only [← Category.assoc]; congr 1; simp only [Category.assoc]
+  erw [← NatTrans.naturality]
+  simp only [← Category.assoc]; congr 1
   exact ExtQprimeIsoAuxSystemCommTinvSetup.aux₂ r' BD κ κ₂ M V c n
 
 -- lemma ExtQprime_iso_aux_system_comm_T_inv [normed_with_aut r V] (n : ℕ) (c : ℝ≥0ᵒᵖ) :
@@ -896,8 +896,8 @@ def homComplexMapTInv (c : ℝ≥0ᵒᵖ) :
     homComplexNat.{u} ((qprimeFPNat.{u} r' BD κ M).obj (unop.{1} c)) V.toCond ⟶
       homComplexNat.{u} ((qprimeFPNat.{u} r' BD κ₂ M).obj (unop.{1} c)) V.toCond :=
   by
-    refine' nat_trans.app _ _
-    refine' nat_trans.map_homological_complex _ _
+    refine' NatTrans.app _ _
+    refine' NatTrans.mapHomologicalComplex _ _
     refine' preadditive_yoneda.map _
     refine'
       Condensed.ofTopAbMap.{u} (NormedAddGroupHom.toAddMonoidHom.{u, u} NormedWithAut.t.{u}.inv)
@@ -941,9 +941,9 @@ theorem aux₁ (c : ℝ≥0ᵒᵖ) :
   by
   --simp only [← category_theory.functor.map_comp, functor.comp_map], congr' 1,
   dsimp only [hom_complex_map_T_inv];
-  simp only [category.assoc]
+  simp only [Category.assoc]
   rw [← homComplexQprimeFPNatIsoAuxSystem_naturality_in_κ r' BD κ κ₂ M V c.unop]
-  simp only [functor.map_comp, ← category.assoc]; congr 1
+  simp only [Functor.map_comp, ← Category.assoc]; congr 1
   apply homComplexQprimeFPNatIsoAuxSystem_naturality_in_tInv
 
 /- -- IGNORE THIS
@@ -994,18 +994,18 @@ theorem aux₂ (c : ℝ≥0ᵒᵖ) :
   by
   ext ((_ | k) | k) : 2
   · dsimp only [Functor.Comp]
-    simp only [functor.right_op_map, Quiver.Hom.unop_op, category.assoc, HomologicalComplex.comp_f,
-      HomologicalComplex.unopFunctor_map_f, functor.map_homological_complex_map_f]
+    simp only [Functor.rightOp_map, Quiver.Hom.unop_op, Category.assoc, HomologicalComplex.comp_f,
+      HomologicalComplex.unopFunctor_map_f, Functor.mapHomologicalComplex_map_f]
     rw [embed_hom_complex_nat_iso₀]
     rw [embed_hom_complex_nat_iso₀]
     ext; rfl
-  · apply is_zero.eq_of_tgt
+  · apply IsZero.eq_of_tgt
     exact is_zero_zero _
   · dsimp only [Functor.Comp]
-    simp only [functor.right_op_map, Quiver.Hom.unop_op, category.assoc, HomologicalComplex.comp_f,
-      HomologicalComplex.unopFunctor_map_f, functor.map_homological_complex_map_f]
-    rw [embed_hom_complex_nat_iso_neg]
-    rw [embed_hom_complex_nat_iso_neg]
+    simp only [Functor.rightOp_map, Quiver.Hom.unop_op, Category.assoc, HomologicalComplex.comp_f,
+      HomologicalComplex.unopFunctor_map_f, Functor.mapHomologicalComplex_map_f]
+    rw [ExtQprimeIsoAuxSystemCommSetup.embedHomComplexNatIso_neg]
+    rw [ExtQprimeIsoAuxSystemCommSetup.embedHomComplexNatIso_neg]
     ext; rfl
 
 end ExtQprimeIsoAuxSystemCommSetup
@@ -1021,7 +1021,7 @@ variable {A : Type _} [Category A] [Abelian A] [EnoughProjectives A] (X : Cochai
 theorem extComputeWithAcyclicAux₁_naturality_snd_var (i) (e : (0 : ℤ) - i = -i) :
     ((extComputeWithAcyclicAux₁ X B₁ i).hom ≫
         by
-        refine' nat_trans.app _ _
+        refine' NatTrans.app _ _
         refine' preadditive_yoneda.map _
         refine' CategoryTheory.Functor.map _ f) =
       CategoryTheory.Functor.map _ (CategoryTheory.Functor.map _ f) ≫
@@ -1030,14 +1030,14 @@ theorem extComputeWithAcyclicAux₁_naturality_snd_var (i) (e : (0 : ℤ) - i = 
   ext t
   simp only [comp_apply]
   dsimp [extComputeWithAcyclicAux₁, Ext]
-  simp only [category.assoc]
+  simp only [Category.assoc]
   generalize_proofs h1 h2
   let φ₁ j := (single _ j).obj B₁
   let φ₂ j := (single _ j).obj B₂
   change t ≫ _ ≫ eq_to_hom (congr_arg φ₁ e) ≫ _ = _ ≫ _ ≫ _ ≫ eq_to_hom (congr_arg φ₂ e)
   induction e
-  dsimp; simp only [category.id_comp, category.comp_id]
-  erw [← nat_trans.naturality]
+  dsimp; simp only [Category.id_comp, Category.comp_id]
+  erw [← NatTrans.naturality]
   rfl
 
 @[reassoc]
@@ -1045,30 +1045,30 @@ theorem extComputeWithAcyclicAux₂_naturality_snd_var (i) :
     (extComputeWithAcyclicAux₂ X B₁ i).hom ≫
         (homology'Functor _ _ _).map
           (by
-            refine' nat_trans.app _ _
-            refine' nat_trans.map_homological_complex _ _
+            refine' NatTrans.app _ _
+            refine' NatTrans.mapHomologicalComplex _ _
             exact preadditive_yoneda.map f) =
       NatTrans.app (preadditiveYoneda.map <| CategoryTheory.Functor.map _ f) _ ≫
         (extComputeWithAcyclicAux₂ X B₂ i).hom :=
   by
   dsimp only [extComputeWithAcyclicAux₂, unop_op]
-  have := hom_single_iso_naturality_snd_var_good (of' X).replace (-i) f
+  have := BoundedHomotopyCategory.homSingleIso_naturality_snd_var_good (of' X).replace (-i) f
   erw [← this]
 
 theorem extComputeWithAcyclicAux₃_naturality_snd_var (i) :
     (homology'Functor _ _ _).map
           (by
             refine' HomologicalComplex.mapUnop _ _ _
-            refine' nat_trans.app _ _
-            refine' nat_trans.map_homological_complex _ _
-            refine' nat_trans.right_op _
+            refine' NatTrans.app _ _
+            refine' NatTrans.mapHomologicalComplex _ _
+            refine' NatTrans.rightOp _
             exact preadditive_yoneda.map f) ≫
         extComputeWithAcyclicAux₃ X B₂ i =
       extComputeWithAcyclicAux₃ X B₁ i ≫
         (homology'Functor _ _ _).map
           (by
-            refine' nat_trans.app _ _
-            refine' nat_trans.map_homological_complex _ _
+            refine' NatTrans.app _ _
+            refine' NatTrans.mapHomologicalComplex _ _
             exact preadditive_yoneda.map f) :=
   by
   dsimp only [extComputeWithAcyclicAux₃]
@@ -1082,26 +1082,26 @@ theorem extComputeWithAcyclicAux₃_naturality_snd_var (i) :
   ext t x
   dsimp [extComputeWithAcyclicHomB]
   simp only [comp_apply]
-  dsimp [nat_trans.map_homological_complex, functor.right_op, HomologicalComplex.mapUnop]
-  simp only [category.assoc]
+  dsimp [NatTrans.mapHomologicalComplex, Functor.rightOp, HomologicalComplex.mapUnop]
+  simp only [Category.assoc]
 
 theorem extComputeWithAcyclic_naturality_snd_var (h₁) (h₂) (i) :
     (extComputeWithAcyclic X B₁ h₁ i).hom ≫
         (homology'Functor _ _ _).map
           (by
             refine' HomologicalComplex.mapUnop _ _ _
-            refine' nat_trans.app _ _
-            refine' nat_trans.map_homological_complex _ _
+            refine' NatTrans.app _ _
+            refine' NatTrans.mapHomologicalComplex _ _
             exact (preadditive_yoneda.map f).rightOp) =
       CategoryTheory.Functor.map _ (CategoryTheory.Functor.map _ f) ≫
         (extComputeWithAcyclic X B₂ h₂ i).hom :=
   by
   dsimp [extComputeWithAcyclic, -homology'Functor_map]
-  simp only [category.assoc]
+  simp only [Category.assoc]
   rw [← extComputeWithAcyclicAux₁_naturality_snd_var_assoc]
   rw [← extComputeWithAcyclicAux₂_naturality_snd_var_assoc]
-  simp only [category.assoc]; congr 2
-  rw [is_iso.eq_comp_inv, category.assoc, is_iso.inv_comp_eq]
+  simp only [Category.assoc]; congr 2
+  rw [IsIso.eq_comp_inv, Category.assoc, IsIso.inv_comp_eq]
   apply extComputeWithAcyclicAux₃_naturality_snd_var
   simp
 
@@ -1115,12 +1115,12 @@ theorem extQprimeIsoAuxSystem_comm [NormedWithAut r V] [∀ c n, Fact (κ₂ c n
             homology'Functor Ab.{u + 1} (ComplexShape.up ℕ) n) =
       ExtQprime.tinv2 r r' BD κ κ₂ M V n ≫ (extQprimeIsoAuxSystem r' BD κ₂ M V n).hom :=
   by
-  ext c : 2; dsimp only [auxSystem.tinv2, ExtQprime.tinv2, nat_trans.comp_app, whisker_right_app]
-  simp only [sub_comp, nat_trans.app_sub, functor.map_sub, comp_sub]
+  ext c : 2; dsimp only [auxSystem.tinv2, ExtQprime.tinv2, NatTrans.comp_app, CategoryTheory.whiskerRight_app]
+  simp only [sub_comp, NatTrans.app_sub, Functor.map_sub, comp_sub]
   refine' congr_arg₂ _ _ _
-  · rw [← nat_trans.comp_app, ← extQprimeIsoAuxSystem_comm_tinv]; rfl
-  dsimp only [extQprimeIsoAuxSystemObj, extQprimeIsoAuxSystem, iso.trans_hom, id,
-    functor.map_iso_hom, nat_iso.of_components_hom_app, nat_trans.comp_app]
+  · rw [← NatTrans.comp_app, ← extQprimeIsoAuxSystem_comm_tinv]; rfl
+  dsimp only [extQprimeIsoAuxSystemObj, extQprimeIsoAuxSystem, Iso.trans_hom, id,
+    Functor.mapIso_hom, NatIso.ofComponents_hom_app, NatTrans.comp_app]
   haveI :
     ((HomotopyCategory.quotient.{u + 1, u + 2, 0} (Condensed.{u, u + 1, u + 2} Ab.{u + 1})
             (ComplexShape.up.{0} ℤ)).obj
@@ -1137,14 +1137,14 @@ theorem extQprimeIsoAuxSystem_comm [NormedWithAut r V] [∀ c n, Fact (κ₂ c n
   rotate_left
   · intro k i hi; apply QprimeFP_acyclic; exact hi
   · intro k i hi; apply QprimeFP_acyclic; exact hi
-  simp only [category.assoc];
-  dsimp only [ExtQprime.tInv, nat_trans.comp_app, whisker_right_app, whisker_left_app, functor.flip]
+  simp only [Category.assoc];
+  dsimp only [ExtQprime.tInv, NatTrans.comp_app, CategoryTheory.whiskerRight_app, CategoryTheory.whiskerLeft_app, Functor.flip]
   let η :=
     (ext.{u + 1, u + 2} ↑n).map
       ((NatTrans.op.{0, u + 1, 0, u + 2} (qprimeFP.ι.{u} BD κ₂ κ M)).app c)
   slice_rhs 1 2 => erw [← η.naturality]
   slice_rhs 2 3 => erw [this]
-  simp only [category.assoc]; clear this η
+  simp only [Category.assoc]; clear this η
   let t : Condensed.ofTopAb V ⟶ _ :=
     Condensed.ofTopAbMap.{u} (NormedAddGroupHom.toAddMonoidHom.{u, u} NormedWithAut.t.{u}.inv)
       (NormedAddGroupHom.continuous _)
@@ -1153,17 +1153,17 @@ theorem extQprimeIsoAuxSystem_comm [NormedWithAut r V] [∀ c n, Fact (κ₂ c n
   · intro k i hi; apply QprimeFP_acyclic; exact hi
   · intro k i hi; apply QprimeFP_acyclic; exact hi
   erw [← reassoc_of this]; clear this; congr 1
-  simp only [functor.comp_map, CategoryTheory.Functor.map_comp, functor.op_map, Quiver.Hom.unop_op]
+  simp only [Functor.comp_map, CategoryTheory.Functor.map_comp, Functor.op_map, Quiver.Hom.unop_op]
   slice_rhs 1 2 => rw [← CategoryTheory.Functor.map_comp]
   slice_lhs 4 5 => rw [← CategoryTheory.Functor.map_comp]
-  simp only [category.assoc, ← CategoryTheory.Functor.map_comp, ← functor.map_comp_assoc]
+  simp only [Category.assoc, ← CategoryTheory.Functor.map_comp, ← Functor.map_comp_assoc]
   rw [ExtQprimeIsoAuxSystemCommSetup.aux₁ r r' BD κ κ₂ M V c]
   slice_lhs 2 4 => simp only [CategoryTheory.Functor.map_comp]
-  simp only [← category.assoc]; congr 1
+  simp only [← Category.assoc]; congr 1
   rw [ExtQprimeIsoAuxSystemCommSetup.aux₂ r r' BD κ κ₂ M V c]
-  simp only [CategoryTheory.Functor.map_comp, category.assoc]
+  simp only [CategoryTheory.Functor.map_comp, Category.assoc]
   congr 1
-  rw [nat_iso.app_hom, ← nat_trans.naturality]
+  rw [NatIso.app_hom, ← NatTrans.naturality]
   congr 1
 
 -- have := Ext_compute_with_acyclic_naturality, <-- we need naturality in the other variable?!
@@ -1184,7 +1184,7 @@ theorem extQprimeIsoAuxSystem_comm' [NormedWithAut r V] [∀ c n, Fact (κ₂ c 
         (extQprimeIsoAuxSystem r' BD κ₂ M V n).inv =
       (extQprimeIsoAuxSystem r' BD κ M V n).inv ≫ ExtQprime.tinv2 r r' BD κ κ₂ M V n :=
   by
-  rw [iso.comp_inv_eq, category.assoc, iso.eq_inv_comp]
+  rw [Iso.comp_inv_eq, Category.assoc, Iso.eq_inv_comp]
   apply extQprimeIsoAuxSystem_comm
 
 end
@@ -1240,8 +1240,8 @@ def extTinv2Commsq {𝓐 : Type _} [Category 𝓐] [Abelian 𝓐] [EnoughProject
   Commsq.ofEq
     (by
       delta extTinv2
-      simp only [comp_sub, sub_comp, ← nat_trans.comp_app, ← functor.map_comp, ← op_comp, sqT, ←
-        nat_trans.naturality, ← nat_trans.naturality_assoc, category.assoc, sqι])
+      simp only [comp_sub, sub_comp, ← NatTrans.comp_app, ← Functor.map_comp, ← op_comp, sqT, ←
+        NatTrans.naturality, ← NatTrans.naturality_assoc, Category.assoc, sqι])
 
 open CategoryTheory.Preadditive
 
@@ -1256,7 +1256,7 @@ theorem auux {𝓐 : Type _} [Category 𝓐] [Abelian 𝓐] [EnoughProjectives �
   by
   have := sq1.w
   apply_fun fun f => (HomotopyCategory.quotient _ _).map f at this 
-  simp only [functor.map_comp] at this 
+  simp only [Functor.map_comp] at this 
   exact this
 
 @[simp]
@@ -1295,14 +1295,14 @@ theorem ext_iso_of_bicartesian_of_bicartesian {𝓐 : Type _} [Category 𝓐] [A
   replace LES₂ := (((Ext_five_term_exact_seq' _ _ i V w₂).drop 1).pair.cons LES₂).extract 0 4
   refine' iso_of_bicartesian_of_bicartesian LES₂ LES₁ _ _ _ _ H1 H2
   · apply Commsq.ofEq; delta extTinv2; clear LES₁ LES₂
-    rw [sub_comp, comp_sub, ← functor.flip_obj_map, ← functor.flip_obj_map]
+    rw [sub_comp, comp_sub, ← Functor.flip_obj_map, ← Functor.flip_obj_map]
     rw [← Ext_δ_natural i V _ _ _ _ α β γ sq1.w sq2.w w₁ w₂]
     congr 1
-    rw [← nat_trans.naturality, ← functor.flip_obj_map, category.assoc,
+    rw [← NatTrans.naturality, ← Functor.flip_obj_map, Category.assoc,
       Ext_δ_natural i V _ _ _ _ ιA ιB (𝟙 _) sq1'.w sq2'.w w₁ w₂]
-    simp only [op_id, CategoryTheory.Functor.map_id, nat_trans.id_app, category.id_comp, ofHom_id,
-      category.comp_id]
-    erw [category.id_comp]
+    simp only [op_id, CategoryTheory.Functor.map_id, NatTrans.id_app, Category.id_comp, ofHom_id,
+      Category.comp_id]
+    erw [Category.id_comp]
     symm
     apply Ext_δ_natural'
   · apply extTinv2Commsq

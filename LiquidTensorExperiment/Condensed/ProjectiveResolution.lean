@@ -6,7 +6,7 @@ import Mathlib.Algebra.Category.GroupCat.FilteredColimits
 import LiquidTensorExperiment.ForMathlib.AbelianCategory
 import LiquidTensorExperiment.ForMathlib.AddCommGroup.Epi
 
-#align_import condensed.projective_resolution
+#align_import condensed.complex
 
 universe u
 
@@ -55,10 +55,10 @@ theorem toFree_freeLift {S : CondensedSet} {A : Condensed Ab} (e : S ⟶ A.forge
     toFree S ≫ (freeLift e).forgetAb = e :=
   by
   dsimp only [Condensed.forgetAb, to_free, free_lift, Quiver.Hom.forgetAb]
-  rw [adjunction.hom_equiv_unit, adjunction.hom_equiv_counit, category.assoc,
-    CategoryTheory.Functor.map_id, category.id_comp, functor.map_comp,
+  rw [Adjunction.homEquiv_unit, Adjunction.homEquiv_counit, Category.assoc,
+    CategoryTheory.Functor.map_id, Category.id_comp, Functor.map_comp,
     Condensed_Ab_CondensedSet_adjunction.unit_naturality_assoc,
-    adjunction.right_triangle_components, category.comp_id]
+    Adjunction.right_triangle_components, Category.comp_id]
 
 theorem freeLift_unique {S : CondensedSet} {A : Condensed Ab} (e : S ⟶ A.forgetAb) (f : free S ⟶ A)
     (h : toFree S ≫ f.forgetAb = e) : f = freeLift e :=
@@ -92,17 +92,17 @@ theorem exists_homEquivEvaluation_symm_app_eq (S : Profinite.{u}) (A : Condensed
   by
   -- This proof can probably be made simpler using some adjunction voodoo...
   use(homEquivEvaluation _ _) (𝟙 _)
-  dsimp [homEquivEvaluation, adjunction.whisker_right]
-  simp_rw [← comp_apply, ← nat_trans.comp_app]
-  erw [category.comp_id, proetale_topology.to_sheafify_sheafify_lift]
-  dsimp [functor.preimage, full.preimage, yoneda'_equiv]
-  simp only [comp_apply, AddCommGroupCat.free_map_coe, category.id_comp, category.comp_id]
-  dsimp [functor.right_unitor, AddCommGroupCat.adj, Applicative.toFunctor]
+  dsimp [homEquivEvaluation, Adjunction.whiskerRight]
+  simp_rw [← comp_apply, ← NatTrans.comp_app]
+  erw [Category.comp_id, proetale_topology.toSheafify_sheafifyLift]
+  dsimp [Functor.preimage, Full.preimage, yoneda'_equiv]
+  simp only [comp_apply, AddCommGroupCat.free_map_coe, Category.id_comp, Category.comp_id]
+  dsimp [Functor.rightUnitor, AddCommGroupCat.adj, Applicative.toFunctor]
   erw [Equiv.apply_symm_apply]
   simp only [op_id, CategoryTheory.Functor.map_id, id_apply, one_mul, MonoidHom.toFun_eq_coe,
     FreeGroup.lift.of, types_id_apply]
 
-attribute [local instance] limits.has_zero_object.has_zero
+attribute [local instance] Limits.HasZeroObject.zero'
 
 open CategoryTheory.Limits
 
@@ -114,24 +114,24 @@ example (S : Profinite.{u}) : PreservesZeroObjects (Condensed.evaluation Ab.{u +
 
 instance (S : Profinite.{u}) [Projective S] : Projective ℤ[S]
     where Factors A B f g hg := by
-    rw [epi_iff_is_zero_cokernel] at hg 
+    rw [CategoryTheory.Limits.epi_iff_isZero_cokernel] at hg 
     -- this follows from the fact that evaluation preserves colimits.
     let e : (cokernel g).val.obj (op S) ≅ cokernel (g.val.app (op S)) :=
       by
       refine'
-        (is_colimit_of_preserves (Condensed.evaluation Ab S)
-                (colimit.is_colimit _)).coconePointUniqueUpToIso
-            (colimit.is_colimit _) ≪≫
-          has_colimit.iso_of_nat_iso _
-      refine' nat_iso.of_components _ _
+        (CategoryTheory.Limits.isColimitOfPreserves (Condensed.evaluation Ab S)
+                (colimit.isColimit _)).coconePointUniqueUpToIso
+            (colimit.isColimit _) ≪≫
+          HasColimit.isoOfNatIso _
+      refine' NatIso.ofComponents _ _
       · rintro (a | b); exact eq_to_iso rfl; exact eq_to_iso rfl
       rintro (a | b) (c | d) (e | e)
       all_goals dsimp
       all_goals simp; try rfl
-    replace hg := is_zero_of_preserves (Condensed.evaluation Ab.{u + 1} S) hg
+    replace hg := CategoryTheory.Limits.isZero_of_preserves (Condensed.evaluation Ab.{u + 1} S) hg
     dsimp [Condensed.evaluation] at hg 
-    replace hg := is_zero_of_iso_of_zero hg e
-    rw [← epi_iff_is_zero_cokernel] at hg 
+    replace hg := CategoryTheory.Limits.isZero_of_iso_of_zero hg e
+    rw [← CategoryTheory.Limits.epi_iff_isZero_cokernel] at hg 
     replace hg : Function.Surjective (g.val.app (op S)) :=
       by
       skip
@@ -142,17 +142,17 @@ instance (S : Profinite.{u}) [Projective S] : Projective ℤ[S]
     use(homEquivEvaluation _ _).symm f'
     apply_fun homEquivEvaluation _ _
     change _ = f₁
-    rw [← h, homEquivEvaluation_apply, Sheaf.hom.comp_val, nat_trans.comp_app]
-    erw [← comp_apply, ← comp_apply, category.id_comp, ← nat_trans.comp_app, ← nat_trans.comp_app]
+    rw [← h, homEquivEvaluation_apply, Sheaf.Hom.comp_val, NatTrans.comp_app]
+    erw [← comp_apply, ← comp_apply, Category.id_comp, ← NatTrans.comp_app, ← NatTrans.comp_app]
     dsimp [homEquivEvaluation]
-    simp_rw [← category.assoc, ← nat_trans.comp_app]
-    rw [proetale_topology.to_sheafify_sheafify_lift]
-    rw [adjunction.hom_equiv_counit]
+    simp_rw [← Category.assoc, ← NatTrans.comp_app]
+    rw [proetale_topology.toSheafify_sheafifyLift]
+    rw [Adjunction.homEquiv_counit]
     dsimp
-    simp only [category.assoc, adjunction.whisker_right_counit_app_app]
+    simp only [Category.assoc, Adjunction.whiskerRight_counit_app_app]
     simp_rw [comp_apply]
     congr 1
-    dsimp [functor.preimage, yoneda'_equiv, full.preimage, AddCommGroupCat.adj, ulift_functor]
+    dsimp [Functor.preimage, yoneda'_equiv, Full.preimage, AddCommGroupCat.adj, CategoryTheory.uliftFunctor]
     change (FreeAbelianGroup.lift id) (_ <$> FreeAbelianGroup.of _) = _
     simp
 
@@ -161,31 +161,31 @@ theorem isZero_iff_forall_zero {A : Condensed.{u} Ab.{u + 1}} :
   by
   constructor
   · intro h S
-    apply is_zero_of_preserves (Condensed.evaluation Ab.{u + 1} S.val)
+    apply CategoryTheory.Limits.isZero_of_preserves (Condensed.evaluation Ab.{u + 1} S.val)
     assumption
   · intro h
     let FF :=
       (Sheaf_to_presheaf _ _ : Condensed.{u} Ab.{u + 1} ⥤ _) ⋙
-        (whiskering_left _ _ _).obj ExtrDisc_to_Profinite.op
+        (CategoryTheory.whiskeringLeft _ _ _).obj ExtrDisc_to_Profinite.op
     haveI : creates_colimits FF := by apply condensedToExtrDiscPresheafCreatesColimits
-    suffices A ≅ ⊥_ _ by apply is_zero_of_iso_of_zero _ this.symm; exact is_zero_initial
+    suffices A ≅ ⊥_ _ by apply CategoryTheory.Limits.isZero_of_iso_of_zero _ this.symm; exact CategoryTheory.Limits.isZero_initial
     let e : ∀ S : ExtrDisc, A.val.obj (op S.val) ≅ ⊥_ _ := fun S =>
-      is_zero.iso (h S) is_zero_initial
+      IsZero.iso (h S) CategoryTheory.Limits.isZero_initial
     symm
-    apply (colimit.is_colimit _).coconePointUniqueUpToIso (_ : is_colimit (as_empty_cocone _))
+    apply (colimit.isColimit _).coconePointUniqueUpToIso (_ : is_colimit (CategoryTheory.Limits.asEmptyCocone _))
     haveI := reflectsColimitsOfSizeShrink.{0, u + 1, 0, u + 1} FF
     apply isColimitOfReflects.{0, 0, u + 1, u + 1, u + 2, u + 2} FF
-    apply evaluation_jointly_reflects_colimits
+    apply CategoryTheory.Limits.evaluationJointlyReflectsColimits
     intro S
     have :=
-      is_colimit_empty_cocone_equiv Ab (as_empty_cocone (A.val.obj (op S.unop.val)))
-        (((evaluation ExtrDiscᵒᵖ Ab).obj S).mapCocone (FF.map_cocone (as_empty_cocone A)))
+      CategoryTheory.Limits.isColimitEmptyCoconeEquiv Ab (CategoryTheory.Limits.asEmptyCocone (A.val.obj (op S.unop.val)))
+        (((evaluation ExtrDiscᵒᵖ Ab).obj S).mapCocone (FF.map_cocone (CategoryTheory.Limits.asEmptyCocone A)))
         (eq_to_iso rfl)
-    apply this.to_fun
+    apply this.toFun
     specialize e S.unop
-    let t : as_empty_cocone (A.val.obj (op (unop S).val)) ≅ as_empty_cocone (⊥_ _) :=
-      cocones.ext e (by rintro ⟨⟨⟩⟩)
-    apply is_colimit.of_iso_colimit _ t.symm
+    let t : CategoryTheory.Limits.asEmptyCocone (A.val.obj (op (unop S).val)) ≅ CategoryTheory.Limits.asEmptyCocone (⊥_ _) :=
+      Cocones.ext e (by rintro ⟨⟨⟩⟩)
+    apply IsColimit.ofIsoColimit _ t.symm
     refine' ⟨fun r => _, _, _⟩
     · dsimp; refine' initial.to r.X
     · simp only [as_empty_cocone_ι_app, id.def, autoParam_eq]
@@ -195,7 +195,7 @@ theorem isZero_iff_forall_zero {A : Condensed.{u} Ab.{u + 1}} :
 theorem is_epi_iff_forall_surjective {A B : Condensed.{u} Ab.{u + 1}} (f : A ⟶ B) :
     Epi f ↔ ∀ S : ExtrDisc, Function.Surjective (f.val.app (op S.val)) :=
   by
-  rw [epi_iff_is_zero_cokernel]
+  rw [CategoryTheory.Limits.epi_iff_isZero_cokernel]
   rw [isZero_iff_forall_zero]
   apply forall_congr' fun S => _
   let FF := Condensed.evaluation Ab.{u + 1} S.val
@@ -205,13 +205,13 @@ theorem is_epi_iff_forall_surjective {A B : Condensed.{u} Ab.{u + 1}} (f : A ⟶
     change FF.obj (cokernel f) ≅ cokernel (FF.map f)
     change (FF.map_cocone _).pt ≅ _
     refine'
-      (is_colimit_of_preserves FF (colimit.is_colimit _)).coconePointUniqueUpToIso
-          (colimit.is_colimit _) ≪≫
+      (CategoryTheory.Limits.isColimitOfPreserves FF (colimit.isColimit _)).coconePointUniqueUpToIso
+          (colimit.isColimit _) ≪≫
         _
     dsimp
-    apply has_colimit.iso_of_nat_iso
+    apply HasColimit.isoOfNatIso
     -- This isomorphism is probably somewhere in mathlib... or somewhere in this repo.
-    refine' nat_iso.of_components _ _
+    refine' NatIso.ofComponents _ _
     · rintro (i | i)
       · exact iso.refl _
       · exact iso.refl _
@@ -223,13 +223,13 @@ theorem is_epi_iff_forall_surjective {A B : Condensed.{u} Ab.{u + 1}} (f : A ⟶
   have : is_zero ((cokernel f).val.obj (op S.val)) ↔ is_zero (cokernel (f.val.app (op S.val))) :=
     by
     constructor
-    · intro h; apply is_zero_of_iso_of_zero h e
-    · intro h; apply is_zero_of_iso_of_zero h e.symm
-  rw [this, ← epi_iff_is_zero_cokernel]
+    · intro h; apply CategoryTheory.Limits.isZero_of_iso_of_zero h e
+    · intro h; apply CategoryTheory.Limits.isZero_of_iso_of_zero h e.symm
+  rw [this, ← CategoryTheory.Limits.epi_iff_isZero_cokernel]
   clear e
   constructor
   · intro h; apply AddCommGroupCat.surjective_of_epi
-  · intro h; exact concrete_category.epi_of_surjective (f.val.app (op S.val)) h
+  · intro h; exact ConcreteCategory.epi_of_surjective (f.val.app (op S.val)) h
 
 theorem condensed_ab_has_enough_projectives_aux (A : Condensed.{u} Ab.{u + 1}) :
     ∃ (B : Condensed Ab) (hB : Projective B) (f : B ⟶ A), Epi f :=
@@ -247,7 +247,7 @@ theorem condensed_ab_has_enough_projectives_aux (A : Condensed.{u} Ab.{u + 1}) :
   intro S t
   obtain ⟨w, hw⟩ := exists_homEquivEvaluation_symm_app_eq S.val A t
   use(sigma.ι X ⟨S, t⟩).val.app (op S.val) w
-  rw [← comp_apply, ← nat_trans.comp_app]
+  rw [← comp_apply, ← NatTrans.comp_app]
   change ((sigma.ι X ⟨S, t⟩ ≫ sigma.desc f).val.app (op S.val)) w = _
   erw [colimit.ι_desc]
   exact hw

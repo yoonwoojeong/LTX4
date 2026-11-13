@@ -13,9 +13,9 @@ variable {C : Type u} [Category.{v} C]
 /-- Split arrows. -/
 class Split (f : Arrow C) where
   σ : f.right ⟶ f.left
-  is_splitting' : σ ≫ f.Hom = 𝟙 _ := by obviously
+  is_splitting' : σ ≫ f.hom = 𝟙 _ := by obviously
 
-attribute [simp, reassoc] split.is_splitting
+attribute [simp, reassoc] Split.is_splitting
 
 end Arrow
 

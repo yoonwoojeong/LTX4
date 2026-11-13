@@ -39,7 +39,7 @@ def freePfpngToNormedFreePfpng : freePfpngFunctor ⟶ normedFreePfpngFunctor p
         rintro s -
         exact nnnorm_int_rpow_le p _
       Continuous' := fun c => continuous_of_discreteTopology }
-  naturality' := by intro S T f; ext φ t; rfl
+  naturality := by intro S T f; ext φ t; rfl
 
 open CategoryTheory
 
@@ -56,7 +56,7 @@ theorem condensifyMap_zero (F G : FintypeCat ⥤ CompHausFiltPseuNormGrp₁) :
   by
   delta condensifyMap condensifyNonstrict
   suffices nonstrictExtend (whisker_right (0 : F ⟶ G) cHFPNG₁ToCHFPNGₑₗ) 1 _ = 0 by rw [this]; rfl
-  rw [nonstrictExtend_whiskerRight_enlarging, Profinite.extend_nat_trans_zero]
+  rw [nonstrictExtend_whiskerRight_enlarging, Profinite.extendNatTrans_zero]
   rfl
 
 instance (S : Profinite) : Mono ((condFreePfpngToNormedFreePfpng p).app S) :=
@@ -64,9 +64,9 @@ instance (S : Profinite) : Mono ((condFreePfpngToNormedFreePfpng p).app S) :=
   simp only [condFreePfpngToNormedFreePfpng, condensifyMap, condensifyNonstrict]
   rw [nonstrictExtend_whiskerRight_enlarging]
   apply Condensed.mono_toCondensed_map
-  apply strongly_exact_extend_zero_left
+  apply CompHausFiltPseuNormGrp₁.stronglyExactExtendZeroLeft
   intro S
-  apply (config := { instances := false }) strongly_exact_of_mono
+  apply (config := { instances := false }) CompHausFiltPseuNormGrp₁.stronglyExactOfMono
   rw [AddCommGroupCat.mono_iff_injective, injective_iff_map_eq_zero]
   intro f hf
   exact hf
@@ -78,9 +78,9 @@ instance (S : Profinite) : Epi ((condFreePfpngToNormedFreePfpng p).app S) :=
   let κ : ℝ≥0 → ℝ≥0 := fun c => max c (c ^ (p⁻¹ : ℝ))
   have hκ : id ≤ κ := fun c => le_max_left _ _
   apply Condensed.epi_toCondensed_map _ κ
-  apply strongly_exact_extend_zero_right
+  apply CompHausFiltPseuNormGrp₁.stronglyExactExtendZeroRight
   intro S
-  apply strongly_exact_of_epi _ _ _ hκ
+  apply CompHausFiltPseuNormGrp₁.stronglyExactOfEpi _ _ _ hκ
   intro c f hf
   refine' ⟨f, _, rfl⟩
   change ∑ _, _ ≤ _ at hf 

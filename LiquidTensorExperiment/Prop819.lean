@@ -94,14 +94,14 @@ theorem fLCFunctor_map_normNoninc {f g : (Arrow Profinite.{u})ᵒᵖ} (α : f �
 --    Completion.map (cosimplicial_object.δ (functor.right_op F.cech_nerve ⋙ LocallyConstant.obj M) k)
 theorem FLC_iso_helper {x y : SimplexCategory} (f : x ⟶ y) :
     (F.cechNerve.rightOp ⋙ lCC.obj M).map f =
-      completion.map ((F.cechNerve.rightOp ⋙ locallyConstant.obj M).map f) :=
+      Completion.map ((F.cechNerve.rightOp ⋙ locallyConstant.obj M).map f) :=
   by
   change Completion.map _ = _
   congr 1
   dsimp [uncurry]
   erw [LocallyConstant.mapHom_id]
   change 𝟙 _ ≫ _ = _
-  rw [category.id_comp]
+  rw [Category.id_comp]
 
 /-- This is a strict (i.e. norm-preserving) isomorphism between `FLC F M` and
 the cochain complex obtained by mapping `FL F M` along the `Completion` functor.
@@ -115,35 +115,35 @@ def fLCIso : StrictIso ((completion.mapHomologicalComplex _).obj (fL F M)) (fLC 
         rintro (_ | i) (_ | j) (_ | ⟨i, w⟩) <;> ext
         · dsimp only
           delta fLC fL
-          dsimp only [cosimplicial_object.augmented.whiskering,
-            cosimplicial_object.augmented.whiskering_obj,
-            cosimplicial_object.augmented.to_cocomplex,
-            cosimplicial_object.augmented.to_cocomplex_obj, CochainComplex.of,
-            functor.map_homological_complex]
+          dsimp only [CosimplicialObject.Augmented.whiskering,
+            CosimplicialObject.Augmented.whiskeringObj,
+            CosimplicialObject.Augmented.toCocomplex,
+            CosimplicialObject.Augmented.toCocomplexObj, CochainComplex.of,
+            Functor.mapHomologicalComplex]
           rw [dif_pos rfl]
           rw [dif_pos rfl]
-          erw [category.id_comp, category.comp_id, category.comp_id, category.comp_id]
-          dsimp only [cosimplicial_object.augmented.to_cocomplex_d,
-            cosimplicial_object.augmented.drop, comma.snd, cosimplicial_object.whiskering,
-            whiskering_right, cosimplicial_object.coboundary, functor.const_comp, LCC]
-          simp only [Quiver.Hom.unop_op, arrow.augmented_cech_nerve_hom_app, whisker_right_app,
-            nat_trans.comp_app, curry_obj_obj_map, category.id_comp, nat_trans.right_op_app,
-            uncurry_obj_map, nat_trans.id_app, simplicial_object.augmented.right_op_hom,
+          erw [Category.id_comp, Category.comp_id, Category.comp_id, Category.comp_id]
+          dsimp only [CosimplicialObject.Augmented.toCocomplexD,
+            CosimplicialObject.Augmented.drop, Comma.snd, CosimplicialObject.whiskering,
+            whiskering_right, CosimplicialObject.coboundary, Functor.constComp, LCC]
+          simp only [Quiver.Hom.unop_op, Arrow.augmentedCechNerve_hom_app, CategoryTheory.whiskerRight_app,
+            NatTrans.comp_app, curry_obj_obj_map, Category.id_comp, NatTrans.rightOp_app,
+            uncurry_obj_map, NatTrans.id_app, simplicial_object.augmented.right_op_hom,
             CategoryTheory.Functor.map_id, CategoryTheory.Functor.comp_map,
             SemiNormedGroupCat.locallyConstant_obj_map, SemiNormedGroupCat.completion_map]
         · dsimp only
           delta fLC fL
-          dsimp only [cosimplicial_object.augmented.whiskering,
-            cosimplicial_object.augmented.whiskering_obj,
-            cosimplicial_object.augmented.to_cocomplex,
-            cosimplicial_object.augmented.to_cocomplex_obj, CochainComplex.of,
-            functor.map_homological_complex]
+          dsimp only [CosimplicialObject.Augmented.whiskering,
+            CosimplicialObject.Augmented.whiskeringObj,
+            CosimplicialObject.Augmented.toCocomplex,
+            CosimplicialObject.Augmented.toCocomplexObj, CochainComplex.of,
+            Functor.mapHomologicalComplex]
           rw [dif_pos rfl]
           rw [dif_pos rfl]
-          erw [category.id_comp, category.comp_id, category.comp_id, category.comp_id]
-          dsimp only [cosimplicial_object.augmented.to_cocomplex_d,
-            cosimplicial_object.augmented.drop, comma.snd, cosimplicial_object.whiskering,
-            whiskering_right, cosimplicial_object.coboundary, LCC]
+          erw [Category.id_comp, Category.comp_id, Category.comp_id, Category.comp_id]
+          dsimp only [CosimplicialObject.Augmented.toCocomplexD,
+            CosimplicialObject.Augmented.drop, Comma.snd, CosimplicialObject.whiskering,
+            whiskering_right, CosimplicialObject.coboundary, LCC]
           rw [Completion.map_sum]
           congr
           funext k
@@ -159,25 +159,25 @@ open scoped Simplicial
 @[simps]
 def cechIsoZero {C : Type _} [Category C] (F : Arrow C) [Limits.HasLimits C] :
     F.cechNerve _[0] ≅ F.left where
-  Hom := Limits.WidePullback.π _ 0
+  hom := Limits.WidePullback.π _ 0
   inv := Limits.WidePullback.lift F.Hom (fun _ => 𝟙 _) (by simp)
-  hom_inv_id' := by
-    apply limits.wide_pullback.hom_ext
+  hom_inv_id := by
+    apply Limits.WidePullback.hom_ext
     · intro i
-      simp only [limits.wide_pullback.lift_π, category.id_comp, category.comp_id, category.assoc]
+      simp only [Limits.WidePullback.lift_π, Category.id_comp, Category.comp_id, Category.assoc]
       congr
       tidy
     · simp
 
 theorem augmentation_zero {C : Type _} [Category C] (F : Arrow C) [Limits.HasLimits C] :
-    (cechIsoZero F).inv ≫ F.augmentedCechNerve.Hom.app _ = F.Hom := by tidy
+    (cechIsoZero F).inv ≫ F.augmentedCechNerve.hom.app _ = F.Hom := by tidy
 
 theorem locally_constant_norm_empty (X : Profinite) [IsEmpty X]
     (g : (locallyConstant.obj M).obj (op X)) : ‖g‖ = 0 :=
   by
   rw [LocallyConstant.norm_def]
   dsimp [iSup]
-  suffices (Set.range fun x : ↥X => ‖g.to_fun x‖) = ∅ by erw [this, Real.sSup_empty]
+  suffices (Set.range fun x : ↥X => ‖g.toFun x‖) = ∅ by erw [this, Real.sSup_empty]
   simp only [Set.range_eq_empty]
 
 theorem Profinite.coe_comp_apply {X Y Z : Profinite} (f : X ⟶ Y) (g : Y ⟶ Z) (x : X) :
@@ -190,7 +190,7 @@ theorem locallyConstant_toFun_eq {X : Profinite} (f : LocallyConstant X M) : f.t
 theorem locallyConstant_eq {X : Profinite} (f g : LocallyConstant X M) :
     f.toFun = g.toFun ↔ f = g := by
   constructor
-  · intro h; ext; change f.to_fun _ = _; rw [h]; rfl
+  · intro h; ext; change f.toFun _ = _; rw [h]; rfl
   · intro h; rw [h]
 
 theorem locallyConstant_eq_zero {X : Profinite} (f : LocallyConstant X M) :
@@ -211,7 +211,7 @@ theorem prop819_degree_zero_helper :
   dsimp at *
   refine' ⟨(cechIsoZero F).inv x, _⟩
   dsimp
-  change (limits.wide_pullback.lift F.hom _ _ ≫ limits.wide_pullback.base _) _ = _
+  change (Limits.WidePullback.lift F.hom _ _ ≫ Limits.WidePullback.base _) _ = _
   simp
 
 theorem prop819_zero_norm_le (g : (locallyConstant.obj M).obj (op F.right)) :
@@ -223,11 +223,11 @@ theorem prop819_zero_norm_le (g : (locallyConstant.obj M).obj (op F.right)) :
   · apply csSup_le
     · inhabit ↥F.right
       dsimp only [unop_op]
-      refine' ⟨‖g.to_fun _‖, default, rfl⟩
+      refine' ⟨‖g.toFun _‖, default, rfl⟩
     · rintro z ⟨z, rfl⟩
       obtain ⟨z, rfl⟩ := (prop819_degree_zero_helper _ surj) z
-      change ‖g.to_fun _‖ ≤ _
-      erw [← LocallyConstant_map_apply M _ F.right (limits.wide_pullback.base fun i => F.hom) g z]
+      change ‖g.toFun _‖ ≤ _
+      erw [← LocallyConstant_map_apply M _ F.right (Limits.WidePullback.base fun i => F.hom) g z]
       apply LocallyConstant.norm_apply_le
 
 open scoped ZeroObject
@@ -248,12 +248,12 @@ theorem prop819_degree_zero (f : (fLC F M).pt 0) (hf : (fLC F M).d 0 1 f = 0) : 
     dsimp
     symm
     delta fL at hg 
-    dsimp only [cosimplicial_object.augmented.whiskering,
-      cosimplicial_object.augmented.whiskering_obj, cosimplicial_object.augmented.to_cocomplex,
+    dsimp only [CosimplicialObject.Augmented.whiskering,
+      CosimplicialObject.Augmented.whiskeringObj, CosimplicialObject.Augmented.toCocomplex,
       CochainComplex.of] at hg 
     rw [dif_pos] at hg 
     swap; · simp
-    dsimp [cosimplicial_object.augmented.to_cocomplex_d] at hg 
+    dsimp [CosimplicialObject.Augmented.toCocomplexD] at hg 
     ext x
     obtain ⟨x, rfl⟩ := (prop819_degree_zero_helper F surj) x
     apply_fun fun e => e x at hg 
@@ -262,9 +262,9 @@ theorem prop819_degree_zero (f : (fLC F M).pt 0) (hf : (fLC F M).d 0 1 f = 0) : 
     exact hg
   · rintro g ⟨g, rfl⟩
     refine' ⟨g, rfl, _⟩
-    dsimp [cosimplicial_object.augmented.to_cocomplex_d]
-    simp only [LocallyConstant.comapHom_apply, one_mul, if_true, eq_self_iff_true, category.id_comp,
-      category.comp_id]
+    dsimp [CosimplicialObject.Augmented.toCocomplexD]
+    simp only [LocallyConstant.comapHom_apply, one_mul, if_true, eq_self_iff_true, Category.id_comp,
+      Category.comp_id]
     apply prop819_zero_norm_le _ surj
   · exact hf
 
@@ -421,13 +421,13 @@ theorem exists_locally_constant (n : ℕ) (f : (fL F M).pt (n + 1))
     by
     dsimp only [g, g1]
     have : (hom_of_le hT).op = (hom_of_le hT1).op ≫ (hom_of_le hhT1).op; rfl
-    rw [this, functor.map_comp]
+    rw [this, Functor.map_comp]
     rfl
   have hg2 : ((fLF F surj M).map (hom_of_le hhT2).op).f _ g2 = g :=
     by
     dsimp only [g, g2]
     have : (hom_of_le hT).op = (hom_of_le hT2).op ≫ (hom_of_le hhT2).op; rfl
-    rw [this, functor.map_comp]
+    rw [this, Functor.map_comp]
     rfl
   refine' ⟨T, g, _, _, _, trivial⟩
   · rw [← (fLFCocone F surj M).w (hom_of_le hT).op]
@@ -480,7 +480,7 @@ theorem prop819 {m : ℕ} (ε : ℝ≥0) (hε : 0 < ε) (f : (fLC F M).pt (m + 1
     change (CC n ≫ _) g = g
     cases n
     · have hh :=
-        arrow.is_contracting_homotopy_one (LocallyConstant.obj M)
+        Arrow.is_contractingHomotopy_one (LocallyConstant.obj M)
           ((Profinite.arrowDiagram F surj).obj S)
       apply_fun fun e => e g at hh 
       change CC 1 _ + _ = g at hh 
@@ -491,7 +491,7 @@ theorem prop819 {m : ℕ} (ε : ℝ≥0) (hε : 0 < ε) (f : (fLC F M).pt (m + 1
       rw [map_zero, zero_add] at hh 
       exact hh
     · have hh :=
-        arrow.is_contracting_homotopy (LocallyConstant.obj M)
+        Arrow.is_contractingHomotopy (LocallyConstant.obj M)
           ((Profinite.arrowDiagram F surj).obj S) _
       apply_fun fun e => e g at hh 
       change CC _ _ + _ = g at hh 

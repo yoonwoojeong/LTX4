@@ -4,7 +4,7 @@ import Mathlib.CategoryTheory.Abelian.Exact
 import Mathlib.CategoryTheory.Limits.Constructions.EpiMono
 import Mathlib.CategoryTheory.Abelian.Pseudoelements
 
-#align_import for_mathlib.exact_seq
+#align_import for_mathlib.exactSeq
 
 noncomputable section
 
@@ -56,24 +56,26 @@ variable {A B C : 𝒜} (f : A ⟶ B) (g : B ⟶ C)
 def kernelOpIso : (kernel f.op).unop ≅ cokernel f
     where
   hom :=
-    (kernel.lift _ (cokernel.π f).op (by simp [← op_comp, limits.cokernel.condition])).unop ≫
+    (kernel.lift _ (cokernel.π f).op (by simp [← op_comp, Limits.cokernel.condition])).unop ≫
       eqToHom (Opposite.unop_op (cokernel f))
   inv :=
     cokernel.desc _ (eqToHom (Opposite.unop_op B).symm ≫ (kernel.ι f.op).unop)
       (by
         dsimp
-        rw [category.id_comp, ← f.unop_op, ← unop_comp, f.unop_op, kernel.condition]
+        rw [Category.id_comp, ← f.unop_op, ← unop_comp, f.unop_op, kernel.condition]
         rfl)
-  hom_inv_id' := by
+  hom_inv_id := by
     dsimp
     simp
-    rw [← unop_id, ← (cokernel.desc f (kernel.ι f.op).unop _).unop_op, ← unop_comp]
-    congr 1
-    apply limits.equalizer.hom_ext
+    -- Porting note: Lean 3 rewrote `𝟙 _` to `(𝟙 _).unop`, which is ill-typed as a motive in
+    -- Lean 4; we pass to the opposite category with `op_inj` instead.
+    apply Quiver.Hom.op_inj
+    simp only [op_comp, Quiver.Hom.op_unop, op_id]
+    apply Limits.equalizer.hom_ext
     dsimp
     simp [← op_comp]
-  inv_hom_id' := by
-    apply limits.coequalizer.hom_ext
+  inv_hom_id := by
+    apply Limits.coequalizer.hom_ext
     dsimp
     simp [← unop_comp]
 
@@ -82,21 +84,21 @@ def cokernelOpIso : (cokernel f.op).unop ≅ kernel f
   hom :=
     kernel.lift _ ((cokernel.π f.op).unop ≫ eqToHom (Opposite.unop_op _))
       (by
-        simp only [eq_to_hom_refl, category.comp_id]
+        simp only [CategoryTheory.eqToHom_refl, Category.comp_id]
         rw [← f.unop_op, ← unop_comp, f.op.op_unop, cokernel.condition]
         rfl)
   inv :=
     eqToHom (Opposite.unop_op _).symm ≫ (cokernel.desc _ (kernel.ι f).op (by simp [← op_comp])).unop
-  hom_inv_id' :=
+  hom_inv_id :=
     by
-    simp only [category.id_comp, eq_to_hom_refl, category.comp_id, ← unop_id, ← unop_comp]
+    simp only [Category.id_comp, CategoryTheory.eqToHom_refl, Category.comp_id, ← unop_id, ← unop_comp]
     rw [← (kernel.lift f (cokernel.π f.op).unop _).unop_op, ← unop_comp]
     congr 1
-    apply limits.coequalizer.hom_ext
+    apply Limits.coequalizer.hom_ext
     dsimp
     simp [← op_comp]
-  inv_hom_id' := by
-    apply limits.equalizer.hom_ext
+  inv_hom_id := by
+    apply Limits.equalizer.hom_ext
     dsimp
     simp [← unop_comp]
 
@@ -124,8 +126,8 @@ theorem op (h : Exact f g) : Exact g.op f.op :=
   · simp only [← op_comp, h.w, op_zero]
   apply_fun Quiver.Hom.unop
   swap; · exact Quiver.Hom.unop_inj
-  simp only [h, unop_comp, cokernel.π_op, eq_to_hom_refl, kernel.ι_op, category.id_comp,
-    category.assoc, kernel_comp_cokernel_assoc, zero_comp, comp_zero, unop_zero]
+  simp only [h, unop_comp, cokernel.π_op, CategoryTheory.eqToHom_refl, kernel.ι_op, Category.id_comp,
+    Category.assoc, kernel_comp_cokernel_assoc, zero_comp, comp_zero, unop_zero]
 
 variable (f g)
 
@@ -138,18 +140,18 @@ def kernelUnopIso {C B : 𝒜ᵒᵖ} (f : C ⟶ B) : Opposite.op (kernel f.unop)
     cokernel.desc _ (eqToHom (Opposite.op_unop _).symm ≫ (kernel.ι f.unop).op)
       (by
         dsimp
-        rw [← f.op_unop, category.id_comp, ← op_comp, f.op_unop, kernel.condition]
+        rw [← f.op_unop, Category.id_comp, ← op_comp, f.op_unop, kernel.condition]
         rfl)
-  hom_inv_id' := by
+  hom_inv_id := by
     dsimp
     simp
     rw [← (cokernel.desc f (kernel.ι f.unop).op _).op_unop, ← op_comp, ← op_id]
     congr 1
-    apply limits.equalizer.hom_ext
+    apply Limits.equalizer.hom_ext
     dsimp
     simp [← unop_comp]
-  inv_hom_id' := by
-    apply limits.coequalizer.hom_ext
+  inv_hom_id := by
+    apply Limits.coequalizer.hom_ext
     dsimp
     simp [← op_comp]
 
@@ -159,21 +161,21 @@ def cokernelUnopIso {C B : 𝒜ᵒᵖ} (f : C ⟶ B) : Opposite.op (cokernel f.u
     kernel.lift _ ((cokernel.π f.unop).op ≫ eqToHom (Opposite.op_unop _))
       (by
         dsimp
-        rw [← f.op_unop, category.comp_id, ← op_comp, f.op_unop, cokernel.condition]
+        rw [← f.op_unop, Category.comp_id, ← op_comp, f.op_unop, cokernel.condition]
         rfl)
   inv :=
     eqToHom (Opposite.op_unop _).symm ≫
       (cokernel.desc _ (kernel.ι f).unop (by simp [← unop_comp])).op
-  hom_inv_id' := by
+  hom_inv_id := by
     dsimp
-    rw [category.id_comp]
+    rw [Category.id_comp]
     rw [← (kernel.lift f ((cokernel.π f.unop).op ≫ 𝟙 C) _).op_unop, ← op_comp, ← op_id]
     congr 1
-    apply limits.coequalizer.hom_ext
+    apply Limits.coequalizer.hom_ext
     dsimp
     simp [← unop_comp]
-  inv_hom_id' := by
-    apply limits.equalizer.hom_ext
+  inv_hom_id := by
+    apply Limits.equalizer.hom_ext
     dsimp
     simp [← op_comp]
 
@@ -212,50 +214,51 @@ Recall that the pair `(f,g)` is exact if `f ≫ g = 0`
 and the natural map from the image of `f` to the kernel of `g` is an epimorphism
 (equivalently, in abelian categories: isomorphism). -/
 inductive ExactSeq : List (Arrow 𝒞) → Prop
-  | nil : exact_seq []
-  | single : ∀ f, exact_seq [f]
+  | nil : ExactSeq []
+  | single : ∀ f, ExactSeq [f]
   |
   cons :
-    ∀ {A B C : 𝒞} (f : A ⟶ B) (g : B ⟶ C) (hfg : Exact f g) (L) (hgL : exact_seq (g::L)),
-      exact_seq (f::g::L)
+    ∀ {A B C : 𝒞} (f : A ⟶ B) (g : B ⟶ C) (hfg : Exact f g) (L) (hgL : ExactSeq (g::L)),
+      ExactSeq (f::g::L)
 
 variable {𝒞}
 
 theorem exact_iff_exactSeq {A B C : 𝒞} (f : A ⟶ B) (g : B ⟶ C) : Exact f g ↔ ExactSeq 𝒞 [f, g] :=
   by
   constructor
-  · intro h; exact CategoryTheory.ExactSeq.cons f g h _ (exact_seq.single _)
-  · rintro (_ | _ | ⟨A, B, C, f, g, hfg, _, _ | _ | _⟩); exact hfg
+  · intro h; exact CategoryTheory.ExactSeq.cons f g h _ (ExactSeq.single _)
+  -- Porting note: Lean 4 `rcases` patterns do not list the implicit constructor arguments
+  · rintro (_ | _ | ⟨f, g, hfg, _, _ | _ | _⟩); exact hfg
 
 namespace ExactSeq
 
 theorem extract : ∀ {L : List (Arrow 𝒞)} (h : ExactSeq 𝒞 L) (m n : ℕ), ExactSeq 𝒞 (L.extract m n)
-  | L, nil, m, n => by rw [List.extract_nil]; exact nil
-  | L, single f, m, 0 => nil
-  | L, single f, 0, n + 1 => by cases n <;> exact single f
-  | L, single f, m + 1, n + 1 => by cases m <;> exact nil
+  | _, nil, m, n => by rw [List.extract_nil]; exact nil
+  | _, single f, m, 0 => nil
+  | _, single f, 0, n + 1 => by cases n <;> exact single f
+  | _, single f, m + 1, n + 1 => by cases m <;> exact nil
   | _, cons f g hfg L hL, m + 1, n => extract hL m n
   | _, cons f g hfg L hL, 0, 0 => nil
-  | _, cons f g hfg L hL, 0, 1 => single f
+  | _, cons f g hfg L hL, 0, 1 => by dsimp [List.extract]; exact single _
   | _, cons f g hfg L hL, 0, n + 2 => cons f g hfg (L.take n) (extract hL 0 (n + 1))
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:177:8: unsupported: ambiguous notation -/
 /- ./././Mathport/Syntax/Translate/Expr.lean:177:8: unsupported: ambiguous notation -/
 inductive ArrowCongr : ∀ L L' : List (Arrow 𝒞), Prop
-  | nil : arrow_congr [] []
+  | nil : ArrowCongr [] []
   |
   cons :
-    ∀ {A B : 𝒞} {f f' : A ⟶ B} {L L' : List (Arrow 𝒞)} (h : f = f') (H : arrow_congr L L'),
-      arrow_congr (f::L) (f'::L')
+    ∀ {A B : 𝒞} {f f' : A ⟶ B} {L L' : List (Arrow 𝒞)} (h : f = f') (H : ArrowCongr L L'),
+      ArrowCongr (f::L) (f'::L')
 
 theorem congr : ∀ {L L' : List (Arrow 𝒞)}, ExactSeq 𝒞 L → ArrowCongr L L' → ExactSeq 𝒞 L'
-  | _, _, h, arrow_congr.nil => ExactSeq.nil
-  | _, _, h, arrow_congr.cons h₁ arrow_congr.nil => ExactSeq.single _
-  | _, _, h, arrow_congr.cons h₁ (arrow_congr.cons h₂ H) =>
+  | _, _, h, ArrowCongr.nil => ExactSeq.nil
+  | _, _, h, ArrowCongr.cons h₁ ArrowCongr.nil => ExactSeq.single _
+  | _, _, h, ArrowCongr.cons h₁ (ArrowCongr.cons h₂ H) =>
     by
     substs h₁ h₂
-    rcases h with (_ | _ | ⟨A, B, C, f, g, hfg, _, hL⟩)
-    refine' exact_seq.cons _ _ hfg _ (congr hL (arrow_congr.cons rfl H))
+    rcases h with (_ | _ | ⟨f, g, hfg, _, hL⟩)
+    refine' ExactSeq.cons _ _ hfg _ (congr hL (ArrowCongr.cons rfl H))
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:177:8: unsupported: ambiguous notation -/
 /- ./././Mathport/Syntax/Translate/Expr.lean:177:8: unsupported: ambiguous notation -/
@@ -267,38 +270,45 @@ theorem append :
       (h₂ : L₂ ≠ []), ExactSeq 𝒞 (L₁ ++ L₂ ++ L₃)
   | L₁, [], L₃, h₁₂, h₂₃, h => (h rfl).elim
   | [], L₂, L₃, h₁₂, h₂₃, h => by rwa [List.nil_append]
-  | _::[], _::L₂, L₃, cons f g hfg L hL, h₂₃, h => cons f g hfg _ h₂₃
-  | _::_::L₁, L₂, L₃, cons f g hfg L hL, h₂₃, h =>
-    suffices ExactSeq 𝒞 ([f] ++ ([g] ++ L₁ ++ L₂) ++ L₃) by simpa only [List.append_assoc]
-    cons _ _ hfg _ <|
-      suffices ExactSeq 𝒞 ((g::L₁) ++ L₂ ++ L₃) by simpa only [List.append_assoc]
-      append (by simpa only using hL) h₂₃ h
+  -- Porting note: Lean 4's equation compiler cannot match the constructor `cons` against the
+  -- index `[a] ++ b :: L₂`, so the case split on `h₁₂` is done with `rcases`.
+  | [_], _::L₂, L₃, h₁₂, h₂₃, h => by
+    rcases h₁₂ with (_ | _ | ⟨f, g, hfg, L, hL⟩)
+    exact cons f g hfg _ h₂₃
+  | _::_::L₁, L₂, L₃, h₁₂, h₂₃, h => by
+    rcases h₁₂ with (_ | _ | ⟨f, g, hfg, L, hL⟩)
+    suffices ExactSeq 𝒞 ([Arrow.mk f] ++ ([Arrow.mk g] ++ L₁ ++ L₂) ++ L₃) by
+      simpa only [List.append_assoc]
+    refine cons _ _ hfg _ ?_
+    suffices ExactSeq 𝒞 ((Arrow.mk g :: L₁) ++ L₂ ++ L₃) by
+      simpa only [List.append_assoc, List.append_eq, List.nil_append]
+    exact append (by simpa only [List.append_eq] using hL) h₂₃ h
 
 end ExactSeq
 
 namespace Arrow
 
-open _Root_.Opposite
+open Opposite
 
 variable {C : Type _} [Category C]
 
 @[simps]
 def op (f : Arrow C) : Arrow Cᵒᵖ where
-  left := op f.right
-  right := op f.left
-  hom := f.Hom.op
+  left := Opposite.op f.right
+  right := Opposite.op f.left
+  hom := f.hom.op
 
 @[simps]
 def unop (f : Arrow Cᵒᵖ) : Arrow C where
-  left := unop f.right
-  right := unop f.left
-  hom := f.Hom.unop
+  left := Opposite.unop f.right
+  right := Opposite.unop f.left
+  hom := f.hom.unop
 
 @[simp]
-theorem op_unop (f : Arrow C) : f.op.unop = f := by cases f; dsimp [op, unop]; rfl
+theorem op_unop (f : Arrow C) : f.op.unop = f := by cases f; dsimp [op, unop]
 
 @[simp]
-theorem unop_op (f : Arrow Cᵒᵖ) : f.unop.op = f := by cases f; dsimp [op, unop]; rfl
+theorem unop_op (f : Arrow Cᵒᵖ) : f.unop.op = f := by cases f; dsimp [op, unop]
 
 @[simp]
 theorem op_comp_unop : (op ∘ unop : Arrow Cᵒᵖ → Arrow Cᵒᵖ) = id := by ext; exact unop_op _

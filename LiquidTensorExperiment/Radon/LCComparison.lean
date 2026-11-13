@@ -93,9 +93,9 @@ def radonLCComparisonComponentEquivAux (X : Profinite.{0}) (p : ℝ≥0) (T : Di
     rw [μ.map_smul, mul_comm]; change _ = _ * _
     congr 3; ext w; change _ = _ ↔ _ = _
     constructor
-    · intro h; apply_fun discrete_quotient.equiv_bot.symm at h 
-      erw [discrete_quotient.equiv_bot.symm_apply_apply] at h 
-      rw [discrete_quotient.equiv_bot.symm_apply_apply] at h 
+    · intro h; apply_fun discrete_quotient.equivBot.symm at h 
+      erw [discrete_quotient.equivBot.symm_apply_apply] at h 
+      rw [discrete_quotient.equivBot.symm_apply_apply] at h 
       exact h
     · intro h; rw [h]; rfl
   right_inv := by
@@ -105,9 +105,9 @@ def radonLCComparisonComponentEquivAux (X : Profinite.{0}) (p : ℝ≥0) (T : Di
       change _ = _; rfl
     · intro s _ hs; change _ * ite _ _ _ = _; rw [if_neg, MulZeroClass.mul_zero]
       change _ ≠ _; contrapose! hs
-      apply_fun discrete_quotient.equiv_bot.symm at hs 
-      erw [discrete_quotient.equiv_bot.symm_apply_apply] at hs 
-      rw [discrete_quotient.equiv_bot.symm_apply_apply] at hs 
+      apply_fun discrete_quotient.equivBot.symm at hs 
+      erw [discrete_quotient.equivBot.symm_apply_apply] at hs 
+      rw [discrete_quotient.equivBot.symm_apply_apply] at hs 
       exact hs
     · intro h; exact False.elim (h (Finset.mem_univ _))
 
@@ -124,10 +124,10 @@ theorem bddLC_iff_comparison (X : Profinite.{0}) (T : DiscreteQuotient X) (p c :
     · intro t _; exact DiscreteQuotient.equivBot t
     · intros; exact Finset.mem_univ _
     · intro t _; congr
-    · intro t _; exact discrete_quotient.equiv_bot.symm t
+    · intro t _; exact discrete_quotient.equivBot.symm t
     · intros; exact Finset.mem_univ _
     · intros; apply Equiv.apply_symm_apply
-    · intros; exact discrete_quotient.equiv_bot.apply_symm_apply _
+    · intros; exact discrete_quotient.equivBot.apply_symm_apply _
   · intro h E; change ∑ e : E, _ ≤ _
     change ∑ t : T, _ ≤ _ at h 
     dsimp [Radon_LC_comparison_component_equiv_aux] at h 
@@ -147,9 +147,9 @@ theorem bddLC_iff_comparison (X : Profinite.{0}) (T : DiscreteQuotient X) (p c :
           change ite (_ = _) _ (0 : ℝ) = 0; rw [if_neg]
           contrapose! hh
           rw [Finset.mem_filter] at ht 
-          apply_fun discrete_quotient.equiv_bot.symm at hh 
-          erw [discrete_quotient.equiv_bot.symm_apply_apply] at hh 
-          rw [discrete_quotient.equiv_bot.symm_apply_apply] at hh 
+          apply_fun discrete_quotient.equivBot.symm at hh 
+          erw [discrete_quotient.equivBot.symm_apply_apply] at hh 
+          rw [discrete_quotient.equivBot.symm_apply_apply] at hh 
           exact hh.symm
         · intro h; refine' False.elim (h _); rw [Finset.mem_filter]
           refine' ⟨Finset.mem_univ _, hh⟩
@@ -157,9 +157,9 @@ theorem bddLC_iff_comparison (X : Profinite.{0}) (T : DiscreteQuotient X) (p c :
         intro t ht; rw [Finset.mem_filter] at ht 
         change ite (_ = _) _ (0 : ℝ) = 0; rw [if_neg]
         contrapose! hh
-        apply_fun discrete_quotient.equiv_bot.symm at hh 
-        erw [discrete_quotient.equiv_bot.symm_apply_apply] at hh 
-        rw [discrete_quotient.equiv_bot.symm_apply_apply] at hh 
+        apply_fun discrete_quotient.equivBot.symm at hh 
+        erw [discrete_quotient.equivBot.symm_apply_apply] at hh 
+        rw [discrete_quotient.equivBot.symm_apply_apply] at hh 
         rw [hh]
         exact ht.2
     simp_rw [this, f.map_sum]; clear this
@@ -264,14 +264,14 @@ theorem Radon_LC_comparison_naturality_aux (X : Profinite.{0}) (S T : DiscreteQu
           Finset.univ)
         (fun i => ((⊥ : DiscreteQuotient S).fibre (DiscreteQuotient.equivBot i)).indicatorLC q) q _
         _]
-    · dsimp [clopens.indicator_LC, Set.indicator, DiscreteQuotient.fibre]
+    · dsimp [Clopens.indicatorLC, Set.indicator, DiscreteQuotient.fibre]
       erw [if_pos rfl]
       rw [if_pos]; congr 1
     · intro s hs hsq; rw [Finset.mem_filter] at hs 
-      dsimp [clopens.indicator_LC, Set.indicator, DiscreteQuotient.fibre]
+      dsimp [Clopens.indicatorLC, Set.indicator, DiscreteQuotient.fibre]
       rw [if_neg]
       contrapose! hsq
-      apply_fun discrete_quotient.equiv_bot.symm at hsq 
+      apply_fun discrete_quotient.equivBot.symm at hsq 
       rw [Equiv.symm_apply_apply] at hsq 
       erw [Equiv.symm_apply_apply] at hsq 
       exact hsq.symm
@@ -285,13 +285,13 @@ theorem Radon_LC_comparison_naturality_aux (X : Profinite.{0}) (S T : DiscreteQu
       change ite _ _ _ = _; rw [if_neg]
       contrapose! H
       dsimp [DiscreteQuotient.fibre] at H 
-      apply_fun discrete_quotient.equiv_bot.symm at H 
+      apply_fun discrete_quotient.equivBot.symm at H 
       rw [Equiv.symm_apply_apply] at H 
       erw [Equiv.symm_apply_apply] at H 
       rw [H]; exact hs
     · contrapose! H
       dsimp [DiscreteQuotient.fibre] at H 
-      apply_fun discrete_quotient.equiv_bot.symm at H 
+      apply_fun discrete_quotient.equivBot.symm at H 
       rw [Equiv.symm_apply_apply] at H 
       erw [Equiv.symm_apply_apply] at H 
       exact H

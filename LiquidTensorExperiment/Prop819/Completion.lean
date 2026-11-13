@@ -78,7 +78,7 @@ theorem exact_of_strictIso (F : StrictIso C D) (ε : ℝ≥0) (hε : 0 < ε)
     rw [F.iso.inv.comm]
     simp [hf]
   rcases cond with ⟨g, h1, h2⟩
-  refine' ⟨((HomologicalComplex.eval _ _ n).mapIso F.iso).Hom g, _, _⟩
+  refine' ⟨((HomologicalComplex.eval _ _ n).mapIso F.iso).hom g, _, _⟩
   · dsimp [HomologicalComplex.eval] at *
     change (F.iso.hom.f _ ≫ D.d _ _) _ = _
     rw [F.iso.hom.comm]

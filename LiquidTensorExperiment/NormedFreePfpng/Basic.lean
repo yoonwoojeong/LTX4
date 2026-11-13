@@ -216,8 +216,8 @@ def normedFreePfpngFunctor : FintypeCat ⥤ ProFiltPseuNormGrp₁
     { M := NormedFreePfpng p S
       exhaustive' := fun f => ⟨‖f‖₊, le_refl _⟩ }
   map S₁ S₂ f := NormedFreePfpng.map p f
-  map_id' S := NormedFreePfpng.map_id p S
-  map_comp' _ _ _ g₁ g₂ := NormedFreePfpng.map_comp p g₁ g₂
+  map_id S := NormedFreePfpng.map_id p S
+  map_comp _ _ _ g₁ g₂ := NormedFreePfpng.map_comp p g₁ g₂
 
 def FintypeCat.normedFreePfpng (T : FintypeCat) : ProFiltPseuNormGrp₁ :=
   (normedFreePfpngFunctor p).obj T
@@ -236,7 +236,7 @@ def FintypeCat.normedFreePfpngUnit :
             rintro t - ht; dsimp; rw [if_neg ht.symm, nnnorm_zero, NNReal.zero_rpow]
             have h0p : 0 < p := Fact.out _; exact_mod_cast h0p.ne' }
       continuous_toFun := continuous_bot }
-  naturality' S T f := by
+  naturality S T f := by
     ext s t
     delta ProFiltPseuNormGrp₁.level
     simp only [FintypeCat.toProfinite_map_apply, Profinite.coe_comp, ContinuousMap.coe_mk,

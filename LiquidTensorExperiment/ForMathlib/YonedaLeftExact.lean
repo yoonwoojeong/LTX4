@@ -24,20 +24,20 @@ theorem kernelComparison_isIso_of_isLimit {A₁ A₂ : C} (f : A₁ ⟶ A₂) [H
     (hs₂ :
       IsLimit
         (KernelFork.ofι (F.map s.ι)
-          (show _ ≫ F.map f = 0 by rw [← F.map_comp, kernel_fork.condition, F.map_zero]))) :
+          (show _ ≫ F.map f = 0 by rw [← F.map_comp, KernelFork.condition, F.map_zero]))) :
     IsIso (Limits.kernelComparison f F) :=
   by
-  let α : kernel f ≅ s.X := is_limit.cone_point_unique_up_to_iso (limit.is_limit _) hs₁
+  let α : kernel f ≅ s.X := IsLimit.conePointUniqueUpToIso (limit.isLimit _) hs₁
   let β : F.obj s.X ≅ kernel (F.map f) :=
-    is_limit.cone_point_unique_up_to_iso hs₂ (limit.is_limit _)
-  suffices limits.kernel_comparison f F = (F.map_iso α ≪≫ β).Hom by rw [this]; infer_instance
+    IsLimit.conePointUniqueUpToIso hs₂ (limit.isLimit _)
+  suffices Limits.kernelComparison f F = (F.map_iso α ≪≫ β).hom by rw [this]; infer_instance
   rw [← cancel_mono (kernel.ι (F.map f))]
   dsimp only [α, β]
-  simp only [kernel_comparison_comp_ι, iso.trans_hom, fork.of_ι_π_app, functor.map_iso_hom,
-    category.assoc, limit.cone_point_unique_up_to_iso_hom_comp, ← F.map_comp]
+  simp only [kernel_comparison_comp_ι, Iso.trans_hom, Fork.ofι_π_app, Functor.mapIso_hom,
+    Category.assoc, limit.conePointUniqueUpToIso_hom_comp, ← F.map_comp]
   congr
-  rw [← cancel_epi ((limit.is_limit (parallel_pair f 0)).conePointUniqueUpToIso hs₁).inv]
-  simp only [iso.inv_hom_id_assoc, limit.cone_point_unique_up_to_iso_inv_comp, fork.app_zero_eq_ι]
+  rw [← cancel_epi ((limit.isLimit (CategoryTheory.Limits.parallelPair f 0)).conePointUniqueUpToIso hs₁).inv]
+  simp only [Iso.inv_hom_id_assoc, limit.conePointUniqueUpToIso_inv_comp, Fork.app_zero_eq_ι]
 
 end KernelComparison
 
@@ -46,7 +46,7 @@ variable {C : Type _} [Category C] [Preadditive C]
 theorem AddCommGroupCat.kernelForkIsLimit {X Y : AddCommGroupCat} (φ : X ⟶ Y) (s : KernelFork φ)
     (hs₁ : Function.Injective s.ι) (hs₂ : ∀ x : X, φ x = 0 → ∃ z : s.pt, s.ι z = x) : IsLimit s :=
   by
-  refine' is_limit.of_iso_limit (AddCommGroupCat.kernelIsLimit φ) _
+  refine' IsLimit.ofIsoLimit (AddCommGroupCat.kernelIsLimit φ) _
   let e : s.X ≃+ φ.ker :=
     { toFun := fun w =>
         ⟨s.ι w, by
@@ -57,16 +57,16 @@ theorem AddCommGroupCat.kernelForkIsLimit {X Y : AddCommGroupCat} (φ : X ⟶ Y)
       right_inv := fun x => by ext; exact (hs₂ x.1 x.2).choose_spec
       map_add' := fun w₁ w₂ => by ext; simp only [map_add, AddSubmonoid.mk_add_mk, SetLike.coe_mk] }
   symm
-  refine' cones.ext (AddEquiv.toAddCommGroupCatIso e) _
+  refine' Cones.ext (AddEquiv.toAddCommGroupCatIso e) _
   rintro (_ | _)
   · ext; rfl
-  · ext; dsimp [e]; simp only [kernel_fork.app_one, comp_zero]
+  · ext; dsimp [e]; simp only [KernelFork.app_one, comp_zero]
 
 instance preadditiveYoneda_kernelComparison_isIso (B : C) {A₁ A₂ : Cᵒᵖ} (f : A₁ ⟶ A₂)
     [HasKernel f] : IsIso (Limits.kernelComparison f (preadditiveYoneda.obj B)) :=
   by
-  let hs₁ : is_limit (_ : kernel_fork f) := limit.is_limit _
-  apply kernel_comparison_is_iso_of_is_limit (preadditive_yoneda.obj B) f _ hs₁
+  let hs₁ : is_limit (_ : kernel_fork f) := limit.isLimit _
+  apply CategoryTheory.Limits.kernelComparison_isIso_of_isLimit (preadditive_yoneda.obj B) f _ hs₁
   apply AddCommGroupCat.kernelForkIsLimit
   · intro g₁ g₂ h
     dsimp at g₁ g₂ h ⊢

@@ -91,26 +91,26 @@ def applyFunctor {D : Type _} [Category D] [Abelian D] (F : C ⥤ D) [F.Additive
 
 @[simps]
 def mapIso {X' Y' Z' : C} (f' : X' ⟶ Y') (g' : Y' ⟶ Z') (e₁ : Arrow.mk f ≅ Arrow.mk f')
-    (e₂ : Arrow.mk g ≅ Arrow.mk g') (eq : e₁.Hom.right = e₂.Hom.left) :
+    (e₂ : Arrow.mk g ≅ Arrow.mk g') (eq : e₁.hom.right = e₂.hom.left) :
     HomologyIsoPredatum f' g' H :=
   by
-  have comm₁ : e₁.hom.left ≫ f' = f ≫ e₁.hom.right := arrow.w e₁.hom
-  have comm₂ : e₂.hom.left ≫ g' = g ≫ e₂.hom.right := arrow.w e₂.hom
+  have comm₁ : e₁.hom.left ≫ f' = f ≫ e₁.hom.right := Arrow.w e₁.hom
+  have comm₂ : e₂.hom.left ≫ g' = g ≫ e₂.hom.right := Arrow.w e₂.hom
   have h₁ : e₁.inv.left ≫ e₁.hom.left = 𝟙 X' := by
-    rw [← comma.comp_left, e₁.inv_hom_id, arrow.id_left]; rfl
+    rw [← Comma.comp_left, e₁.inv_hom_id, Arrow.id_left]; rfl
   exact
     { w := by
-        rw [← cancel_epi e₁.hom.left, ← category.assoc, comm₁, Eq, category.assoc, comm₂, ←
-          category.assoc, h.w, zero_comp, comp_zero]
+        rw [← cancel_epi e₁.hom.left, ← Category.assoc, comm₁, Eq, Category.assoc, comm₂, ←
+          Category.assoc, h.w, zero_comp, comp_zero]
       k := h.K
       ι := h.ι ≫ e₁.hom.right
       f' := e₁.inv.left ≫ h.f'
       fac := by
         slice_lhs 2 3 => rw [h.fac']
-        rw [← comm₁, ← category.assoc, h₁, category.id_comp]
-      zero₁' := by rw [Eq, category.assoc, comm₂, ← category.assoc, h.zero₁', zero_comp]
+        rw [← comm₁, ← Category.assoc, h₁, Category.id_comp]
+      zero₁' := by rw [Eq, Category.assoc, comm₂, ← Category.assoc, h.zero₁', zero_comp]
       π := h.π
-      zero₂' := by rw [category.assoc, h.zero₂', comp_zero] }
+      zero₂' := by rw [Category.assoc, h.zero₂', comp_zero] }
 
 end HomologyIsoPredatum
 
@@ -133,47 +133,47 @@ variable (f g)
 def tautological : HomologyIsoDatum f g (cokernel (kernel.lift g f w))
     where
   toHomologyIsoPredatum := HomologyIsoPredatum.tautological f g w
-  forkIsLimit := by apply kernel_is_kernel
-  coforkIsColimit := by apply cokernel_is_cokernel
+  forkIsLimit := by apply CategoryTheory.Limits.kernelIsKernel
+  coforkIsColimit := by apply CategoryTheory.Limits.cokernelIsCokernel
 
 @[simps]
 def tautological' : HomologyIsoDatum f g (homology' f g w)
     where
   toHomologyIsoPredatum := HomologyIsoPredatum.tautological' f g w
-  forkIsLimit := by apply kernel_is_kernel
+  forkIsLimit := by apply CategoryTheory.Limits.kernelIsKernel
   coforkIsColimit := by
     dsimp [HomologyIsoPredatum.cofork]
-    refine' is_colimit.of_iso_colimit (cokernel_is_cokernel (kernel.lift g f w)) _
-    refine' cocones.ext (homology'IsoCokernelLift f g w).symm _
+    refine' IsColimit.ofIsoColimit (CategoryTheory.Limits.cokernelIsCokernel (kernel.lift g f w)) _
+    refine' Cocones.ext (homology'IsoCokernelLift f g w).symm _
     rintro (_ | _)
     tidy
 
 variable {f g} (h : HomologyIsoDatum f g H)
 
 def mapIso {X' Y' Z' : C} (f' : X' ⟶ Y') (g' : Y' ⟶ Z') (e₁ : Arrow.mk f ≅ Arrow.mk f')
-    (e₂ : Arrow.mk g ≅ Arrow.mk g') (eq : e₁.Hom.right = e₂.Hom.left) : HomologyIsoDatum f' g' H
+    (e₂ : Arrow.mk g ≅ Arrow.mk g') (eq : e₁.hom.right = e₂.hom.left) : HomologyIsoDatum f' g' H
     where
   toHomologyIsoPredatum := h.toHomologyIsoPredatum.mapIso f' g' e₁ e₂ Eq
   forkIsLimit :=
     by
-    refine' (is_limit.equiv_of_nat_iso_of_iso _ _ _ _).toFun h.fork_is_limit
+    refine' (IsLimit.equivOfNatIsoOfIso _ _ _ _).toFun h.forkIsLimit
     · refine'
-        parallel_pair.ext (arrow.right_func.map_iso e₁) (arrow.right_func.map_iso e₂) _ (by simp)
-      have h₂ := arrow.w e₂.hom
+        parallelPair.ext (arrow.rightFunc.map_iso e₁) (arrow.rightFunc.map_iso e₂) _ (by simp)
+      have h₂ := Arrow.w e₂.hom
       dsimp at h₂ ⊢
       rw [Eq, h₂]
-    · refine' cones.ext (iso.refl _) _
+    · refine' Cones.ext (iso.refl _) _
       rintro (_ | _)
       tidy
   coforkIsColimit :=
     by
-    refine' (is_colimit.equiv_of_nat_iso_of_iso _ _ _ _).toFun h.cofork_is_colimit
-    · refine' parallel_pair.ext (arrow.left_func.map_iso e₁) (iso.refl _) _ (by tidy)
+    refine' (IsColimit.equivOfNatIsoOfIso _ _ _ _).toFun h.coforkIsColimit
+    · refine' parallelPair.ext (arrow.leftFunc.map_iso e₁) (iso.refl _) _ (by tidy)
       · dsimp
         have h₁ : e₁.hom.left ≫ e₁.inv.left = 𝟙 X := by
-          rw [← comma.comp_left, e₁.hom_inv_id, arrow.id_left]; rfl
-        rw [category.comp_id, ← category.assoc, h₁, category.id_comp]
-    · refine' cocones.ext (iso.refl _) _
+          rw [← Comma.comp_left, e₁.hom_inv_id, Arrow.id_left]; rfl
+        rw [Category.comp_id, ← Category.assoc, h₁, Category.id_comp]
+    · refine' Cocones.ext (iso.refl _) _
       rintro (_ | _)
       tidy
 
@@ -181,16 +181,16 @@ def iso₁ : h.k ≅ kernel g :=
   IsLimit.conePointUniqueUpToIso h.forkIsLimit (LimitCone.isLimit _)
 
 @[simp, reassoc]
-theorem iso₁_hom_kernel_ι : h.iso₁.Hom ≫ kernel.ι g = h.ι :=
+theorem iso₁_hom_kernel_ι : h.iso₁.hom ≫ kernel.ι g = h.ι :=
   IsLimit.conePointUniqueUpToIso_hom_comp _ _ _
 
 instance : Mono h.ι := by rw [← h.iso₁_hom_kernel_ι]; infer_instance
 
 @[simp, reassoc]
-theorem f'_iso₁_hom : h.f' ≫ h.iso₁.Hom = kernel.lift g f h.w :=
+theorem f'_iso₁_hom : h.f' ≫ h.iso₁.hom = kernel.lift g f h.w :=
   by
   ext
-  simp only [category.assoc, iso₁_hom_kernel_ι, HomologyIsoPredatum.fac, kernel.lift_ι]
+  simp only [Category.assoc, iso₁_hom_kernel_ι, HomologyIsoPredatum.fac, kernel.lift_ι]
 
 def iso₂ : H ≅ cokernel h.f' :=
   IsColimit.coconePointUniqueUpToIso h.coforkIsColimit (ColimitCocone.isColimit _)
@@ -200,21 +200,21 @@ theorem cokernel_π_iso₂_inv : cokernel.π h.f' ≫ h.iso₂.inv = h.π :=
   IsColimit.comp_coconePointUniqueUpToIso_inv _ _ _
 
 @[reassoc]
-theorem cokernel_f'_eq_π_iso₂_hom : cokernel.π h.f' = h.π ≫ h.iso₂.Hom := by
-  rw [← cokernel_π_iso₂_inv, category.assoc, h.iso₂.inv_hom_id, category.comp_id]
+theorem cokernel_f'_eq_π_iso₂_hom : cokernel.π h.f' = h.π ≫ h.iso₂.hom := by
+  rw [← cokernel_π_iso₂_inv, Category.assoc, h.iso₂.inv_hom_id, Category.comp_id]
 
 instance : Epi h.π := by rw [← h.cokernel_π_iso₂_inv]; apply epi_comp
 
 def iso₃ : cokernel h.f' ≅ cokernel (kernel.lift g f h.w) :=
   cokernel.mapIso _ _ (Iso.refl _) h.iso₁
-    (by simp only [f'_iso₁_hom, iso.refl_hom, category.id_comp])
+    (by simp only [f'_iso₁_hom, Iso.refl_hom, Category.id_comp])
 
 @[simp, reassoc]
 theorem cokernel_π_iso₃_hom :
-    cokernel.π h.f' ≫ h.iso₃.Hom = h.iso₁.Hom ≫ cokernel.π (kernel.lift g f h.w) :=
+    cokernel.π h.f' ≫ h.iso₃.hom = h.iso₁.hom ≫ cokernel.π (kernel.lift g f h.w) :=
   by
   dsimp only [iso₃]
-  simp only [cokernel.map_iso_hom, cokernel.π_desc]
+  simp only [cokernel.mapIso_hom, cokernel.π_desc]
 
 variable (f g)
 
@@ -223,7 +223,7 @@ theorem tautological_iso₁ : (tautological f g w).iso₁ = Iso.refl _ :=
   by
   ext
   dsimp only [iso₁]
-  simp only [equalizer_as_kernel, iso.refl_hom, category.id_comp]
+  simp only [equalizer_as_kernel, Iso.refl_hom, Category.id_comp]
   change kernel.lift _ _ _ ≫ _ = _
   simpa only [equalizer_as_kernel, kernel.lift_ι]
 
@@ -232,7 +232,7 @@ theorem tautological'_iso₁ : (tautological' f g w).iso₁ = Iso.refl _ :=
   by
   ext
   dsimp only [iso₁]
-  simp only [equalizer_as_kernel, iso.refl_hom, category.id_comp]
+  simp only [equalizer_as_kernel, Iso.refl_hom, Category.id_comp]
   change kernel.lift _ _ _ ≫ _ = _
   simpa only [equalizer_as_kernel, kernel.lift_ι]
 
@@ -244,14 +244,14 @@ theorem tautological_iso₂ : (tautological f g w).iso₂ = Iso.refl _ :=
     change (tautological f g w).iso₂.symm.symm = _
     simpa only [this]
   ext
-  simpa only [iso.symm_hom, cokernel_π_iso₂_inv, iso.refl_hom, category.comp_id]
+  simpa only [Iso.symm_hom, cokernel_π_iso₂_inv, Iso.refl_hom, Category.comp_id]
 
 @[simp]
 theorem tautological_iso₃ : (tautological f g w).iso₃ = Iso.refl _ :=
   by
   ext
-  simpa only [cokernel_π_iso₃_hom, tautological_iso₁, iso.refl_hom, category.id_comp,
-    category.comp_id]
+  simpa only [cokernel_π_iso₃_hom, tautological_iso₁, Iso.refl_hom, Category.id_comp,
+    Category.comp_id]
 
 variable {f g}
 
@@ -262,11 +262,11 @@ variable (f g)
 
 @[simp]
 theorem tautological_iso : (tautological f g w).Iso = (homology'IsoCokernelLift f g w).symm := by
-  dsimp only [iso]; simp only [tautological_iso₂, tautological_iso₃, iso.refl_trans]
+  dsimp only [iso]; simp only [tautological_iso₂, tautological_iso₃, Iso.refl_trans]
 
 theorem tautological_iso_hom :
     (tautological f g w).Iso.Hom = (homology'IsoCokernelLift f g w).inv := by
-  simp only [tautological_iso, iso.symm_hom]
+  simp only [tautological_iso, Iso.symm_hom]
 
 variable {f g}
 
@@ -288,52 +288,52 @@ variable {H₁ H₂ : C} {h₁ : HomologyIsoDatum f g H₁} {h₂ : HomologyIsoD
   (c : Change h₁ h₂)
 
 @[simp, reassoc]
-theorem fac_iso₁ : c.κ ≫ h₂.iso₁.Hom = h₁.iso₁.Hom := by ext;
-  simp only [category.assoc, iso₁_hom_kernel_ι, fac₂]
+theorem fac_iso₁ : c.κ ≫ h₂.iso₁.hom = h₁.iso₁.hom := by ext;
+  simp only [Category.assoc, iso₁_hom_kernel_ι, fac₂]
 
 instance : IsIso c.κ :=
   IsIso.of_isIso_fac_right c.fac_iso₁
 
 def cokerIso : cokernel h₁.f' ≅ cokernel h₂.f' :=
   cokernel.mapIso _ _ (Iso.refl _) (asIso c.κ)
-    (by simp only [as_iso_hom, fac₁, iso.refl_hom, category.id_comp])
+    (by simp only [CategoryTheory.asIso_hom, fac₁, Iso.refl_hom, Category.id_comp])
 
 @[simp, reassoc]
-theorem cokerIso_comm : cokernel.π h₁.f' ≫ c.cokerIso.Hom = c.κ ≫ cokernel.π h₂.f' :=
+theorem cokerIso_comm : cokernel.π h₁.f' ≫ c.cokerIso.hom = c.κ ≫ cokernel.π h₂.f' :=
   by
-  dsimp only [coker_iso]
-  simp only [as_iso_hom, cokernel.map_iso_hom, cokernel.π_desc]
+  dsimp only [HomologyIsoDatum.Change.cokerIso]
+  simp only [CategoryTheory.asIso_hom, cokernel.mapIso_hom, cokernel.π_desc]
 
 @[reassoc]
-theorem fac_iso₂ : c.cokerIso.Hom ≫ h₂.iso₂.inv = h₁.iso₂.inv ≫ c.η :=
+theorem fac_iso₂ : c.cokerIso.hom ≫ h₂.iso₂.inv = h₁.iso₂.inv ≫ c.η :=
   by
   ext
-  simp only [coker_iso_comm_assoc, cokernel_π_iso₂_inv, cokernel_π_iso₂_inv_assoc, fac₃]
+  simp only [HomologyIsoDatum.Change.cokerIso_comm_assoc, cokernel_π_iso₂_inv, cokernel_π_iso₂_inv_assoc, fac₃]
 
 instance : IsIso c.η :=
   by
   haveI : is_iso (h₁.iso₂.inv ≫ c.η) := by rw [← fac_iso₂]; infer_instance
-  apply is_iso.of_is_iso_comp_left h₁.iso₂.inv
+  apply IsIso.of_isIso_comp_left h₁.iso₂.inv
 
 @[simp, reassoc]
-theorem cokerIso_iso₃_hom : c.cokerIso.Hom ≫ h₂.iso₃.Hom = h₁.iso₃.Hom :=
+theorem cokerIso_iso₃_hom : c.cokerIso.hom ≫ h₂.iso₃.hom = h₁.iso₃.hom :=
   by
   ext
-  simp only [coker_iso_comm_assoc, cokernel_π_iso₃_hom, fac_iso₁_assoc]
+  simp only [HomologyIsoDatum.Change.cokerIso_comm_assoc, cokernel_π_iso₃_hom, fac_iso₁_assoc]
 
 @[simp, reassoc]
-theorem η_iso₂_hom_iso₃_hom : c.η ≫ h₂.iso₂.Hom ≫ h₂.iso₃.Hom = h₁.iso₂.Hom ≫ h₁.iso₃.Hom := by
-  rw [← cancel_epi h₁.iso₂.inv, iso.inv_hom_id_assoc, ← c.coker_iso_iso₃_hom, ← fac_iso₂_assoc,
-    iso.inv_hom_id_assoc]
+theorem η_iso₂_hom_iso₃_hom : c.η ≫ h₂.iso₂.hom ≫ h₂.iso₃.hom = h₁.iso₂.hom ≫ h₁.iso₃.hom := by
+  rw [← cancel_epi h₁.iso₂.inv, Iso.inv_hom_id_assoc, ← c.cokerIso_iso₃_hom, ← fac_iso₂_assoc,
+    Iso.inv_hom_id_assoc]
 
 @[simp, reassoc]
 theorem η_iso_hom : c.η ≫ h₂.Iso.Hom = h₁.Iso.Hom :=
   by
   dsimp only [iso]
-  simp only [iso.trans_hom, η_iso₂_hom_iso₃_hom_assoc]
+  simp only [Iso.trans_hom, η_iso₂_hom_iso₃_hom_assoc]
 
 theorem η_iso : asIso c.η ≪≫ h₂.Iso = h₁.Iso := by ext;
-  simp only [iso.trans_hom, as_iso_hom, η_iso_hom]
+  simp only [Iso.trans_hom, CategoryTheory.asIso_hom, η_iso_hom]
 
 variable (f g)
 
@@ -342,14 +342,14 @@ def tautological :
     Change (HomologyIsoDatum.tautological' f g w) (HomologyIsoDatum.tautological f g w)
     where
   κ := 𝟙 _
-  η := (homology'IsoCokernelLift f g w).Hom
+  η := (homology'IsoCokernelLift f g w).hom
   fac₁' := Category.comp_id _
   fac₂' := Category.id_comp _
   fac₃' :=
     by
     dsimp [homology'.π', homology'IsoCokernelLift, homology'IsoCokernelImageToKernel']
-    simp only [cokernel_iso_of_eq_inv_comp_desc, cokernel.π_desc_assoc, category.assoc,
-      π_comp_cokernel_iso_of_eq_hom, iso.inv_hom_id_assoc, category.id_comp]
+    simp only [CategoryTheory.Limits.cokernelIsoOfEq_inv_comp_desc, cokernel.π_desc_assoc, Category.assoc,
+      π_comp_cokernel_iso_of_eq_hom, Iso.inv_hom_id_assoc, Category.id_comp]
 
 end Change
 
@@ -359,9 +359,9 @@ variable (f g)
 theorem tautological'_iso : (tautological' f g w).Iso = Iso.refl _ :=
   by
   ext1
-  rw [← (change.tautological f g w).η_iso_hom]
-  simp only [← (change.tautological f g w).η_iso_hom, change.tautological_η, iso.refl_hom,
-    tautological_iso, iso.symm_hom, iso.hom_inv_id]
+  rw [← (Change.tautological f g w).η_iso_hom]
+  simp only [← (Change.tautological f g w).η_iso_hom, Change.tautological_η, Iso.refl_hom,
+    tautological_iso, Iso.symm_hom, Iso.hom_inv_id]
 
 variable {f g}
 
@@ -377,20 +377,20 @@ def applyExactFunctor : HomologyIsoDatum (F.map f) (F.map g) (F.obj H)
   toHomologyIsoPredatum := h.toHomologyIsoPredatum.applyFunctor F
   forkIsLimit :=
     by
-    let e : parallel_pair g 0 ⋙ F ≅ parallel_pair (F.map g) 0 :=
-      parallel_pair.ext (iso.refl _) (iso.refl _) (by simp) (by simp)
+    let e : CategoryTheory.Limits.parallelPair g 0 ⋙ F ≅ CategoryTheory.Limits.parallelPair (F.map g) 0 :=
+      parallelPair.ext (iso.refl _) (iso.refl _) (by simp) (by simp)
     have hF :=
-      (is_limit.postcompose_inv_equiv e.symm _).invFun (is_limit_of_preserves F h.fork_is_limit)
-    refine' is_limit.of_iso_limit hF (cones.ext (iso.refl _) _)
+      (IsLimit.postcomposeInvEquiv e.symm _).invFun (CategoryTheory.Limits.isLimitOfPreserves F h.forkIsLimit)
+    refine' IsLimit.ofIsoLimit hF (Cones.ext (iso.refl _) _)
     rintro (_ | _)
     tidy
   coforkIsColimit :=
     by
-    let e : parallel_pair h.f' 0 ⋙ F ≅ parallel_pair (F.map h.f') 0 :=
-      parallel_pair.ext (iso.refl _) (iso.refl _) (by simp) (by simp)
+    let e : CategoryTheory.Limits.parallelPair h.f' 0 ⋙ F ≅ CategoryTheory.Limits.parallelPair (F.map h.f') 0 :=
+      parallelPair.ext (iso.refl _) (iso.refl _) (by simp) (by simp)
     have hF :=
-      (is_colimit.precompose_inv_equiv e _).invFun (is_colimit_of_preserves F h.cofork_is_colimit)
-    refine' is_colimit.of_iso_colimit hF (cocones.ext (iso.refl _) _)
+      (IsColimit.precomposeInvEquiv e _).invFun (CategoryTheory.Limits.isColimitOfPreserves F h.coforkIsColimit)
+    refine' IsColimit.ofIsoColimit hF (Cocones.ext (iso.refl _) _)
     rintro (_ | _)
     tidy
 
@@ -407,12 +407,12 @@ def ofHomologicalComplex (X : HomologicalComplex A c) (i j k : M) (hij : c.Rel i
   by
   refine'
     (HomologyIsoDatum.tautological' (X.d_to j) (X.d_from j) (X.d_to_comp_d_from j)).mapIso _ _ _ _ _
-  · refine' arrow.iso_mk (X.X_prev_iso hij) (iso.refl _) _
+  · refine' Arrow.isoMk (X.X_prev_iso hij) (iso.refl _) _
     dsimp
-    simp only [X.d_to_eq hij, category.comp_id]
-  · refine' arrow.iso_mk (iso.refl _) (X.X_next_iso hjk) _
+    simp only [X.d_to_eq hij, Category.comp_id]
+  · refine' Arrow.isoMk (iso.refl _) (X.X_next_iso hjk) _
     dsimp
-    simp only [X.d_from_eq hjk, category.id_comp, category.assoc, iso.inv_hom_id, category.comp_id]
+    simp only [X.d_from_eq hjk, Category.id_comp, Category.assoc, Iso.inv_hom_id, Category.comp_id]
   · rfl
 
 open scoped ZeroObject
@@ -425,62 +425,62 @@ variable (f g)
 
 theorem homology'IsoCokernelLift_comp_ι :
     (homology'IsoCokernelLift f g w).inv ≫ homology'.ι f g w =
-      cokernel.map _ _ (𝟙 X) (kernel.ι g) (by simp only [kernel.lift_ι, category.id_comp]) :=
+      cokernel.map _ _ (𝟙 X) (kernel.ι g) (by simp only [kernel.lift_ι, Category.id_comp]) :=
   by
   ext
   dsimp [homology'IsoCokernelLift, homology'.ι, homology'IsoCokernelImageToKernel',
     homology'IsoKernelDesc]
-  simp only [cokernel_iso_of_eq_inv_comp_desc, category.assoc, cokernel.π_desc_assoc,
-    cokernel.π_desc, cokernel_iso_of_eq_hom_comp_desc_assoc, kernel.lift_ι,
-    kernel_subobject_arrow_assoc, kernel_subobject_arrow'_assoc]
+  simp only [CategoryTheory.Limits.cokernelIsoOfEq_inv_comp_desc, Category.assoc, cokernel.π_desc_assoc,
+    cokernel.π_desc, CategoryTheory.Limits.cokernelIsoOfEq_hom_comp_desc_assoc, kernel.lift_ι,
+    CategoryTheory.Limits.kernelSubobject_arrow_assoc, CategoryTheory.Limits.kernelSubobject_arrow'_assoc]
 
 theorem homology'_ι_eq :
     homology'.ι f g w =
-      (homology'IsoCokernelLift f g w).Hom ≫
-        cokernel.map _ _ (𝟙 X) (kernel.ι g) (by simp only [kernel.lift_ι, category.id_comp]) :=
-  by simp only [← homology_iso_cokernel_lift_comp_ι, iso.hom_inv_id_assoc]
+      (homology'IsoCokernelLift f g w).hom ≫
+        cokernel.map _ _ (𝟙 X) (kernel.ι g) (by simp only [kernel.lift_ι, Category.id_comp]) :=
+  by simp only [← homology_iso_cokernel_lift_comp_ι, Iso.hom_inv_id_assoc]
 
 variable {f g}
 
 theorem iso_hom_homology'_ι_eq_iso₂_hom_cokernel_map :
-    h.Iso.Hom ≫ homology'.ι f g h.w = h.iso₂.Hom ≫ cokernel.map h.f' f (𝟙 X) h.ι (by simp) :=
+    h.Iso.Hom ≫ homology'.ι f g h.w = h.iso₂.hom ≫ cokernel.map h.f' f (𝟙 X) h.ι (by simp) :=
   by
   dsimp only [iso, iso₂, iso₃]
-  simp only [homology_ι_eq f g h.w, iso.refl_hom, iso.trans_hom, cokernel.map_iso_hom, iso.symm_hom,
-    category.assoc, iso.inv_hom_id_assoc, iso.cancel_iso_hom_left]
+  simp only [homology_ι_eq f g h.w, Iso.refl_hom, Iso.trans_hom, cokernel.mapIso_hom, Iso.symm_hom,
+    Category.assoc, Iso.inv_hom_id_assoc, Iso.cancel_iso_hom_left]
   ext
-  simp only [cokernel.π_desc_assoc, category.assoc, cokernel.π_desc, iso₁_hom_kernel_ι_assoc]
+  simp only [cokernel.π_desc_assoc, Category.assoc, cokernel.π_desc, iso₁_hom_kernel_ι_assoc]
 
 theorem homology'_π'_eq : homology'.π' f g h.w = h.iso₁.inv ≫ h.π ≫ h.Iso.Hom :=
   by
   rw [← cancel_mono (homology'.ι f g h.w)]
   dsimp only [iso]
-  simp only [homology'.π'_ι, category.assoc, iso.trans_hom, iso.symm_hom,
-    homology_iso_cokernel_lift_comp_ι, ← cokernel_π_iso₂_inv, iso.inv_hom_id_assoc,
+  simp only [homology'.π'_ι, Category.assoc, Iso.trans_hom, Iso.symm_hom,
+    homology_iso_cokernel_lift_comp_ι, ← cokernel_π_iso₂_inv, Iso.inv_hom_id_assoc,
     cokernel_π_iso₃_hom_assoc, cokernel.π_desc]
 
 theorem iso_inv :
     h.Iso.inv =
       homology'.desc' f g h.w (h.iso₁.inv ≫ h.π)
         (by
-          simp only [← h.f'_iso₁_hom, category.assoc, h.iso₁.hom_inv_id_assoc,
+          simp only [← h.f'_iso₁_hom, Category.assoc, h.iso₁.hom_inv_id_assoc,
             HomologyIsoPredatum.zero₂]) :=
   by
-  rw [← cancel_epi (homology'.π' f g h.w), homology'.π'_desc', homology_π'_eq, category.assoc,
-    category.assoc, h.iso.hom_inv_id, category.comp_id]
+  rw [← cancel_epi (homology'.π' f g h.w), homology'.π'_desc', homology_π'_eq, Category.assoc,
+    Category.assoc, h.iso.hom_inv_id, Category.comp_id]
 
 theorem iso_hom :
     h.Iso.Hom =
-      homology'.lift f g h.w (h.iso₂.Hom ≫ cokernel.map h.f' f (𝟙 X) h.ι (by simp))
+      homology'.lift f g h.w (h.iso₂.hom ≫ cokernel.map h.f' f (𝟙 X) h.ι (by simp))
         (by
           rw [← cancel_epi h.iso₂.inv]
           ext
-          simp only [category.assoc, iso.inv_hom_id_assoc, cokernel.π_desc_assoc, cokernel.π_desc,
+          simp only [Category.assoc, Iso.inv_hom_id_assoc, cokernel.π_desc_assoc, cokernel.π_desc,
             HomologyIsoPredatum.zero₁, comp_zero]) :=
   by
   rw [← cancel_epi h.iso.inv, h.iso.inv_hom_id, h.iso_inv, ← cancel_mono (homology'.ι f g h.w), ←
     cancel_epi (homology'.π' f g h.w), ← cancel_epi h.iso₁.hom]
-  simp only [category.assoc, category.id_comp, homology'.π'_ι, homology'.lift_ι,
+  simp only [Category.assoc, Category.id_comp, homology'.π'_ι, homology'.lift_ι,
     homology'.π'_desc'_assoc, h.iso₁.hom_inv_id_assoc, h.iso₁_hom_kernel_ι_assoc, ←
     cokernel_π_iso₂_inv, h.iso₂.inv_hom_id_assoc, cokernel.π_desc]
 
@@ -488,30 +488,30 @@ theorem iso_hom :
 def hasHomology : HasHomology f g H where
   w := h.w
   π := h.iso₁.inv ≫ h.π
-  ι := h.iso₂.Hom ≫ cokernel.map h.f' f (𝟙 X) h.ι (by simp)
+  ι := h.iso₂.hom ≫ cokernel.map h.f' f (𝟙 X) h.ι (by simp)
   π_ι := by
-    simp only [category.assoc, ← cokernel_π_iso₂_inv_assoc, iso.inv_hom_id_assoc, cokernel.π_desc, ←
+    simp only [Category.assoc, ← cokernel_π_iso₂_inv_assoc, Iso.inv_hom_id_assoc, cokernel.π_desc, ←
       h.iso₁_hom_kernel_ι]
   ex_π :=
     by
     refine'
-      preadditive.exact_of_iso_of_exact (kernel.lift g f h.w) (cokernel.π (kernel.lift g f h.w)) _ _
-        (iso.refl _) _ _ (abelian.exact_cokernel _)
-    · refine' arrow.iso_mk (iso.refl _) (h.iso₃.symm ≪≫ h.iso₂.symm) _
+      Preadditive.exact_of_iso_of_exact (kernel.lift g f h.w) (cokernel.π (kernel.lift g f h.w)) _ _
+        (iso.refl _) _ _ (Abelian.exact_cokernel _)
+    · refine' Arrow.isoMk (iso.refl _) (h.iso₃.symm ≪≫ h.iso₂.symm) _
       dsimp
-      simp only [← cancel_mono h.iso₂.hom, ← cancel_mono h.iso₃.hom, category.id_comp,
-        category.assoc, ← cokernel_π_iso₂_inv, iso.inv_hom_id_assoc, cokernel_π_iso₃_hom,
-        iso.inv_hom_id, category.comp_id]
+      simp only [← cancel_mono h.iso₂.hom, ← cancel_mono h.iso₃.hom, Category.id_comp,
+        Category.assoc, ← cokernel_π_iso₂_inv, Iso.inv_hom_id_assoc, cokernel_π_iso₃_hom,
+        Iso.inv_hom_id, Category.comp_id]
     · rfl
   ι_ex :=
     by
     refine'
-      preadditive.exact_of_iso_of_exact (homology'.ι f g h.w) (cokernel.desc f g h.w) _ _ _
+      Preadditive.exact_of_iso_of_exact (homology'.ι f g h.w) (cokernel.desc f g h.w) _ _ _
         (iso.refl _) _ (homology'.has f g h.w).ι_ex
-    · refine' arrow.iso_mk h.iso.symm (iso.refl _) _
+    · refine' Arrow.isoMk h.iso.symm (iso.refl _) _
       dsimp
-      simp only [← h.iso_hom_homology_ι_eq_iso₂_hom_cokernel_map, iso.inv_hom_id_assoc,
-        category.comp_id]
+      simp only [← h.iso_hom_homology'_ι_eq_iso₂_hom_cokernel_map, Iso.inv_hom_id_assoc,
+        Category.comp_id]
     · rfl
   epi_π := epi_comp _ _
   mono_ι := by
@@ -535,8 +535,8 @@ def ofFIsZero (hf : f = 0) : HomologyIsoDatum f g (kernel g)
   zero₂' := by rw [zero_comp]
   forkIsLimit := kernelIsKernel g
   coforkIsColimit :=
-    isColimitAux _ (fun s => s.π) (fun s => by apply category.id_comp) fun s m hm => by rw [← hm];
-      symm; apply category.id_comp
+    isColimitAux _ (fun s => s.π) (fun s => by apply Category.id_comp) fun s m hm => by rw [← hm];
+      symm; apply Category.id_comp
 
 @[simps]
 def ofGIsZero (hg : g = 0) : HomologyIsoDatum f g (cokernel f)
@@ -550,9 +550,9 @@ def ofGIsZero (hg : g = 0) : HomologyIsoDatum f g (cokernel f)
   π := cokernel.π f
   zero₂' := cokernel.condition f
   forkIsLimit :=
-    isLimitAux _ (fun s => s.ι) (fun s => by apply category.comp_id) fun s m hm => by rw [← hm];
-      symm; apply category.comp_id
-  coforkIsColimit := by apply cokernel_is_cokernel
+    isLimitAux _ (fun s => s.ι) (fun s => by apply Category.comp_id) fun s m hm => by rw [← hm];
+      symm; apply Category.comp_id
+  coforkIsColimit := by apply CategoryTheory.Limits.cokernelIsCokernel
 
 @[simps]
 def ofBothZeros (hf : f = 0) (hg : g = 0) : HomologyIsoDatum f g Y
@@ -566,11 +566,11 @@ def ofBothZeros (hf : f = 0) (hg : g = 0) : HomologyIsoDatum f g Y
   π := 𝟙 Y
   zero₂' := zero_comp
   forkIsLimit :=
-    isLimitAux _ (fun s => s.ι) (fun s => by apply category.comp_id) fun s m hm => by rw [← hm];
-      symm; apply category.comp_id
+    isLimitAux _ (fun s => s.ι) (fun s => by apply Category.comp_id) fun s m hm => by rw [← hm];
+      symm; apply Category.comp_id
   coforkIsColimit :=
-    isColimitAux _ (fun s => s.π) (fun s => by apply category.id_comp) fun s m hm => by rw [← hm];
-      symm; dsimp; apply category.id_comp
+    isColimitAux _ (fun s => s.π) (fun s => by apply Category.id_comp) fun s m hm => by rw [← hm];
+      symm; dsimp; apply Category.id_comp
 
 end HomologyIsoDatum
 

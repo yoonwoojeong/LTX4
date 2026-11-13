@@ -26,17 +26,17 @@ theorem CategoryTheory.epi_to_colimit_of_exists {J : Type u} [SmallCategory J] {
   constructor; intro W a b hh
   apply hE.hom_ext; intro j; specialize h j
   obtain ⟨Z, p, q, hq, w⟩ := h; skip
-  rw [← cancel_epi q]; simp_rw [← category.assoc, w, category.assoc, hh]
+  rw [← cancel_epi q]; simp_rw [← Category.assoc, w, Category.assoc, hh]
 
 theorem epi_profiniteToCondensed_map_of_epi {X Y : Profinite.{u}} (f : X ⟶ Y) [hf : Epi f] :
     Epi (profiniteToCondensed.map f) := by
   constructor; intro Z a b h; ext W q : 34; induction W using Opposite.rec'
   have hZ := Z.2
-  rw [is_sheaf_iff_is_sheaf_of_type] at hZ 
-  rw [Z.val.is_proetale_sheaf_of_types_tfae.out 0 1] at hZ 
+  rw [CategoryTheory.isSheaf_iff_isSheaf_of_type] at hZ 
+  rw [Z.val.isProetaleSheafOfTypes_tFAE.out 0 1] at hZ 
   let q' := q.down
   dsimp at q q' 
-  dsimp [functor.is_proetale_sheaf_of_types] at hZ 
+  dsimp [Functor.IsProetaleSheafOfTypes] at hZ 
   specialize hZ PUnit W (fun _ => Profinite.pullback f q') (fun _ => Profinite.pullback.snd _ _) _ _
   · intro w
     rw [Profinite.epi_iff_surjective] at hf 
@@ -56,7 +56,7 @@ theorem epi_profiniteToCondensed_map_of_epi {X Y : Profinite.{u}} (f : X ⟶ Y) 
   rw [this]; apply ht2
   intro i; dsimp
   change (a.val.app (op W) ≫ Z.val.map _) q = (b.val.app (op W) ≫ Z.val.map _) q
-  simp only [← nat_trans.naturality]
+  simp only [← NatTrans.naturality]
   dsimp
   apply_fun fun e => Profinite_to_Condensed.map (Profinite.pullback.fst f q') ≫ e at h 
   apply_fun fun e => e.val.app (op (Profinite.pullback f q')) at h 
@@ -64,12 +64,12 @@ theorem epi_profiniteToCondensed_map_of_epi {X Y : Profinite.{u}} (f : X ⟶ Y) 
   let i : (Profinite.pullback f q').toCondensed.val.obj (op (Profinite.pullback f q')) :=
     ULift.up (𝟙 _)
   apply_fun fun e => e i at h 
-  dsimp [ulift_functor] at h 
+  dsimp [CategoryTheory.uliftFunctor] at h 
   convert h
   all_goals
     ext1
     dsimp [Profinite.toCondensed]
-    simp only [category.id_comp, Profinite.pullback.condition]
+    simp only [Category.id_comp, Profinite.pullback.condition]
 
 /-
 inductive pmz : set ℤ
@@ -116,11 +116,11 @@ def Profinite.pmzFunctor (n : ℕ) : Profinite.{u} ⥤ Profinite.{u}
     Profinite.sigma.desc _ fun e =>
       (Profinite.product.lift (fun i : Fin n => T) fun i => Profinite.product.π _ i ≫ f) ≫
         Profinite.sigma.ι _ e
-  map_id' := by
+  map_id := by
     intro X
     apply Profinite.sigma.hom_ext; intro e
-    erw [category.comp_id]; rfl
-  map_comp' := by
+    erw [Category.comp_id]; rfl
+  map_comp := by
     intro X Y Z f g
     apply Profinite.sigma.hom_ext; intro e; dsimp; simp
     erw [Profinite.sigma.ι_desc]
@@ -137,10 +137,10 @@ def Profinite.sigmaFunctor {J : Type u} [SmallCategory J] (F : J ⥤ Profinite.{
     where
   obj j := Profinite.sigma fun a : α => F.obj j
   map i j e := Profinite.sigma.desc _ fun a => F.map e ≫ Profinite.sigma.ι _ a
-  map_id' := by
+  map_id := by
     intro j; apply Profinite.sigma.hom_ext; intro a
     simp
-  map_comp' := by
+  map_comp := by
     intro i j k e f
     apply Profinite.sigma.hom_ext; intro a
     simp
@@ -151,7 +151,7 @@ def Profinite.sigmaCone {J : Type u} [SmallCategory J] {F : J ⥤ Profinite.{u}}
   pt := Profinite.sigma fun a : α => E.pt
   π :=
     { app := fun j => Profinite.sigma.desc _ fun a => E.π.app j ≫ Profinite.sigma.ι _ a
-      naturality' := by
+      naturality := by
         intro i j e; dsimp
         apply Profinite.sigma.hom_ext; intro a
         simp; dsimp [Profinite.sigmaFunctor]; simp }
@@ -163,7 +163,7 @@ def Profinite.sigmaToLimit {J : Type u} [SmallCategory J] (F : J ⥤ Profinite.{
     (Profinite.limitConeIsLimit (Profinite.sigmaFunctor F α)).lift
       ⟨E.pt,
         { app := fun j => E.π.app j ≫ Profinite.sigma.ι _ a
-          naturality' := by
+          naturality := by
             intro i j e; dsimp [Profinite.sigmaFunctor]
             simp }⟩
 
@@ -176,7 +176,7 @@ theorem Profinite.exists_of_sigma_limit {J : Type u} [SmallCategory J] (F : J �
           (Profinite.limitCone (Profinite.sigmaFunctor F α)).π.app j t :=
   by
   rcases t with ⟨t, ht⟩; dsimp at ht 
-  obtain ⟨j₀⟩ : Nonempty J := is_cofiltered.nonempty
+  obtain ⟨j₀⟩ : Nonempty J := IsCofiltered.nonempty
   let a₀ := (t j₀).1; use a₀
   have h1 : ∀ ⦃i j : J⦄ (f : i ⟶ j), (t i).1 = (t j).1 :=
     by
@@ -185,9 +185,9 @@ theorem Profinite.exists_of_sigma_limit {J : Type u} [SmallCategory J] (F : J �
     cases t i; exact ht
   have h2 : ∀ j : J, (t j).1 = a₀ := by
     intro j
-    let j₁ := is_cofiltered.min j j₀
-    rw [← h1 (is_cofiltered.min_to_left j j₀)]; dsimp [a₀]
-    rw [← h1 (is_cofiltered.min_to_right j j₀)]
+    let j₁ := IsCofiltered.min j j₀
+    rw [← h1 (IsCofiltered.minToLeft j j₀)]; dsimp [a₀]
+    rw [← h1 (IsCofiltered.minToRight j j₀)]
   let t₀ : (Profinite.limitCone F).pt := ⟨_, _⟩
   rotate_left
   · intro j; exact (t j).2
@@ -215,11 +215,11 @@ theorem Profinite.bijective_sigmaToLimit {J : Type u} [SmallCategory J] (F : J �
       CompHaus.limitConeIsLimit, TopCat.limitConeIsLimit] at h 
     apply_fun fun e => e.1 at h 
     have hh := h
-    obtain ⟨j₀⟩ : Nonempty J := is_cofiltered.nonempty
+    obtain ⟨j₀⟩ : Nonempty J := IsCofiltered.nonempty
     apply_fun fun e => (e j₀).1 at h ; dsimp [Profinite.sigma.ι] at h 
     subst h; ext; rfl
     apply hEq_of_eq
-    apply limits.concrete.is_limit_ext _ hE
+    apply Limits.Concrete.isLimit_ext _ hE
     intro jj; apply_fun fun e => e jj at hh 
     erw [Sigma.mk.inj_iff] at hh 
     exact eq_of_hEq hh.2
@@ -227,7 +227,7 @@ theorem Profinite.bijective_sigmaToLimit {J : Type u} [SmallCategory J] (F : J �
     obtain ⟨a, s, ht⟩ := Profinite.exists_of_sigma_limit F α t
     use a;
     let EE : E.X ≅ (Profinite.limitCone F).pt :=
-      hE.cone_point_unique_up_to_iso (Profinite.limitConeIsLimit _)
+      hE.conePointUniqueUpToIso (Profinite.limitConeIsLimit _)
     use EE.inv s; dsimp; ext j : 2
     convert ht j; ext; rfl
     apply hEq_of_eq
@@ -252,7 +252,7 @@ def Profinite.sigmaConeIsLimit {J : Type u} [SmallCategory J] {F : J ⥤ Profini
   by
   haveI : is_iso ((Profinite.limitConeIsLimit _).lift (Profinite.sigmaCone α E)) :=
     Profinite.isIso_lift_sigmaCone α E hE
-  apply limits.is_limit.of_point_iso (Profinite.limitConeIsLimit _)
+  apply Limits.IsLimit.ofPointIso (Profinite.limitConeIsLimit _)
   assumption
 
 def Profinite.pmzToLimit (S : Profinite.{u}) (n : ℕ) :
@@ -261,7 +261,7 @@ def Profinite.pmzToLimit (S : Profinite.{u}) (n : ℕ) :
     (Profinite.limitConeIsLimit (S.pmzDiagram n)).lift
       ⟨S.pow n,
         { app := fun T => Profinite.mapPow (S.asLimitCone.π.app T) n ≫ Profinite.sigma.ι _ f
-          naturality' := by
+          naturality := by
             intro A B e
             dsimp [Profinite.pmzDiagram, Profinite.pmzFunctor]
             simpa }⟩
@@ -270,8 +270,8 @@ def Profinite.powFunctor (n : ℕ) : Profinite.{u} ⥤ Profinite.{u}
     where
   obj S := S.pow n
   map S T f := Profinite.mapPow f n
-  map_id' := by intro X; apply Profinite.product.hom_ext; intro i; dsimp [Profinite.mapPow]; simp
-  map_comp' := by
+  map_id := by intro X; apply Profinite.product.hom_ext; intro i; dsimp [Profinite.mapPow]; simp
+  map_comp := by
     intro X Y Z f g
     apply Profinite.product.hom_ext; intro i; dsimp [Profinite.mapPow]; simp
 
@@ -287,17 +287,17 @@ def Profinite.powConeIsLimit {J : Type u} [SmallCategory J] {F : J ⥤ Profinite
       hE.lift
         ⟨Q.pt,
           { app := fun j => Q.π.app j ≫ Profinite.product.π _ a
-            naturality' := by
+            naturality := by
               intro i j e; dsimp
-              simp only [category.id_comp, category.assoc]
+              simp only [Category.id_comp, Category.assoc]
               rw [← Q.w e]
               dsimp [Profinite.powFunctor, Profinite.mapPow]
               simp }⟩
   fac := by
     intro Q j; apply Profinite.product.hom_ext; intro i
     dsimp [Profinite.powCone, Profinite.powFunctor, Profinite.mapPow]
-    simp only [category.assoc, Profinite.product.lift_π, Profinite.product.lift_π_assoc,
-      limits.is_limit.fac]
+    simp only [Category.assoc, Profinite.product.lift_π, Profinite.product.lift_π_assoc,
+      Limits.IsLimit.fac]
   uniq := by
     intro Q m hm
     apply Profinite.product.hom_ext; intro a
@@ -305,17 +305,17 @@ def Profinite.powConeIsLimit {J : Type u} [SmallCategory J] {F : J ⥤ Profinite
     simp only [Profinite.product.lift_π]
     apply hE.hom_ext
     intro j
-    simp only [category.assoc, limits.is_limit.fac]; rw [← hm]
+    simp only [Category.assoc, Limits.IsLimit.fac]; rw [← hm]
     dsimp [Profinite.powCone, Profinite.powFunctor, Profinite.mapPow]
-    simp only [category.assoc, Profinite.product.lift_π]
+    simp only [Category.assoc, Profinite.product.lift_π]
 
 theorem Profinite.isIso_pmzToLimit (S : Profinite.{u}) (n : ℕ) : IsIso (S.pmzToLimit n) :=
   by
   let E := Profinite.sigmaCone (ULift.{u} (Fin n → SignType)) (Profinite.powCone S.as_limit_cone n)
-  let hE : limits.is_limit E :=
+  let hE : Limits.IsLimit E :=
     Profinite.sigmaConeIsLimit _ _ (Profinite.powConeIsLimit _ S.as_limit n)
   let q : E.X ≅ (Profinite.limitCone (S.pmz_diagram n)).pt :=
-    hE.cone_point_unique_up_to_iso (Profinite.limitConeIsLimit _)
+    hE.conePointUniqueUpToIso (Profinite.limitConeIsLimit _)
   have : is_iso q.hom := inferInstance
   convert this
   apply Profinite.sigma.hom_ext; intro e
@@ -325,7 +325,7 @@ theorem Profinite.isIso_pmzToLimit (S : Profinite.{u}) (n : ℕ) : IsIso (S.pmzT
 
 def Profinite.pmzConeIsLimit (S : Profinite.{u}) (n : ℕ) : Limits.IsLimit (S.pmzCone n) :=
   by
-  apply limits.is_limit.of_point_iso (Profinite.limitConeIsLimit _)
+  apply Limits.IsLimit.ofPointIso (Profinite.limitConeIsLimit _)
   convert Profinite.isIso_pmzToLimit S n
   apply Profinite.sigma.hom_ext; intro a
   apply (Profinite.limitConeIsLimit _).hom_ext; intro j
@@ -404,12 +404,12 @@ def Profinite.pmzToLevelNatTrans (S : Profinite.{u}) (j : NNReal) :
     S.pmzDiagram ⌊j⌋₊ ⟶ (S.fintypeDiagram ⋙ freePfpngFunctor) ⋙ ProFiltPseuNormGrp₁.level.obj j
     where
   app T := S.pmzToLevel j T
-  naturality' := by
+  naturality := by
     intro T₁ T₂ f
     dsimp [Profinite.pmzDiagram, Profinite.pmzToLevel, Profinite.pmzFunctor]
     apply Profinite.sigma.hom_ext
     rintro ⟨e⟩
-    simp only [Profinite.sigma.ι_desc_assoc, category.assoc, Profinite.sigma.ι_desc]
+    simp only [Profinite.sigma.ι_desc_assoc, Category.assoc, Profinite.sigma.ι_desc]
     ext t s
     exact Profinite.pmz_to_level_nat_trans_aux S j T₁ T₂ f e t s
 
@@ -429,21 +429,21 @@ theorem Profinite.IsLimit.surjective_of_surjective {J : Type u} [SmallCategory J
   have :=
     CompHaus.IsLimit.surjective_of_surjective (F ⋙ profiniteToCompHaus) (G ⋙ profiniteToCompHaus)
       (whisker_right α _) (Profinite_to_CompHaus.map_cone cF) (Profinite_to_CompHaus.map_cone cG)
-      (limits.is_limit_of_preserves _ hcF) (limits.is_limit_of_preserves _ hcG) surj
-  change Function.Surjective (Profinite_to_CompHaus.map (limits.is_limit.map cF hcG α))
+      (Limits.isLimitOfPreserves _ hcF) (Limits.isLimitOfPreserves _ hcG) surj
+  change Function.Surjective (Profinite_to_CompHaus.map (Limits.IsLimit.map cF hcG α))
   convert this
   apply hcG.hom_ext; intro j
-  simp only [limits.is_limit.map_π, iso.trans_hom, iso.symm_hom, functor.map_iso_hom,
-    limits.is_limit.unique_up_to_iso_hom, limits.cone.category_comp_hom,
-    limits.is_limit.lift_cone_morphism_hom, limits.limit.is_limit_lift,
-    limits.cones.functoriality_map_hom, profiniteToCompHaus_map]
-  erw [category.assoc, category.assoc]
+  simp only [Limits.IsLimit.map_π, Iso.trans_hom, Iso.symm_hom, Functor.mapIso_hom,
+    Limits.IsLimit.uniqueUpToIso_hom, Limits.Cone.category_comp_hom,
+    Limits.IsLimit.liftConeMorphism_hom, Limits.limit.isLimit_lift,
+    Limits.Cones.functoriality_map_hom, profiniteToCompHaus_map]
+  erw [Category.assoc, Category.assoc]
   erw [hcG.fac]
-  have := (lifted_limit_maps_to_original (limits.limit.is_limit (G ⋙ profiniteToCompHaus))).inv.w j
+  have := (CategoryTheory.liftedLimitMapsToOriginal (Limits.limit.isLimit (G ⋙ profiniteToCompHaus))).inv.w j
   erw [this]
   dsimp;
-  simp only [limits.limit.lift_π, limits.cones.postcompose_obj_π, nat_trans.comp_app,
-    functor.map_cone_π_app, profiniteToCompHaus_map, whisker_right_app]
+  simp only [Limits.limit.lift_π, Limits.Cones.postcompose_obj_π, NatTrans.comp_app,
+    Functor.mapCone_π_app, profiniteToCompHaus_map, CategoryTheory.whiskerRight_app]
   rfl
 
 section
@@ -533,8 +533,8 @@ instance Profinite.pmzToFreePfpng_epi (S : Profinite.{u}) [Nonempty S] (j : NNRe
   dsimp only [Profinite.pmzToFreePfpng]
   have :=
     Profinite.IsLimit.surjective_of_surjective _ _ (S.pmz_to_level_nat_trans j) (S.pmz_cone _)
-      ((ProFiltPseuNormGrp₁.level.obj j).mapCone (limits.limit.cone _)) (S.pmz_cone_is_limit _)
-      (limits.is_limit_of_preserves _ (limits.limit.is_limit _))
+      ((ProFiltPseuNormGrp₁.level.obj j).mapCone (Limits.limit.cone _)) (S.pmz_cone_is_limit _)
+      (Limits.isLimitOfPreserves _ (Limits.limit.isLimit _))
   apply this
   intro T
   rintro ⟨f : T → ℤ, hf : ∑ i : T, _ ≤ _⟩
@@ -555,8 +555,8 @@ theorem free'Lift_app_eq (A : Condensed.{u} Ab.{u + 1})
       free'Lift (η.val.app _) :=
   by
   dsimp [Profinite.free'Lift]
-  rw [← nat_trans.comp_app, proetale_topology.to_sheafify_sheafify_lift]
-  dsimp [adjunction.whisker_right, free'Lift]; simp
+  rw [← NatTrans.comp_app, proetale_topology.toSheafify_sheafifyLift]
+  dsimp [Adjunction.whiskerRight, free'Lift]; simp
 
 theorem free'Lift_app_eq' (A : Condensed.{u} Ab.{u + 1})
     (η : S.toCondensed ⟶ condensedAbToCondensedSet.obj A) (T : Profinite.{u}) :
@@ -573,10 +573,10 @@ instance (A : Condensed.{u} Ab.{u + 1}) (T) :
 theorem freePfpng_ext (u v : S.FreePfpng)
     (huv : ∀ T : DiscreteQuotient S, S.freePfpngπ T u = S.freePfpngπ T v) : u = v :=
   by
-  let E : limits.cone (S.fintype_diagram ⋙ freePfpngFunctor) :=
+  let E : Limits.Cone (S.fintype_diagram ⋙ freePfpngFunctor) :=
     ProFiltPseuNormGrp₁.boundedCone ⟨Ab.explicitLimitCone.{u, u} _, Ab.explicitLimitConeIsLimit _⟩
-  let hE : limits.is_limit E := ProFiltPseuNormGrp₁.boundedConeIsLimit _
-  let ee : S.free_pfpng ≅ E.X := (limits.limit.is_limit _).conePointUniqueUpToIso hE
+  let hE : Limits.IsLimit E := ProFiltPseuNormGrp₁.boundedConeIsLimit _
+  let ee : S.free_pfpng ≅ E.X := (Limits.limit.isLimit _).conePointUniqueUpToIso hE
   apply_fun ee.hom; swap
   · intro x y hh; apply_fun ee.inv at hh ; simpa using hh
   ext T : 3; exact huv T
@@ -591,7 +591,7 @@ theorem lhs_helper :
     ((S.pmz_to_free_pfpng _ ≫ (ProFiltPseuNormGrp₁.level.obj j).map (S.free_pfpng_π T)) _).val = _
   dsimp [Profinite.pmzToFreePfpng, Profinite.freePfpngπ]
   erw [← comp_apply]
-  erw [limits.is_limit.fac]
+  erw [Limits.IsLimit.fac]
   dsimp [Profinite.pmzToLevelNatTrans, Profinite.pmzToLevel]
   rcases x with ⟨x1, x2⟩
   dsimp [Profinite.pmzCone, Profinite.sigma.desc, Profinite.pmzToLevelComponent,
@@ -642,7 +642,7 @@ theorem Profinite.free'Lift_val_obj_sigma_equiv_symm {α : Type u} [Fintype α]
   simp only [AddEquiv.apply_symm_apply]
   funext a
   dsimp
-  simp only [← comp_apply, ← nat_trans.naturality]
+  simp only [← comp_apply, ← NatTrans.naturality]
   simp only [comp_apply]
   congr 1
   rw [← Condensed.valObjSigmaAddEquiv_apply_apply]
@@ -690,8 +690,8 @@ theorem rhs_helper₄ {α : Type u} [Fintype α] (A : ProFiltPseuNormGrp₁.{u})
   let ee : (Profinite.sigma X).toCondensed ⟶ B :=
     (Profinite.toCondensedEquiv _ B).symm ((Condensed.valObjSigmaAddEquiv X _).symm e)
   apply_fun rhs_helper_equiv A
-  let s₀ : (X a₀).toCondensed.val.obj (op Profinite.punit) := rhs_helper_equiv' _ x₀
-  have : (rhs_helper_equiv A) ((e a₀).down.val x₀) = e₀.val.app _ s₀
+  let s₀ : (X a₀).toCondensed.val.obj (op Profinite.punit) := Profinite.EpiFree'ToCondensedSetup.rhsHelperEquiv' _ x₀
+  have : (Profinite.EpiFree'ToCondensedSetup.rhsHelperEquiv A) ((e a₀).down.val x₀) = e₀.val.app _ s₀
   rfl
   rw [this]
   have : e₀ = Profinite_to_Condensed.map (Profinite.sigma.ι X a₀) ≫ ee :=
@@ -712,7 +712,7 @@ theorem rhs_helper₃ (i : Fin ⌊j⌋₊) :
         x =
       (x.1.down i : ℤ) • (S.toFreePfpng (x.2 i)).1 :=
   by
-  erw [Profinite.free'_lift_val_obj_sigma_equiv_symm]
+  erw [Profinite.free'Lift_val_obj_sigma_equiv_symm]
   simp only [← comp_apply]
   erw [free'_lift_app_eq']
   simp only [ContinuousMap.toFun_eq_coe, LinearMap.toAddMonoidHom_coe, Finsupp.lift_apply,
@@ -744,11 +744,11 @@ theorem rhs_helper₂ (i : Fin ⌊j⌋₊) :
   change
     _ • ((S.to_free_pfpng ≫ (ProFiltPseuNormGrp₁.level.obj 1).map (S.free_pfpng_π T)) _).val = _
   dsimp [Profinite.toFreePfpng, Profinite.freePfpngπ, Profinite.freePfpngLevelIso]
-  dsimp [limits.is_limit.cone_point_unique_up_to_iso]
+  dsimp [Limits.IsLimit.conePointUniqueUpToIso]
   erw [← comp_apply]
   erw [← comp_apply]
-  erw [limits.is_limit.fac]
-  erw [limits.is_limit.fac]
+  erw [Limits.IsLimit.fac]
+  erw [Limits.IsLimit.fac]
   dsimp [FintypeCat.freePfpngUnit, Profinite.asLimitCone]
   ext t; erw [Pi.single_apply]; split_ifs <;> simp
   · intro hh; exact False.elim (hh h.symm)
@@ -782,7 +782,7 @@ theorem key (j : ULift.{u + 1} NNReal) :
   apply_fun Profinite.toCondensedEquiv _ _
   ext x : 3; dsimp at x 
   dsimp [CompHausFiltPseuNormGrp.levelCondensedDiagramCocone, Profinite.free'ToCondensedFreePfpng]
-  apply free_pfpng_ext; intro T
+  apply Profinite.EpiFree'ToCondensedSetup.freePfpng_ext; intro T
   erw [lhs_helper]; erw [rhs_helper]
 
 end Profinite.EpiFree'ToCondensedSetup
@@ -790,15 +790,15 @@ end Profinite.EpiFree'ToCondensedSetup
 instance Profinite.epi_free'ToCondensedFreePfpng_of_nonempty (S : Profinite.{u}) [Nonempty S] :
     Epi S.free'ToCondensedFreePfpng :=
   by
-  apply functor.epi_of_epi_map condensedAbToCondensedSet
+  apply Functor.epi_of_epi_map condensedAbToCondensedSet
   let E :=
     CompHausFiltPseuNormGrp.levelCondensedDiagramCocone
       (CHFPNG₁_to_CHFPNGₑₗ.obj (PFPNG₁_to_CHFPNG₁ₑₗ.obj S.free_pfpng))
-  have hh : is_iso (limits.colimit.desc _ E) :=
+  have hh : is_iso (Limits.colimit.desc _ E) :=
     by
     change is_iso (CompHausFiltPseuNormGrp.colimitToCondensedObj _)
     infer_instance
-  let hE : limits.is_colimit E := @limits.is_colimit.of_point_iso _ _ _ _ _ _ _ _ hh
+  let hE : Limits.IsColimit E := @Limits.IsColimit.ofPointIso _ _ _ _ _ _ _ _ hh
   -- <-- move this
   apply CategoryTheory.epi_to_colimit_of_exists _ E hE
   intro j

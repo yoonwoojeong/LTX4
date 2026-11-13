@@ -27,13 +27,13 @@ def shiftSubId.commsq (hι : Monotone ι) :
       (shiftSubId B ι hι) :=
   Commsq.ofEq
     (by
-      simp only [shiftSubId, sub_comp, comp_sub, category.id_comp, category.comp_id,
+      simp only [shiftSubId, sub_comp, comp_sub, Category.id_comp, Category.comp_id,
         ShiftSubId.shift]
       congr 1
       apply limit.hom_ext
       intro j
-      simp only [limit.lift_map, limit.lift_π, cones.postcompose_obj_π, nat_trans.comp_app,
-        fan.mk_π_app, discrete.nat_trans_app, category.assoc, nat_trans.naturality,
+      simp only [limit.lift_map, limit.lift_π, Cones.postcompose_obj_π, NatTrans.comp_app,
+        Fan.mk_π_app, Discrete.natTrans_app, Category.assoc, NatTrans.naturality,
         lim_map_π_assoc])
 
 end Step1
@@ -47,28 +47,28 @@ theorem pi_map_exact (H : ∀ k, Exact (f k) (g k)) : Exact (Pi.map f) (Pi.map g
   simp only [AddCommGroupCat.exact_iff'] at H ⊢
   constructor
   · apply limit.hom_ext; intro j
-    simp only [category.assoc, lim_map_π, discrete.nat_trans_app, lim_map_π_assoc, zero_comp,
+    simp only [Category.assoc, lim_map_π, Discrete.natTrans_app, lim_map_π_assoc, zero_comp,
       (H j.1).1, comp_zero]
   intro x hx
   rw [AddMonoidHom.mem_ker, Ab.apply_eq_zero] at hx 
-  have : ∀ k, Ab.pt (limit.π (discrete.functor fun k => B k) k x) ≫ g k.1 = 0 :=
+  have : ∀ k, Ab.pt (limit.π (Discrete.functor fun k => B k) k x) ≫ g k.1 = 0 :=
     by
     intro k
-    suffices Ab.pt x ≫ pi.map g ≫ pi.π _ k.1 = 0
+    suffices Ab.pt x ≫ Pi.map g ≫ pi.π _ k.1 = 0
       by
       cases k
-      simpa [lim_map_π, discrete.nat_trans_app, ← category.assoc, hx, Ab.pt_comp]
-    rw [← category.assoc, hx, zero_comp]
+      simpa [lim_map_π, Discrete.natTrans_app, ← Category.assoc, hx, Ab.pt_comp]
+    rw [← Category.assoc, hx, zero_comp]
   simp only [← Ab.apply_eq_zero] at this 
   replace := fun k => (H k).2 (this ⟨k⟩)
   choose y hy using this
-  refine' ⟨pi.lift (fun k => Ab.pt (y k)) ⟨1⟩, _⟩
+  refine' ⟨Pi.lift (fun k => Ab.pt (y k)) ⟨1⟩, _⟩
   rw [← CategoryTheory.comp_apply, ← Ab.pt_apply' x]
   congr 1
   apply limit.hom_ext
   rintro ⟨j⟩
-  simp only [limit.lift_map, limit.lift_π, cones.postcompose_obj_π, nat_trans.comp_app,
-    fan.mk_π_app, discrete.nat_trans_app, Ab.pt_comp, hy]
+  simp only [limit.lift_map, limit.lift_π, Cones.postcompose_obj_π, NatTrans.comp_app,
+    Fan.mk_π_app, Discrete.natTrans_app, Ab.pt_comp, hy]
 
 end Step2
 
@@ -86,7 +86,7 @@ def shiftSubId.δ (H : ∀ c n, ShortExact ((f.app c).f n) ((g.app c).f n)) :
     C ⋙ homology'Functor _ _ n ⟶ A ⋙ homology'Functor _ _ (n + 1)
     where
   app c := HomologicalComplex.δ (f.app _) (g.app _) (H _) _ _ rfl
-  naturality' c₁ c₂ h := by symm; apply HomologicalComplex.δ_natural
+  naturality c₁ c₂ h := by symm; apply HomologicalComplex.δ_natural
 
 def piδ (H : ∀ c n, ShortExact ((f.app c).f n) ((g.app c).f n)) :
     (∏ fun x => (C.obj (op <| ι x)).homology' n) ⟶
@@ -96,11 +96,11 @@ def piδ (H : ∀ c n, ShortExact ((f.app c).f n) ((g.app c).f n)) :
 theorem piH_les (H : ∀ c n, ShortExact ((f.app c).f n) ((g.app c).f n)) :
     ExactSeq Ab.{u} [piHHom f ι n, piHHom g ι n, piδ f g ι n H] :=
   by
-  apply exact.cons
+  apply Exact.cons
   · apply pi_map_exact; intro k
     have := HomologicalComplex.six_term_exactSeq _ _ (H (op <| ι k)) n (n + 1) rfl
     exact this.pair
-  apply exact.exact_seq
+  apply Exact.exactSeq
   · apply pi_map_exact; intro k
     have := HomologicalComplex.six_term_exactSeq _ _ (H (op <| ι k)) n (n + 1) rfl
     exact (this.drop 1).pair
@@ -134,21 +134,21 @@ variable {A B A' B' : ℝ≥0ᵒᵖ ⥤ Ab.{u}} (f : A ⟶ B) (f' : A' ⟶ B') (
 
 variable (ι : ULift.{u} ℕ → ℝ≥0) (hι : Monotone ι)
 
-theorem shiftSubId.bicartesian_iso (w : f ≫ eB.Hom = eA.Hom ≫ f')
+theorem shiftSubId.bicartesian_iso (w : f ≫ eB.hom = eA.hom ≫ f')
     (sq : (shiftSubId.commsq f ι hι).Bicartesian) : (shiftSubId.commsq f' ι hι).Bicartesian :=
   by
   let H : _ := _
   apply Commsq.Bicartesian.of_iso _ _ _ _ _ H H _ sq
-  · refine' limits.lim.map_iso (discrete.nat_iso fun k => eA.app _)
-  · refine' limits.lim.map_iso (discrete.nat_iso fun k => eB.app _)
+  · refine' limits.lim.map_iso (Discrete.natIso fun k => eA.app _)
+  · refine' limits.lim.map_iso (Discrete.natIso fun k => eB.app _)
   · apply shiftSubId.commsq
   · apply shiftSubId.commsq
-  · apply Commsq.ofEq; delta pi.map
-    simp only [functor.map_iso_hom, ← lim_map_eq_lim_map, ← CategoryTheory.Functor.map_comp]
+  · apply Commsq.ofEq; delta Pi.map
+    simp only [Functor.mapIso_hom, ← CategoryTheory.Limits.lim_map, ← CategoryTheory.Functor.map_comp]
     apply limit.hom_ext
-    simp only [lim_map_eq_lim_map, lim_map_π, nat_trans.comp_app, discrete.nat_trans_app,
-      discrete.nat_iso_hom_app, iso.app_hom]
-    intro; simp only [← nat_trans.comp_app, w]
+    simp only [CategoryTheory.Limits.lim_map, lim_map_π, NatTrans.comp_app, Discrete.natTrans_app,
+      Discrete.natIso_hom_app, Iso.app_hom]
+    intro; simp only [← NatTrans.comp_app, w]
 
 end Step5
 

@@ -42,7 +42,7 @@ theorem support_add_smul_of (a : FreeAbelianGroup X) (n : ℤ) (hn : n ≠ 0) (x
       simp only [coeff, AddMonoidHom.coe_comp, Finsupp.applyAddHom_apply, Function.comp_apply] at
         hxa 
       simp only [support, AddMonoidHom.map_add, Pi.add_apply, Finsupp.mem_support_iff, Ne.def,
-        Finsupp.coe_add, hxa, zero_add, AddMonoidHom.map_zsmul, to_finsupp_of]
+        Finsupp.coe_add, hxa, zero_add, AddMonoidHom.map_zsmul, FreeAbelianGroup.toFinsupp_of]
       rw [← Finsupp.singleAddHom_apply, ← AddMonoidHom.map_zsmul, zsmul_one]
       simpa only [Int.cast_id, Finsupp.single_eq_same, Finsupp.singleAddHom_apply]
     · rw [not_mem_support_iff] at hxa 
@@ -50,7 +50,7 @@ theorem support_add_smul_of (a : FreeAbelianGroup X) (n : ℤ) (hn : n ≠ 0) (x
       simp only [coeff, AddMonoidHom.coe_comp, Finsupp.applyAddHom_apply, Function.comp_apply,
         Ne.def] at hxa hya 
       simp only [support, AddMonoidHom.map_add, Pi.add_apply, Finsupp.mem_support_iff, Ne.def,
-        Finsupp.coe_add, AddMonoidHom.map_zsmul, to_finsupp_of]
+        Finsupp.coe_add, AddMonoidHom.map_zsmul, FreeAbelianGroup.toFinsupp_of]
       rwa [← Finsupp.singleAddHom_apply, ← AddMonoidHom.map_zsmul, zsmul_one,
         Finsupp.singleAddHom_apply, Finsupp.single_apply, if_neg, add_zero]
       rintro rfl; contradiction
@@ -79,10 +79,10 @@ theorem coeff_of_self (x : X) : coeff x (of x) = 1 := by
 
 theorem sum_support_coeff (a : FreeAbelianGroup X) : ∑ x in a.support, coeff x a • of x = a :=
   by
-  apply (FreeAbelianGroup.equivFinsupp X).Injective
-  simp only [equiv_finsupp_apply]
-  rw [← Finsupp.sum_single a.to_finsupp, Finsupp.sum]
-  simp only [AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, to_finsupp_of]
+  apply (FreeAbelianGroup.equivFinsupp X).injective
+  simp only [FreeAbelianGroup.equivFinsupp_apply]
+  rw [← Finsupp.sum_single a.toFinsupp, Finsupp.sum]
+  simp only [AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, FreeAbelianGroup.toFinsupp_of]
   apply Finset.sum_congr rfl
   intro x hx
   simp only [← Finsupp.singleAddHom_apply, ← AddMonoidHom.map_zsmul, zsmul_one, coeff, Int.cast_id,

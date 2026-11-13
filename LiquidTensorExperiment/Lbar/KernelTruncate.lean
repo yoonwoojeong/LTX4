@@ -40,7 +40,7 @@ theorem ite_toLbar_tail (n : ℤ) :
     ite (0 < n) ((toLbar r' S F).toFun s n.toNat) (tail F s (-n).toNat) = F s n :=
   by
   by_cases n0 : 0 < n
-  · have : n.to_nat ≠ 0 := by simpa using (lt_of_lt_of_le n0 (Int.toNat_of_nonneg n0.le).ge).ne'
+  · have : n.toNat ≠ 0 := by simpa using (lt_of_lt_of_le n0 (Int.toNat_of_nonneg n0.le).ge).ne'
     simp only [n0, to_Lbar, if_true, this, Int.toNat_of_nonneg n0.le, if_false]
   · rw [if_neg n0, Int.tail_of_nonneg F s (neg_nonneg.mpr (not_lt.mp n0)), neg_neg]
 

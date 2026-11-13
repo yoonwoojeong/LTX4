@@ -2,7 +2,7 @@ import LiquidTensorExperiment.ForMathlib.SplitExact
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Biproducts
 import Mathlib.CategoryTheory.Limits.Constructions.FiniteProductsOfBinaryProducts
 
-#align_import for_mathlib.preserves_finite_limits
+#align_import for_mathlib.preservesFiniteLimits
 
 noncomputable section
 
@@ -37,18 +37,18 @@ def preservesEqualizerOfPreservesKernels [F.Additive]
     [∀ {X Y} (f : X ⟶ Y), PreservesLimit (parallelPair f 0) F] {X Y : 𝓐} (f g : X ⟶ Y) :
     PreservesLimit (parallelPair f g) F := by
   constructor; intro c i
-  let c' := preadditive.is_limit_kernel_fork_of_fork (i.of_iso_limit (isoOfι _ _ c))
-  let iFc := is_limit_fork_map_of_is_limit' F (by simp) c'
-  apply is_limit.of_iso_limit _ ((cones.functoriality _ F).mapIso (isoOfι _ _ c).symm)
-  apply (is_limit_map_cone_fork_equiv F (fork.condition c)).invFun
-  let p : parallel_pair (F.map (f - g)) 0 ≅ parallel_pair (F.map f - F.map g) 0 :=
-    parallel_pair.ext (iso.refl _) (iso.refl _) (by simp) (by simp)
+  let c' := Preadditive.isLimitKernelForkOfFork (i.ofIsoLimit (isoOfι _ _ c))
+  let iFc := CategoryTheory.Limits.isLimitForkMapOfIsLimit' F (by simp) c'
+  apply IsLimit.ofIsoLimit _ ((Cones.functoriality _ F).mapIso (isoOfι _ _ c).symm)
+  apply (CategoryTheory.Limits.isLimitMapConeForkEquiv F (Fork.condition c)).invFun
+  let p : CategoryTheory.Limits.parallelPair (F.map (f - g)) 0 ≅ CategoryTheory.Limits.parallelPair (F.map f - F.map g) 0 :=
+    parallelPair.ext (iso.refl _) (iso.refl _) (by simp) (by simp)
   refine'
-    is_limit.of_iso_limit
-      (preadditive.is_limit_fork_of_kernel_fork ((is_limit.postcompose_hom_equiv p _).symm iFc)) _
-  refine' fork.ext (iso.refl _) _
-  dsimp only [p, preadditive.fork_of_kernel_fork, cones.postcompose, ← fork.app_zero_eq_ι]
-  simp [-fork.app_zero_eq_ι]
+    IsLimit.ofIsoLimit
+      (Preadditive.isLimitForkOfKernelFork ((IsLimit.postcomposeHomEquiv p _).symm iFc)) _
+  refine' Fork.ext (iso.refl _) _
+  dsimp only [p, Preadditive.forkOfKernelFork, Cones.postcompose, ← Fork.app_zero_eq_ι]
+  simp [-Fork.app_zero_eq_ι]
 
 def preservesEqualizersOfPreservesKernels [F.Additive]
     [∀ {X Y} (f : X ⟶ Y), PreservesLimit (parallelPair f 0) F] :
@@ -56,18 +56,18 @@ def preservesEqualizersOfPreservesKernels [F.Additive]
     where PreservesLimit K :=
     by
     letI :=
-      preservesEqualizerOfPreservesKernels F (K.map walking_parallel_pair_hom.left)
-        (K.map walking_parallel_pair_hom.right)
-    apply preserves_limit_of_iso_diagram F (diagram_iso_parallel_pair K).symm
+      preservesEqualizerOfPreservesKernels F (K.map WalkingParallelPairHom.left)
+        (K.map WalkingParallelPairHom.right)
+    apply CategoryTheory.Limits.preservesLimitOfIsoDiagram F (CategoryTheory.Limits.diagramIsoParallelPair K).symm
 
 -- todo: unify with `exact_comp_mono_iff`
 theorem exact_comp_mono_iff' {X Y Z A : 𝓐} (f : X ⟶ Y) (g : Y ⟶ Z) (h : Z ⟶ A) [Mono h] :
     Exact f (g ≫ h) ↔ Exact f g :=
   by
   refine'
-    ⟨fun hfg => ⟨zero_of_comp_mono h (by rw [category.assoc, hfg.1]), _⟩, fun h =>
+    ⟨fun hfg => ⟨zero_of_comp_mono h (by rw [Category.assoc, hfg.1]), _⟩, fun h =>
       exact_comp_mono h⟩
-  rw [← (iso.eq_comp_inv _).1 (imageToKernel_comp_mono _ _ h hfg.1)]
+  rw [← (Iso.eq_comp_inv _).1 (imageToKernel_comp_mono _ _ h hfg.1)]
   haveI := hfg.2; apply epi_comp
 
 end
@@ -80,12 +80,12 @@ theorem preservesFiniteLimitsOfPreservesMonoPreservesFiniteColimits {𝓐 : Type
     (h1 : ∀ ⦃X Y : 𝓐⦄ (f : X ⟶ Y), Mono f → Mono (F.map f)) [PreservesFiniteColimits F] :
     PreservesFiniteLimits F :=
   by
-  have : preserves_binary_biproducts F := by
-    apply preserves_binary_biproducts_of_preserves_binary_coproducts
-  have : preserves_limits_of_shape (discrete walking_pair) F := by
-    apply preserves_binary_products_of_preserves_binary_biproducts
-  have : F.additive := by apply functor.additive_of_preserves_binary_biproducts
-  have : ∀ {X Y} (f : X ⟶ Y), preserves_limit (parallel_pair f 0) F :=
+  have : CategoryTheory.Limits.PreservesBinaryBiproducts F := by
+    apply CategoryTheory.Limits.preservesBinaryBiproductsOfPreservesBinaryCoproducts
+  have : preserves_limits_of_shape (discrete CategoryTheory.Limits.WalkingPair) F := by
+    apply CategoryTheory.Limits.preservesBinaryProductsOfPreservesBinaryBiproducts
+  have : F.additive := by apply Functor.additive_of_preservesBinaryBiproducts
+  have : ∀ {X Y} (f : X ⟶ Y), preserves_limit (CategoryTheory.Limits.parallelPair f 0) F :=
     by
     intro X Y f
     constructor
@@ -93,33 +93,33 @@ theorem preservesFiniteLimitsOfPreservesMonoPreservesFiniteColimits {𝓐 : Type
     suffices hF : exact (F.map (fork.ι c)) (F.map f)
     · have : mono (F.map (fork.ι c)) := by
         apply h1
-        exact limits.mono_of_is_limit_fork hc
-      let this.1 := abelian.is_limit_of_exact_of_mono _ _ hF
-      let α : parallel_pair f 0 ⋙ F ≅ parallel_pair (F.map f) 0 :=
+        exact Limits.mono_of_isLimit_fork hc
+      let this.1 := Abelian.isLimitOfExactOfMono _ _ hF
+      let α : CategoryTheory.Limits.parallelPair f 0 ⋙ F ≅ CategoryTheory.Limits.parallelPair (F.map f) 0 :=
         by
-        refine' diagram_iso_parallel_pair _ ≪≫ _
-        refine' parallel_pair.ext (iso.refl _) (iso.refl _) (by simp) (by simp)
-      refine' is_limit.postcompose_hom_equiv α _ _
-      refine' this.of_iso_limit (cones.ext (iso.refl _) _)
+        refine' CategoryTheory.Limits.diagramIsoParallelPair _ ≪≫ _
+        refine' parallelPair.ext (iso.refl _) (iso.refl _) (by simp) (by simp)
+      refine' IsLimit.postcomposeHomEquiv α _ _
+      refine' this.ofIsoLimit (Cones.ext (iso.refl _) _)
       rintro (_ | _)
       · simp; dsimp; simp
       · simp
-    let hc' := hc.of_iso_limit (isoOfι _ _ _)
-    have := abelian.exact_of_is_kernel _ _ (kernel_fork.condition c) hc'
+    let hc' := hc.ofIsoLimit (isoOfι _ _ _)
+    have := Abelian.exact_of_is_kernel _ _ (KernelFork.condition c) hc'
     simp_rw [← image.fac f] at this 
     rw [exact_comp_mono_iff'] at this 
-    let this.1 := abelian.is_colimit_of_exact_of_epi _ _ this
-    let q := is_colimit_cofork_map_of_is_colimit' F _ this
+    let this.1 := Abelian.isColimitOfExactOfEpi _ _ this
+    let q := CategoryTheory.Limits.isColimitCoforkMapOfIsColimit' F _ this
     have : mono (F.map (image.ι f)) := by apply h1; infer_instance
     simp_rw [← image.fac f]
-    rw [functor.map_comp, exact_comp_mono_iff']
-    exact abelian.exact_of_is_cokernel _ _ _ q
-  have : preserves_limits_of_shape walking_parallel_pair F := by
+    rw [Functor.map_comp, exact_comp_mono_iff']
+    exact Abelian.exact_of_is_cokernel _ _ _ q
+  have : preserves_limits_of_shape CategoryTheory.Limits.WalkingParallelPair F := by
     apply preservesEqualizersOfPreservesKernels
   have : preserves_limit (Functor.empty.{0} 𝓐) F := by
     apply preservesTerminalObjectOfPreservesZeroMorphisms
   have : preserves_limits_of_shape (Discrete.{0} PEmpty) F := by
-    apply limits.preserves_limits_of_shape_pempty_of_preserves_terminal
-  haveI p := preserves_finite_products_of_preserves_binary_and_terminal F
-  exact @preserves_finite_limits_of_preserves_equalizers_and_finite_products _ _ _ _ _ _ _ _ p
+    apply Limits.preservesLimitsOfShapePemptyOfPreservesTerminal
+  haveI p := CategoryTheory.preservesFiniteProductsOfPreservesBinaryAndTerminal F
+  exact @CategoryTheory.Limits.preservesFiniteLimitsOfPreservesEqualizersAndFiniteProducts _ _ _ _ _ _ _ _ p
 

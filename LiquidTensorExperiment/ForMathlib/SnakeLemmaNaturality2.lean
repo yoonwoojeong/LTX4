@@ -39,7 +39,7 @@ theorem prod_induction {motive : ∀ ⦃i j : C × D⦄ (f : i ⟶ j), Prop}
   let f1 : (i.1, i.2) ⟶ (i.1, j.2) := (𝟙 i.1, f.2)
   let f2 : (i.1, j.2) ⟶ (j.1, j.2) := (f.1, 𝟙 j.2)
   have hf : f = f1 ≫ f2 := by
-    ext <;> simp only [prod_comp_fst, prod_comp_snd, category.id_comp, category.comp_id]
+    ext <;> simp only [prod_comp_fst, prod_comp_snd, Category.id_comp, Category.comp_id]
   rw [hf]; cases i; cases j
   apply comp <;> apply_assumption
 
@@ -144,35 +144,35 @@ def mk_snakeDiagram_nat_trans_hor :
         mkSnakeDiagramNatTransApp f g H φ i j hij (castHorizontal a b) ≫
           (snake (f.app c₂) (g.app c₂) (H _) i j hij).SnakeDiagram.map (toSuccHorizontal a b)
   | ⟨0, _⟩, ⟨0, _⟩ => by
-    repeat' erw [snake_diagram.mk_functor_map_f0, ← CategoryTheory.Functor.map_comp];
-    rw [nat_trans.naturality]
+    repeat' erw [SnakeDiagram.mkFunctor_map_f0, ← CategoryTheory.Functor.map_comp];
+    rw [NatTrans.naturality]
   | ⟨0, _⟩, ⟨1, _⟩ => by
-    repeat' erw [snake_diagram.mk_functor_map_g0, ← CategoryTheory.Functor.map_comp];
-    rw [nat_trans.naturality]
+    repeat' erw [SnakeDiagram.mkFunctor_map_g0, ← CategoryTheory.Functor.map_comp];
+    rw [NatTrans.naturality]
   | ⟨0, _⟩, ⟨n + 2, h⟩ => by exfalso; rw [Nat.succ_lt_succ_iff, Nat.succ_lt_succ_iff] at h ;
     exact Nat.not_lt_zero n h
   | ⟨1, _⟩, ⟨0, _⟩ => by
-    repeat' erw [snake_diagram.mk_functor_map_f1, ← CategoryTheory.Functor.map_comp];
-    rw [nat_trans.naturality]
+    repeat' erw [SnakeDiagram.mkFunctor_map_f1, ← CategoryTheory.Functor.map_comp];
+    rw [NatTrans.naturality]
   | ⟨1, _⟩, ⟨1, _⟩ => by
-    repeat' erw [snake_diagram.mk_functor_map_g1, ← CategoryTheory.Functor.map_comp];
-    rw [nat_trans.naturality]
+    repeat' erw [SnakeDiagram.mkFunctor_map_g1, ← CategoryTheory.Functor.map_comp];
+    rw [NatTrans.naturality]
   | ⟨1, _⟩, ⟨n + 2, h⟩ => by exfalso; rw [Nat.succ_lt_succ_iff, Nat.succ_lt_succ_iff] at h ;
     exact Nat.not_lt_zero n h
   | ⟨2, _⟩, ⟨0, _⟩ => by
-    repeat' erw [snake_diagram.mk_functor_map_f2, ← CategoryTheory.Functor.map_comp];
-    rw [nat_trans.naturality]
+    repeat' erw [SnakeDiagram.mkFunctor_map_f2, ← CategoryTheory.Functor.map_comp];
+    rw [NatTrans.naturality]
   | ⟨2, _⟩, ⟨1, _⟩ => by
-    repeat' erw [snake_diagram.mk_functor_map_g2, ← CategoryTheory.Functor.map_comp];
-    rw [nat_trans.naturality]
+    repeat' erw [SnakeDiagram.mkFunctor_map_g2, ← CategoryTheory.Functor.map_comp];
+    rw [NatTrans.naturality]
   | ⟨2, _⟩, ⟨n + 2, h⟩ => by exfalso; rw [Nat.succ_lt_succ_iff, Nat.succ_lt_succ_iff] at h ;
     exact Nat.not_lt_zero n h
   | ⟨3, _⟩, ⟨0, _⟩ => by
-    repeat' erw [snake_diagram.mk_functor_map_f3, ← CategoryTheory.Functor.map_comp];
-    rw [nat_trans.naturality]
+    repeat' erw [SnakeDiagram.mkFunctor_map_f3, ← CategoryTheory.Functor.map_comp];
+    rw [NatTrans.naturality]
   | ⟨3, _⟩, ⟨1, _⟩ => by
-    repeat' erw [snake_diagram.mk_functor_map_g3, ← CategoryTheory.Functor.map_comp];
-    rw [nat_trans.naturality]
+    repeat' erw [SnakeDiagram.mkFunctor_map_g3, ← CategoryTheory.Functor.map_comp];
+    rw [NatTrans.naturality]
   | ⟨3, _⟩, ⟨n + 2, h⟩ => by exfalso; rw [Nat.succ_lt_succ_iff, Nat.succ_lt_succ_iff] at h ;
     exact Nat.not_lt_zero n h
   | ⟨n + 4, h⟩, _ => by exfalso; repeat' rw [Nat.succ_lt_succ_iff] at h ; exact Nat.not_lt_zero n h
@@ -183,27 +183,27 @@ def mk_snakeDiagram_nat_trans_ver :
           mkSnakeDiagramNatTransApp f g H φ i j hij (succVertical a b) =
         mkSnakeDiagramNatTransApp f g H φ i j hij (castVertical a b) ≫
           (snake (f.app c₂) (g.app c₂) (H _) i j hij).SnakeDiagram.map (toSuccVertical a b)
-  | ⟨0, _⟩, ⟨0, _⟩ => by repeat' erw [snake_diagram.mk_functor_map_a0]; erw [nat_trans.naturality];
+  | ⟨0, _⟩, ⟨0, _⟩ => by repeat' erw [SnakeDiagram.mkFunctor_map_a0]; erw [NatTrans.naturality];
     rfl
-  | ⟨0, _⟩, ⟨1, _⟩ => by repeat' erw [snake_diagram.mk_functor_map_b0]; erw [nat_trans.naturality];
+  | ⟨0, _⟩, ⟨1, _⟩ => by repeat' erw [SnakeDiagram.mkFunctor_map_b0]; erw [NatTrans.naturality];
     rfl
-  | ⟨0, _⟩, ⟨2, _⟩ => by repeat' erw [snake_diagram.mk_functor_map_c0]; erw [nat_trans.naturality];
+  | ⟨0, _⟩, ⟨2, _⟩ => by repeat' erw [SnakeDiagram.mkFunctor_map_c0]; erw [NatTrans.naturality];
     rfl
   | ⟨0, _⟩, ⟨n + 3, h⟩ => by exfalso; repeat' rw [Nat.succ_lt_succ_iff] at h ;
     exact Nat.not_lt_zero n h
-  | ⟨1, _⟩, ⟨0, _⟩ => by repeat' erw [snake_diagram.mk_functor_map_a1]; erw [nat_trans.naturality];
+  | ⟨1, _⟩, ⟨0, _⟩ => by repeat' erw [SnakeDiagram.mkFunctor_map_a1]; erw [NatTrans.naturality];
     rfl
-  | ⟨1, _⟩, ⟨1, _⟩ => by repeat' erw [snake_diagram.mk_functor_map_b1]; erw [nat_trans.naturality];
+  | ⟨1, _⟩, ⟨1, _⟩ => by repeat' erw [SnakeDiagram.mkFunctor_map_b1]; erw [NatTrans.naturality];
     rfl
-  | ⟨1, _⟩, ⟨2, _⟩ => by repeat' erw [snake_diagram.mk_functor_map_c1]; erw [nat_trans.naturality];
+  | ⟨1, _⟩, ⟨2, _⟩ => by repeat' erw [SnakeDiagram.mkFunctor_map_c1]; erw [NatTrans.naturality];
     rfl
   | ⟨1, _⟩, ⟨n + 3, h⟩ => by exfalso; repeat' rw [Nat.succ_lt_succ_iff] at h ;
     exact Nat.not_lt_zero n h
-  | ⟨2, _⟩, ⟨0, _⟩ => by repeat' erw [snake_diagram.mk_functor_map_a2]; erw [nat_trans.naturality];
+  | ⟨2, _⟩, ⟨0, _⟩ => by repeat' erw [SnakeDiagram.mkFunctor_map_a2]; erw [NatTrans.naturality];
     rfl
-  | ⟨2, _⟩, ⟨1, _⟩ => by repeat' erw [snake_diagram.mk_functor_map_b2]; erw [nat_trans.naturality];
+  | ⟨2, _⟩, ⟨1, _⟩ => by repeat' erw [SnakeDiagram.mkFunctor_map_b2]; erw [NatTrans.naturality];
     rfl
-  | ⟨2, _⟩, ⟨2, _⟩ => by repeat' erw [snake_diagram.mk_functor_map_c2]; erw [nat_trans.naturality];
+  | ⟨2, _⟩, ⟨2, _⟩ => by repeat' erw [SnakeDiagram.mkFunctor_map_c2]; erw [NatTrans.naturality];
     rfl
   | ⟨2, _⟩, ⟨n + 3, h⟩ => by exfalso; repeat' rw [Nat.succ_lt_succ_iff] at h ;
     exact Nat.not_lt_zero n h
@@ -215,18 +215,18 @@ def mkSnakeDiagramNatTrans :
       (snake (f.app c₂) (g.app c₂) (H _) i j hij).SnakeDiagram
     where
   app e := mkSnakeDiagramNatTransApp f g H φ i j hij e
-  naturality' := by
-    apply snake_diagram_induction
-    · intro; simp only [CategoryTheory.Functor.map_id, category.id_comp, category.comp_id]
-    · intro i j k f g h1 h2; simp only [functor.map_comp, category.assoc, h2, reassoc_of h1]
-    · exact mk_snake_diagram_nat_trans_hor f g H φ i j hij
-    · exact mk_snake_diagram_nat_trans_ver f g H φ i j hij
+  naturality := by
+    apply HomologicalComplex.snakeDiagram_induction
+    · intro; simp only [CategoryTheory.Functor.map_id, Category.id_comp, Category.comp_id]
+    · intro i j k f g h1 h2; simp only [Functor.map_comp, Category.assoc, h2, reassoc_of h1]
+    · exact HomologicalComplex.mk_snakeDiagram_nat_trans_hor f g H φ i j hij
+    · exact HomologicalComplex.mk_snakeDiagram_nat_trans_ver f g H φ i j hij
 
 theorem δ_natural :
     δ (f.app c₁) (g.app c₁) (H _) i j hij ≫ (homology'Functor _ _ j).map (X.map φ) =
       (homology'Functor _ _ i).map (Z.map φ) ≫ δ (f.app c₂) (g.app c₂) (H _) i j hij :=
   by
-  let η := mk_snake_diagram_nat_trans f g H φ i j hij
+  let η := HomologicalComplex.mkSnakeDiagramNatTrans f g H φ i j hij
   apply (snake_lemma.δ_natural η _ _).symm
 
 end HomologicalComplex

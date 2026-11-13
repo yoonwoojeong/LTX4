@@ -31,7 +31,7 @@ noncomputable def isColimitCofan {α : Type u} (X : α → Ab.{u}) : IsColimit (
     simp only [comp_apply, DFinsupp.singleAddHom_apply, DFinsupp.sumAddHom_single]
   uniq := by
     intro S m hm
-    apply_fun dfinsupp.lift_add_hom.symm
+    apply_fun dfinsupp.liftAddHom.symm
     swap; infer_instance
     dsimp
     erw [AddEquiv.symm_apply_apply]; ext1 a
@@ -45,14 +45,14 @@ instance aB4 : AB4 AddCommGroupCat.{u} := by
   intro α X Y f hf
   let t := _; change mono t
   let eX : (∐ fun a : α => X a) ≅ (cofan X).pt :=
-    (colimit.is_colimit _).coconePointUniqueUpToIso (is_colimit_cofan X)
+    (colimit.isColimit _).coconePointUniqueUpToIso (is_colimit_cofan X)
   let eY : (∐ fun a : α => Y a) ≅ (cofan Y).pt :=
-    (colimit.is_colimit _).coconePointUniqueUpToIso (is_colimit_cofan Y)
+    (colimit.isColimit _).coconePointUniqueUpToIso (is_colimit_cofan Y)
   let q : (cofan X).pt ⟶ (cofan Y).pt :=
     (is_colimit_cofan X).desc ⟨(cofan Y).pt, fun a => f a.1 ≫ (cofan Y).ι.app a, _⟩
   swap; · rintro ⟨i⟩ ⟨⟩ ⟨⟨⟨⟩⟩⟩; dsimp; simp; dsimp; simp
   have : mono q := by
-    apply concrete_category.mono_of_injective
+    apply ConcreteCategory.mono_of_injective
     rintro (u v : Π₀ x, X x) h; ext w
     dsimp [q, is_colimit_cofan, cofan] at h 
     apply_fun fun e => (e : Π₀ w, Y w) w at h 
@@ -77,9 +77,9 @@ instance aB4 : AB4 AddCommGroupCat.{u} := by
   dsimp [t, eX, q, eY]
   apply colimit.hom_ext
   rintro ⟨j⟩
-  simp only [colimit.ι_desc, cofan.mk_ι_app,
-    is_colimit.cocone_point_unique_up_to_iso_hom_desc_assoc, colimit.is_colimit_desc,
-    colimit.ι_desc_assoc, category.assoc, is_colimit.comp_cocone_point_unique_up_to_iso_inv,
+  simp only [colimit.ι_desc, Cofan.mk_ι_app,
+    IsColimit.coconePointUniqueUpToIso_hom_desc_assoc, colimit.isColimit_desc,
+    colimit.ι_desc_assoc, Category.assoc, IsColimit.comp_coconePointUniqueUpToIso_inv,
     colimit.cocone_ι, eq_self_iff_true, imp_true_iff]
 
 end AddCommGroupCat

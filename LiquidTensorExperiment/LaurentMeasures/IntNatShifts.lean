@@ -58,11 +58,11 @@ theorem mulInvFun_def (d e : G) (z : { x // d ≤ x }) : mulInvFun d e z = ⟨_,
 
 @[simp, to_additive]
 theorem mulInvFun_comp (d e f : G) : mulInvFun e f ∘ mulInvFun d e = mulInvFun d f := by funext;
-  simp [mul_inv_fun_def, mul_assoc]
+  simp [AuxThm69.mulInvFun_def, mul_assoc]
 
 @[simp, to_additive]
 theorem mulInvFun_comp_id (d e : G) : mulInvFun e d ∘ mulInvFun d e = id := by funext;
-  simp [mul_inv_fun_def]
+  simp [AuxThm69.mulInvFun_def]
 
 @[simp, to_additive]
 theorem mulInvFun_comp_id_apply (d e : G) (z : { x // d ≤ x }) :
@@ -223,7 +223,7 @@ variable [AddCommMonoid α] {f : ℤ → α}
 theorem my_summable_shift (f : ℤ → α) (N : ℤ) :
     (Summable fun x : ℕ => f (x + N)) ↔ Summable fun x : { x // N ≤ x } => f x :=
   by
-  convert (int_subtype_nonneg_equiv.symm.trans (equiv.add_neg 0 N)).summable_iff
+  convert (int_subtype_nonneg_equiv.symm.trans (Equiv.addNeg 0 N)).summable_iff
   ext
   simp [add_comm]
 
@@ -273,7 +273,7 @@ theorem Summable.prod_nat {f : ℤ → ℝ} {g : ℕ → ℝ} (hf : Summable f) 
     by
     convert this
     ext ⟨⟨x, y⟩, hx⟩
-    suffices f (↑(x - y) + ↑y) * g y = f ↑x * g y by simpa [equiv_nat_diag]
+    suffices f (↑(x - y) + ↑y) * g y = f ↑x * g y by simpa [AuxThm69.equivNatDiag]
     rw_mod_cast [Nat.sub_add_cancel hx]
   apply Summable.subtype (_ : Summable fun lj : ℕ × ℕ => f lj.fst * g lj.snd)
   convert summable_mul_of_summable_norm (_ : Summable fun i : ℕ => ‖f i‖) _

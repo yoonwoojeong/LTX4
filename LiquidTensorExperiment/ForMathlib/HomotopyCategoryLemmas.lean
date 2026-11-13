@@ -28,7 +28,7 @@ def homotopyUnopFunctorRightOpMapUnopOfHomotopy (C₁ C₂ : HomologicalComplex 
     Homotopy (HomologicalComplex.unopFunctor.rightOp.map f₁).unop
       (HomologicalComplex.unopFunctor.rightOp.map f₂).unop
     where
-  Hom i j := (h.Hom _ _).unop
+  Hom i j := (h.hom _ _).unop
   zero' i j hh := by
     let z := _; change _ = z; rw [← z.unop_op]
     congr 1

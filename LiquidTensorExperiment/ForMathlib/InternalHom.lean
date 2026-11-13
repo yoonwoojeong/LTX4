@@ -2,7 +2,7 @@ import Mathlib.CategoryTheory.Closed.Monoidal
 import Mathlib.CategoryTheory.Monoidal.Braided
 import Mathlib.Tactic
 
-#align_import for_mathlib.internal_hom
+#align_import for_mathlib.internalHom
 
 namespace CategoryTheory.Monoidal
 
@@ -77,17 +77,17 @@ theorem internalHomEquiv_tensor_right {X Y₁ Y₂ Z : C} (f : Y₁ ⟶ Y₂) (g
   simp only [CategoryTheory.Adjunction.homEquiv_unit, CategoryTheory.Adjunction.homEquiv_counit, CategoryTheory.MonoidalCategory.tensorRight_map, tensor_id,
     CategoryTheory.Adjunction.homEquiv_naturality_right, CategoryTheory.Functor.map_comp, CategoryTheory.Functor.map_id,
     CategoryTheory.Category.id_comp, CategoryTheory.Category.assoc, CategoryTheory.Adjunction.homEquiv_naturality_left_symm,
-    adjunction.hom_equiv_naturality_right_symm]
-  simp only [← tensor_right_map]
-  rw [(adjunction.of_left_adjoint (tensor_right Y₁)).counit_naturality_assoc]
-  rw [(adjunction.of_left_adjoint (tensor_right Y₁)).left_triangle_components_assoc]
+    Adjunction.homEquiv_naturality_right_symm]
+  simp only [← CategoryTheory.MonoidalCategory.tensorRight_map]
+  rw [(Adjunction.ofLeftAdjoint (tensor_right Y₁)).counit_naturality_assoc]
+  rw [(Adjunction.ofLeftAdjoint (tensor_right Y₁)).left_triangle_components_assoc]
   dsimp
-  simp only [← category.assoc, ← tensor_comp, category.id_comp, category.comp_id]
-  conv_rhs => rw [split_right _ f, category.assoc]
-  rw [← tensor_right_map]
-  simp only [functor.map_comp, category.assoc]
-  rw [(adjunction.of_left_adjoint (tensor_right Y₂)).counit_naturality]
-  erw [(adjunction.of_left_adjoint (tensor_right Y₂)).left_triangle_components_assoc]
+  simp only [← Category.assoc, ← tensor_comp, Category.id_comp, Category.comp_id]
+  conv_rhs => rw [split_right _ f, Category.assoc]
+  rw [← CategoryTheory.MonoidalCategory.tensorRight_map]
+  simp only [Functor.map_comp, Category.assoc]
+  rw [(Adjunction.ofLeftAdjoint (tensor_right Y₂)).counit_naturality]
+  erw [(Adjunction.ofLeftAdjoint (tensor_right Y₂)).left_triangle_components_assoc]
 
 @[simp]
 theorem internalHomPrecompose_id (X Y : C) : internalHomPrecompose (𝟙 X) Y = 𝟙 _ := by
@@ -111,14 +111,14 @@ theorem internalHomPostcompose_comp_precompose {A₁ A₂ B₁ B₂ : C} (f : A�
   simp only [CategoryTheory.Adjunction.homEquiv_counit, CategoryTheory.MonoidalCategory.tensorRight_map, tensor_id,
     CategoryTheory.Adjunction.homEquiv_naturality_right, CategoryTheory.Adjunction.homEquiv_unit, CategoryTheory.Functor.map_comp,
     CategoryTheory.Functor.map_id, CategoryTheory.Category.id_comp, CategoryTheory.Category.assoc,
-    adjunction.hom_equiv_naturality_left_symm, adjunction.hom_equiv_naturality_right_symm]
-  simp only [← tensor_right_map, adjunction.counit_naturality, adjunction.counit_naturality_assoc,
-    functor.map_comp, adjunction.left_triangle_components, adjunction.right_triangle_components,
-    adjunction.left_triangle_components_assoc, adjunction.right_triangle_components_assoc]
+    Adjunction.homEquiv_naturality_left_symm, Adjunction.homEquiv_naturality_right_symm]
+  simp only [← CategoryTheory.MonoidalCategory.tensorRight_map, Adjunction.counit_naturality, Adjunction.counit_naturality_assoc,
+    Functor.map_comp, Adjunction.left_triangle_components, Adjunction.right_triangle_components,
+    Adjunction.left_triangle_components_assoc, Adjunction.right_triangle_components_assoc]
   dsimp
-  simp only [← category.assoc, ← tensor_comp, category.id_comp, category.comp_id]
-  rw [split_right _ g, category.assoc, ← tensor_right_map, adjunction.counit_naturality,
-    category.assoc]
+  simp only [← Category.assoc, ← tensor_comp, Category.id_comp, Category.comp_id]
+  rw [split_right _ g, Category.assoc, ← CategoryTheory.MonoidalCategory.tensorRight_map, Adjunction.counit_naturality,
+    Category.assoc]
 
 @[simps]
 def internalHomFunctor : Cᵒᵖ ⥤ C ⥤ C

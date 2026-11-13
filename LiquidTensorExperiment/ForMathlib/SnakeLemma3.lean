@@ -24,15 +24,15 @@ theorem col_exact_aux (X : CochainComplex 𝒜 ℤ) :
         kernel.lift (HomologicalComplex.dFrom X 0) (HomologicalComplex.dTo X 0) (by simp),
         homology'.π' (HomologicalComplex.dTo X 0) (HomologicalComplex.dFrom X 0) (by simp)] :=
   by
-  apply exact_seq.cons
-  · rw [abelian.exact_iff]
+  apply ExactSeq.cons
+  · rw [Abelian.exact_iff]
     refine' ⟨by ext; simp, _⟩
     have :
       kernel.ι (kernel.lift (HomologicalComplex.dFrom X 0) (HomologicalComplex.dTo X 0) _) =
         kernel.lift _ (kernel.ι _) _ ≫ kernel.ι (HomologicalComplex.dTo X 0) :=
       by simp
     rw [this]
-    simp only [category.assoc, cokernel.condition, comp_zero]
+    simp only [Category.assoc, cokernel.condition, comp_zero]
     have :
       HomologicalComplex.dTo X 0 =
         kernel.lift (HomologicalComplex.dFrom X 0) (HomologicalComplex.dTo X 0) (by simp) ≫
@@ -41,10 +41,10 @@ theorem col_exact_aux (X : CochainComplex 𝒜 ℤ) :
     slice_lhs 2 3 => rw [this]
     rw [kernel.condition_assoc]
     simp
-  · rw [← exact_iff_exact_seq]
+  · rw [← CategoryTheory.exact_iff_exactSeq]
     change exact _ (_ ≫ _)
     rw [exact_comp_iso]
-    apply abelian.exact_cokernel
+    apply Abelian.exact_cokernel
 
 theorem row_exact₁_aux (X Y Z : CochainComplex 𝒜 ℤ) (f : X ⟶ Y) (g : Y ⟶ Z)
     (h : Exact (f.f (-1)) (g.f (-1))) [Epi (g.f (-1))] [Epi (g.f 0)] [Epi (g.f 1)] [Mono (f.f (-1))]
@@ -54,7 +54,7 @@ theorem row_exact₁_aux (X Y Z : CochainComplex 𝒜 ℤ) (f : X ⟶ Y) (g : Y 
   rw [f.prev_eq, g.prev_eq]
   rotate_left 2; exact -1; swap; exact -1; simp; swap; simp
   simp
-  rw [← category.assoc, exact_comp_iso]
+  rw [← Category.assoc, exact_comp_iso]
   apply CategoryTheory.exact_comp_inv_hom_comp _ h
 
 theorem row_exact₂_aux (X Y Z : CochainComplex 𝒜 ℤ) (f : X ⟶ Y) (g : Y ⟶ Z)
@@ -79,7 +79,7 @@ theorem row_exact₂_aux (X Y Z : CochainComplex 𝒜 ℤ) (f : X ⟶ Y) (g : Y 
     rw [f.next_eq, g.next_eq]
     rotate_left 2; exact 1; swap; exact 1; simp; swap; simp
     simp
-    rw [← category.assoc, exact_comp_iso]
+    rw [← Category.assoc, exact_comp_iso]
     apply CategoryTheory.exact_comp_inv_hom_comp _ h1
   have S :=
     mk_of_sequence_hom (X.X 0) (Y.X 0) (Z.X 0) (X.X_next 0) (Y.X_next 0) (Z.X_next 0) (f.f 0)

@@ -29,8 +29,8 @@ def fintypeLaurentMeasures (r : ℝ≥0) [Fact (0 < r)] :
     where
   obj S := ⟨LaurentMeasures r S, fun F => ⟨‖F‖₊, le_rfl⟩⟩
   map S T f := mapHom f
-  map_id' S := by ext1; simp only [map_hom, map_id]; rfl
-  map_comp' S S' S'' f g := by ext1; simp only [map_hom, map_comp]; rfl
+  map_id S := by ext1; simp only [map_hom, map_id]; rfl
+  map_comp S S' S'' f g := by ext1; simp only [map_hom, map_comp]; rfl
 
 end LaurentMeasuresDef
 

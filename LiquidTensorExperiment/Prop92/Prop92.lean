@@ -48,14 +48,14 @@ theorem tInvSubTinv_exists_preimage [hr1 : Fact (r < 1)] (f : (cLCFP V r' (r' * 
         ‖g‖ ≤ (r / (1 - r) + ε) * ‖f‖ :=
   by
   obtain ⟨g, hg1, hg2⟩ :=
-    @concrete_92 _ _ _ _ _ _ _ _ ((filtrationPow.castLe _ _ _ _).app _) (embedding_cast_le _ _)
+    @concrete_92 _ _ _ _ _ _ _ _ ((filtrationPow.castLe _ _ _ _).app _) (ComphausFilteredPseudoNormedGroup.embedding_castLe _ _)
       ((filtrationPow.tinv r' (r' * c) c _).app _) r V _ (Tinv₀_continuous _ _) hr1 _ f ε hε
   refine' ⟨g, _, hg2⟩
   rw [← hg1]; clear hg1
-  dsimp only [T_inv_sub_Tinv, cLC, T_inv, cLC.tInv, Tinv, cLCFP.res, whisker_left_app,
-    nat_trans.app_sub, nat_trans.comp_app, whisker_right_app, NormedAddGroupHom.sub_apply,
-    whisker_right_app, functor.comp_map]
-  rw [← SemiNormedGroup.Completion.map_comp, ← NormedAddGroupHom.sub_apply, ← functor.map_sub]
+  dsimp only [T_inv_sub_Tinv, cLC, T_inv, cLC.tInv, Tinv, cLCFP.res, CategoryTheory.whiskerLeft_app,
+    NatTrans.app_sub, NatTrans.comp_app, CategoryTheory.whiskerRight_app, NormedAddGroupHom.sub_apply,
+    CategoryTheory.whiskerRight_app, Functor.comp_map]
+  rw [← SemiNormedGroup.Completion.map_comp, ← NormedAddGroupHom.sub_apply, ← Functor.map_sub]
   rfl
 
 variable (V c n M)

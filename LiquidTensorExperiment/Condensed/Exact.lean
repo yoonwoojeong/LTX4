@@ -34,9 +34,9 @@ def diagramOfPt (y : cG.pt) : J ⥤ CompHaus.{u}
   obj j := pullback (α.app j) (pt y ≫ cG.π.app j)
   map i j f :=
     pullback.lift (pullback.fst ≫ F.map f) pullback.snd
-      (by rw [category.assoc, α.naturality, pullback.condition_assoc, category.assoc, cG.w])
-  map_id' j := by apply pullback.hom_ext <;> dsimp <;> simp
-  map_comp' i j k f g := by apply pullback.hom_ext <;> dsimp <;> simp
+      (by rw [Category.assoc, α.naturality, pullback.condition_assoc, Category.assoc, cG.w])
+  map_id j := by apply pullback.hom_ext <;> dsimp <;> simp
+  map_comp i j k f g := by apply pullback.hom_ext <;> dsimp <;> simp
 
 @[simps]
 def coneOfPt (y : cG.pt) : Cone (diagramOfPt F G α cG y)
@@ -45,8 +45,8 @@ def coneOfPt (y : cG.pt) : Cone (diagramOfPt F G α cG y)
   π :=
     { app := fun j =>
         pullback.lift (pullback.fst ≫ cF.π.app _) pullback.snd
-          (by rw [category.assoc, ← pullback.condition_assoc, is_limit.map_π])
-      naturality' := fun i j f => by apply pullback.hom_ext <;> dsimp <;> simp }
+          (by rw [Category.assoc, ← pullback.condition_assoc, IsLimit.map_π])
+      naturality := fun i j f => by apply pullback.hom_ext <;> dsimp <;> simp }
 
 def isLimitConeOfPt (y : cG.pt) : IsLimit (coneOfPt F G α cF cG hcG y)
     where
@@ -55,19 +55,19 @@ def isLimitConeOfPt (y : cG.pt) : IsLimit (coneOfPt F G α cF cG hcG y)
       (hcF.lift
         ⟨S.pt,
           { app := fun j => S.π.app j ≫ pullback.fst
-            naturality' := by
+            naturality := by
               intro i j f
               dsimp
-              rw [← S.w f]; dsimp [diagram_of_pt]
-              simp only [category.id_comp, category.assoc, pullback.lift_fst] }⟩)
+              rw [← S.w f]; dsimp [CompHaus.diagramOfPt]
+              simp only [Category.id_comp, Category.assoc, pullback.lift_fst] }⟩)
       (terminal.from _)
       (by
         apply hcG.hom_ext; intro j; dsimp
-        simp only [category.assoc, is_limit.map_π, is_limit.fac_assoc, pullback.condition]
+        simp only [Category.assoc, IsLimit.map_π, IsLimit.fac_assoc, pullback.condition]
         ext; rfl)
   fac := by
     intro s j; dsimp; apply pullback.hom_ext
-    · simp only [category.assoc, pullback.lift_fst, pullback.lift_fst_assoc, is_limit.fac]
+    · simp only [Category.assoc, pullback.lift_fst, pullback.lift_fst_assoc, IsLimit.fac]
     · simp only [eq_iff_true_of_subsingleton]
   uniq := by
     intro s m hm
@@ -75,7 +75,7 @@ def isLimitConeOfPt (y : cG.pt) : IsLimit (coneOfPt F G α cF cG hcG y)
     apply pullback.hom_ext
     · rw [pullback.lift_fst]
       apply hcF.hom_ext; intro j
-      simp only [category.assoc, is_limit.fac, ← hm j, pullback.lift_fst]
+      simp only [Category.assoc, IsLimit.fac, ← hm j, pullback.lift_fst]
     · simp only [eq_iff_true_of_subsingleton]
 
 theorem IsLimit.surjective_of_surjective [IsCofiltered J]
@@ -92,27 +92,27 @@ theorem IsLimit.surjective_of_surjective [IsCofiltered J]
     conv_rhs => rw [this]; clear this; congr 1
     apply hcG.hom_ext
     intro j
-    simp only [← he, category.assoc]
+    simp only [← he, Category.assoc]
   let E' := CompHaus_to_Top.map_cone E
-  let hE' : is_limit E' := is_limit_of_preserves compHausToTop hE
-  let ee : E' ≅ TopCat.limitCone.{u, u} _ := hE'.unique_up_to_iso (TopCat.limitConeIsLimit _)
+  let hE' : is_limit E' := CategoryTheory.Limits.isLimitOfPreserves compHausToTop hE
+  let ee : E' ≅ TopCat.limitCone.{u, u} _ := hE'.uniqueUpToIso (TopCat.limitConeIsLimit _)
   let e : E'.X ≅ (TopCat.limitCone.{u, u} _).pt :=
-    hE'.cone_point_unique_up_to_iso (TopCat.limitConeIsLimit _)
-  have : ∀ j : J, T2Space ((diagram_of_pt F G α cG y ⋙ compHausToTop).obj j) := by intro j;
-    change T2Space ((diagram_of_pt F G α cG y).obj j); infer_instance
-  have : ∀ j : J, CompactSpace ((diagram_of_pt F G α cG y ⋙ compHausToTop).obj j) := by intro j;
-    change CompactSpace ((diagram_of_pt F G α cG y).obj j); infer_instance
-  have : ∀ j : J, Nonempty ((diagram_of_pt F G α cG y ⋙ compHausToTop).obj j) :=
+    hE'.conePointUniqueUpToIso (TopCat.limitConeIsLimit _)
+  have : ∀ j : J, T2Space ((CompHaus.diagramOfPt F G α cG y ⋙ compHausToTop).obj j) := by intro j;
+    change T2Space ((CompHaus.diagramOfPt F G α cG y).obj j); infer_instance
+  have : ∀ j : J, CompactSpace ((CompHaus.diagramOfPt F G α cG y ⋙ compHausToTop).obj j) := by intro j;
+    change CompactSpace ((CompHaus.diagramOfPt F G α cG y).obj j); infer_instance
+  have : ∀ j : J, Nonempty ((CompHaus.diagramOfPt F G α cG y ⋙ compHausToTop).obj j) :=
     by
-    intro j; change Nonempty ((diagram_of_pt F G α cG y).obj j)
-    dsimp only [diagram_of_pt_obj]
+    intro j; change Nonempty ((CompHaus.diagramOfPt F G α cG y).obj j)
+    dsimp only [CompHaus.diagramOfPt_obj]
     let y' := (terminal.from (CompHaus.of PUnit) ≫ pt y ≫ cG.π.app j) PUnit.unit
     obtain ⟨x', hx'⟩ := hα j y'
     refine' ⟨(terminal.from (CompHaus.of PUnit) ≫ pullback.lift (pt x') (𝟙 _) _) PUnit.unit⟩
     ext z; exact hx'
   have :=
     TopCat.nonempty_limitCone_of_compact_t2_cofiltered_system
-      (diagram_of_pt F G α cG y ⋙ compHausToTop)
+      (CompHaus.diagramOfPt F G α cG y ⋙ compHausToTop)
   obtain ⟨a⟩ := this
   let b := e.inv a
   use pt b
@@ -189,8 +189,8 @@ def p2 (c : ℝ≥0) : CompHaus :=
 def p1ToP2 (hfg : f ≫ g = 0) : p1 f hrc ⟶ p2 g c :=
   pullback.lift pullback.fst (terminal.from _)
     (by
-      rw [← cancel_mono ((Filtration.map (c_le_rc hrc)).app C), category.assoc,
-        nat_trans.naturality, pullback.condition_assoc, ← functor.map_comp, hfg]
+      rw [← cancel_mono ((Filtration.map (CompHausFiltPseuNormGrp₁.StronglyExact.cLeRc hrc)).app C), Category.assoc,
+        NatTrans.naturality, pullback.condition_assoc, ← Functor.map_comp, hfg]
       rfl)
 
 theorem p1ToP2_comp_fst (hfg : f ≫ g = 0) : p1ToP2 f g hrc hfg ≫ pullback.fst = pullback.fst :=
@@ -221,7 +221,7 @@ theorem surjective (h : StronglyExact f g r) :
     exact FunLike.congr_fun this PUnit.unit
   delta P1_to_P2
   apply CategoryTheory.Limits.pullback.hom_ext
-  · simp only [category.assoc, pullback.lift_fst]; rfl
+  · simp only [Category.assoc, pullback.lift_fst]; rfl
   · exact Subsingleton.elim _ _
 
 theorem ofSurjective (hfg : f ≫ g = 0) (hr : id ≤ r)
@@ -246,7 +246,7 @@ theorem ofSurjective (hfg : f ≫ g = 0) (hr : id ≤ r)
     by have hs := FunLike.congr_fun this PUnit.unit; exact ⟨(π₂ s).2, congr_arg Subtype.val hs⟩
   have H : terminal.from P ≫ pt s ≫ P1_to_P2 f g (hr c) hfg = t := by apply ContinuousMap.ext;
     rintro ⟨⟩; exact hs
-  erw [← pullback.condition, ← P1_to_P2_comp_fst f g (hr c) hfg, category.assoc, reassoc_of H,
+  erw [← pullback.condition, ← P1_to_P2_comp_fst f g (hr c) hfg, Category.assoc, reassoc_of H,
     pullback.lift_fst_assoc]
   rfl
 
@@ -281,17 +281,17 @@ def p2Functor (c : ℝ≥0) : J ⥤ WalkingCospan ⥤ CompHaus.{u} :=
     @cospan _ _ _ ((CategoryTheory.Functor.const _).obj (⊤_ _)) _
       (whiskerRight g (filtration.obj c))
       { app := fun j => pt (0 : PseudoNormedGroup.filtration (C'.obj j) c)
-        naturality' := by intros; ext; exact (C'.map f).map_zero.symm }
+        naturality := by intros; ext; exact (C'.map f).map_zero.symm }
 
 theorem p1ToP2_nat_trans_aux_1 (hfg : f ≫ g = 0) (X Y : J) (h : X ⟶ Y) (w w') :
     ((p1Functor f hrc ⋙ limUnder).map h ≫
-          limMap (diagramIsoCospan ((p1Functor f hrc).obj Y)).Hom ≫
+          limMap (diagramIsoCospan ((p1Functor f hrc).obj Y)).hom ≫
             p1ToP2 (f.app Y) (g.app Y) hrc w ≫
               limMap
                 (𝟙 (cospan ((filtration.obj c).map (g.app Y)) (pt 0)) ≫
                   (diagramIsoCospan ((p2Functor g c).obj Y)).inv)) ≫
         limit.π ((p2Functor g c).obj Y) none =
-      ((limMap (diagramIsoCospan ((p1Functor f hrc).obj X)).Hom ≫
+      ((limMap (diagramIsoCospan ((p1Functor f hrc).obj X)).hom ≫
             p1ToP2 (f.app X) (g.app X) hrc w' ≫
               limMap
                 (𝟙 (cospan ((filtration.obj c).map (g.app X)) (pt 0)) ≫
@@ -300,23 +300,23 @@ theorem p1ToP2_nat_trans_aux_1 (hfg : f ≫ g = 0) (X Y : J) (h : X ⟶ Y) (w w'
         limit.π ((p2Functor g c).obj Y) none :=
   by
   dsimp [P1_to_P2]
-  simp only [iso.refl_hom, iso.refl_inv, nat_trans.comp_app, eq_to_iso_refl, category.id_comp,
-    category.assoc, cones.postcompose_obj_π, lim_map_π_assoc, limit.lift_π,
-    diagram_iso_cospan_hom_app, diagram_iso_cospan_inv_app, pullback_cone.mk_π_app_one,
+  simp only [Iso.refl_hom, Iso.refl_inv, NatTrans.comp_app, eq_to_iso_refl, Category.id_comp,
+    Category.assoc, Cones.postcompose_obj_π, lim_map_π_assoc, limit.lift_π,
+    CategoryTheory.Limits.diagramIsoCospan_hom_app, CategoryTheory.Limits.diagramIsoCospan_inv_app, PullbackCone.mk_π_app_one,
     limit.lift_map]
   dsimp
-  simp only [← (Filtration.obj c).map_comp, category.comp_id, category.id_comp,
-    nat_trans.naturality]
+  simp only [← (Filtration.obj c).map_comp, Category.comp_id, Category.id_comp,
+    NatTrans.naturality]
 
 theorem p1ToP2_nat_trans_aux_2 (hfg : f ≫ g = 0) (X Y : J) (h : X ⟶ Y) (w w') :
     ((p1Functor f hrc ⋙ limUnder).map h ≫
-          limMap (diagramIsoCospan ((p1Functor f hrc).obj Y)).Hom ≫
+          limMap (diagramIsoCospan ((p1Functor f hrc).obj Y)).hom ≫
             p1ToP2 (f.app Y) (g.app Y) hrc w ≫
               limMap
                 (𝟙 (cospan ((filtration.obj c).map (g.app Y)) (pt 0)) ≫
                   (diagramIsoCospan ((p2Functor g c).obj Y)).inv)) ≫
         limit.π ((p2Functor g c).obj Y) (some WalkingPair.left) =
-      ((limMap (diagramIsoCospan ((p1Functor f hrc).obj X)).Hom ≫
+      ((limMap (diagramIsoCospan ((p1Functor f hrc).obj X)).hom ≫
             p1ToP2 (f.app X) (g.app X) hrc w' ≫
               limMap
                 (𝟙 (cospan ((filtration.obj c).map (g.app X)) (pt 0)) ≫
@@ -325,21 +325,21 @@ theorem p1ToP2_nat_trans_aux_2 (hfg : f ≫ g = 0) (X Y : J) (h : X ⟶ Y) (w w'
         limit.π ((p2Functor g c).obj Y) (some WalkingPair.left) :=
   by
   dsimp [P1_to_P2]
-  simp only [iso.refl_hom, iso.refl_inv, eq_to_iso_refl, nat_trans.comp_app, category.id_comp,
-    category.assoc, pullback_cone.mk_π_app_left, cones.postcompose_obj_π, lim_map_π_assoc,
-    limit.lift_π, limit.lift_map, diagram_iso_cospan_hom_app, diagram_iso_cospan_inv_app]
+  simp only [Iso.refl_hom, Iso.refl_inv, eq_to_iso_refl, NatTrans.comp_app, Category.id_comp,
+    Category.assoc, PullbackCone.mk_π_app_left, Cones.postcompose_obj_π, lim_map_π_assoc,
+    limit.lift_π, limit.lift_map, CategoryTheory.Limits.diagramIsoCospan_hom_app, CategoryTheory.Limits.diagramIsoCospan_inv_app]
   dsimp
-  simp only [category.comp_id, category.id_comp]
+  simp only [Category.comp_id, Category.id_comp]
 
 theorem p1ToP2_nat_trans_aux_3 (hfg : f ≫ g = 0) (X Y : J) (h : X ⟶ Y) (w w') :
     ((p1Functor f hrc ⋙ limUnder).map h ≫
-          limMap (diagramIsoCospan ((p1Functor f hrc).obj Y)).Hom ≫
+          limMap (diagramIsoCospan ((p1Functor f hrc).obj Y)).hom ≫
             p1ToP2 (f.app Y) (g.app Y) hrc w ≫
               limMap
                 (𝟙 (cospan ((filtration.obj c).map (g.app Y)) (pt 0)) ≫
                   (diagramIsoCospan ((p2Functor g c).obj Y)).inv)) ≫
         limit.π ((p2Functor g c).obj Y) (some WalkingPair.right) =
-      ((limMap (diagramIsoCospan ((p1Functor f hrc).obj X)).Hom ≫
+      ((limMap (diagramIsoCospan ((p1Functor f hrc).obj X)).hom ≫
             p1ToP2 (f.app X) (g.app X) hrc w' ≫
               limMap
                 (𝟙 (cospan ((filtration.obj c).map (g.app X)) (pt 0)) ≫
@@ -348,18 +348,18 @@ theorem p1ToP2_nat_trans_aux_3 (hfg : f ≫ g = 0) (X Y : J) (h : X ⟶ Y) (w w'
         limit.π ((p2Functor g c).obj Y) (some WalkingPair.right) :=
   by
   dsimp [P1_to_P2]
-  simp only [category.id_comp, category.assoc, eq_to_iso_refl, iso.refl_inv, nat_trans.comp_app,
-    pullback_cone.mk_π_app_right, cones.postcompose_obj_π, limit.lift_π, limit.lift_map,
-    diagram_iso_cospan_inv_app, eq_iff_true_of_subsingleton]
+  simp only [Category.id_comp, Category.assoc, eq_to_iso_refl, Iso.refl_inv, NatTrans.comp_app,
+    PullbackCone.mk_π_app_right, Cones.postcompose_obj_π, limit.lift_π, limit.lift_map,
+    CategoryTheory.Limits.diagramIsoCospan_inv_app, eq_iff_true_of_subsingleton]
 
 def p1ToP2NatTrans (hfg : f ≫ g = 0) : p1Functor f hrc ⋙ limUnder ⟶ p2Functor g c ⋙ limUnder
     where
   app j :=
     by
-    refine' _ ≫ P1_to_P2 (f.app j) (g.app j) hrc (by rw [← nat_trans.comp_app, hfg]; rfl) ≫ _
-    · refine' lim_map (diagram_iso_cospan _).Hom
-    · refine' lim_map (_ ≫ (diagram_iso_cospan _).inv); exact 𝟙 _
-  naturality' X Y h :=
+    refine' _ ≫ P1_to_P2 (f.app j) (g.app j) hrc (by rw [← NatTrans.comp_app, hfg]; rfl) ≫ _
+    · refine' lim_map (CategoryTheory.Limits.diagramIsoCospan _).hom
+    · refine' lim_map (_ ≫ (CategoryTheory.Limits.diagramIsoCospan _).inv); exact 𝟙 _
+  naturality X Y h :=
     by
     -- It would be nicer to use `pullback.hom_ext` here, but it doesn't unify.
     -- Nevertheless, we can bash out the remaining goals with `simp`.
@@ -394,12 +394,12 @@ def p1Iso {A B : FintypeCat.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}} (f : A ⟶ B
       limit (p1Functor.{u} (whiskerLeft S.fintypeDiagram f) hrc ⋙ limUnder) :=
   by
   refine'
-    has_limit.iso_of_nat_iso (_ ≪≫ (cospan_comp_iso _ _ _).symm) ≪≫
-      (limit_flip_comp_lim_iso_limit_comp_lim' _).symm
+    HasLimit.isoOfNatIso (_ ≪≫ (CategoryTheory.Limits.cospanCompIso _ _ _).symm) ≪≫
+      (CategoryTheory.Limits.limitFlipCompLimIsoLimitCompLim' _).symm
   -- This next line can be removed later if/when we generalize universe parameters in finite (co)limits
-  refine' _ ≪≫ (diagram_iso_cospan _).symm
+  refine' _ ≪≫ (CategoryTheory.Limits.diagramIsoCospan _).symm
   refine'
-    cospan_ext (preserves_limit_iso _ _) (preserves_limit_iso _ _) (preserves_limit_iso _ _)
+    CategoryTheory.Limits.cospanExt (CategoryTheory.preservesLimitIso _ _) (CategoryTheory.preservesLimitIso _ _) (CategoryTheory.preservesLimitIso _ _)
       (by apply limit.hom_ext; intros; ext; simp)
       (by
         apply limit.hom_ext
@@ -414,27 +414,27 @@ def p2Iso {B C : FintypeCat.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}} (g : B ⟶ C
       limit (p2Functor.{u} (whiskerLeft S.fintypeDiagram g) c ⋙ limUnder) :=
   by
   refine'
-    has_limit.iso_of_nat_iso (_ ≪≫ (cospan_comp_iso _ _ _).symm) ≪≫
-      (limit_flip_comp_lim_iso_limit_comp_lim' _).symm
+    HasLimit.isoOfNatIso (_ ≪≫ (CategoryTheory.Limits.cospanCompIso _ _ _).symm) ≪≫
+      (CategoryTheory.Limits.limitFlipCompLimIsoLimitCompLim' _).symm
   -- This next line can be removed later if/when we generalize universe parameters in finite (co)limits
-  refine' _ ≪≫ (diagram_iso_cospan _).symm
-  refine' cospan_ext _ _ _ _ _
-  exact preserves_limit_iso _ _
-  exact category_theory.limits.limit_const_terminal.symm
-  exact preserves_limit_iso _ _
+  refine' _ ≪≫ (CategoryTheory.Limits.diagramIsoCospan _).symm
+  refine' CategoryTheory.Limits.cospanExt _ _ _ _ _
+  exact CategoryTheory.preservesLimitIso _ _
+  exact category_theory.limits.limitConstTerminal.symm
+  exact CategoryTheory.preservesLimitIso _ _
   · apply limit.hom_ext; intros;
     simp [-CategoryTheory.Functor.map_comp, ← (Filtration.obj c).map_comp]
   · apply limit.hom_ext; intros; ext; simp
 
 -- move me, generalize
 theorem extend_aux {A₁ B₁ A₂ B₂ : CompHaus} (e₁ : A₁ ≅ B₁) (e₂ : A₂ ≅ B₂) (f : A₁ ⟶ A₂)
-    (g : B₁ ⟶ B₂) (hf : Epi f) (H : e₁.inv ≫ f ≫ e₂.Hom = g) : Epi g := by subst H;
+    (g : B₁ ⟶ B₂) (hf : Epi f) (H : e₁.inv ≫ f ≫ e₂.hom = g) : Epi g := by subst H;
   apply epi_comp _ _; infer_instance; apply epi_comp
 
 -- move me, generalize
 theorem extend_aux' {A₁ B₁ A₂ B₂ : CompHaus} (e₁ : A₁ ≅ B₁) (e₂ : A₂ ≅ B₂) (f : A₁ ⟶ A₂)
-    (g : B₁ ⟶ B₂) (hf : Epi f) (H : f = e₁.Hom ≫ g ≫ e₂.inv) : Epi g := by
-  rw [← iso.inv_comp_eq, iso.eq_comp_inv, category.assoc] at H ; apply extend_aux e₁ e₂ f g hf H
+    (g : B₁ ⟶ B₂) (hf : Epi f) (H : f = e₁.hom ≫ g ≫ e₂.inv) : Epi g := by
+  rw [← Iso.inv_comp_eq, Iso.eq_comp_inv, Category.assoc] at H ; apply extend_aux e₁ e₂ f g hf H
 
 theorem extend_aux_1 {A B C : FintypeCat.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}} {r : ℝ≥0 → ℝ≥0}
     {c : ℝ≥0} (S : Profinite.{u}) (f : A ⟶ B) (g : B ⟶ C) (hrc : c ≤ r c) (w w') :
@@ -442,13 +442,13 @@ theorem extend_aux_1 {A B C : FintypeCat.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}}
           limMap.{u, u, u, u + 1}
               (p1ToP2NatTrans.{u} (whiskerLeft.{u, u, u + 1, u, u + 1, u} S.fintypeDiagram f)
                 (whiskerLeft.{u, u, u + 1, u, u + 1, u} S.fintypeDiagram g) hrc w) ≫
-            (p2Iso.{u} g c S).symm.Hom) ≫
+            (p2Iso.{u} g c S).symm.hom) ≫
         pullback.fst.{u, u + 1} =
       p1ToP2.{u} ((Profinite.extendNatTrans.{u, u + 1} f).app S)
           ((Profinite.extendNatTrans.{u, u + 1} g).app S) hrc w' ≫
         pullback.fst.{u, u + 1} :=
   by
-  apply (cancel_mono (preserves_limit_iso (Filtration.obj _) _).Hom).1
+  apply (cancel_mono (CategoryTheory.preservesLimitIso (Filtration.obj _) _).hom).1
   apply limit.hom_ext
   · -- TODO this is not the prettiest proof.
     -- We need some good simp lemmas for `P1_iso`, `P2_iso`, and `P1_to_P2`.
@@ -485,15 +485,15 @@ theorem extend {A B C : FintypeCat.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}} (f : 
     StronglyExact ((Profinite.extendNatTrans f).app S) ((Profinite.extendNatTrans g).app S) r :=
   by
   have hr : id ≤ r := (hfg <| FintypeCat.of PUnit).large
-  rw [strongly_exact.iff_surjective]
+  rw [StronglyExact.iff_surjective]
   refine' ⟨_, hr, _⟩
-  · rw [← nat_trans.comp_app, ← Profinite.extendNatTrans_comp]
+  · rw [← NatTrans.comp_app, ← Profinite.extendNatTrans_comp]
     apply limit.hom_ext
     intro X
     specialize hfg (S.fintype_diagram.obj X)
     erw [zero_comp, limit.lift_π]
-    simp only [cones.postcompose_obj_π, whisker_left_comp, nat_trans.comp_app, limit.cone_π,
-      whisker_left_app, hfg.comp_eq_zero, comp_zero]
+    simp only [Cones.postcompose_obj_π, whisker_left_comp, NatTrans.comp_app, limit.cone_π,
+      CategoryTheory.whiskerLeft_app, hfg.comp_eq_zero, comp_zero]
   intro c
   have hfg' :
     whiskerLeft.{u, u, u + 1, u, u + 1, u} S.fintype_diagram f ≫
@@ -501,7 +501,7 @@ theorem extend {A B C : FintypeCat.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}} (f : 
       0 :=
     by
     ext X : 2
-    simp only [nat_trans.comp_app, whisker_left_app, (hfg (S.fintype_diagram.obj X)).comp_eq_zero]
+    simp only [NatTrans.comp_app, CategoryTheory.whiskerLeft_app, (hfg (S.fintype_diagram.obj X)).comp_eq_zero]
     rfl
   have key :=
     CompHaus.IsLimit.surjective_of_surjective'
@@ -513,10 +513,10 @@ theorem extend {A B C : FintypeCat.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}} (f : 
     rcases hfg with ⟨aux', hr, hfg⟩; specialize hfg c
     rw [← CompHaus.epi_iff_surjective] at hfg ⊢
     apply (config := { instances := false }) epi_comp
-    · show epi ((@limits.lim _ _ _ _ _).map _); infer_instance
+    · show epi ((@Limits.lim _ _ _ _ _).map _); infer_instance
     apply (config := { instances := false }) epi_comp
     · exact hfg
-    · show epi ((@limits.lim _ _ _ _ _).map _); infer_instance
+    · show epi ((@Limits.lim _ _ _ _ _).map _); infer_instance
   rw [← CompHaus.epi_iff_surjective] at key ⊢
   refine' extend_aux (P1_iso f (hr c) S).symm (P2_iso g c S).symm _ _ key _
   apply pullback.hom_ext
@@ -541,14 +541,14 @@ theorem Profinite.extendNatTrans_zero (A B : FintypeCat ⥤ CompHausFiltPseuNorm
   apply Profinite.extend_nat_trans_ext
   rw [Profinite.extendNatTrans_whiskerLeft]
   ext S : 2
-  simp only [nat_trans.comp_app, whisker_left_app, zero_app, zero_comp, comp_zero]
+  simp only [NatTrans.comp_app, CategoryTheory.whiskerLeft_app, zero_app, zero_comp, comp_zero]
 
 theorem stronglyExactExtendZeroLeft (A B C : FintypeCat ⥤ CompHausFiltPseuNormGrp₁.{u}) (g : B ⟶ C)
     (r : ℝ≥0 → ℝ≥0) (hfg : ∀ S, StronglyExact (0 : A.obj S ⟶ B.obj S) (g.app S) r) (S : Profinite) :
     StronglyExact (0 : (Profinite.extend A).obj S ⟶ (Profinite.extend B).obj S)
       ((Profinite.extendNatTrans g).app S) r :=
   by
-  have := strongly_exact.extend (0 : A ⟶ B) g r hfg S
+  have := StronglyExact.extend (0 : A ⟶ B) g r hfg S
   simpa
 
 theorem stronglyExactExtendZeroRight (A B C : FintypeCat ⥤ CompHausFiltPseuNormGrp₁.{u}) (f : A ⟶ B)
@@ -556,7 +556,7 @@ theorem stronglyExactExtendZeroRight (A B C : FintypeCat ⥤ CompHausFiltPseuNor
     StronglyExact ((Profinite.extendNatTrans f).app S)
       (0 : (Profinite.extend B).obj S ⟶ (Profinite.extend C).obj S) r :=
   by
-  have := strongly_exact.extend f (0 : B ⟶ C) r hfg S
+  have := StronglyExact.extend f (0 : B ⟶ C) r hfg S
   simpa
 
 variable (C)
@@ -603,15 +603,15 @@ theorem exact_iff_extrDisc {A B C : Condensed.{u} Ab.{u + 1}} (f : A ⟶ B) (g :
         Exact (f.1.app <| extrDiscToProfinite.op.obj (op S))
           (g.1.app <| extrDiscToProfinite.op.obj (op S)) :=
   by
-  simp only [abelian.exact_iff, zero_iff_ExtrDisc, forall_and]
+  simp only [Abelian.exact_iff, zero_iff_ExtrDisc, forall_and]
   refine' and_congr Iff.rfl _
   apply forall_congr'
   intro S
   symm
-  rw [← cancel_epi (kernel_iso g S).Hom, ← cancel_mono (cokernel_iso f S).Hom]
-  dsimp only [functor.op_obj, extrDiscToProfinite_obj]
-  simp only [category.assoc, zero_comp, comp_zero]
-  erw [kernel_iso_hom_assoc, cokernel_iso_hom]
+  rw [← cancel_epi (kernel_iso g S).hom, ← cancel_mono (cokernel_iso f S).hom]
+  dsimp only [Functor.op_obj, extrDiscToProfinite_obj]
+  simp only [Category.assoc, zero_comp, comp_zero]
+  erw [Condensed.kernelIso_hom_assoc, Condensed.cokernelIso_hom]
   exact Iff.rfl
 
 open ComphausFilteredPseudoNormedGroup
@@ -623,10 +623,10 @@ theorem exact_of_stronglyExact {A B C : CompHausFiltPseuNormGrp₁.{u}} (f : A �
   by
   rw [exact_iff_ExtrDisc]
   intro S
-  rw [strongly_exact.iff_surjective] at hfg 
+  rw [StronglyExact.iff_surjective] at hfg 
   rcases hfg with ⟨hfg, hr, H⟩
   simp only [Subtype.val_eq_coe, to_Condensed_map, CompHausFiltPseuNormGrp.presheaf.map_app,
-    whisker_right_app, Ab.exact_ulift_map]
+    CategoryTheory.whiskerRight_app, Ab.exact_ulift_map]
   rw [AddCommGroupCat.exact_iff']
   constructor
   · show
@@ -653,8 +653,8 @@ theorem exact_of_stronglyExact {A B C : CompHausFiltPseuNormGrp₁.{u}} (f : A �
     refine' ⟨⟨_, _, x₀, hx₀, rfl⟩, _⟩
     apply_fun fun φ => φ ≫ pullback.fst at hs 
     erw [pullback.lift_fst y (terminal.from _)] at hs 
-    rw [category.assoc, P1_to_P2_comp_fst, ← cancel_mono ((Filtration.map (c_le_rc (hr c))).app B),
-      category.assoc, pullback.condition] at hs 
+    rw [Category.assoc, P1_to_P2_comp_fst, ← cancel_mono ((Filtration.map (CompHausFiltPseuNormGrp₁.StronglyExact.cLeRc (hr c))).app B),
+      Category.assoc, pullback.condition] at hs 
     ext z
     have := FunLike.congr_fun hs z
     exact congr_arg Subtype.val this
@@ -666,15 +666,15 @@ theorem toCondensed_map_zero (A B : CompHausFiltPseuNormGrp₁.{u}) :
 theorem mono_toCondensed_map {A B : CompHausFiltPseuNormGrp₁.{u}} (f : A ⟶ B)
     (hf : StronglyExact (0 : A ⟶ A) f id) : Mono (toCondensed.map f) :=
   by
-  refine' ((abelian.tfae_mono (to_Condensed.obj A) (to_Condensed.map f)).out 2 0).mp _
-  have := exact_of_strongly_exact (0 : A ⟶ A) f id hf
+  refine' ((Abelian.tfae_mono (to_Condensed.obj A) (to_Condensed.map f)).out 2 0).mp _
+  have := Condensed.exact_of_stronglyExact (0 : A ⟶ A) f id hf
   simpa only [to_Condensed_map_zero]
 
 theorem epi_toCondensed_map {A B : CompHausFiltPseuNormGrp₁.{u}} (f : A ⟶ B) (r : ℝ≥0 → ℝ≥0)
     (hf : StronglyExact f (0 : B ⟶ B) r) : Epi (toCondensed.map f) :=
   by
-  refine' ((abelian.tfae_epi (to_Condensed.obj B) (to_Condensed.map f)).out 2 0).mp _
-  have := exact_of_strongly_exact f (0 : B ⟶ B) r hf
+  refine' ((Abelian.tfae_epi (to_Condensed.obj B) (to_Condensed.map f)).out 2 0).mp _
+  have := Condensed.exact_of_stronglyExact f (0 : B ⟶ B) r hf
   simpa only [to_Condensed_map_zero]
 
 end Condensed

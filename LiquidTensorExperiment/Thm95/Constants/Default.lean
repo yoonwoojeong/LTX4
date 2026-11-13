@@ -229,7 +229,7 @@ instance one_lt_k₁Sqrt : Fact (1 < k₁_sqrt m) :=
   ⟨by
     change (1 : ℝ) < Real.sqrt (k₁ κ' m)
     rw [Real.lt_sqrt zero_le_one, pow_two, mul_one]
-    exact (universal_constants.one_lt_k₁ κ' m).elim⟩
+    exact (UniversalConstants.one_lt_k₁ κ' m).elim⟩
 
 /-- `y m r` denotes `m + 2 + (r + 1) / (r - r^2) * (m + 2)^2`. -/
 def y (m : ℕ) (r : ℝ≥0) :=
@@ -328,7 +328,7 @@ theorem n₂_spec_of_pos' (h : 0 < N₂ m) : r' ^ b m < 2 * k' m / 2 ^ N₂ m :=
 
 theorem k'_eq_one_of_n₂_spec_eq_zero (h : N₂ m = 0) : k' m = 1 :=
   by
-  refine' le_antisymm _ (universal_constants.one_le_k' _ _).1
+  refine' le_antisymm _ (UniversalConstants.one_le_k' _ _).1
   obtain F := N₂_spec r r' BD κ' m
   rw [h, pow_zero, div_one] at F 
   refine' F.trans (pow_le_one (b r r' BD κ' m) (le_of_lt _) _) <;>
@@ -394,11 +394,11 @@ instance h_pos' : Fact ((0 : ℝ≥0) < H m) := by norm_cast; infer_instance
 theorem boundBy_h {q : ℕ} (h : q ≤ m) :
     ((BD.data.homotopyMul BD.Homotopy (N₂ m)).hom q (q + 1)).BoundBy (H m) :=
   by
-  rw [H, H', universal_map.bound_by, le_max_iff]
+  rw [H, H', UniversalMap.BoundBy, le_max_iff]
   right
   refine'
     @le_sup _ _ _ _ (range <| m + 1)
-      (fun q => ((BD.data.homotopy_mul BD.homotopy (N₂ r r' BD κ' m)).hom q (q + 1)).bound) _ _
+      (fun q => ((BD.data.homotopyMul BD.homotopy (N₂ r r' BD κ' m)).hom q (q + 1)).bound) _ _
   rwa [mem_range, Nat.lt_succ_iff]
 
 /- warning: thm95.universal_constants.K clashes with thm95.universal_constants.k -> Thm95.UniversalConstants.k
@@ -416,7 +416,7 @@ instance one_le_k : Fact (1 ≤ K m) :=
       1 = 1 * 1 * 1 := by simp
       _ ≤ 2 * NormedSpectral.k₀ m (K₁ m) * H m :=
         by
-        refine' mul_le_mul' (mul_le_mul' one_le_two <| (normed_spectral.one_le_K₀ _ _).1) _
+        refine' mul_le_mul' (mul_le_mul' one_le_two <| (NormedSpectral.one_le_k₀ _ _).1) _
         norm_cast
         apply one_le_H
 

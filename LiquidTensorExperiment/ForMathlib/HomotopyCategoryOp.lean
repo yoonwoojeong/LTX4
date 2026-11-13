@@ -26,7 +26,7 @@ namespace HomologicalComplex
 theorem opFunctorMapHomotopy {ι C : Type _} {c : ComplexShape ι} [Category C] [Preadditive C]
     {X Y : HomologicalComplex C c} (f₁ f₂ : X ⟶ Y) (H : Homotopy f₁ f₂) :
     Homotopy (HomologicalComplex.opFunctor.map f₁.op) (HomologicalComplex.opFunctor.map f₂.op) :=
-  { Hom := fun i j => (H.Hom j i).op
+  { hom := fun i j => (H.Hom j i).op
     zero' := fun i j hij => by rw [H.zero j i hij, op_zero]
     comm := fun i =>
       by
@@ -46,30 +46,30 @@ def opFunctor : (HomotopyCategory C c)ᵒᵖ ⥤ HomotopyCategory Cᵒᵖ c.symm
     (CategoryTheory.Quotient.lift _
       (HomologicalComplex.opFunctor ⋙ HomotopyCategory.quotient Cᵒᵖ c.symm).rightOp
       fun X Y f₁ f₂ h => by
-      dsimp only [functor.right_op]
+      dsimp only [Functor.rightOp]
       congr 1
-      dsimp only [functor.comp_map]
-      erw [quotient.functor_map_eq_iff]
+      dsimp only [Functor.comp_map]
+      erw [Quotient.functor_map_eq_iff]
       refine' ⟨HomologicalComplex.opFunctorMapHomotopy f₁ f₂ h.some⟩)
 
 def quotientOpFunctor :
     (quotient C c).op ⋙ opFunctor ≅ HomologicalComplex.opFunctor ⋙ quotient Cᵒᵖ c.symm :=
   NatIso.ofComponents (fun X => eqToIso (by rfl)) fun X Y f => by dsimp;
-    simpa only [category.comp_id, category.id_comp]
+    simpa only [Category.comp_id, Category.id_comp]
 
 def unopFunctor : (HomotopyCategory Cᵒᵖ c)ᵒᵖ ⥤ HomotopyCategory C c.symm :=
   Functor.leftOp
     (CategoryTheory.Quotient.lift _
       (HomologicalComplex.unopFunctor ⋙ HomotopyCategory.quotient C c.symm).rightOp
       fun X Y f₁ f₂ h => by
-      dsimp only [functor.right_op]
+      dsimp only [Functor.rightOp]
       congr 1
-      dsimp only [functor.comp_map]
-      erw [quotient.functor_map_eq_iff]
+      dsimp only [Functor.comp_map]
+      erw [Quotient.functor_map_eq_iff]
       let H := h.some
       exact
         Nonempty.intro
-          { Hom := fun i j => (H.hom j i).unop
+          { hom := fun i j => (H.hom j i).unop
             zero' := fun i j hij => by rw [H.zero j i hij, unop_zero]
             comm := fun i => by
               apply Quiver.Hom.op_inj
@@ -83,7 +83,7 @@ def unopFunctor : (HomotopyCategory Cᵒᵖ c)ᵒᵖ ⥤ HomotopyCategory C c.sy
 def quotientUnopFunctor :
     (quotient Cᵒᵖ c).op ⋙ unopFunctor ≅ HomologicalComplex.unopFunctor ⋙ quotient C c.symm :=
   NatIso.ofComponents (fun X => eqToIso (by rfl)) fun X Y f => by dsimp;
-    simpa only [category.comp_id, category.id_comp]
+    simpa only [Category.comp_id, Category.id_comp]
 
 end HomotopyCategory
 

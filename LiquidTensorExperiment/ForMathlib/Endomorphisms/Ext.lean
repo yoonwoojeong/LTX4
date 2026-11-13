@@ -49,7 +49,7 @@ variable (F : 𝓐 ⥤ 𝓑) [Functor.Additive F]
 instance mapHomotopyCategoryIsBoundedAbove (X : HomotopyCategory 𝓐 <| ComplexShape.up ℤ)
     [X.IsBoundedAbove] : ((F.mapHomotopyCategory _).obj X).IsBoundedAbove :=
   by
-  obtain ⟨b, hb⟩ := is_bounded_above.cond X
+  obtain ⟨b, hb⟩ := IsBoundedAbove.cond X
   exact ⟨⟨b, fun i hi => CategoryTheory.Functor.map_isZero _ (hb i hi)⟩⟩
 
 end HomotopyCategory
@@ -85,14 +85,14 @@ theorem IsIso.comp_right_iff [IsIso g] : IsIso (f ≫ g) ↔ IsIso f :=
   by
   constructor <;> intro h
   · have : is_iso ((f ≫ g) ≫ inv g) := by infer_instance
-    simpa only [category.assoc, is_iso.hom_inv_id, category.comp_id]
+    simpa only [Category.assoc, IsIso.hom_inv_id, Category.comp_id]
   · infer_instance
 
 theorem IsIso.comp_left_iff [IsIso f] : IsIso (f ≫ g) ↔ IsIso g :=
   by
   constructor <;> intro h
   · have : is_iso (inv f ≫ f ≫ g) := by infer_instance
-    simpa only [category.assoc, is_iso.inv_hom_id_assoc]
+    simpa only [Category.assoc, IsIso.inv_hom_id_assoc]
   · infer_instance
 
 end
@@ -121,7 +121,7 @@ def mkBoHoCa' (X : CochainComplex 𝓐 ℤ)
     obtain ⟨a, ha⟩ :=
       HomotopyCategory.IsBoundedAbove.cond ((HomotopyCategory.quotient 𝓐 (ComplexShape.up ℤ)).obj X)
     refine' ⟨⟨a, fun i hi => _⟩⟩
-    rw [is_zero_iff_id_eq_zero]; ext; dsimp; rw [← is_zero_iff_id_eq_zero]
+    rw [CategoryTheory.Limits.isZero_iff_id_eq_zero]; ext; dsimp; rw [← CategoryTheory.Limits.isZero_iff_id_eq_zero]
     exact ha i hi
 
 def mkBoHoCa (X : BoundedHomotopyCategory 𝓐) (f : X ⟶ X) :
@@ -137,18 +137,18 @@ theorem quot_out_single_map {X Y : 𝓐} (f : X ⟶ Y) (i : ℤ) :
   erw [h.comm k]
   suffices (dNext k) h.hom + (prevD k) h.hom = 0 by rw [this, zero_add]
   obtain hki | rfl := ne_or_eq k i
-  · apply limits.is_zero.eq_of_src
+  · apply Limits.IsZero.eq_of_src
     show is_zero (ite (k = i) X _); rw [if_neg hki]; apply is_zero_zero
   · have hk1 : (ComplexShape.up ℤ).Rel (k - 1) k := sub_add_cancel _ _
     have hk2 : (ComplexShape.up ℤ).Rel k (k + 1) := rfl
     rw [prevD_eq _ hk1, dNext_eq _ hk2]
     have aux1 : h.hom (k + 1) k = 0 :=
       by
-      apply limits.is_zero.eq_of_src; show is_zero (ite _ X _); rw [if_neg]; apply is_zero_zero
+      apply Limits.IsZero.eq_of_src; show is_zero (ite _ X _); rw [if_neg]; apply is_zero_zero
       linarith
     have aux2 : h.hom k (k - 1) = 0 :=
       by
-      apply limits.is_zero.eq_of_tgt; show is_zero (ite _ Y _); rw [if_neg]; apply is_zero_zero
+      apply Limits.IsZero.eq_of_tgt; show is_zero (ite _ Y _); rw [if_neg]; apply is_zero_zero
       linarith
     rw [aux1, aux2, comp_zero, zero_comp, add_zero]
 
@@ -160,40 +160,40 @@ def mkBoHaCa'Single (X : 𝓐) (f : X ⟶ X) :
       refine' (HomotopyCategory.quotient _ _).mapIso _
       refine' HomologicalComplex.Hom.isoOfComponents _ _
       · intro i
-        refine' endomorphisms.mk_iso _ _
+        refine' Endomorphisms.mkIso _ _
         · dsimp; split_ifs; · exact iso.refl _
-          · refine' (is_zero_zero _).Iso _; apply endomorphisms.is_zero_X
+          · refine' (is_zero_zero _).Iso _; apply Endomorphisms.isZero_x
             exact is_zero_zero (endomorphisms 𝓐)
         · dsimp; split_ifs with hi
-          · subst i; dsimp; erw [iso.refl_hom]; simp only [category.id_comp, category.comp_id]
+          · subst i; dsimp; erw [Iso.refl_hom]; simp only [Category.id_comp, Category.comp_id]
             convert rfl
-          · apply is_zero.eq_of_src; rw [if_neg hi]; exact is_zero_zero _
+          · apply IsZero.eq_of_src; rw [if_neg hi]; exact is_zero_zero _
       · rintro i j (rfl : _ = _)
         by_cases hi : i = 0
-        · apply is_zero.eq_of_tgt; dsimp; rw [if_neg]; exact is_zero_zero _; linarith only [hi]
-        · apply is_zero.eq_of_src; dsimp; rw [is_zero_iff_id_eq_zero]; ext; dsimp; rw [if_neg hi]
+        · apply IsZero.eq_of_tgt; dsimp; rw [if_neg]; exact is_zero_zero _; linarith only [hi]
+        · apply IsZero.eq_of_src; dsimp; rw [CategoryTheory.Limits.isZero_iff_id_eq_zero]; ext; dsimp; rw [if_neg hi]
           apply (is_zero_zero _).eq_of_src)
 
 def mkBoHaCaSingle (X : 𝓐) (f : X ⟶ X) :
     mkBoHoCa ((single _ 0).obj X) ((single _ 0).map f) ≅ (single _ 0).obj ⟨X, f⟩ :=
   BoundedHomotopyCategory.mkIso
     (by
-      dsimp only [mk_bo_ho_ca, single]
+      dsimp only [CategoryTheory.Endomorphisms.mkBoHoCa, single]
       refine' (HomotopyCategory.quotient _ _).mapIso _
       refine' HomologicalComplex.Hom.isoOfComponents _ _
       · intro i
-        refine' endomorphisms.mk_iso _ _
+        refine' Endomorphisms.mkIso _ _
         · dsimp; split_ifs; · exact iso.refl _
-          · refine' (is_zero_zero _).Iso _; apply endomorphisms.is_zero_X
+          · refine' (is_zero_zero _).Iso _; apply Endomorphisms.isZero_x
             exact is_zero_zero (endomorphisms 𝓐)
         · dsimp; erw [quot_out_single_map]; dsimp; split_ifs with hi
-          · subst i; dsimp; erw [iso.refl_hom]; simp only [category.id_comp, category.comp_id]
+          · subst i; dsimp; erw [Iso.refl_hom]; simp only [Category.id_comp, Category.comp_id]
             convert rfl
-          · apply is_zero.eq_of_src; rw [if_neg hi]; exact is_zero_zero _
+          · apply IsZero.eq_of_src; rw [if_neg hi]; exact is_zero_zero _
       · rintro i j (rfl : _ = _)
         by_cases hi : i = 0
-        · apply is_zero.eq_of_tgt; dsimp; rw [if_neg]; exact is_zero_zero _; linarith only [hi]
-        · apply is_zero.eq_of_src; dsimp; rw [is_zero_iff_id_eq_zero]; ext; dsimp; rw [if_neg hi]
+        · apply IsZero.eq_of_tgt; dsimp; rw [if_neg]; exact is_zero_zero _; linarith only [hi]
+        · apply IsZero.eq_of_src; dsimp; rw [CategoryTheory.Limits.isZero_iff_id_eq_zero]; ext; dsimp; rw [if_neg hi]
           apply (is_zero_zero _).eq_of_src)
 
 instance {P Q : BoundedHomotopyCategory (Endomorphisms 𝓐)} (f : P ⟶ Q)
@@ -226,8 +226,8 @@ def forgetMkEnd (X : ChainComplex 𝓐 ℕ) (f : X ⟶ X) :
         (by
           rintro (i | (_ | i)) j (rfl : _ = _)
           · apply (is_zero_zero _).eq_of_tgt
-          · erw [iso.refl_hom, iso.refl_hom, category.id_comp, category.comp_id]; rfl
-          · erw [iso.refl_hom, iso.refl_hom, category.id_comp, category.comp_id]; rfl)
+          · erw [Iso.refl_hom, Iso.refl_hom, Category.id_comp, Category.comp_id]; rfl
+          · erw [Iso.refl_hom, Iso.refl_hom, Category.id_comp, Category.comp_id]; rfl)
 
 /-
 
@@ -291,7 +291,7 @@ theorem map₂_epi {n : ℤ} (h : Projective (P.val.as.pt n)) : Epi ((map₂ Y g
   by
   -- this is Joel Riou's argument, reduce to `free` and do an explicit calculation
   let F : (endomorphisms 𝓐)ᵒᵖ ⥤ AddCommGroupCat :=
-    (endomorphisms.forget 𝓐).op ⋙ preadditive_yoneda.obj Y
+    (Endomorphisms.forget 𝓐).op ⋙ preadditive_yoneda.obj Y
   let τ : F ⟶ F :=
     { app := fun Q =>
         AddMonoidHom.mk' (fun ψ => Q.unop.e ≫ ψ - ψ ≫ g)
@@ -299,13 +299,13 @@ theorem map₂_epi {n : ℤ} (h : Projective (P.val.as.pt n)) : Epi ((map₂ Y g
             intro a b
             simp only [comp_add, add_comp, sub_eq_add_neg, neg_add, add_assoc]
             congr 1; apply add_left_comm)
-      naturality' := fun Q₁ Q₂ f => by
+      naturality := fun Q₁ Q₂ f => by
         ext
-        simp only [functor.comp_map, functor.op_map, forget_map, comp_apply, AddMonoidHom.mk'_apply,
+        simp only [Functor.comp_map, Functor.op_map, forget_map, comp_apply, AddMonoidHom.mk'_apply,
           map_sub]
         congr 1
         · dsimp; apply f.unop.comm_assoc
-        · dsimp; rw [category.assoc] }
+        · dsimp; rw [Category.assoc] }
   suffices ∀ (Q : endomorphisms 𝓐) (hQ : projective Q), epi (τ.app (op Q)) by exact this _ h
   suffices ∀ (A : 𝓐) (hA : projective A), epi (τ.app (op (free A)))
     by
@@ -316,18 +316,18 @@ theorem map₂_epi {n : ℤ} (h : Projective (P.val.as.pt n)) : Epi ((map₂ Y g
     haveI : epi π.f :=
       by
       refine' @epi_of_epi _ _ _ _ _ (sigma.ι _ (ULift.up 0)) _ (id _)
-      simp only [free.desc_f, category.id_comp, colimit.ι_desc, cofan.mk_ι_app, pow_zero,
+      simp only [free.desc_f, Category.id_comp, colimit.ι_desc, Cofan.mk_ι_app, pow_zero,
         End.one_def]
       infer_instance
     haveI : epi π := epi_of_epi_f _
-    let s := projective.factor_thru (𝟙 Q) π
-    have hs : s ≫ π = 𝟙 Q := projective.factor_thru_comp _ _
+    let s := Projective.factorThru (𝟙 Q) π
+    have hs : s ≫ π = 𝟙 Q := Projective.factorThru_comp _ _
     constructor
     intro Z q₁ q₂ hq₀
     have hq₁ := congr_arg (fun q : _ ⟶ _ => F.map s.op ≫ q) hq₀
     simp only at hq₁ 
     rw [τ.naturality_assoc, τ.naturality_assoc, cancel_epi (τ.app (op (free Q.X)))] at hq₁ 
-    simpa only [← F.map_comp_assoc, ← op_comp, hs, op_id, F.map_id, category.id_comp] using
+    simpa only [← F.map_comp_assoc, ← op_comp, hs, op_id, F.map_id, Category.id_comp] using
       congr_arg (fun q : _ ⟶ _ => F.map π.op ≫ q) hq₁
   intro A hA
   rw [AddCommGroupCat.epi_iff_surjective]
@@ -339,7 +339,7 @@ theorem map₂_epi {n : ℤ} (h : Projective (P.val.as.pt n)) : Epi ((map₂ Y g
   ext ⟨⟨i⟩⟩
   dsimp only [τ, AddMonoidHom.mk'_apply, free, unop_op, op_unop, ψ]
   rw [comp_sub, sub_eq_iff_eq_add]
-  simp only [colimit.ι_desc_assoc, colimit.ι_desc, limits.cofan.mk_ι_app]
+  simp only [colimit.ι_desc_assoc, colimit.ι_desc, Limits.Cofan.mk_ι_app]
   rfl
 
 theorem map₁₂_exact {n : ℤ} (h : Projective (P.val.as.pt n)) :
@@ -350,7 +350,7 @@ theorem map₁₂_exact {n : ℤ} (h : Projective (P.val.as.pt n)) :
     ext φ
     simp only [map₁, map₂_left_f_apply, map₂_right_f_apply, AddMonoidHom.sub_apply, comp_apply,
       AddCommGroupCat.zero_apply]
-    erw [endomorphisms.hom.comm]; apply sub_self
+    erw [Endomorphisms.Hom.comm]; apply sub_self
   intro φ hφ
   refine' ⟨⟨φ, _⟩, _⟩
   ·
@@ -378,11 +378,11 @@ theorem homology_isZero_iff_isIso (h : ∀ n, Projective (P.val.as.pt n)) :
     · refine' (H (i + 1)).eq_of_src _ _
     · refine' (H i).eq_of_tgt _ _
   · intro H i
-    refine' is_zero_of_exact_zero_zero' _ _ ((LES (i + 1) i rfl).drop 2).pair _ _
+    refine' CategoryTheory.Limits.isZero_of_exact_zero_zero' _ _ ((LES (i + 1) i rfl).drop 2).pair _ _
     · refine' ((LES (i + 1) i rfl).drop 1).pair.epi_iff_eq_zero.mp _
-      exact @is_iso.epi_of_iso _ _ _ _ _ (H _)
+      exact @IsIso.epi_of_iso _ _ _ _ _ (H _)
     · refine' ((LES (i + 1) i rfl).drop 3).pair.mono_iff_eq_zero.mp _
-      exact @is_iso.mono_of_iso _ _ _ _ _ (H _)
+      exact @IsIso.mono_of_iso _ _ _ _ _ (H _)
 
 @[reassoc]
 theorem flip_obj_map_comm {C D E : Type _} [Category C] [Category D] [Category E] (F : C ⥤ D ⥤ E)
@@ -404,7 +404,7 @@ theorem lift_unop_op {X Y : BoundedHomotopyCategory 𝓐} [HomotopyCategory.IsKP
   by
   erw [lift_comp_lift_comp]
   symm
-  apply category.comp_id
+  apply Category.comp_id
 
 theorem compatibility₁_aux {Y : 𝓐} {P₁ P₂ : BoundedHomotopyCategory 𝓐} (f : P₁ ⟶ P₂) :
     (HomotopyCategory.quotient AddCommGroupCat (ComplexShape.up ℤ).symm).map
@@ -426,27 +426,27 @@ theorem compatibility₁_aux {Y : 𝓐} {P₁ P₂ : BoundedHomotopyCategory �
 theorem compatibility₁ {Y : 𝓐} {P₁ P₂ P₃ : BoundedHomotopyCategory 𝓐} (g : P₁ ⟶ P₃) (f : P₂ ⟶ P₃)
     (h : P₁.val.as ⟶ P₂.val.as) (H : (HomotopyCategory.quotient _ _).map h ≫ f = g) (i : ℤ) :
     (preadditiveYoneda.obj ((single 𝓐 i).obj Y)).map f.op ≫
-        (P₂.homSingleIso Y i).Hom ≫
+        (P₂.homSingleIso Y i).hom ≫
           (homology'Functor AddCommGroupCat _ i).map
             (((preadditiveYoneda.obj Y).mapHomologicalComplex _).map
               (HomologicalComplex.opFunctor.map (Quiver.Hom.op h))) =
-      (preadditiveYoneda.obj ((single 𝓐 i).obj Y)).map g.op ≫ (P₁.homSingleIso Y i).Hom :=
+      (preadditiveYoneda.obj ((single 𝓐 i).obj Y)).map g.op ≫ (P₁.homSingleIso Y i).hom :=
   by
-  rw [hom_single_iso_naturality]
-  slice_lhs 1 2 => rw [hom_single_iso_naturality]
-  simp only [category.assoc]
+  rw [BoundedHomotopyCategory.homSingleIso_naturality]
+  slice_lhs 1 2 => rw [BoundedHomotopyCategory.homSingleIso_naturality]
+  simp only [Category.assoc]
   congr 1
-  dsimp only [functor.comp_map, functor.op]
-  simp only [Quiver.Hom.unop_op, ← functor.map_comp, HomotopyCategory.homology'Functor_map_factors]
+  dsimp only [Functor.comp_map, Functor.op]
+  simp only [Quiver.Hom.unop_op, ← Functor.map_comp, HomotopyCategory.homology'Functor_map_factors]
   congr 1
-  simp only [functor.right_op_map, Quiver.Hom.unop_op, functor.map_comp, compatibility₁_aux]
-  simp only [← functor.map_comp]
+  simp only [Functor.rightOp_map, Quiver.Hom.unop_op, Functor.map_comp, compatibility₁_aux]
+  simp only [← Functor.map_comp]
   apply HomotopyCategory.eq_of_homotopy
-  apply functor.map_homotopy
+  apply Functor.mapHomotopy
   rw [← op_comp]
   apply HomologicalComplex.opFunctorMapHomotopy
   apply HomotopyCategory.homotopyOfEq
-  simp only [functor.map_comp, HomotopyCategory.quotient_map_out]
+  simp only [Functor.map_comp, HomotopyCategory.quotient_map_out]
   exact H
 
 instance preadditiveYoneda_flip_additive : (preadditiveYoneda : 𝓐 ⥤ _).flip.Additive where
@@ -469,47 +469,47 @@ theorem preadditiveYoneda_bifunctor_comm {C : Type _} [Category C] [Preadditive 
 theorem compatibility₂ {Y₁ Y₂ : 𝓐} (g : Y₁ ⟶ Y₂) {P₁ P₂ : BoundedHomotopyCategory 𝓐} (π : P₁ ⟶ P₂)
     (i : ℤ) :
     (preadditiveYoneda.map
-              (((shiftSingleIso 0 (-i)).app Y₁).Hom ≫
+              (((shiftSingleIso 0 (-i)).app Y₁).hom ≫
                 eqToHom
                   (show (single 𝓐 (0 - -i)).obj Y₁ = (single 𝓐 i).obj Y₁ by congr; linarith))).app
           (op P₂) ≫
         (preadditiveYoneda.obj ((single 𝓐 i).obj Y₁)).map π.op ≫
-          (homSingleIso P₁ Y₁ i).Hom ≫
+          (homSingleIso P₁ Y₁ i).hom ≫
             (homology'Functor _ _ i).map
               ((NatTrans.mapHomologicalComplex (preadditiveYoneda.map g) _).app P₁.val.as.op) =
       (preadditiveYoneda.map
               ((shiftFunctor (BoundedHomotopyCategory 𝓐) (-i)).map ((single 𝓐 0).map g))).app
           (op P₂) ≫
         (preadditiveYoneda.map
-                (((shiftSingleIso 0 (-i)).app Y₂).Hom ≫
+                (((shiftSingleIso 0 (-i)).app Y₂).hom ≫
                   eqToHom
                     (show (single 𝓐 (0 - -i)).obj Y₂ = (single 𝓐 i).obj Y₂ by congr; linarith))).app
             (op P₂) ≫
-          (preadditiveYoneda.obj ((single 𝓐 i).obj Y₂)).map π.op ≫ (homSingleIso P₁ Y₂ i).Hom :=
+          (preadditiveYoneda.obj ((single 𝓐 i).obj Y₂)).map π.op ≫ (homSingleIso P₁ Y₂ i).hom :=
   by
-  let τiso := shift_single_iso 0 (-i) ≪≫ congr_single_functor 𝓐 (show 0 - -i = i by linarith)
-  let τ := (shift_single_iso 0 (-i) ≪≫ congr_single_functor 𝓐 (show 0 - -i = i by linarith)).Hom
+  let τiso := BoundedHomotopyCategory.shiftSingleIso 0 (-i) ≪≫ CategoryTheory.Endomorphisms.congrSingleFunctor 𝓐 (show 0 - -i = i by linarith)
+  let τ := (BoundedHomotopyCategory.shiftSingleIso 0 (-i) ≪≫ CategoryTheory.Endomorphisms.congrSingleFunctor 𝓐 (show 0 - -i = i by linarith)).hom
   have eq₁ :
     ∀ Y,
       eq_to_hom (show (single 𝓐 (0 - -i)).obj Y = (single 𝓐 i).obj Y by congr; linarith) =
-        ((congr_single_functor _ (by linarith)).app Y).Hom :=
-    fun Y => by simp only [iso.app_hom, congr_single_functor_hom, eq_to_hom_app]
+        ((CategoryTheory.Endomorphisms.congrSingleFunctor _ (by linarith)).app Y).hom :=
+    fun Y => by simp only [Iso.app_hom, CategoryTheory.Endomorphisms.congrSingleFunctor_hom, CategoryTheory.eqToHom_app]
   have eq₂ :
-    shift_single_iso 0 (-i) ≪≫ congr_single_functor 𝓐 (show 0 - -i = i by linarith) = τiso := rfl
-  have eq₃ : ∀ Y, (τiso.app Y).Hom = τ.app Y := fun Y => rfl
-  simp only [eq₁, ← iso.trans_hom, ← nat_iso.trans_app, eq₂, eq₃]
+    BoundedHomotopyCategory.shiftSingleIso 0 (-i) ≪≫ CategoryTheory.Endomorphisms.congrSingleFunctor 𝓐 (show 0 - -i = i by linarith) = τiso := rfl
+  have eq₃ : ∀ Y, (τiso.app Y).hom = τ.app Y := fun Y => rfl
+  simp only [eq₁, ← Iso.trans_hom, ← NatIso.trans_app, eq₂, eq₃]
   have eq₄ := preadditive_yoneda.congr_map (τ.naturality g)
-  simp only [functor.map_comp] at eq₄ 
-  have eq₅ := nat_trans.congr_app eq₄ (op P₂)
-  simp only [nat_trans.comp_app] at eq₅ 
+  simp only [Functor.map_comp] at eq₄ 
+  have eq₅ := NatTrans.congr_app eq₄ (op P₂)
+  simp only [NatTrans.comp_app] at eq₅ 
   slice_rhs 1 2 => erw [eq₅]
-  simp only [category.assoc]
+  simp only [Category.assoc]
   congr 1
-  rw [← preadditive_yoneda_bifunctor_comm_assoc]
+  rw [← CategoryTheory.Endomorphisms.preadditiveYoneda_bifunctor_comm_assoc]
   congr 1
-  apply concrete_category.hom_ext
+  apply ConcreteCategory.hom_ext
   intro x
-  apply hom_single_iso_naturality_snd_var
+  apply BoundedHomotopyCategory.homSingleIso_naturality_snd_var
 
 --attribute [reassoc] nat_trans.comp_app
 theorem ext_isZero_iff (X : ChainComplex 𝓐 ℕ) (Y : 𝓐) (f : X ⟶ X) (g : Y ⟶ Y) :
@@ -523,28 +523,28 @@ theorem ext_isZero_iff (X : ChainComplex 𝓐 ℕ) (Y : 𝓐) (f : X ⟶ X) (g :
             ((ext i).obj (op _)).map ((single _ 0).map g) :=
   by
   obtain ⟨P, _inst, fP, h1, h2⟩ :=
-    exists_K_projective_replacement (chain_complex.to_bounded_homotopy_category.obj (X.mk_end f))
+    exists_K_projective_replacement (chain_complex.toBoundedHomotopyCategory.obj (X.mk_end f))
   let fP' :=
     (BoundedHomotopyCategory.forget _).map
-      ((endomorphisms.forget _).mapBoundedHomotopyCategory.map fP ≫ (forget_mk_end X f).Hom)
+      ((Endomorphisms.forget _).mapBoundedHomotopyCategory.map fP ≫ (CategoryTheory.Endomorphisms.forgetMkEnd X f).hom)
   -- use that fP commutes with the given endomorphisms...
   have fP'_eq :
-    fP' ≫ chain_complex.to_bounded_homotopy_category.map f =
+    fP' ≫ chain_complex.toBoundedHomotopyCategory.map f =
       (HomotopyCategory.quotient _ _).map P.val.as.e ≫ fP' :=
     by
-    dsimp only [ChainComplex.toBoundedHomotopyCategory_map, functor.comp_map]
+    dsimp only [ChainComplex.toBoundedHomotopyCategory_map, Functor.comp_map]
     erw [← (HomotopyCategory.quotient _ _).map_comp]
     erw [← (HomotopyCategory.quotient _ _).map_comp]
     congr 1
     ext ((_ | i) | i)
-    · dsimp only [forget_mk_end, HomologicalComplex.comp_f, endomorphisms.forget,
-        functor.map_homological_complex_map_f, HomologicalComplex.Hom.isoOfComponents_hom_f]
-      erw [iso.refl_hom, category.comp_id]
+    · dsimp only [CategoryTheory.Endomorphisms.forgetMkEnd, HomologicalComplex.comp_f, Endomorphisms.forget,
+        Functor.mapHomologicalComplex_map_f, HomologicalComplex.Hom.isoOfComponents_hom_f]
+      erw [Iso.refl_hom, Category.comp_id]
       erw [((Quot.out fP).f 0).comm]; rfl
-    · apply limits.is_zero.eq_of_tgt; exact is_zero_zero _
-    · dsimp only [forget_mk_end, HomologicalComplex.comp_f, endomorphisms.forget,
-        functor.map_homological_complex_map_f, HomologicalComplex.Hom.isoOfComponents_hom_f]
-      erw [iso.refl_hom, category.comp_id]
+    · apply Limits.IsZero.eq_of_tgt; exact is_zero_zero _
+    · dsimp only [CategoryTheory.Endomorphisms.forgetMkEnd, HomologicalComplex.comp_f, Endomorphisms.forget,
+        Functor.mapHomologicalComplex_map_f, HomologicalComplex.Hom.isoOfComponents_hom_f]
+      erw [Iso.refl_hom, Category.comp_id]
       erw [((Quot.out fP).f _).comm]; rfl
   skip
   have foo : ∀ h : ℤ → Prop, (∀ i, h i) ↔ ∀ i, h (-i) :=
@@ -552,26 +552,26 @@ theorem ext_isZero_iff (X : ChainComplex 𝓐 ℕ) (Y : 𝓐) (f : X ⟶ X) (g :
     intro h; constructor
     · intro h1 i; apply h1 (-i)
     · intro h1 i; specialize h1 (-i); rwa [neg_neg] at h1 
-  convert homology_is_zero_iff_is_iso Y g P h2
+  convert CategoryTheory.Endomorphisms.homology_isZero_iff_isIso Y g P h2
   · apply propext
     rw [foo]
     apply forall_congr'
     intro i
     let this.1 :=
-      Ext_iso (-i) P (chain_complex.to_bounded_homotopy_category.obj (HomologicalComplex.mkEnd X f))
+      Ext_iso (-i) P (chain_complex.toBoundedHomotopyCategory.obj (HomologicalComplex.mkEnd X f))
         ((single (endomorphisms 𝓐) 0).obj
           { pt := Y
             e := g })
         fP
-    rw [iso.is_zero_iff this]; clear this
+    rw [Iso.isZero_iff this]; clear this
     delta C₁
-    apply iso.is_zero_iff
+    apply Iso.isZero_iff
     let this.1 := hom_single_iso P ⟨Y, g⟩ i
-    refine' iso.trans _ this; clear this
-    let this.1 := (shift_single_iso 0 (-i) : single (endomorphisms 𝓐) 0 ⋙ _ ≅ _)
+    refine' Iso.trans _ this; clear this
+    let this.1 := (BoundedHomotopyCategory.shiftSingleIso 0 (-i) : single (endomorphisms 𝓐) 0 ⋙ _ ≅ _)
     change (preadditive_yoneda.flip.obj (op P)).obj _ ≅ (preadditive_yoneda.flip.obj (op P)).obj _
     apply (preadditive_yoneda.flip.obj (op P)).mapIso
-    convert iso.app this ⟨Y, g⟩
+    convert Iso.app this ⟨Y, g⟩
     -- I ♥ you Lean, this just worked first time
     ring
   · apply propext
@@ -579,7 +579,7 @@ theorem ext_isZero_iff (X : ChainComplex 𝓐 ℕ) (Y : 𝓐) (f : X ⟶ X) (g :
     apply forall_congr'
     intro i
     let j :
-      ((Ext (-i)).obj (op (chain_complex.to_bounded_homotopy_category.obj X))).obj
+      ((Ext (-i)).obj (op (chain_complex.toBoundedHomotopyCategory.obj X))).obj
           ((single 𝓐 0).obj Y) ≅
         (homology'Functor AddCommGroupCat (ComplexShape.up ℤ).symm i).obj (C₂ Y P) :=
       by
@@ -589,16 +589,16 @@ theorem ext_isZero_iff (X : ChainComplex 𝓐 ℕ) (Y : 𝓐) (f : X ⟶ X) (g :
       -- however unfortunately we now need to post-compose with something
       -- which is close to, but not equal to, 𝟙.
       -- This should hopefully be straightforward
-      have : HomotopyCategory.IsQuasiIso fP' := by dsimp only [fP']; rw [functor.map_comp];
+      have : HomotopyCategory.IsQuasiIso fP' := by dsimp only [fP']; rw [Functor.map_comp];
         infer_instance
-      refine' iso.trans (Ext_iso (-i) _ _ ((single 𝓐 0).obj Y) fP') _
+      refine' Iso.trans (Ext_iso (-i) _ _ ((single 𝓐 0).obj Y) fP') _
       --      delta C₂,
       refine'
-        iso.trans _ (hom_single_iso ((endomorphisms.forget 𝓐).mapBoundedHomotopyCategory.obj P) Y i)
-      let this.1 := (shift_single_iso 0 (-i) : single 𝓐 0 ⋙ _ ≅ _)
+        Iso.trans _ (hom_single_iso ((Endomorphisms.forget 𝓐).mapBoundedHomotopyCategory.obj P) Y i)
+      let this.1 := (BoundedHomotopyCategory.shiftSingleIso 0 (-i) : single 𝓐 0 ⋙ _ ≅ _)
       refine'
         (preadditive_yoneda.flip.obj
-              (op ((endomorphisms.forget 𝓐).mapBoundedHomotopyCategory.obj P))).mapIso
+              (op ((Endomorphisms.forget 𝓐).mapBoundedHomotopyCategory.obj P))).mapIso
           _
       let e := this.app Y
       refine' e ≪≫ eq_to_iso _
@@ -608,43 +608,43 @@ theorem ext_isZero_iff (X : ChainComplex 𝓐 ℕ) (Y : 𝓐) (f : X ⟶ X) (g :
     -- (with `j` on two sides) commutes.
     suffices
       j.hom ≫ (homology'Functor AddCommGroupCat (ComplexShape.up ℤ).symm i).map (map₂ Y g P) =
-        (((Ext (-i)).map (chain_complex.to_bounded_homotopy_category.map f).op).app
+        (((Ext (-i)).map (chain_complex.toBoundedHomotopyCategory.map f).op).app
               ((single 𝓐 0).obj Y) -
-            ((Ext (-i)).obj (op (chain_complex.to_bounded_homotopy_category.obj X))).map
+            ((Ext (-i)).obj (op (chain_complex.toBoundedHomotopyCategory.obj X))).map
               ((single 𝓐 0).map g)) ≫
           j.hom
-      by rw [← is_iso_iff_is_iso_comp_left j.hom, this, is_iso_iff_is_iso_comp_right]
+      by rw [← CategoryTheory.Limits.isIso_iff_isIso_comp_left j.hom, this, CategoryTheory.Limits.isIso_iff_isIso_comp_right]
     delta map₂
-    rw [functor.map_sub, comp_sub, sub_comp]
+    rw [Functor.map_sub, comp_sub, sub_comp]
     refine' congr_arg₂ _ _ _
-    · dsimp only [j, iso.trans_hom, Ext_iso, Ext, Ext0, functor.map_iso_hom, functor.comp_map,
-        whiskering_left_obj_map, whisker_left_app, functor.flip_obj_map, functor.flip_map_app,
-        iso.op_hom]
+    · dsimp only [j, Iso.trans_hom, Ext_iso, Ext, Ext0, Functor.mapIso_hom, Functor.comp_map,
+        CategoryTheory.whiskeringLeft_obj_map, CategoryTheory.whiskerLeft_app, Functor.flip_obj_map, Functor.flip_map_app,
+        Iso.op_hom]
       clear j
-      simp only [nat_trans.naturality, nat_trans.naturality_assoc]
-      erw [nat_trans.naturality_assoc, ← functor.map_comp_assoc]
-      simp only [← op_comp, category.assoc]
+      simp only [NatTrans.naturality, NatTrans.naturality_assoc]
+      erw [NatTrans.naturality_assoc, ← Functor.map_comp_assoc]
+      simp only [← op_comp, Category.assoc]
       congr 1
       dsimp only [BoundedHomotopyCategory.replacementIso]
       rw [lift_unop_op]
       apply compatibility₁
-      simp only [eq_to_hom_refl, category.comp_id]
+      simp only [CategoryTheory.eqToHom_refl, Category.comp_id]
       erw [fP'_eq]
       apply lift_unique
-      erw [category.assoc]
+      erw [Category.assoc]
       erw [BoundedHomotopyCategory.lift_lifts]
-    · dsimp only [j, iso.trans_hom, Ext_iso, Ext, Ext0, functor.map_iso_hom, functor.comp_map,
-        whiskering_left_obj_map, whisker_left_app, functor.flip_obj_map, functor.flip_map_app,
-        iso.op_hom, functor.comp_obj, whiskering_left_obj_obj, unop_op, op_unop]
+    · dsimp only [j, Iso.trans_hom, Ext_iso, Ext, Ext0, Functor.mapIso_hom, Functor.comp_map,
+        CategoryTheory.whiskeringLeft_obj_map, CategoryTheory.whiskerLeft_app, Functor.flip_obj_map, Functor.flip_map_app,
+        Iso.op_hom, Functor.comp_obj, CategoryTheory.whiskeringLeft_obj_obj, unop_op, op_unop]
       clear j
-      simp only [nat_trans.naturality, nat_trans.naturality_assoc, category.assoc, map₂_right]
+      simp only [NatTrans.naturality, NatTrans.naturality_assoc, Category.assoc, map₂_right]
       apply compatibility₂
 
 open scoped ZeroObject
 
 def singleUnEnd (X : Endomorphisms 𝓐) : ((single _ 0).obj X).unEnd ≅ (single _ 0).obj X.pt
     where
-  Hom :=
+  hom :=
     Quot.mk _
       { f := fun i =>
           show (ite (i = 0) X 0).pt ⟶ ite (i = 0) X.pt 0 from
@@ -660,32 +660,32 @@ def singleUnEnd (X : Endomorphisms 𝓐) : ((single _ 0).obj X).unEnd ≅ (singl
         comm' := by
           rintro i j (rfl : _ = _)
           change _ ≫ 0 = 0 ≫ _; simp }
-  hom_inv_id' := by
+  hom_inv_id := by
     change Quot.mk _ (_ ≫ _) = Quot.mk _ _
     apply congr_arg
     ext i
     simp only [HomologicalComplex.comp_f, HomologicalComplex.id_f]
     split_ifs
     · simp
-    · rw [comp_zero, eq_comm, ← limits.is_zero.iff_id_eq_zero]
+    · rw [comp_zero, eq_comm, ← Limits.IsZero.iff_id_eq_zero]
       change is_zero (ite (i = 0) X 0).pt
       rw [if_neg h]
       apply is_zero_X
       apply is_zero_zero
-  inv_hom_id' := by
+  inv_hom_id := by
     change Quot.mk _ (_ ≫ _) = Quot.mk _ _
     apply congr_arg
     ext i
     simp only [HomologicalComplex.comp_f, HomologicalComplex.id_f]
     split_ifs
     · simp
-    · rw [comp_zero, eq_comm, ← limits.is_zero.iff_id_eq_zero]
+    · rw [comp_zero, eq_comm, ← Limits.IsZero.iff_id_eq_zero]
       change is_zero (ite (i = 0) X.X 0)
       rw [if_neg h]
       apply is_zero_zero
 
 theorem singleUnEnd_e (X : Endomorphisms 𝓐) :
-    (singleUnEnd X).Hom ≫ (single _ 0).map X.e = ((single _ 0).obj X).e ≫ (singleUnEnd X).Hom :=
+    (singleUnEnd X).hom ≫ (single _ 0).map X.e = ((single _ 0).obj X).e ≫ (singleUnEnd X).hom :=
   by
   change Quot.mk _ (_ ≫ _) = Quot.mk _ _
   apply congr_arg
@@ -693,15 +693,15 @@ theorem singleUnEnd_e (X : Endomorphisms 𝓐) :
   change dite _ _ _ ≫ dite _ _ _ = _ ≫ dite _ _ _
   split_ifs
   · subst h
-    rw [eq_to_hom_trans_assoc, ← category.assoc]
+    rw [CategoryTheory.eqToHom_trans_assoc, ← Category.assoc]
     congr
     simp
     rfl
   · simp
 
 theorem single_e (X : Endomorphisms 𝓐) :
-    (singleUnEnd X).Hom ≫ (single _ 0).map X.e ≫ (singleUnEnd X).inv = ((single _ 0).obj X).e := by
-  rw [← category.assoc, iso.comp_inv_eq, single_unEnd_e]
+    (singleUnEnd X).hom ≫ (single _ 0).map X.e ≫ (singleUnEnd X).inv = ((single _ 0).obj X).e := by
+  rw [← Category.assoc, Iso.comp_inv_eq, single_unEnd_e]
 
 open CategoryTheory.Preadditive
 
@@ -712,8 +712,8 @@ def embedSingle (X : 𝓐) :
   HomologicalComplex.Hom.isoOfComponents (by rintro ((_ | i) | i) <;> exact iso.refl _)
     (by
       rintro (i | i) j (rfl : _ = _)
-      · apply is_zero.eq_of_tgt; exact is_zero_zero _
-      · apply is_zero.eq_of_src; exact is_zero_zero _)
+      · apply IsZero.eq_of_tgt; exact is_zero_zero _
+      · apply IsZero.eq_of_src; exact is_zero_zero _)
 
 def toBoundedHomotopyCategorySingle (X : 𝓐) :
     ChainComplex.toBoundedHomotopyCategory.obj ((HomologicalComplex.single _ _ 0).obj X) ≅
@@ -721,29 +721,29 @@ def toBoundedHomotopyCategorySingle (X : 𝓐) :
   BoundedHomotopyCategory.mkIso <| (HomotopyCategory.quotient _ _).mapIso <| embedSingle X
 
 theorem toBoundedHomotopyCategorySingle_naturality (X : 𝓐) (f : X ⟶ X) :
-    (toBoundedHomotopyCategorySingle X).op.Hom ≫
+    (toBoundedHomotopyCategorySingle X).op.hom ≫
         (ChainComplex.toBoundedHomotopyCategory.map
               ((HomologicalComplex.single 𝓐 (ComplexShape.down ℕ) 0).map f)).op ≫
           (toBoundedHomotopyCategorySingle X).op.inv =
       ((single _ 0).map f).op :=
   by
-  dsimp only [iso.op]; simp only [← op_comp]; congr 1
-  dsimp only [to_bounded_homotopy_category_single, ChainComplex.toBoundedHomotopyCategory,
-    BoundedHomotopyCategory.mkIso, functor.comp_map, functor.map_iso, single,
+  dsimp only [Iso.op]; simp only [← op_comp]; congr 1
+  dsimp only [CategoryTheory.Endomorphisms.toBoundedHomotopyCategorySingle, ChainComplex.toBoundedHomotopyCategory,
+    BoundedHomotopyCategory.mkIso, Functor.comp_map, Functor.mapIso, single,
     HomotopyCategory.single]
-  erw [← functor.map_comp, ← functor.map_comp]; congr 1
+  erw [← Functor.map_comp, ← Functor.map_comp]; congr 1
   ext ((_ | i) | i)
-  · simp only [category.assoc, HomologicalComplex.comp_f, HomologicalComplex.single_map_f,
-      Int.ofNat_eq_coe, ZMod.nat_cast_self, eq_self_iff_true, eq_to_hom_refl, category.comp_id,
-      category.id_comp, dite_eq_ite, if_true]
-    dsimp only [embed_single, HomologicalComplex.Hom.isoOfComponents_hom_f, iso.refl_hom,
-      HomologicalComplex.Hom.isoOfComponents_inv_f, iso.refl_inv]
-    erw [category.comp_id, category.id_comp, HomologicalComplex.embed_nat_obj_down_up_zero_f]
+  · simp only [Category.assoc, HomologicalComplex.comp_f, HomologicalComplex.single_map_f,
+      Int.ofNat_eq_coe, ZMod.nat_cast_self, eq_self_iff_true, CategoryTheory.eqToHom_refl, Category.comp_id,
+      Category.id_comp, dite_eq_ite, if_true]
+    dsimp only [CategoryTheory.Endomorphisms.embedSingle, HomologicalComplex.Hom.isoOfComponents_hom_f, Iso.refl_hom,
+      HomologicalComplex.Hom.isoOfComponents_inv_f, Iso.refl_inv]
+    erw [Category.comp_id, Category.id_comp, HomologicalComplex.embed_nat_obj_down_up_zero_f]
     dsimp only [HomologicalComplex.single_map_f]
-    simp only [eq_self_iff_true, eq_to_hom_refl, category.comp_id, category.id_comp, dite_eq_ite,
+    simp only [eq_self_iff_true, CategoryTheory.eqToHom_refl, Category.comp_id, Category.id_comp, dite_eq_ite,
       if_true]
-  · apply is_zero.eq_of_src; apply is_zero_zero
-  · apply is_zero.eq_of_src; apply is_zero_zero
+  · apply IsZero.eq_of_src; apply is_zero_zero
+  · apply IsZero.eq_of_src; apply is_zero_zero
 
 def toBoundedHomotopyCategoryMkEndSingle (X : 𝓐) (f : X ⟶ X) :
     ChainComplex.toBoundedHomotopyCategory.obj
@@ -751,16 +751,16 @@ def toBoundedHomotopyCategoryMkEndSingle (X : 𝓐) (f : X ⟶ X) :
           ((HomologicalComplex.single 𝓐 _ 0).map f)) ≅
       (single (Endomorphisms 𝓐) 0).obj ⟨X, f⟩ :=
   by
-  refine' _ ≪≫ to_bounded_homotopy_category_single _
-  apply functor.map_iso
+  refine' _ ≪≫ CategoryTheory.Endomorphisms.toBoundedHomotopyCategorySingle _
+  apply Functor.mapIso
   refine' HomologicalComplex.Hom.isoOfComponents _ _
-  · rintro (_ | i) <;> refine' endomorphisms.mk_iso _ _
+  · rintro (_ | i) <;> refine' Endomorphisms.mkIso _ _
     · exact iso.refl _
     · dsimp [HomologicalComplex.mkEnd]
-      simp only [category.id_comp, category.comp_id, if_pos rfl]; rfl
+      simp only [Category.id_comp, Category.comp_id, if_pos rfl]; rfl
     · apply (is_zero_zero _).Iso; apply is_zero_X; apply is_zero_zero
     · apply (is_zero_zero _).eq_of_src
-  · rintro _ i (rfl : _ = _); apply is_zero.eq_of_src; rw [is_zero_iff_id_eq_zero]; ext
+  · rintro _ i (rfl : _ = _); apply IsZero.eq_of_src; rw [CategoryTheory.Limits.isZero_iff_id_eq_zero]; ext
 
 theorem ext'_isZero_iff (X Y : 𝓐) (f : X ⟶ X) (g : Y ⟶ Y) :
     (∀ i, IsZero (((ext' i).obj (op <| Endomorphisms.mk X f)).obj <| Endomorphisms.mk Y g)) ↔
@@ -768,20 +768,20 @@ theorem ext'_isZero_iff (X Y : 𝓐) (f : X ⟶ X) (g : Y ⟶ Y) :
   by
   convert Ext_is_zero_iff ((HomologicalComplex.single _ _ 0).obj X) Y (Functor.map _ f) g using 1
   · apply propext; apply forall_congr'; intro i
-    apply iso.is_zero_iff; dsimp only [ext', functor.comp_obj, functor.flip_obj_obj]
-    apply iso.app; apply functor.map_iso; dsimp only [functor.op_obj]; apply iso.op
-    apply to_bounded_homotopy_category_mk_end_single
+    apply Iso.isZero_iff; dsimp only [ext', Functor.comp_obj, Functor.flip_obj_obj]
+    apply Iso.app; apply Functor.mapIso; dsimp only [Functor.op_obj]; apply Iso.op
+    apply CategoryTheory.Endomorphisms.toBoundedHomotopyCategoryMkEndSingle
   · apply propext; apply forall_congr'; intro i
-    let e := ((Ext i).mapIso (to_bounded_homotopy_category_single X).op).app ((single _ 0).obj Y)
-    rw [← is_iso.comp_left_iff e.hom, ← is_iso.comp_right_iff _ e.inv]
-    simp only [comp_sub, sub_comp, iso.app_hom, iso.app_inv, category.assoc, functor.map_iso_hom,
-      functor.map_iso_inv, ← nat_trans.comp_app, ← functor.map_comp,
-      to_bounded_homotopy_category_single_naturality]
+    let e := ((Ext i).mapIso (CategoryTheory.Endomorphisms.toBoundedHomotopyCategorySingle X).op).app ((single _ 0).obj Y)
+    rw [← IsIso.comp_left_iff e.hom, ← IsIso.comp_right_iff _ e.inv]
+    simp only [comp_sub, sub_comp, Iso.app_hom, Iso.app_inv, Category.assoc, Functor.mapIso_hom,
+      Functor.mapIso_inv, ← NatTrans.comp_app, ← Functor.map_comp,
+      CategoryTheory.Endomorphisms.toBoundedHomotopyCategorySingle_naturality]
     clear e
-    dsimp only [ext', functor.comp_obj, functor.comp_map]
+    dsimp only [ext', Functor.comp_obj, Functor.comp_map]
     congr 3
-    rw [nat_trans.naturality, ← nat_trans.comp_app_assoc, ← functor.map_comp, iso.hom_inv_id,
-      Functor.map_id, nat_trans.id_app, category.id_comp]
+    rw [NatTrans.naturality, ← NatTrans.comp_app_assoc, ← Functor.map_comp, Iso.hom_inv_id,
+      Functor.map_id, NatTrans.id_app, Category.id_comp]
     rfl
 
 end Endomorphisms

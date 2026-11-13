@@ -41,15 +41,15 @@ variable (C : Type u) [Category.{v} C] [Preadditive C]
 
 variable [HasShift C ℤ]
 
-attribute [local instance, local reducible] endofunctor_monoidal_category
+attribute [local instance, local reducible] CategoryTheory.endofunctorMonoidalCategory
 
 namespace Triangle
 
 @[simps]
 def triangleShiftObj (T : triangle C) (i : ℤ) : triangle C :=
-  triangle.mk C (i.neg_one_pow • (shiftFunctor _ i).map T.mor₁)
+  Triangle.mk C (i.neg_one_pow • (shiftFunctor _ i).map T.mor₁)
     (i.neg_one_pow • (shiftFunctor _ i).map T.mor₂)
-    (i.neg_one_pow • (shiftFunctor C i).map T.mor₃ ≫ (shiftComm _ _ _).Hom)
+    (i.neg_one_pow • (shiftFunctor C i).map T.mor₃ ≫ (shiftComm _ _ _).hom)
 
 @[simps]
 def triangleShiftMap {T₁ T₂ : triangle C} (f : T₁ ⟶ T₂) (i : ℤ) :
@@ -59,16 +59,16 @@ def triangleShiftMap {T₁ T₂ : triangle C} (f : T₁ ⟶ T₂) (i : ℤ) :
   hom₂ := (shiftFunctor _ i).map f.hom₂
   hom₃ := (shiftFunctor _ i).map f.hom₃
   comm₁' := by dsimp;
-    simp only [functor.map_zsmul, preadditive.zsmul_comp, preadditive.comp_zsmul, ←
-      functor.map_comp, f.comm₁]
+    simp only [Functor.map_zsmul, Preadditive.zsmul_comp, Preadditive.comp_zsmul, ←
+      Functor.map_comp, f.comm₁]
   comm₂' := by dsimp;
-    simp only [functor.map_zsmul, preadditive.zsmul_comp, preadditive.comp_zsmul, ←
-      functor.map_comp, f.comm₂]
+    simp only [Functor.map_zsmul, Preadditive.zsmul_comp, Preadditive.comp_zsmul, ←
+      Functor.map_comp, f.comm₂]
   comm₃' := by
     dsimp
-    simp only [functor.map_zsmul, preadditive.zsmul_comp, preadditive.comp_zsmul]
+    simp only [Functor.map_zsmul, Preadditive.zsmul_comp, Preadditive.comp_zsmul]
     congr 1
-    simp only [shift_comm_hom_comp, assoc, iso.cancel_iso_hom_right_assoc, ← functor.map_comp,
+    simp only [CategoryTheory.shiftComm_hom_comp, assoc, Iso.cancel_iso_hom_right_assoc, ← Functor.map_comp,
       f.comm₃]
 
 @[simps]
@@ -76,11 +76,11 @@ def triangleShiftFunctor (i : ℤ) : triangle C ⥤ triangle C
     where
   obj T := triangleShiftObj C T i
   map T₁ T₂ f := triangleShiftMap C f _
-  map_id' := by
+  map_id := by
     intro T
     ext
     all_goals dsimp; simp
-  map_comp' := by
+  map_comp := by
     intro T₁ T₂ T₃ f g
     ext
     all_goals dsimp; simp
@@ -91,10 +91,10 @@ variable {C}
 def Iso.ofComponents {T₁ T₂ : triangle C} (e₁ : T₁.obj₁ ≅ T₂.obj₁) (e₂ : T₁.obj₂ ≅ T₂.obj₂)
     (e₃ : T₁.obj₃ ≅ T₂.obj₃) (h₁ h₂ h₃) : T₁ ≅ T₂
     where
-  Hom :=
-    { hom₁ := e₁.Hom
-      hom₂ := e₂.Hom
-      hom₃ := e₃.Hom
+  hom :=
+    { hom₁ := e₁.hom
+      hom₂ := e₂.hom
+      hom₃ := e₃.hom
       comm₁' := h₁
       comm₂' := h₂
       comm₃' := h₃ }
@@ -102,13 +102,13 @@ def Iso.ofComponents {T₁ T₂ : triangle C} (e₁ : T₁.obj₁ ≅ T₂.obj�
     { hom₁ := e₁.inv
       hom₂ := e₂.inv
       hom₃ := e₃.inv
-      comm₁' := by rw [iso.comp_inv_eq, category.assoc, iso.eq_inv_comp, h₁]
-      comm₂' := by rw [iso.comp_inv_eq, category.assoc, iso.eq_inv_comp, h₂]
+      comm₁' := by rw [Iso.comp_inv_eq, Category.assoc, Iso.eq_inv_comp, h₁]
+      comm₂' := by rw [Iso.comp_inv_eq, Category.assoc, Iso.eq_inv_comp, h₂]
       comm₃' := by
-        rw [← functor.map_iso_inv, iso.comp_inv_eq, category.assoc, iso.eq_inv_comp,
-          functor.map_iso_hom, h₃] }
-  hom_inv_id' := by ext <;> dsimp <;> simp
-  inv_hom_id' := by ext <;> dsimp <;> simp
+        rw [← Functor.mapIso_inv, Iso.comp_inv_eq, Category.assoc, Iso.eq_inv_comp,
+          Functor.mapIso_hom, h₃] }
+  hom_inv_id := by ext <;> dsimp <;> simp
+  inv_hom_id := by ext <;> dsimp <;> simp
 
 variable (C)
 
@@ -118,71 +118,71 @@ def triangleShiftFunctorε : 𝟭 (triangulated.triangle C) ≅ triangleShiftFun
     (fun T =>
       Iso.ofComponents (shiftZero _ _).symm (shiftZero _ _).symm (shiftZero _ _).symm
         (by
-          convert (shift_functor_zero _ _).inv.naturality _
-          dsimp only [triangle_shift_functor, triangle_shift_obj]
+          convert (CategoryTheory.shiftFunctorZero _ _).inv.naturality _
+          dsimp only [CategoryTheory.Triangulated.Triangle.triangleShiftFunctor, CategoryTheory.Triangulated.Triangle.triangleShiftObj]
           simpa)
         (by
-          convert (shift_functor_zero _ _).inv.naturality _
-          dsimp only [triangle_shift_functor, triangle_shift_obj]
+          convert (CategoryTheory.shiftFunctorZero _ _).inv.naturality _
+          dsimp only [CategoryTheory.Triangulated.Triangle.triangleShiftFunctor, CategoryTheory.Triangulated.Triangle.triangleShiftObj]
           simpa)
         (by
           dsimp
           rw [one_smul]
-          rw [← nat_trans.naturality_assoc]; dsimp [shift_comm]
-          simp only [obj_ε_app, discrete.functor_map_id, nat_trans.id_app, ε_app_obj, assoc,
+          rw [← NatTrans.naturality_assoc]; dsimp [CategoryTheory.shiftComm]
+          simp only [obj_ε_app, Discrete.functor_map_id, NatTrans.id_app, ε_app_obj, assoc,
             id_comp]
-          rw [← nat_trans.comp_app, ← nat_trans.comp_app]
+          rw [← NatTrans.comp_app, ← NatTrans.comp_app]
           erw [monoidal_functor.μ_inv_hom_id_assoc, id_comp]; rfl))
     (by intro T₁ T₂ f;
       ext <;>
-        · dsimp only [triangle_morphism.comp_hom₁, iso.of_components_hom_hom₁,
-            triangle_shift_map_hom₁, triangle_morphism.comp_hom₂, iso.of_components_hom_hom₂,
-            triangle_shift_map_hom₂, triangle_morphism.comp_hom₃, iso.of_components_hom_hom₃,
-            triangle_shift_map_hom₃, functor.id_map, triangle_category_comp, iso.symm_hom,
-            iso.app_inv, iso.symm_inv, monoidal_functor.ε_iso_hom, triangle_shift_functor_map]
-          rw [← nat_trans.naturality _ _]; rfl)
+        · dsimp only [TriangleMorphism.comp_hom₁, Iso.ofComponents_hom_hom₁,
+            triangle_shift_map_hom₁, TriangleMorphism.comp_hom₂, Iso.ofComponents_hom_hom₂,
+            triangle_shift_map_hom₂, TriangleMorphism.comp_hom₃, Iso.ofComponents_hom_hom₃,
+            triangle_shift_map_hom₃, Functor.id_map, CategoryTheory.Pretriangulated.triangleCategory_comp, Iso.symm_hom,
+            Iso.app_inv, Iso.symm_inv, monoidal_functor.ε_iso_hom, CategoryTheory.Triangulated.Triangle.triangleShiftFunctor_map]
+          rw [← NatTrans.naturality _ _]; rfl)
 
 variable [∀ i : ℤ, (shiftFunctor C i).Additive]
 
 @[reassoc]
 theorem shiftComm_eq_eqToHom (X : C) (i j : ℤ) :
-    (shiftAdd X i j).Hom ≫ (shiftComm X i j).Hom ≫ (shiftAdd X j i).inv =
+    (shiftAdd X i j).hom ≫ (shiftComm X i j).hom ≫ (shiftAdd X j i).inv =
       eqToHom (by congr 2; exact add_comm i j) :=
   by
-  dsimp [shift_add, shift_comm]
-  simp only [eq_to_hom_map, eq_to_hom_app, assoc, μ_inv_hom_app, μ_inv_hom_app_assoc]
+  dsimp [CategoryTheory.shiftAdd, CategoryTheory.shiftComm]
+  simp only [CategoryTheory.eqToHom_map, CategoryTheory.eqToHom_app, assoc, μ_inv_hom_app, μ_inv_hom_app_assoc]
   erw [comp_id]
 
 @[reassoc]
 theorem shiftAdd_comp_eqToHom (X : C) (i j k : ℤ) (h : i + j = j + i) :
-    (shiftAdd X (i + j) k).Hom ≫ eqToHom (by congr 3) ≫ (shiftAdd X (j + i) k).inv =
+    (shiftAdd X (i + j) k).hom ≫ eqToHom (by congr 3) ≫ (shiftAdd X (j + i) k).inv =
       eqToHom (by congr 3) :=
   by
-  dsimp [shift_add]
+  dsimp [CategoryTheory.shiftAdd]
   induction h; dsimp; simpa
 
 @[reassoc]
 theorem shiftAdd_comp_eq_to_hom' (X : C) (i j k : ℤ) (h : j + k = k + j) :
-    (shiftAdd X i (j + k)).Hom ≫ eqToHom (by congr 3) ≫ (shiftAdd X i (k + j)).inv =
+    (shiftAdd X i (j + k)).hom ≫ eqToHom (by congr 3) ≫ (shiftAdd X i (k + j)).inv =
       eqToHom (by congr 3) :=
   by
-  dsimp [shift_add]
+  dsimp [CategoryTheory.shiftAdd]
   induction h; dsimp; simpa
 
 theorem triangle_shiftFunctor_μ_aux (X : C) (i j : ℤ) :
-    (shiftFunctor C j).map (shiftComm X 1 i).Hom ≫
-        (shiftComm ((shiftFunctor C i).obj X) 1 j).Hom ≫
+    (shiftFunctor C j).map (shiftComm X 1 i).hom ≫
+        (shiftComm ((shiftFunctor C i).obj X) 1 j).hom ≫
           (shiftFunctor C 1).map (shiftAdd X i j).inv =
-      (shiftAdd ((shiftFunctor C 1).obj X) i j).inv ≫ (shiftComm X 1 (i + j)).Hom :=
+      (shiftAdd ((shiftFunctor C 1).obj X) i j).inv ≫ (shiftComm X 1 (i + j)).hom :=
   by
-  dsimp [shift_add, shift_comm]
-  simp only [eq_to_hom_map, eq_to_hom_app, functor.map_comp, obj_μ_app,
-    CategoryTheory.Discrete.associator_def, eq_to_iso.inv, obj_μ_inv_app, eq_to_iso.hom, assoc,
+  dsimp [CategoryTheory.shiftAdd, CategoryTheory.shiftComm]
+  simp only [CategoryTheory.eqToHom_map, CategoryTheory.eqToHom_app, Functor.map_comp, obj_μ_app,
+    CategoryTheory.Discrete.associator_def, eqToIso.inv, obj_μ_inv_app, eqToIso.hom, assoc,
     μ_inv_hom_app_assoc]
   congr 2
   simp only [← assoc]; congr 1; simp only [assoc]
-  erw [shift_add_comp_eq_to_hom_assoc]
-  erw [shift_add_comp_eq_to_hom'_assoc]
+  erw [CategoryTheory.Triangulated.Triangle.shiftAdd_comp_eqToHom_assoc]
+  erw [CategoryTheory.Triangulated.Triangle.shiftAdd_comp_eq_to_hom'_assoc]
   simpa; exact add_comm _ _; exact add_comm _ _
 
 @[simps]
@@ -192,50 +192,50 @@ def triangleShiftFunctorμ (i j : ℤ) :
     (fun T =>
       Iso.ofComponents (shiftAdd _ _ _).symm (shiftAdd _ _ _).symm (shiftAdd _ _ _).symm
         (by
-          dsimp [triangle_shift_functor, triangle_shift_obj]
-          simp only [zsmul_comp, comp_zsmul, iso.symm_hom, iso.app_inv, iso.symm_inv,
-            monoidal_functor.μ_iso_hom, functor.map_zsmul, smul_smul, Int.negOnePow_add]
+          dsimp [CategoryTheory.Triangulated.Triangle.triangleShiftFunctor, CategoryTheory.Triangulated.Triangle.triangleShiftObj]
+          simp only [zsmul_comp, comp_zsmul, Iso.symm_hom, Iso.app_inv, Iso.symm_inv,
+            monoidal_functor.μ_iso_hom, Functor.map_zsmul, smul_smul, Int.negOnePow_add]
           have := (shift_functor_add _ i j).inv.naturality T.mor₁
-          rw [functor.comp_map] at this 
+          rw [Functor.comp_map] at this 
           erw [this, mul_comm]; rfl)
         (by
-          dsimp [triangle_shift_functor, triangle_shift_obj]
-          simp only [zsmul_comp, comp_zsmul, iso.symm_hom, iso.app_inv, iso.symm_inv,
-            monoidal_functor.μ_iso_hom, functor.map_zsmul, smul_smul, Int.negOnePow_add]
+          dsimp [CategoryTheory.Triangulated.Triangle.triangleShiftFunctor, CategoryTheory.Triangulated.Triangle.triangleShiftObj]
+          simp only [zsmul_comp, comp_zsmul, Iso.symm_hom, Iso.app_inv, Iso.symm_inv,
+            monoidal_functor.μ_iso_hom, Functor.map_zsmul, smul_smul, Int.negOnePow_add]
           have := (shift_functor_add _ i j).inv.naturality T.mor₂
-          rw [functor.comp_map] at this 
+          rw [Functor.comp_map] at this 
           erw [this, mul_comm]; rfl)
         (by
-          dsimp [triangle_shift_functor, triangle_shift_obj]
-          simp only [zsmul_comp, comp_zsmul, iso.symm_hom, iso.app_inv, iso.symm_inv,
-            monoidal_functor.μ_iso_hom, functor.map_zsmul, smul_smul, Int.negOnePow_add,
+          dsimp [CategoryTheory.Triangulated.Triangle.triangleShiftFunctor, CategoryTheory.Triangulated.Triangle.triangleShiftObj]
+          simp only [zsmul_comp, comp_zsmul, Iso.symm_hom, Iso.app_inv, Iso.symm_inv,
+            monoidal_functor.μ_iso_hom, Functor.map_zsmul, smul_smul, Int.negOnePow_add,
             mul_comm j.neg_one_pow]
           have := (shift_functor_add _ i j).inv.naturality T.mor₃
-          dsimp [functor.comp_map] at this 
+          dsimp [Functor.comp_map] at this 
           erw [← reassoc_of this]; clear this
-          simp only [functor.map_comp, assoc, obj_μ_app]
+          simp only [Functor.map_comp, assoc, obj_μ_app]
           congr 2
           --have := (shift_monoidal_functor C ℤ).to_lax_monoidal_functor.associativity i j 1,
-          rw [(shift_monoidal_functor C ℤ).map_associator_inv]
+          rw [(CategoryTheory.shiftMonoidalFunctor C ℤ).map_associator_inv]
           dsimp
-          simp only [assoc, is_iso.inv_id, nat_trans.hcomp_app, comp_id, id_comp]
-          slice_lhs 4 5 => rw [← nat_trans.comp_app, is_iso.hom_inv_id, nat_trans.id_app]
+          simp only [assoc, IsIso.inv_id, NatTrans.hcomp_app, comp_id, id_comp]
+          slice_lhs 4 5 => rw [← NatTrans.comp_app, IsIso.hom_inv_id, NatTrans.id_app]
           erw [id_comp]
           rw [CategoryTheory.NatIso.isIso_inv_app]
           --rw nat_trans.id_hcomp_app,
           dsimp
-          simp only [CategoryTheory.Functor.map_id, comp_id, assoc, is_iso.hom_inv_id_assoc]
+          simp only [CategoryTheory.Functor.map_id, comp_id, assoc, IsIso.hom_inv_id_assoc]
           slice_lhs 4 5 =>
-            rw [← nat_trans.comp_app, (shift_monoidal_functor C ℤ).μ_hom_inv_id, nat_trans.id_app]
+            rw [← NatTrans.comp_app, (CategoryTheory.shiftMonoidalFunctor C ℤ).μ_hom_inv_id, NatTrans.id_app]
           erw [comp_id]; apply triangle_shift_functor_μ_aux))
     (by intro T₁ T₂ f;
       ext <;>
-        · dsimp only [triangle_morphism.comp_hom₁, iso.of_components_hom_hom₁,
-            triangle_shift_map_hom₁, triangle_morphism.comp_hom₂, iso.of_components_hom_hom₂,
-            triangle_shift_map_hom₂, triangle_morphism.comp_hom₃, iso.of_components_hom_hom₃,
-            triangle_shift_map_hom₃, functor.id_map, triangle_category_comp, iso.symm_hom,
-            iso.app_inv, iso.symm_inv, monoidal_functor.ε_iso_hom, triangle_shift_functor_map]
-          rw [← nat_trans.naturality _ _]; rfl)
+        · dsimp only [TriangleMorphism.comp_hom₁, Iso.ofComponents_hom_hom₁,
+            triangle_shift_map_hom₁, TriangleMorphism.comp_hom₂, Iso.ofComponents_hom_hom₂,
+            triangle_shift_map_hom₂, TriangleMorphism.comp_hom₃, Iso.ofComponents_hom_hom₃,
+            triangle_shift_map_hom₃, Functor.id_map, CategoryTheory.Pretriangulated.triangleCategory_comp, Iso.symm_hom,
+            Iso.app_inv, Iso.symm_inv, monoidal_functor.ε_iso_hom, CategoryTheory.Triangulated.Triangle.triangleShiftFunctor_map]
+          rw [← NatTrans.naturality _ _]; rfl)
 
 /-
 def triangle_shift_core : shift_mk_core (triangle C) ℤ :=
@@ -265,21 +265,21 @@ def mapTriangleShiftFunctor (m n : Discrete ℤ) (f : m ⟶ n) :
     triangleShiftFunctor C m.1 ⟶ triangleShiftFunctor C n.1
     where
   app T :=
-    { hom₁ := eqToHom <| by rw [discrete.eq_of_hom f]
-      hom₂ := eqToHom <| by rw [discrete.eq_of_hom f]
-      hom₃ := eqToHom <| by rw [discrete.eq_of_hom f]
+    { hom₁ := eqToHom <| by rw [Discrete.eq_of_hom f]
+      hom₂ := eqToHom <| by rw [Discrete.eq_of_hom f]
+      hom₃ := eqToHom <| by rw [Discrete.eq_of_hom f]
       comm₁' := by
         rcases m, n with ⟨⟨_⟩, ⟨_⟩⟩; rcases f with ⟨⟨rfl : m = n⟩⟩
-        simp only [eq_to_hom_refl, id_comp, comp_id]
+        simp only [CategoryTheory.eqToHom_refl, id_comp, comp_id]
       comm₂' := by
         rcases m, n with ⟨⟨_⟩, ⟨_⟩⟩; rcases f with ⟨⟨rfl : m = n⟩⟩
-        simp only [eq_to_hom_refl, id_comp, comp_id]
+        simp only [CategoryTheory.eqToHom_refl, id_comp, comp_id]
       comm₃' := by
         rcases m, n with ⟨⟨_⟩, ⟨_⟩⟩; rcases f with ⟨⟨rfl : m = n⟩⟩
         dsimp; rw [(shift_functor C (1 : ℤ)).map_id]; simp only [comp_id, id_comp] }
-  naturality' := by
+  naturality := by
     rcases m, n with ⟨⟨_⟩, ⟨_⟩⟩; rcases f with ⟨⟨rfl : m = n⟩⟩
-    rintro X Y g; ext <;> · dsimp; simp only [eq_to_hom_refl, id_comp, comp_id]
+    rintro X Y g; ext <;> · dsimp; simp only [CategoryTheory.eqToHom_refl, id_comp, comp_id]
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:177:8: unsupported: ambiguous notation -/
 /- ./././Mathport/Syntax/Translate/Expr.lean:177:8: unsupported: ambiguous notation -/
@@ -301,10 +301,10 @@ theorem associativity_aux (X : C) (a b c : ℤ) :
             (shiftFunctor C (b + c)).map (𝟙 ((shiftFunctor C a).obj X))) ≫
           ((shiftMonoidalFunctor C ℤ).toLaxMonoidalFunctor.μ ⟨a⟩ (⟨b⟩ ⊗ ⟨c⟩)).app X :=
   by
-  have := (shift_monoidal_functor C ℤ).associativity' ⟨a⟩ ⟨b⟩ ⟨c⟩
+  have := (CategoryTheory.shiftMonoidalFunctor C ℤ).associativity' ⟨a⟩ ⟨b⟩ ⟨c⟩
   apply_fun fun e => e.app X at this 
   dsimp at this ⊢
-  simp only [id_comp, comp_id, CategoryTheory.Functor.map_id, eq_to_hom_map, eq_to_hom_app] at this
+  simp only [id_comp, comp_id, CategoryTheory.Functor.map_id, CategoryTheory.eqToHom_map, CategoryTheory.eqToHom_app] at this
     ⊢
   erw [comp_id]
   exact this
@@ -316,10 +316,10 @@ theorem left_unitality_aux (X : C) (a : ℤ) :
         ((shiftMonoidalFunctor C ℤ).toLaxMonoidalFunctor.μ (𝟙_ (Discrete ℤ)) ⟨a⟩).app X ≫
           eqToHom (by congr; ext; exact zero_add a) :=
   by
-  have := (shift_monoidal_functor C ℤ).left_unitality' ⟨a⟩
+  have := (CategoryTheory.shiftMonoidalFunctor C ℤ).left_unitality' ⟨a⟩
   apply_fun fun e => e.app X at this 
   dsimp at this ⊢
-  simp only [id_comp, comp_id, CategoryTheory.Functor.map_id, eq_to_hom_map, eq_to_hom_app] at this
+  simp only [id_comp, comp_id, CategoryTheory.Functor.map_id, CategoryTheory.eqToHom_map, CategoryTheory.eqToHom_app] at this
     ⊢
   exact this
 
@@ -330,10 +330,10 @@ theorem right_unitality_aux (X : C) (a : ℤ) :
         ((shiftMonoidalFunctor C ℤ).toLaxMonoidalFunctor.μ ⟨a⟩ (𝟙_ (Discrete ℤ))).app X ≫
           eqToHom (by congr; ext; apply add_zero) :=
   by
-  have := (shift_monoidal_functor C ℤ).right_unitality' ⟨a⟩
+  have := (CategoryTheory.shiftMonoidalFunctor C ℤ).right_unitality' ⟨a⟩
   apply_fun fun e => e.app X at this 
   dsimp at this ⊢
-  simp only [id_comp, comp_id, CategoryTheory.Functor.map_id, eq_to_hom_map, eq_to_hom_app] at this
+  simp only [id_comp, comp_id, CategoryTheory.Functor.map_id, CategoryTheory.eqToHom_map, CategoryTheory.eqToHom_app] at this
     ⊢
   erw [comp_id]
   exact this
@@ -342,10 +342,10 @@ instance hasShift : HasShift (triangle C) ℤ :=
   HasShift.mk <|
     { obj := fun i => triangleShiftFunctor _ i.as
       map := fun m n f => mapTriangleShiftFunctor _ _ _ f
-      map_id' := fun X => by ext <;> rfl
-      map_comp' := fun X Y Z f g => by ext <;> simp
-      ε := (triangleShiftFunctorε _).Hom
-      μ := fun m n => (triangleShiftFunctorμ _ m.as n.as).Hom
+      map_id := fun X => by ext <;> rfl
+      map_comp := fun X Y Z f g => by ext <;> simp
+      ε := (triangleShiftFunctorε _).hom
+      μ := fun m n => (triangleShiftFunctorμ _ m.as n.as).hom
       μ_natural' := by rintro ⟨m⟩ ⟨m'⟩ ⟨n⟩ ⟨n'⟩ ⟨⟨⟨⟩⟩⟩ ⟨⟨⟨⟩⟩⟩;
         ext <;> · dsimp; simp only [id_comp, comp_id, CategoryTheory.Functor.map_id]
       associativity' := fun a b c => by ext <;> apply associativity_aux
@@ -376,7 +376,7 @@ theorem shift_mor₂ (T : triangle C) (i : ℤ) : T⟦i⟧.mor₂ = i.neg_one_po
 
 @[simp]
 theorem shift_mor₃ (T : triangle C) (i : ℤ) :
-    T⟦i⟧.mor₃ = i.neg_one_pow • T.mor₃⟦i⟧' ≫ (shiftComm _ _ _).Hom :=
+    T⟦i⟧.mor₃ = i.neg_one_pow • T.mor₃⟦i⟧' ≫ (shiftComm _ _ _).hom :=
   rfl
 
 @[simp]
@@ -415,8 +415,8 @@ namespace Pretriangulated
 theorem shiftComm_self (X : C) (i : ℤ) : shiftComm X i i = Iso.refl _ :=
   by
   ext
-  dsimp [shift_comm]
-  simpa only [discrete.functor_map_id, nat_trans.id_app, id_comp, μ_hom_inv_app]
+  dsimp [CategoryTheory.shiftComm]
+  simpa only [Discrete.functor_map_id, NatTrans.id_app, id_comp, μ_hom_inv_app]
 
 variable [HasZeroObject C] [∀ i : ℤ, (shiftFunctor C i).Additive] [pretriangulated C]
 
@@ -426,10 +426,10 @@ theorem dist_triangle_iff_of_iso {T₁ T₂ : triangle C} (e : T₁ ≅ T₂) :
 
 theorem dist_triangle_rot_iff (T : triangle C) : T.rotate ∈ (dist_triang C) ↔ T ∈ (dist_triang C) :=
   by
-  refine' ⟨fun h => _, fun h => rot_of_dist_triangle _ _ h⟩
-  let e : T ≅ T.rotate.inv_rotate := rot_comp_inv_rot.app T
+  refine' ⟨fun h => _, fun h => CategoryTheory.Pretriangulated.rot_of_distTriang _ _ h⟩
+  let e : T ≅ T.rotate.invRotate := rot_comp_inv_rot.app T
   rw [← dist_triangle_iff_of_iso _ e.symm]
-  exact inv_rot_of_dist_triangle _ _ h
+  exact CategoryTheory.Pretriangulated.inv_rot_of_distTriang _ _ h
 
 theorem shift_of_dist_triangle (T : triangle C) (hT : T ∈ (dist_triang C)) (i : ℤ) :
     T⟦i⟧ ∈ (dist_triang C) :=
@@ -441,13 +441,13 @@ theorem shift_of_dist_triangle (T : triangle C) (hT : T ∈ (dist_triang C)) (i 
       dsimp
       rw [dist_triangle_iff_of_iso _ this]
       iterate 3 rw [dist_triangle_rot_iff]
-    refine' shift_add _ _ _ ≪≫ _
-    refine' triangle.iso.of_components (iso.refl _) (iso.refl _) (iso.refl _) _ _ _
-    · dsimp; simp only [category.id_comp, category.comp_id, comp_neg, neg_one_smul]
-    · dsimp; simp only [category.id_comp, category.comp_id, neg_comp, neg_one_smul]
-    · dsimp; simp only [category.id_comp, category.comp_id, neg_comp, neg_one_smul]
-      simp only [functor.map_comp, assoc, CategoryTheory.Functor.map_id, comp_id, functor.map_zsmul,
-        preadditive.zsmul_comp, preadditive.comp_zsmul, shift_comm_self, iso.refl_hom]
+    refine' CategoryTheory.shiftAdd _ _ _ ≪≫ _
+    refine' Triangle.Iso.ofComponents (iso.refl _) (iso.refl _) (iso.refl _) _ _ _
+    · dsimp; simp only [Category.id_comp, Category.comp_id, comp_neg, neg_one_smul]
+    · dsimp; simp only [Category.id_comp, Category.comp_id, neg_comp, neg_one_smul]
+    · dsimp; simp only [Category.id_comp, Category.comp_id, neg_comp, neg_one_smul]
+      simp only [Functor.map_comp, assoc, CategoryTheory.Functor.map_id, comp_id, Functor.map_zsmul,
+        Preadditive.zsmul_comp, Preadditive.comp_zsmul, CategoryTheory.Triangulated.Pretriangulated.shiftComm_self, Iso.refl_hom]
 
 end Pretriangulated
 

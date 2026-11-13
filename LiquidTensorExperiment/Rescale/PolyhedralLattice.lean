@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.Rescale.NormedGroup
 import LiquidTensorExperiment.PolyhedralLattice.Category
 
-#align_import rescale.polyhedral_lattice
+#align_import Rescale.polyhedralLattice
 
 /-!
 

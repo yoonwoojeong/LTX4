@@ -244,13 +244,13 @@ theorem Continuous.sum' {ι X A : Type _} [TopologicalSpace X] [TopologicalSpace
 instance compactSpace (c : ℝ≥0) : CompactSpace (filtration (ℳ p S) c) :=
   by
   constructor
-  rw [← embedding_subtype_coe.to_inducing.is_compact_iff]
+  rw [← embedding_subtype_coe.toInducing.isCompact_iff]
   simp only [Set.image_univ, Subtype.range_coe_subtype, Set.setOf_mem_eq]
   let d : ℝ := c ^ (p⁻¹ : ℝ)
   let T : Set (S → ℝ) := {x | ∀ s, x s ∈ Set.Icc (-d) d}
   have hT : IsCompact T := isCompact_pi_infinite fun s => is_compact_Icc
   refine' compact_of_is_closed_subset hT _ fun F hF s => apply_mem_Icc_of_nnnorm_le F s c hF
-  refine' isClosed_le (continuous.sum' _ _ _) continuous_const
+  refine' isClosed_le (Continuous.sum' _ _ _) continuous_const
   rintro s -
   have h0p : 0 ≤ (p : ℝ) := by norm_cast; exact Fact.out _
   exact (NNReal.continuous_rpow_const h0p).comp (continuous_nnnorm.comp (continuous_apply s))
@@ -421,7 +421,7 @@ def mapHom [Fact (0 < p)] (f : S ⟶ S') : StrictComphausFilteredPseudoNormedGro
     apply continuous_pi _
     intro s'
     simp only [Function.comp, map_apply]
-    refine' continuous.sum' _ _ _
+    refine' Continuous.sum' _ _ _
     rintro s -
     exact (continuous_apply s).comp continuous_subtype_val
 
@@ -430,8 +430,8 @@ def functor (p : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] : FintypeCat.{u} ⥤ C
     where
   obj S := ⟨ℳ p S, fun F => ⟨‖F‖₊, (mem_filtration_iff _ _).mpr le_rfl⟩⟩
   map S T f := mapHom f
-  map_id' S := by ext1; rw [map_hom_to_fun, map_id]; rfl
-  map_comp' S S' S'' f g := by ext1; simp only [map_hom_to_fun, map_comp]; rfl
+  map_id S := by ext1; rw [map_hom_to_fun, map_id]; rfl
+  map_comp S S' S'' f g := by ext1; simp only [map_hom_to_fun, map_comp]; rfl
 
 end RealMeasures
 

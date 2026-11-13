@@ -23,7 +23,7 @@ theorem toCondensed_torsion_free (M : CompHausFiltPseuNormGrp) [NoZeroSMulDiviso
   ext t
   apply_fun fun φ => φ.down.val t at hf 
   apply smul_right_injective M hn
-  dsimp [presheaf.has_zero] at hf ⊢
+  dsimp [Presheaf.hasZero] at hf ⊢
   convert hf using 1
   apply smul_zero
 

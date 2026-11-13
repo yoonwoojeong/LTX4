@@ -494,7 +494,7 @@ def map : Lbar r' S → Lbar r' T := fun F =>
         apply Finset.sum_le_sum_of_subset
         · intro t ht; simp
         · infer_instance
-      NNReal.summable_of_le this (HasSum.summable (has_sum_aux _)) }
+      NNReal.summable_of_le this (HasSum.summable (Lbar.hasSum_aux _)) }
 
 theorem map_id (F : Lbar r' S) : F.map id = F :=
   by

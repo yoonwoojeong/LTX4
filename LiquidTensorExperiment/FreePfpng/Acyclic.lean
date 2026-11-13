@@ -34,8 +34,8 @@ def whiskeringComp :
       (CosimplicialObject.whiskering C D).obj F ⋙ (CosimplicialObject.whiskering D E).obj G :=
   (NatIso.ofComponents fun X =>
       (NatIso.ofComponents fun n => Iso.refl _) <| by intros; dsimp;
-        simp only [category.comp_id, category.id_comp]) <|
-    by intros; ext; dsimp; simp only [category.comp_id, category.id_comp]
+        simp only [Category.comp_id, Category.id_comp]) <|
+    by intros; ext; dsimp; simp only [Category.comp_id, Category.id_comp]
 
 namespace Augmented
 
@@ -49,15 +49,15 @@ def whiskeringComp :
         (by
           ext
           dsimp
-          simp only [iso.refl_hom, CategoryTheory.Functor.map_id, category.id_comp, iso.app_hom,
-            functor.id_map, category.comp_id]))
+          simp only [Iso.refl_hom, CategoryTheory.Functor.map_id, Category.id_comp, Iso.app_hom,
+            Functor.id_map, Category.comp_id]))
     (by intros;
       ext <;> dsimp <;>
-        simp only [iso.refl_hom, CategoryTheory.Functor.map_id, category.id_comp, iso.app_hom,
-          functor.id_map, category.comp_id])
+        simp only [Iso.refl_hom, CategoryTheory.Functor.map_id, Category.id_comp, Iso.app_hom,
+          Functor.id_map, Category.comp_id])
 
 -- move me
-attribute [simps obj map] cosimplicial_object.augmented.cocomplex
+attribute [simps obj map] CosimplicialObject.Augmented.cocomplex
 
 def cocomplexWhiskeringAdditive [Preadditive C] [Preadditive D] [F.Additive] :
     (CosimplicialObject.Augmented.whiskering C D).obj F ⋙ CosimplicialObject.Augmented.cocomplex ≅
@@ -68,16 +68,16 @@ def cocomplexWhiskeringAdditive [Preadditive C] [Preadditive D] [F.Additive] :
         (by
           rintro i j (rfl : i + 1 = j); cases i
           · dsimp;
-            rw [category.id_comp, category.comp_id, if_pos rfl, if_pos rfl, category.comp_id,
-              category.comp_id]
-            delta cosimplicial_object.augmented.to_cocomplex_d
-            dsimp; simp only [category.id_comp]
+            rw [Category.id_comp, Category.comp_id, if_pos rfl, if_pos rfl, Category.comp_id,
+              Category.comp_id]
+            delta CosimplicialObject.Augmented.toCocomplexD
+            dsimp; simp only [Category.id_comp]
           · dsimp;
-            rw [category.id_comp, category.comp_id, if_pos rfl, if_pos rfl, category.comp_id,
-              category.comp_id]
-            delta cosimplicial_object.augmented.to_cocomplex_d cosimplicial_object.coboundary id
-            dsimp; simp only [← functor.map_add_hom_apply, map_sum, map_zsmul]; rfl))
-    (by intros; ext n; dsimp; cases n <;> · dsimp; rw [category.id_comp, category.comp_id]; rfl)
+            rw [Category.id_comp, Category.comp_id, if_pos rfl, if_pos rfl, Category.comp_id,
+              Category.comp_id]
+            delta CosimplicialObject.Augmented.toCocomplexD CosimplicialObject.coboundary id
+            dsimp; simp only [← Functor.mapAddHom_apply, map_sum, map_zsmul]; rfl))
+    (by intros; ext n; dsimp; cases n <;> · dsimp; rw [Category.id_comp, Category.comp_id]; rfl)
 
 end Augmented
 
@@ -106,27 +106,27 @@ theorem free_acyclic_aux (F : Arrow Profinite) (hF : Surjective F.Hom) (i : ℕ)
         (((CosimplicialObject.Augmented.whiskering.{u, u + 1, u + 1, u + 2} Profinite.{u}ᵒᵖ
                     Ab.{u + 1}).obj
                 (SemiNormedGroupCat.lCC.{u, u}.obj V ⋙ U)).obj
-            F.augmented_cech_nerve.right_op).toCocomplex
+            F.augmented_cech_nerve.rightOp).toCocomplex
         i)
   rw [← homology'Functor_obj, ← CategoryTheory.CosimplicialObject.Augmented.cocomplex_obj]
   let e1 :=
     (homology'Functor _ (ComplexShape.up.{0} ℕ) i).mapIso
       (cosimplicial_object.augmented.cocomplex.map_iso
-        ((CosimplicialObject.Augmented.whiskeringComp _ U).app F.augmented_cech_nerve.right_op))
-  refine' is_zero_of_iso_of_zero _ e1.symm
+        ((CosimplicialObject.Augmented.whiskeringComp _ U).app F.augmented_cech_nerve.rightOp))
+  refine' CategoryTheory.Limits.isZero_of_iso_of_zero _ e1.symm
   let e2 :=
     (homology'Functor Ab (ComplexShape.up.{0} ℕ) i).mapIso
       ((CosimplicialObject.Augmented.cocomplexWhiskeringAdditive U).app _)
-  refine' is_zero_of_iso_of_zero _ e2.symm
+  refine' CategoryTheory.Limits.isZero_of_iso_of_zero _ e2.symm
   clear e1 e2
   let C :=
     (U.map_homological_complex (ComplexShape.up.{0} ℕ)).obj
-      (((cosimplicial_object.augmented.whiskering Profinite.{u}ᵒᵖ _).obj
+      (((CosimplicialObject.Augmented.whiskering Profinite.{u}ᵒᵖ _).obj
               (SemiNormedGroupCat.lCC.{u, u}.obj V)).obj
-          F.augmented_cech_nerve.right_op).toCocomplex
+          F.augmented_cech_nerve.rightOp).toCocomplex
   show is_zero (C.homology i)
   cases i
-  · apply exact.homology_is_zero
+  · apply Exact.homology'_isZero
     rw [AddCommGroupCat.exact_iff', HomologicalComplex.dTo_comp_dFrom, eq_self_iff_true,
       true_and_iff, HomologicalComplex.dTo_eq_zero]
     swap;
@@ -135,13 +135,13 @@ theorem free_acyclic_aux (F : Arrow Profinite) (hF : Surjective F.Hom) (i : ℕ)
     rw [AddMonoidHom.mem_ker] at hf 
     have h01 : (ComplexShape.up.{0} ℕ).Rel 0 1 := rfl
     have := HomologicalComplex.dFrom_comp_xNextIso C h01
-    rw [← iso.eq_comp_inv] at this 
-    apply_fun (C.X_next_iso h01).Hom at hf 
-    rw [this, ← Ab.comp_apply, category.assoc, iso.inv_hom_id, category.comp_id, map_zero] at hf 
+    rw [← Iso.eq_comp_inv] at this 
+    apply_fun (C.X_next_iso h01).hom at hf 
+    rw [this, ← Ab.comp_apply, Category.assoc, Iso.inv_hom_id, Category.comp_id, map_zero] at hf 
     exact congr_arg ULift.down hf
   · let e := homology_iso C i (i + 1) (i + 2) rfl rfl
-    refine' is_zero_of_iso_of_zero _ e.symm
-    apply exact.homology_is_zero
+    refine' CategoryTheory.Limits.isZero_of_iso_of_zero _ e.symm
+    apply Exact.homology'_isZero
     rw [AddCommGroupCat.exact_iff', HomologicalComplex.d_comp_d, eq_self_iff_true, true_and_iff]
     intro f hf
     -- use `prop819` from `prop819.lean`
@@ -155,13 +155,13 @@ theorem free_acyclic (i : ℤ) (hi : 0 < i) :
   by
   apply Condensed.acyclic_of_exact _ _ _ i hi
   intro F hF i
-  apply is_zero_of_iso_of_zero (free_acyclic_aux V F hF i)
+  apply CategoryTheory.Limits.isZero_of_iso_of_zero (free_acyclic_aux V F hF i)
   refine' (homology'Functor _ _ i).mapIso _
   refine' cosimplicial_object.augmented.cocomplex.map_iso _
-  conv_lhs => rw [← functor.flip_obj_obj]
-  conv_rhs => rw [← functor.flip_obj_obj]
-  refine' functor.map_iso _ _
-  refine' iso_whisker_right _ _
+  conv_lhs => rw [← Functor.flip_obj_obj]
+  conv_rhs => rw [← Functor.flip_obj_obj]
+  refine' Functor.mapIso _ _
+  refine' CategoryTheory.isoWhiskerRight _ _
   exact lCCIsoCondOfTopAb V
 
 theorem free_pfpng_acyclic (i : ℤ) (hi : 0 < i) :
@@ -169,12 +169,12 @@ theorem free_pfpng_acyclic (i : ℤ) (hi : 0 < i) :
       (((ext' i).obj (op ((condensify (freePfpngFunctor ⋙ pFPNG₁ToCHFPNG₁ₑₗ)).obj S))).obj
         (Condensed.ofTopAb V)) :=
   by
-  refine' is_zero_of_iso_of_zero (free_acyclic S V i hi) _
+  refine' CategoryTheory.Limits.isZero_of_iso_of_zero (free_acyclic S V i hi) _
   conv =>
-    rw [← functor.flip_obj_obj]
+    rw [← Functor.flip_obj_obj]
     congr
     skip
-    rw [← functor.flip_obj_obj]
-  refine' functor.map_iso _ (iso.app _ _).op
+    rw [← Functor.flip_obj_obj]
+  refine' Functor.mapIso _ (Iso.app _ _).op
   exact freePfpngProfiniteIso
 

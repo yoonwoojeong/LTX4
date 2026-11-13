@@ -46,7 +46,7 @@ theorem surjective_of_comp_inl_eq_comp_inr (f : M →ₗ[A] N)
   rw [Submodule.Quotient.eq] at h 
   simp at h 
   obtain ⟨⟨a, ⟨a, rfl⟩⟩, ht⟩ := h
-  dsimp [compare_in_prod] at ht 
+  dsimp [compareInProd] at ht 
   apply_fun fun e => e.fst at ht 
   use a
   exact ht

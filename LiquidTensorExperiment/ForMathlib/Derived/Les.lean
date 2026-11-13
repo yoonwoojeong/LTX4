@@ -17,12 +17,12 @@ noncomputable def cone.π (w : ∀ i, f.f i ≫ g.f i = 0) : cone f ⟶ Z
     where
   f i := biprod.snd ≫ g.f i
   comm' i j hij := by
-    dsimp at hij ; subst j; dsimp [cone.d]; rw [if_pos rfl, biprod.lift_snd_assoc]
+    dsimp at hij ; subst j; dsimp [Cone.d]; rw [if_pos rfl, biprod.lift_snd_assoc]
     ext
     ·
-      simp only [exact.w_assoc, zero_comp, category.assoc, biprod.inl_desc_assoc, category.id_comp,
+      simp only [Exact.w_assoc, zero_comp, Category.assoc, biprod.inl_desc_assoc, Category.id_comp,
         w, exact_inl_snd]
-    · simp only [category.assoc, biprod.inr_snd_assoc, biprod.inr_desc_assoc, g.comm]
+    · simp only [Category.assoc, biprod.inr_snd_assoc, biprod.inr_desc_assoc, g.comm]
 
 --generalize
 @[simps]
@@ -33,7 +33,7 @@ noncomputable def kernel : CochainComplex A ℤ
   shape' i j hij := by ext; simp only [kernel.lift_ι, zero_comp, X.shape i j hij, comp_zero]
   d_comp_d' i j k hij hjk := by
     ext
-    simp only [category.assoc, kernel.lift_ι, kernel.lift_ι_assoc, zero_comp, comp_zero, d_comp_d]
+    simp only [Category.assoc, kernel.lift_ι, kernel.lift_ι_assoc, zero_comp, comp_zero, d_comp_d]
 
 @[simps]
 noncomputable def kernel.ι : kernel f ⟶ X

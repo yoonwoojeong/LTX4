@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.PseudoNormedGroup.WithTinv
 import LiquidTensorExperiment.Lbar.LbarLe
 
-#align_import Lbar.pseudo_normed_group
+#align_import Lbar.pseudoNormedGroup
 
 /-!
 

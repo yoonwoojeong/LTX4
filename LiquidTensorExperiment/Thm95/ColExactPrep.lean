@@ -107,7 +107,7 @@ open Profinite PseudoNormedGroup ProfinitelyFilteredPseudoNormedGroup
 def fLCComplexArrow (c : ℝ≥0) : Arrow Profinite :=
   @Arrow.mk _ _ (filtrationObj M₁ c) (filtrationObj M₂ c) <|
     { toFun := PseudoNormedGroup.level f hf c
-      continuous_toFun := f.Continuous _ fun _ => rfl }
+      continuous_toFun := f.continuous _ fun _ => rfl }
 
 end
 
@@ -123,15 +123,15 @@ def fLCComplex : SystemOfComplexes
     (fLCFunctor V).map <|
       Quiver.Hom.op <|
         @Arrow.homMk _ _ (fLCComplexArrow f hf c₂.unop) (fLCComplexArrow f hf c₁.unop)
-          ⟨_, (@embedding_castLe _ _ _ _ ⟨leOfHom h.unop⟩).Continuous⟩
-          ⟨_, (@embedding_castLe _ _ _ _ ⟨leOfHom h.unop⟩).Continuous⟩ (by ext; rfl)
-  map_id' c := by
+          ⟨_, (@embedding_castLe _ _ _ _ ⟨leOfHom h.unop⟩).continuous⟩
+          ⟨_, (@embedding_castLe _ _ _ _ ⟨leOfHom h.unop⟩).continuous⟩ (by ext; rfl)
+  map_id c := by
     convert (fLCFunctor V).map_id _
-    simp only [unop_id, ← op_id, quiver.hom.op_inj.eq_iff, nat_trans.id_app]
+    simp only [unop_id, ← op_id, quiver.hom.op_inj.eq_iff, NatTrans.id_app]
     ext <;> rfl
-  map_comp' c₁ c₂ c₃ h1 h2 := by
+  map_comp c₁ c₂ c₃ h1 h2 := by
     convert (fLCFunctor V).map_comp _ _
-    simp only [← op_comp, quiver.hom.op_inj.eq_iff, nat_trans.comp_app]
+    simp only [← op_comp, quiver.hom.op_inj.eq_iff, NatTrans.comp_app]
     ext <;> rfl
 
 end
@@ -149,9 +149,9 @@ namespace AuxSpace
 
 open ProfinitelyFilteredPseudoNormedGroup ComphausFilteredPseudoNormedGroup
 
-instance : TopologicalSpace (AuxSpace f hf c₁ c₂) := by delta aux_space; infer_instance
+instance : TopologicalSpace (AuxSpace f hf c₁ c₂) := by delta Thm95.fLCComplex.AuxSpace; infer_instance
 
-instance : T2Space (AuxSpace f hf c₁ c₂) := by delta aux_space; infer_instance
+instance : T2Space (AuxSpace f hf c₁ c₂) := by delta Thm95.fLCComplex.AuxSpace; infer_instance
 
 instance : TotallyDisconnectedSpace (AuxSpace f hf c₁ c₂) :=
   Subtype.totallyDisconnectedSpace
@@ -159,11 +159,11 @@ instance : TotallyDisconnectedSpace (AuxSpace f hf c₁ c₂) :=
 instance : CompactSpace (AuxSpace f hf c₁ c₂)
     where compact_univ :=
     by
-    rw [embedding_subtype_coe.is_compact_iff_is_compact_image]
+    rw [embedding_subtype_coe.isCompact_iff]
     simp only [Set.image_univ, Subtype.range_coe_subtype]
     refine' IsClosed.isCompact _
     refine'
-      isClosed_eq ((embedding_cast_le _ _).Continuous.comp continuous_fst)
+      isClosed_eq ((ComphausFilteredPseudoNormedGroup.embedding_castLe _ _).continuous.comp continuous_fst)
         ((f.continuous _ _).comp continuous_snd)
     intro; rfl
 
@@ -182,7 +182,7 @@ def ι : filtrationObj M₁ c₁ ⟶ auxSpace f hf c₁ c₂
   toFun x := ⟨⟨level f hf c₁ x, Filtration.castLe M₁ c₁ c₂ x⟩, rfl⟩
   continuous_toFun := by
     rw [continuous_induced_rng]
-    refine' Continuous.prod_mk (f.continuous _ fun _ => rfl) (Filtration.castLe M₁ c₁ c₂).Continuous
+    refine' Continuous.prod_mk (f.continuous _ fun _ => rfl) (Filtration.castLe M₁ c₁ c₂).continuous
 
 @[simps]
 def fst : auxSpace f hf c₁ c₂ ⟶ filtrationObj M₂ c₁
@@ -218,7 +218,7 @@ open AuxSpace ProfinitelyFilteredPseudoNormedGroup
 @[simps]
 def sumHom₀ [Fact (0 < N)] (c : ℝ≥0) : filtrationObj (Rescale N (M ^ N)) c ⟶ filtrationObj M c :=
   ⟨PseudoNormedGroup.level (sumHom M N) (sumHomStrict M N) c,
-    (sumHom M N).Continuous _ fun _ => rfl⟩
+    (sumHom M N).continuous _ fun _ => rfl⟩
 
 @[simps left right hom]
 def sumHomₐ [Fact (0 < N)] (c : ℝ≥0) : Arrow Profinite :=
@@ -239,7 +239,7 @@ theorem weakBoundedExact (k : ℝ≥0) [hk : Fact (1 ≤ k)] (m : ℕ) (c₀ : �
     (hdkc₀N : d ≤ (k - 1) * c₀ / N) :
     (fLCComplex V _ (sumHomStrict M N)).IsWeakBoundedExact k 1 m c₀ :=
   by
-  let D c := (fLCFunctor V).obj (op <| fstₐ _ (sum_hom_strict M N) c (k * c))
+  let D c := (fLCFunctor V).obj (op <| fstₐ _ (ProfinitelyFilteredPseudoNormedGroup.sumHomStrict M N) c (k * c))
   let f c := (fLCFunctor V).map (fstₐ_sum_homₐ M N c (k * c)).op
   let g c := (fLCFunctor V).map (sum_homₐ_fstₐ M N c (k * c)).op
   refine' SystemOfComplexes.weakExactOfFactorExact _ k m c₀ D _ f g _ _ _

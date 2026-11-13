@@ -117,7 +117,7 @@ def boundedCone : Cone K where
           strict' := by
             rintro c x ⟨x, rfl⟩
             apply x.2 }
-      naturality' := by
+      naturality := by
         intro i j f
         ext
         dsimp
@@ -149,13 +149,13 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
   fac := by
     intro S j
     ext
-    dsimp [bounded_cone_lift, bounded_cone]
+    dsimp [PseuNormGrp₁.boundedConeLift, bounded_cone]
     rw [← Ab.comp_apply, C.2.fac]
     rfl
   uniq := by
     intro S m hm
     ext
-    dsimp [bounded_cone_lift, bounded_cone]
+    dsimp [PseuNormGrp₁.boundedConeLift, bounded_cone]
     apply Ab.is_limit_ext
     intro j
     rw [← Ab.comp_apply, C.2.fac]
@@ -165,7 +165,7 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
 
 instance : HasLimits PseuNormGrp₁ := by
   constructor; intro J hJ; constructor; intro K
-  exact has_limit.mk ⟨_, bounded_cone_is_limit ⟨_, limit.is_limit _⟩⟩
+  exact HasLimit.mk ⟨_, bounded_cone_is_limit ⟨_, limit.isLimit _⟩⟩
 
 open PseudoNormedGroup
 
@@ -178,21 +178,21 @@ theorem mem_filtration_iff_of_isLimit (C : Cone K) (hC : IsLimit C) (x : C.pt) (
     exact (C.π.app j).Strict h
   · intro h
     let E := bounded_cone ⟨_, Ab.explicitLimitConeIsLimit.{u, u} _⟩
-    let e : C ≅ E := hC.unique_up_to_iso (bounded_cone_is_limit _)
-    let eX : C.X ≅ E.X := (cones.forget _).mapIso e
+    let e : C ≅ E := hC.uniqueUpToIso (bounded_cone_is_limit _)
+    let eX : C.X ≅ E.X := (Cones.forget _).mapIso e
     let w := eX.hom x
     have hw : ∀ j, E.π.app j w ∈ filtration (K.obj j) c :=
       by
       intro j
       dsimp only [w]
       change (eX.hom ≫ E.π.app _) _ ∈ _
-      dsimp only [eX, functor.map_iso, cones.forget]
+      dsimp only [eX, Functor.mapIso, Cones.forget]
       convert h j
       simp
     suffices w ∈ filtration E.X c by
       convert eX.inv.strict this
       change _ = (eX.hom ≫ eX.inv) x
-      rw [iso.hom_inv_id]
+      rw [Iso.hom_inv_id]
       rfl
     refine' ⟨⟨_, hw⟩, rfl⟩
 
@@ -217,8 +217,8 @@ def level : NNReal ⥤ PseuNormGrp₁.{u} ⥤ Type u
   obj c :=
     { obj := fun M => filtration M c
       map := fun X Y f => f.level _
-      map_id' := fun M => StrictPseudoNormedGroupHom.level_id M _
-      map_comp' := fun M N L f g => f.level_comp g c }
+      map_id := fun M => StrictPseudoNormedGroupHom.level_id M _
+      map_comp := fun M N L f g => f.level_comp g c }
   map c₁ c₂ h := { app := fun M => PseudoNormedGroup.castLe' h.le }
 
 theorem level_map {X Y : PseuNormGrp₁} (f : X ⟶ Y) (c) : (level.obj c).map f = f.level _ :=
@@ -271,18 +271,18 @@ def levelConeIsoInv (c) (t : (K ⋙ level.obj c).sections) : (level.obj c).obj (
 
 def levelConeIso (c) : (level.obj c).mapCone (boundedCone C) ≅ Types.limitCone.{u, u} _ :=
   Cones.ext
-    { Hom := levelConeIsoHom _ _
+    { hom := levelConeIsoHom _ _
       inv := levelConeIsoInv _ _
-      hom_inv_id' := by
+      hom_inv_id := by
         ext
-        dsimp [level_cone_iso_inv, level_cone_iso_hom]
+        dsimp [PseuNormGrp₁.levelConeIsoInv, PseuNormGrp₁.levelConeIsoHom]
         apply Ab.is_limit_ext
         intro j
         rw [← Ab.comp_apply, C.2.fac]
         rfl
-      inv_hom_id' := by
+      inv_hom_id := by
         ext
-        dsimp [level_cone_iso_inv, level_cone_iso_hom]
+        dsimp [PseuNormGrp₁.levelConeIsoInv, PseuNormGrp₁.levelConeIsoHom]
         rw [← Ab.comp_apply, C.2.fac]
         rfl }
     (by
@@ -294,14 +294,14 @@ instance preservesLimitsLevelObj (c) : PreservesLimits (level.obj c) :=
   by
   constructor; intro J hJ; constructor; intro K
   apply
-    preserves_limit_of_preserves_limit_cone
+    CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
       (bounded_cone_is_limit ⟨_, Ab.explicitLimitConeIsLimit _⟩)
-  apply is_limit.of_iso_limit (types.limit_cone_is_limit _) (level_cone_iso _ _).symm
+  apply IsLimit.ofIsoLimit (Types.limitConeIsLimit _) (PseuNormGrp₁.levelConeIso _ _).symm
 
 def negNatTrans (c) : level.obj c ⟶ level.obj c
     where
   app X := PseudoNormedGroup.neg'
-  naturality' := by
+  naturality := by
     intro A B f
     ext
     dsimp [level, neg']
@@ -354,7 +354,7 @@ def filtrationHomeo (c : NNReal) :
     (by
       intro U hU
       have : Inducing (filtration_equiv C c) := ⟨rfl⟩
-      rw [this.is_open_iff] at hU 
+      rw [this.isOpen_iff] at hU 
       obtain ⟨U, hU, rfl⟩ := hU
       simpa)
 
@@ -497,7 +497,7 @@ def boundedCone : Cone K where
     { app := fun j =>
         { (PseuNormGrp₁.boundedCone C).π.app j with
           continuous' := fun c => levelπ_continuous _ _ _ }
-      naturality' := by
+      naturality := by
         intro i j f
         ext
         dsimp
@@ -512,7 +512,7 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
         intro c
         let t :
           PseudoNormedGroup.filtration S.X c → PseudoNormedGroup.filtration (bounded_cone C).pt c :=
-          ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.map_cone S)).level _
+          ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S)).level _
         change Continuous t
         suffices Continuous (filtration_homeo C c ∘ t) by simpa using this
         have :
@@ -529,7 +529,7 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
     ext
     dsimp [bounded_cone]
     change
-      ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.map_cone S) ≫
+      ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S) ≫
             (PseuNormGrp₁.boundedCone C).π.app j)
           _ =
         _
@@ -539,9 +539,9 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
     intro S m hm
     ext
     dsimp
-    have : to_PNG₁.map m = (PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.map_cone S) :=
+    have : to_PNG₁.map m = (PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S) :=
       by
-      apply (PseuNormGrp₁.boundedConeIsLimit C).uniq (to_PNG₁.map_cone S)
+      apply (PseuNormGrp₁.boundedConeIsLimit C).uniq (to_PNG₁.mapCone S)
       intro j
       ext t
       specialize hm j
@@ -552,7 +552,7 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
 
 instance : PreservesLimit K toPNG₁ :=
   by
-  apply preserves_limit_of_preserves_limit_cone
+  apply CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
   rotate_left 2
   exact bounded_cone ⟨_, Ab.explicitLimitConeIsLimit.{u, u} _⟩
   exact bounded_cone_is_limit _
@@ -612,7 +612,7 @@ def filtrationHomeo (c : NNReal) :
     (by
       intro U hU
       have : Inducing (filtration_equiv C c) := ⟨rfl⟩
-      rw [this.is_open_iff] at hU 
+      rw [this.isOpen_iff] at hU 
       obtain ⟨U, hU, rfl⟩ := hU
       simpa)
 
@@ -754,7 +754,7 @@ def boundedCone : Cone K where
     { app := fun j =>
         { (PseuNormGrp₁.boundedCone C).π.app j with
           continuous' := fun c => levelπ_continuous _ _ _ }
-      naturality' := by
+      naturality := by
         intro i j f
         ext
         dsimp
@@ -769,7 +769,7 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
         intro c
         let t :
           PseudoNormedGroup.filtration S.X c → PseudoNormedGroup.filtration (bounded_cone C).pt c :=
-          ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.map_cone S)).level _
+          ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S)).level _
         change Continuous t
         suffices Continuous (filtration_homeo C c ∘ t) by simpa using this
         have :
@@ -786,7 +786,7 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
     ext
     dsimp [bounded_cone]
     change
-      ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.map_cone S) ≫
+      ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S) ≫
             (PseuNormGrp₁.boundedCone C).π.app j)
           _ =
         _
@@ -796,9 +796,9 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
     intro S m hm
     ext
     dsimp
-    have : to_PNG₁.map m = (PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.map_cone S) :=
+    have : to_PNG₁.map m = (PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S) :=
       by
-      apply (PseuNormGrp₁.boundedConeIsLimit C).uniq (to_PNG₁.map_cone S)
+      apply (PseuNormGrp₁.boundedConeIsLimit C).uniq (to_PNG₁.mapCone S)
       intro j
       ext t
       specialize hm j
@@ -809,7 +809,7 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
 
 instance : PreservesLimit K toPNG₁ :=
   by
-  apply preserves_limit_of_preserves_limit_cone
+  apply CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
   rotate_left 2
   exact bounded_cone ⟨_, Ab.explicitLimitConeIsLimit.{u, u} _⟩
   exact bounded_cone_is_limit _

@@ -9,7 +9,7 @@ import Mathlib.CategoryTheory.ConcreteCategory.ReflectsIso
 import Mathlib.CategoryTheory.ConcreteCategory.UnbundledHom
 import LiquidTensorExperiment.Thm95.Constants.SpectralConstants
 
-#align_import normed_spectral
+#align_import SystemOfDoubleComplexes.normedSpectral
 
 noncomputable section
 
@@ -32,42 +32,42 @@ namespace Truncate
 variable (M : SystemOfDoubleComplexes.{u})
 
 -- defeq abuse for the win!!!
-theorem row (p : ℕ) : (truncate.obj M).row p = SystemOfComplexes.truncate.obj (M.row p) :=
+theorem row (p : ℕ) : (Truncate.obj M).row p = SystemOfComplexes.truncate.obj (M.row p) :=
   rfl
 
-theorem col_pos (q : ℕ) : (truncate.obj M).col (q + 1) = M.col (q + 1 + 1) :=
+theorem col_pos (q : ℕ) : (Truncate.obj M).col (q + 1) = M.col (q + 1 + 1) :=
   rfl
 
 @[simp]
 theorem d'_zero_one (c : ℝ≥0) (p : ℕ) (x : M.pt c p 1) :
-    (truncate.obj M).d' 0 1 (SemiNormedGroupCat.explicitCokernelπ _ x) = M.d' 1 2 x :=
+    (Truncate.obj M).d' 0 1 (SemiNormedGroupCat.explicitCokernelπ _ x) = M.d' 1 2 x :=
   rfl
 
 @[simp]
 theorem d_π (c : ℝ≥0) (p p' : ℕ) (x : M.pt c p 1) :
-    @d (truncate.obj M) _ p p' 0 (SemiNormedGroupCat.explicitCokernelπ _ x) =
+    @d (Truncate.obj M) _ p p' 0 (SemiNormedGroupCat.explicitCokernelπ _ x) =
       SemiNormedGroupCat.explicitCokernelπ _ (M.d p p' x) :=
   rfl
 
 @[simp]
 theorem res_π (c₁ c₂ : ℝ≥0) (p : ℕ) (h : Fact (c₁ ≤ c₂)) (x : M.pt c₂ p 1) :
-    @res (truncate.obj M) _ _ p 0 h (SemiNormedGroupCat.explicitCokernelπ _ x) =
+    @res (Truncate.obj M) _ _ p 0 h (SemiNormedGroupCat.explicitCokernelπ _ x) =
       SemiNormedGroupCat.explicitCokernelπ _ (M.res x) :=
   rfl
 
-def quotientMap : M.col 1 ⟶ (truncate.obj M).col 0
+def quotientMap : M.col 1 ⟶ (Truncate.obj M).col 0
     where
   app c :=
     { f := fun p => SemiNormedGroupCat.explicitCokernelπ _
       comm' := fun p p' _ => by ext; rfl }
-  naturality' := by intros; ext; rfl
+  naturality := by intros; ext; rfl
 
-theorem admissible (hM : M.Admissible) : (truncate.obj M).Admissible :=
+theorem admissible (hM : M.Admissible) : (Truncate.obj M).Admissible :=
   { d_norm_noninc' := fun c p' p q h => by
       cases q
       · apply SemiNormedGroupCat.explicitCokernelDesc_normNoninc
-        exact (SemiNormedGroupCat.normNoninc_explicitCokernelπ _).comp (hM.d_norm_noninc _ _ _ _)
-      · exact hM.d_norm_noninc c p' p _
+        exact (SemiNormedGroupCat.normNoninc_explicitCokernelπ _).comp (hM.d_normNoninc _ _ _ _)
+      · exact hM.d_normNoninc c p' p _
     d'_norm_noninc' := fun c p => ((M.row p).truncateAdmissible (hM.row p)).d_norm_noninc' c
     res_normNoninc := fun c₁ c₂ p =>
       ((M.row p).truncateAdmissible (hM.row p)).res_normNoninc c₁ c₂ }
@@ -169,19 +169,19 @@ variable [Fact (1 ≤ k)] [Fact (1 ≤ k₀)] [Fact (k₀ ≤ k')] [Fact (1 ≤ 
 variable {c₀ H : ℝ≥0} [Fact (0 < H)]
 
 theorem truncateAdmissible (condM : M.NormedSpectralConditions m k K k' ε c₀ H) :
-    (truncate.obj M).Admissible :=
+    (Truncate.obj M).Admissible :=
   truncate.admissible _ condM.Admissible
 
 variable (condM : M.NormedSpectralConditions (m + 1) k K k' ε c₀ H)
 
 theorem colZeroExact :
-    ((truncate.obj M).col 0).IsWeakBoundedExact (k * k * k) (K * (K * K + 1)) m c₀ :=
+    ((Truncate.obj M).col 0).IsWeakBoundedExact (k * k * k) (K * (K * K + 1)) m c₀ :=
   by
   apply
-    weakNormedSnake (M.col 0) (M.col 1) ((truncate.obj M).col 0) (M.col_map 0 1)
-      (truncate.quotient_map M) (condM.col_exact 0 (by decide)) (condM.col_exact 1 (by decide))
+    weakNormedSnake (M.col 0) (M.col 1) ((Truncate.obj M).col 0) (M.col_map 0 1)
+      (truncate.quotientMap M) (condM.colExact 0 (by decide)) (condM.colExact 1 (by decide))
       (condM.admissible.col 1)
-  · intro c p; exact condM.admissible.d'_norm_noninc c p 0 1
+  · intro c p; exact condM.admissible.d'_normNoninc c p 0 1
   · intro c hc i hi x
     apply le_of_forall_pos_le_add
     intro ε' hε'
@@ -194,13 +194,13 @@ theorem colZeroExact :
 
 -- morally `q'` is `q + 1`
 def hTruncate :
-    ∀ (q : ℕ) {q' : ℕ} {c : ℝ≥0}, (truncate.obj M).pt (k' * c) 0 q' ⟶ (truncate.obj M).pt c 1 q
+    ∀ (q : ℕ) {q' : ℕ} {c : ℝ≥0}, (Truncate.obj M).pt (k' * c) 0 q' ⟶ (Truncate.obj M).pt c 1 q
   | 0, 1, c => condM.htpy.h 1 ≫ SemiNormedGroupCat.explicitCokernelπ _
   | q + 1, q' + 1, c => condM.htpy.h (q + 2)
   | _, _, _ => 0
 
 @[simp]
-theorem hTruncate_zero {c : ℝ≥0} (x : (truncate.obj M).pt (k' * c) 0 1) :
+theorem hTruncate_zero {c : ℝ≥0} (x : (Truncate.obj M).pt (k' * c) 0 1) :
     condM.hTruncate 0 x = SemiNormedGroupCat.explicitCokernelπ _ (condM.htpy.h 1 x) :=
   rfl
 
@@ -210,7 +210,7 @@ theorem norm_hTruncate_le :
         q + 1 = q' →
           ∀ c : ℝ≥0,
             Fact (c₀ ≤ c) →
-              ‖(condM.hTruncate q : (truncate.obj M).pt (k' * c) 0 q' ⟶ _)‖ ≤ H
+              ‖(condM.hTruncate q : (Truncate.obj M).pt (k' * c) 0 q' ⟶ _)‖ ≤ H
   | q + 1, q' + 1, hq, rfl =>
     condM.htpy.norm_h_le _ _ (Nat.succ_le_succ hq) (by simp only [Nat.add_def, add_zero])
   | 0, 1, hq, rfl => by
@@ -224,13 +224,13 @@ theorem norm_hTruncate_le :
         NormedAddGroupHom.le_of_opNorm_le _ (condM.htpy.norm_h_le 1 2 (by decide) rfl c) x
 
 def δTruncate (c : ℝ≥0) :
-    ((truncate.obj M).row 0).obj (op <| c) ⟶ ((truncate.obj M).row 1).obj (op <| k' * c) :=
+    ((Truncate.obj M).row 0).obj (op <| c) ⟶ ((Truncate.obj M).row 1).obj (op <| k' * c) :=
   SemiNormedGroupCat.Truncate.map (condM.htpy.δ c)
 
 theorem hδ_truncate (c : ℝ≥0) [Fact (c₀ ≤ c)] :
     ∀ (q : ℕ) (hq : q ≤ m),
-      (truncate.obj M).res ≫ (condM.δTruncate c).f q =
-        d _ 0 1 ≫ (truncate.obj M).res + d' _ q (q + 1) ≫ condM.hTruncate q +
+      (Truncate.obj M).res ≫ (condM.δTruncate c).f q =
+        d _ 0 1 ≫ (Truncate.obj M).res + d' _ q (q + 1) ≫ condM.hTruncate q +
           condM.hTruncate (q - 1) ≫ d' _ (q - 1) q
   | 1, h => condM.htpy.hδ _ _ (Nat.succ_le_succ h)
   | q + 2, h => condM.htpy.hδ _ _ (Nat.succ_le_succ h)
@@ -242,7 +242,7 @@ theorem hδ_truncate (c : ℝ≥0) [Fact (c₀ ≤ c)] :
     trans π _ _ ((condM.htpy.δ c).f 1 (M.res x)); · rfl
     erw [condM.htpy.hδ_apply _ _ (Nat.succ_le_succ h) x]
     simp only [Nat.zero_sub, d'_self_apply, add_zero, row_d, truncate.d_π, truncate.res_π,
-      truncate.d'_zero_one, h_truncate_zero, map_add,
+      truncate.d'_zero_one, SystemOfDoubleComplexes.NormedSpectralConditions.hTruncate_zero, map_add,
       SemiNormedGroupCat.explicitCokernelπ_apply_dom_eq_zero]
     rfl
 
@@ -257,22 +257,22 @@ theorem norm_δTruncate_le (c : ℝ≥0) [Fact (c₀ ≤ c)] :
     refine' (SemiNormedGroupCat.normNoninc_explicitCokernelπ _ _).trans _
     exact NormedAddGroupHom.le_of_opNorm_le _ (condM.htpy.norm_δ_le c _ (Nat.succ_le_succ h)) _
 
-def truncate : (truncate.obj M).NormedSpectralConditions m (k * k * k) (K * (K * K + 1)) k' ε c₀ H
+def truncate : (Truncate.obj M).NormedSpectralConditions m (k * k * k) (K * (K * K + 1)) k' ε c₀ H
     where
   rowExact := by
     intro hm i hi
     cases m; · exact (Nat.not_lt_zero _ hm).elim
-    suffices ((truncate.obj M).row i).IsWeakBoundedExact k K m c₀ by
-      apply this.of_le (condM.truncate_admissible.row i) _ _ le_rfl ⟨le_rfl⟩ <;> infer_instance
+    suffices ((Truncate.obj M).row i).IsWeakBoundedExact k K m c₀ by
+      apply this.of_le (condM.truncateAdmissible.row i) _ _ le_rfl ⟨le_rfl⟩ <;> infer_instance
     rw [truncate.row]
     apply (M.row i).truncateIsWeakBoundedExact
     · refine' condM.row_exact (Nat.zero_lt_succ _) i (hi.trans (Nat.le_succ _))
   colExact := by
     rintro (j | j) hj
-    · exact condM.col_zero_exact
+    · exact condM.colZeroExact
     · rw [truncate.col_pos]
       refine'
-          (condM.col_exact (j + 2) (Nat.succ_le_succ hj)).of_le (condM.admissible.col (j + 2)) _ _
+          (condM.colExact (j + 2) (Nat.succ_le_succ hj)).of_le (condM.admissible.col (j + 2)) _ _
             m.le_succ ⟨le_rfl⟩ <;>
         infer_instance
   htpy :=
@@ -338,14 +338,14 @@ theorem base (c₀ H : ℝ≥0) [Fact (0 < H)] (M : SystemOfDoubleComplexes.{u})
   have hδφ : ε' = φ + φ := by dsimp [φ]; rw [← add_div, half_add_self]
   haveI : Fact (k' * (k' * c) ≤ k' * k' * c) := by rw [mul_assoc]; exact ⟨le_rfl⟩
   have Hx1 :=
-    (cond.col_exact 0 le_rfl).of_le (cond.admissible.col 0) ‹_› ⟨le_rfl⟩ le_rfl ⟨le_rfl⟩ c hc 0
+    (cond.colExact 0 le_rfl).of_le (cond.admissible.col 0) ‹_› ⟨le_rfl⟩ le_rfl ⟨le_rfl⟩ c hc 0
       le_rfl
   have Hx2 := NormedAddGroupHom.le_of_opNorm_le _ (cond.htpy.norm_δ_le c 0 le_rfl) (M.res x)
   have aux := cond.htpy.hδ_apply c 0 le_rfl (M.res x)
   erw [res_res] at aux 
   rw [aux] at Hx2 
   simp only [row_d, col_d, d_self_apply, d'_self_apply, sub_zero, add_zero, smul_zero, d_res,
-    d'_res, res_res, one_div, row_res, Units.val_one, one_smul, row_map_apply] at Hx1 Hx2 ⊢
+    d'_res, res_res, one_div, row_res, Units.val_one, one_smul, SystemOfDoubleComplexes.rowMap_apply] at Hx1 Hx2 ⊢
   refine' ⟨0, 1, rfl, rfl, 0, _⟩
   obtain ⟨i, j, hi, hj, y1, hx1⟩ := Hx1 (M.res x) φ hφ
   simp [← eq_neg_iff_add_eq_zero] at hi hj ; subst i; subst j

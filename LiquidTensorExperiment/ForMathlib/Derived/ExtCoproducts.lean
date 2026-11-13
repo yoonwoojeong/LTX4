@@ -27,7 +27,7 @@ noncomputable def cofan {α : Type v} (X : α → BoundedHomotopyCategory A) [Un
         dsimp [HomotopyCategory.colimitCofan]
         let e : (∐ fun a : α => (X a).val.as).pt i ≅ ∐ fun a : α => (X a).val.as.pt i :=
           HomotopyCategory.coproductIso _ _
-        refine' is_zero_of_iso_of_zero _ e.symm
+        refine' CategoryTheory.Limits.isZero_of_iso_of_zero _ e.symm
         apply CategoryTheory.isZero_colimit
         intro j
         refine' hn j.as _ hi }
@@ -60,8 +60,8 @@ instance isKProjectiveSigma {α : Type v} (X : α → BoundedHomotopyCategory A)
     [∀ a, HomotopyCategory.IsKProjective (X a).val] :
     HomotopyCategory.IsKProjective (sigmaObj X).val :=
   by
-  let e : sigma_obj X ≅ (cofan X).pt :=
-    (colimit.is_colimit _).coconePointUniqueUpToIso (is_colimit_cofan X)
+  let e : CategoryTheory.Limits.sigmaObj X ≅ (cofan X).pt :=
+    (colimit.isColimit _).coconePointUniqueUpToIso (is_colimit_cofan X)
   let ee := (forget A).mapIso e
   suffices HomotopyCategory.IsKProjective ((forget A).obj (cofan X).pt) by skip;
     apply HomotopyCategory.isKProjectiveOfIso _ _ ee.symm
@@ -71,12 +71,12 @@ instance isKProjectiveSigma {α : Type v} (X : α → BoundedHomotopyCategory A)
 noncomputable instance forgetPreservesCoproduct {α : Type v} (X : α → BoundedHomotopyCategory A)
     [UniformlyBounded X] : PreservesColimit (Discrete.functor X) (forget A) :=
   by
-  apply preserves_colimit_of_preserves_colimit_cocone (is_colimit_cofan X)
+  apply CategoryTheory.Limits.preservesColimitOfPreservesColimitCocone (is_colimit_cofan X)
   let E : (forget A).mapCocone (cofan X) ≅ HomotopyCategory.colimitCofan (val ∘ X) :=
-    cocones.ext (iso.refl _) _
+    Cocones.ext (iso.refl _) _
   rotate_left
-  · intro a; dsimp [forget, cofan]; simpa only [category.comp_id]
-  apply is_colimit.of_iso_colimit _ E.symm
+  · intro a; dsimp [forget, cofan]; simpa only [Category.comp_id]
+  apply IsColimit.ofIsoColimit _ E.symm
   apply HomotopyCategory.isColimitCofan
 
 theorem isQuasiIsoSigma [AB4 A] {α : Type v} (X P : α → BoundedHomotopyCategory A)
@@ -88,25 +88,25 @@ theorem isQuasiIsoSigma [AB4 A] {α : Type v} (X P : α → BoundedHomotopyCateg
   let t := sigma.desc fun a : α => π a ≫ sigma.ι X a
   change HomotopyCategory.IsQuasiIso ((forget A).map t)
   let eP : (forget A).obj (∐ P) ≅ ∐ fun a => (forget A).obj (P a) :=
-    preserves_colimit_iso (forget A) _
+    CategoryTheory.preservesColimitIso (forget A) _
   let eX : (forget A).obj (∐ X) ≅ ∐ fun a => (forget A).obj (X a) :=
-    preserves_colimit_iso (forget A) _
+    CategoryTheory.preservesColimitIso (forget A) _
   let s : (∐ fun a => (forget A).obj (P a)) ⟶ ∐ fun a => (forget A).obj (X a) :=
     sigma.desc fun a : α => π a ≫ sigma.ι (val ∘ X) a
   suffices (forget A).map t = eP.hom ≫ s ≫ eX.inv
     by
     rw [this]
     apply HomotopyCategory.isQuasiIsoComp
-  apply (is_colimit_of_preserves (forget A) (colimit.is_colimit _)).hom_ext
+  apply (CategoryTheory.Limits.isColimitOfPreserves (forget A) (colimit.isColimit _)).hom_ext
   swap; infer_instance
   intro a
-  dsimp [t, s, eP, eX, preserves_colimit_iso, is_colimit.cocone_point_unique_up_to_iso]
+  dsimp [t, s, eP, eX, CategoryTheory.preservesColimitIso, IsColimit.coconePointUniqueUpToIso]
   rw [← (forget A).map_comp, colimit.ι_desc]
   slice_rhs 0 1 =>
-    erw [(is_colimit_of_preserves (forget A) (colimit.is_colimit (discrete.functor P))).fac]
+    erw [(CategoryTheory.Limits.isColimitOfPreserves (forget A) (colimit.isColimit (Discrete.functor P))).fac]
   erw [colimit.ι_desc]
-  dsimp; simp only [category.assoc]; erw [colimit.ι_desc]
-  dsimp; simp only [functor.map_comp]; rfl
+  dsimp; simp only [Category.assoc]; erw [colimit.ι_desc]
+  dsimp; simp only [Functor.map_comp]; rfl
 
 variable [EnoughProjectives A]
 
@@ -131,66 +131,66 @@ theorem ι_ext_coprodut_iso [AB4 A] {α : Type v} (X : α → BoundedHomotopyCat
     [UniformlyBounded X] (i : ℤ) (Y) (j) :
     (extCoproductIso X i Y).inv ≫ ((ext i).map (Sigma.ι X j : X j ⟶ ∐ X).op).app Y = Pi.π _ _ :=
   by
-  rw [iso.inv_comp_eq]
+  rw [Iso.inv_comp_eq]
   dsimp [Ext_coproduct_iso, pi_iso]
-  simp only [category.assoc, limit.lift_π, fan.mk_π_app]
-  simp only [← category.assoc]; rw [iso.eq_comp_inv]
+  simp only [Category.assoc, limit.lift_π, Fan.mk_π_app]
+  simp only [← Category.assoc]; rw [Iso.eq_comp_inv]
   dsimp [Ext, Ext_iso]
   --ext t, simp only [comp_apply],
-  dsimp [preadditive_yoneda_coproduct_iso, preadditive_yoneda_coproduct_to_product]
-  simp only [category.assoc, limit.lift_π]
+  dsimp [CategoryTheory.preadditiveYonedaCoproductIso, CategoryTheory.preadditiveYonedaCoproductToProduct]
+  simp only [Category.assoc, limit.lift_π]
   ext t; simp only [comp_apply]; dsimp
-  simp only [← category.assoc]; congr 1
+  simp only [← Category.assoc]; congr 1
   apply lift_ext (∐ X).π; swap; infer_instance
   dsimp [uniform_π]
   simp
 
 theorem ι_ext_coproduct_iso' [AB4 A] {α : Type v} (X : α → BoundedHomotopyCategory A)
     [UniformlyBounded X] (i : ℤ) (Y) (j) :
-    (extCoproductIso X i Y).Hom ≫ Pi.π _ _ = ((ext i).map (Sigma.ι X j : X j ⟶ ∐ X).op).app Y := by
-  rw [← iso.eq_inv_comp, ι_Ext_coprodut_iso]
+    (extCoproductIso X i Y).hom ≫ Pi.π _ _ = ((ext i).map (Sigma.ι X j : X j ⟶ ∐ X).op).app Y := by
+  rw [← Iso.eq_inv_comp, ι_Ext_coprodut_iso]
 
 theorem extCoproductIso_naturality [AB4 A] {α : Type v} (X₁ X₂ : α → BoundedHomotopyCategory A)
     [UniformlyBounded X₁] [UniformlyBounded X₂] (g : X₁ ⟶ X₂) (i : ℤ) (Y) :
     ((ext i).map (Sigma.desc fun b => g b ≫ Sigma.ι X₂ b : ∐ X₁ ⟶ ∐ X₂).op).app Y ≫
-        (extCoproductIso _ _ _).Hom =
-      (extCoproductIso _ _ _).Hom ≫ Pi.lift fun b => Pi.π _ b ≫ ((ext i).map (g b).op).app Y :=
+        (extCoproductIso _ _ _).hom =
+      (extCoproductIso _ _ _).hom ≫ Pi.lift fun b => Pi.π _ b ≫ ((ext i).map (g b).op).app Y :=
   by
-  dsimp only [Ext_coproduct_iso, Ext, Ext0, Ext_iso, functor.comp_map, whiskering_left,
-    whisker_left, iso.trans_hom, functor.map_iso, preadditive_yoneda_coproduct_iso, functor.flip,
-    pi_iso, as_iso, preadditive_yoneda_coproduct_to_product]
-  simp only [category.assoc]
-  simp only [Quiver.Hom.unop_op, iso.op_hom, replacement_iso_hom, iso.op_inv, replacement_iso_inv,
-    iso.symm_mk]
+  dsimp only [Ext_coproduct_iso, Ext, Ext0, Ext_iso, Functor.comp_map, CategoryTheory.whiskeringLeft,
+    whisker_left, Iso.trans_hom, Functor.mapIso, CategoryTheory.preadditiveYonedaCoproductIso, Functor.flip,
+    pi_iso, CategoryTheory.asIso, CategoryTheory.preadditiveYonedaCoproductToProduct]
+  simp only [Category.assoc]
+  simp only [Quiver.Hom.unop_op, Iso.op_hom, BoundedHomotopyCategory.replacementIso_hom, Iso.op_inv, BoundedHomotopyCategory.replacementIso_inv,
+    Iso.symm_mk]
   apply limit.hom_ext
   intro j
-  simp only [category.assoc, limit.lift_π, fan.mk_π_app, limit.lift_π_assoc]
-  simp only [← functor.map_comp, ← op_comp]
+  simp only [Category.assoc, limit.lift_π, Fan.mk_π_app, limit.lift_π_assoc]
+  simp only [← Functor.map_comp, ← op_comp]
   congr 2
-  simp only [category.assoc]
+  simp only [Category.assoc]
   apply lift_ext (∐ X₂).π; swap; infer_instance
   dsimp [Quiver.Hom.unop_op]
-  simp only [category.assoc, lift_lifts, lift_lifts_assoc]
+  simp only [Category.assoc, lift_lifts, lift_lifts_assoc]
   dsimp [uniform_π]
-  simp only [colimit.ι_desc_assoc, cofan.mk_ι_app, category.assoc, colimit.ι_desc, lift_lifts_assoc]
+  simp only [colimit.ι_desc_assoc, Cofan.mk_ι_app, Category.assoc, colimit.ι_desc, lift_lifts_assoc]
 
 theorem extCoproductIso_naturality' [AB4 A] {α : Type v} (X : α → BoundedHomotopyCategory A)
     [UniformlyBounded X] (i : ℤ) (Y₁ Y₂) (f : Y₁ ⟶ Y₂) :
-    ((ext i).obj (op (sigmaObj X))).map f ≫ (extCoproductIso _ _ _).Hom =
-      (extCoproductIso _ _ _).Hom ≫ Pi.lift fun a => Pi.π _ a ≫ ((ext i).obj _).map f :=
+    ((ext i).obj (op (sigmaObj X))).map f ≫ (extCoproductIso _ _ _).hom =
+      (extCoproductIso _ _ _).hom ≫ Pi.lift fun a => Pi.π _ a ≫ ((ext i).obj _).map f :=
   by
-  dsimp only [Ext_coproduct_iso, Ext, Ext0, Ext_iso, functor.comp_map, whiskering_left,
-    whisker_left, iso.trans_hom, functor.map_iso, preadditive_yoneda_coproduct_iso, functor.flip,
-    pi_iso, as_iso, preadditive_yoneda_coproduct_to_product, functor.comp_map, functor.comp_obj]
-  simp only [category.assoc]
-  simp only [Quiver.Hom.unop_op, iso.op_hom, replacement_iso_hom, iso.op_inv, replacement_iso_inv,
-    iso.symm_mk]
+  dsimp only [Ext_coproduct_iso, Ext, Ext0, Ext_iso, Functor.comp_map, CategoryTheory.whiskeringLeft,
+    whisker_left, Iso.trans_hom, Functor.mapIso, CategoryTheory.preadditiveYonedaCoproductIso, Functor.flip,
+    pi_iso, CategoryTheory.asIso, CategoryTheory.preadditiveYonedaCoproductToProduct, Functor.comp_map, Functor.comp_obj]
+  simp only [Category.assoc]
+  simp only [Quiver.Hom.unop_op, Iso.op_hom, BoundedHomotopyCategory.replacementIso_hom, Iso.op_inv, BoundedHomotopyCategory.replacementIso_inv,
+    Iso.symm_mk]
   apply limit.hom_ext
   intro j
-  simp only [category.assoc, limit.lift_π, fan.mk_π_app, limit.lift_π_assoc]
-  erw [nat_trans.naturality]
-  erw [nat_trans.naturality_assoc]
-  erw [nat_trans.naturality_assoc]
+  simp only [Category.assoc, limit.lift_π, Fan.mk_π_app, limit.lift_π_assoc]
+  erw [NatTrans.naturality]
+  erw [NatTrans.naturality_assoc]
+  erw [NatTrans.naturality_assoc]
   rfl
 
 end BoundedHomotopyCategory
@@ -216,27 +216,27 @@ noncomputable theorem preservesCoproductsAux {α : Type v} {C : Type u} {D : Typ
     [Category.{v} C] [Category.{v} D] (F : C ⥤ D) [HasCoproductsOfShape α C]
     [∀ X : α → C, HasCoproduct fun a => F.obj (X a)]
     (e : ∀ X : α → C, F.obj (∐ X) ≅ ∐ fun a => F.obj (X a))
-    (he : ∀ (X : α → C) (a : α), F.map (Sigma.ι X a) ≫ (e X).Hom = Sigma.ι _ a) :
+    (he : ∀ (X : α → C) (a : α), F.map (Sigma.ι X a) ≫ (e X).hom = Sigma.ι _ a) :
     PreservesColimitsOfShape (Discrete α) F :=
   by
   constructor; intro K
-  let E : K ≅ discrete.functor (K.obj ∘ discrete.mk) := discrete.nat_iso fun ⟨a⟩ => iso.refl _
-  apply preserves_colimit_of_iso_diagram _ E.symm
-  apply preserves_colimit_of_preserves_colimit_cocone (colimit.is_colimit _)
+  let E : K ≅ Discrete.functor (K.obj ∘ Discrete.mk) := Discrete.natIso fun ⟨a⟩ => iso.refl _
+  apply CategoryTheory.Limits.preservesColimitOfIsoDiagram _ E.symm
+  apply CategoryTheory.Limits.preservesColimitOfPreservesColimitCocone (colimit.isColimit _)
   swap; infer_instance
   let P := _; change is_colimit P
-  let P' := (cocones.precompose (whiskerDiscreteFunctor F _).inv).obj P
-  suffices is_colimit P' by exact is_colimit.precompose_inv_equiv _ _ this
-  apply is_colimit.of_iso_colimit (colimit.is_colimit _); swap
-  change has_colimit (discrete.functor fun a : α => F.obj (K.obj ⟨a⟩))
+  let P' := (Cocones.precompose (whiskerDiscreteFunctor F _).inv).obj P
+  suffices is_colimit P' by exact IsColimit.precomposeInvEquiv _ _ this
+  apply IsColimit.ofIsoColimit (colimit.isColimit _); swap
+  change has_colimit (Discrete.functor fun a : α => F.obj (K.obj ⟨a⟩))
   infer_instance
   symm
-  fapply cocones.ext
+  fapply Cocones.ext
   apply e
   rintro ⟨a⟩
   convert (he fun b => K.obj ⟨b⟩) a
   dsimp [P', whiskerDiscreteFunctor]
-  rw [category.id_comp]
+  rw [Category.id_comp]
 
 noncomputable instance homologicalComplexEmbedPreservesCoproducts {α : Type v} {M N : Type}
     (c₁ : ComplexShape M) (c₂ : ComplexShape N) (e : c₁.Embedding c₂) :
@@ -248,74 +248,74 @@ noncomputable instance homologicalComplexEmbedPreservesCoproducts {α : Type v} 
         (fun i => by
           rcases h : e.r i with (_ | j)
           · refine' HomologicalComplex.Embed.xIsoOfNone _ h ≪≫ _
-            refine' _ ≪≫ (preserves_colimit_iso (HomologicalComplex.eval A c₂ i) _).symm
-            refine' (is_zero.iso_zero _).symm
-            apply is_zero_colimit
+            refine' _ ≪≫ (CategoryTheory.preservesColimitIso (HomologicalComplex.eval A c₂ i) _).symm
+            refine' (IsZero.isoZero _).symm
+            apply CategoryTheory.isZero_colimit
             intro a
             dsimp
             exact HomologicalComplex.Embed.x_isZero_of_none _ h
           · refine' HomologicalComplex.Embed.xIsoOfSome _ h ≪≫ _
-            refine' preserves_colimit_iso (HomologicalComplex.eval _ _ _) _ ≪≫ _
-            refine' _ ≪≫ (preserves_colimit_iso (HomologicalComplex.eval _ _ _) _).symm
-            refine' has_colimit.iso_of_nat_iso _
-            refine' discrete.nat_iso _
+            refine' CategoryTheory.preservesColimitIso (HomologicalComplex.eval _ _ _) _ ≪≫ _
+            refine' _ ≪≫ (CategoryTheory.preservesColimitIso (HomologicalComplex.eval _ _ _) _).symm
+            refine' HasColimit.isoOfNatIso _
+            refine' Discrete.natIso _
             intro b
             dsimp
             refine' (HomologicalComplex.Embed.xIsoOfSome _ h).symm)
         (by
           intro i j h
           rcases h₁ : e.r i with (_ | i') <;> rcases h₂ : e.r j with (_ | j')
-          · apply is_zero.eq_of_src
+          · apply IsZero.eq_of_src
             apply HomologicalComplex.Embed.x_isZero_of_none
             assumption
-          · apply is_zero.eq_of_src
+          · apply IsZero.eq_of_src
             apply HomologicalComplex.Embed.x_isZero_of_none
             assumption
-          · apply is_zero.eq_of_tgt
-            refine' is_zero.of_iso _ (preserves_colimit_iso (HomologicalComplex.eval _ _ _) _)
-            apply is_zero_colimit; intro b
+          · apply IsZero.eq_of_tgt
+            refine' IsZero.of_iso _ (CategoryTheory.preservesColimitIso (HomologicalComplex.eval _ _ _) _)
+            apply CategoryTheory.isZero_colimit; intro b
             apply HomologicalComplex.Embed.x_isZero_of_none
             assumption
           · simp_rw [h₁, h₂]; dsimp
-            simp only [category.assoc]
-            rw [← iso.eq_inv_comp]
+            simp only [Category.assoc]
+            rw [← Iso.eq_inv_comp]
             dsimp [HomologicalComplex.embed, HomologicalComplex.Embed.obj]
             rw [HomologicalComplex.Embed.d_of_some_of_some (∐ X) h₁ h₂]
-            simp only [category.assoc, iso.inv_hom_id_assoc]
-            apply (is_colimit_of_preserves (HomologicalComplex.eval A c₁ i') _).hom_ext
+            simp only [Category.assoc, Iso.inv_hom_id_assoc]
+            apply (CategoryTheory.Limits.isColimitOfPreserves (HomologicalComplex.eval A c₁ i') _).hom_ext
             rintro ⟨a⟩
-            simp only [functor.map_cocone_ι_app, colimit.cocone_ι, HomologicalComplex.eval_map]
-            slice_lhs 1 2 => erw [(is_colimit_of_preserves (HomologicalComplex.eval A c₁ i') _).fac]
+            simp only [Functor.mapCocone_ι_app, colimit.cocone_ι, HomologicalComplex.eval_map]
+            slice_lhs 1 2 => erw [(CategoryTheory.Limits.isColimitOfPreserves (HomologicalComplex.eval A c₁ i') _).fac]
             dsimp
-            simp only [has_colimit.iso_of_nat_iso_ι_hom, discrete.nat_iso_hom_app, iso.symm_hom,
-              category.assoc, ι_preserves_colimits_iso_inv, HomologicalComplex.eval_map,
+            simp only [HasColimit.isoOfNatIso_ι_hom, Discrete.natIso_hom_app, Iso.symm_hom,
+              Category.assoc, ι_preserves_colimits_iso_inv, HomologicalComplex.eval_map,
               HomologicalComplex.Hom.comm, HomologicalComplex.Hom.comm_assoc]
             dsimp
-            rw [iso.inv_comp_eq]
-            slice_rhs 3 4 => erw [(is_colimit_of_preserves (HomologicalComplex.eval A c₁ j') _).fac]
+            rw [Iso.inv_comp_eq]
+            slice_rhs 3 4 => erw [(CategoryTheory.Limits.isColimitOfPreserves (HomologicalComplex.eval A c₁ j') _).fac]
             dsimp
-            simp only [has_colimit.iso_of_nat_iso_ι_hom, discrete.nat_iso_hom_app, iso.symm_hom,
-              category.assoc, ι_preserves_colimits_iso_inv, HomologicalComplex.eval_map]
+            simp only [HasColimit.isoOfNatIso_ι_hom, Discrete.natIso_hom_app, Iso.symm_hom,
+              Category.assoc, ι_preserves_colimits_iso_inv, HomologicalComplex.eval_map]
             slice_rhs 1 3 => erw [← HomologicalComplex.Embed.d_of_some_of_some (X a) h₁ h₂]
-            apply colimit.is_colimit
+            apply colimit.isColimit
             infer_instance))
     (-- still annoying
     by
       intro X a; ext i
       rcases h : e.r i with (_ | i')
-      · apply is_zero.eq_of_tgt
-        refine' is_zero.of_iso _ (preserves_colimit_iso (HomologicalComplex.eval _ _ _) _)
-        apply is_zero_colimit; intro b
+      · apply IsZero.eq_of_tgt
+        refine' IsZero.of_iso _ (CategoryTheory.preservesColimitIso (HomologicalComplex.eval _ _ _) _)
+        apply CategoryTheory.isZero_colimit; intro b
         apply HomologicalComplex.Embed.x_isZero_of_none
         exact h
       dsimp [HomologicalComplex.Hom.isoOfComponents]
       simp_rw [h]; dsimp
-      simp only [← category.assoc, iso.comp_inv_eq]
-      simp_rw [← iso.eq_comp_inv, category.assoc]
-      slice_rhs 1 2 => erw [(is_colimit_of_preserves (HomologicalComplex.eval A c₂ i) _).fac]
+      simp only [← Category.assoc, Iso.comp_inv_eq]
+      simp_rw [← Iso.eq_comp_inv, Category.assoc]
+      slice_rhs 1 2 => erw [(CategoryTheory.Limits.isColimitOfPreserves (HomologicalComplex.eval A c₂ i) _).fac]
       dsimp
-      simp only [has_colimit.iso_of_nat_iso_ι_inv, discrete.nat_iso_inv_app, iso.symm_inv,
-        category.assoc, ι_preserves_colimits_iso_inv, HomologicalComplex.eval_map]
+      simp only [HasColimit.isoOfNatIso_ι_inv, Discrete.natIso_inv_app, Iso.symm_inv,
+        Category.assoc, ι_preserves_colimits_iso_inv, HomologicalComplex.eval_map]
       apply HomologicalComplex.Embed.f_of_some)
 
 noncomputable def embedCoproductIso {α : Type v} (X : α → ChainComplex A ℕ) :
@@ -334,35 +334,35 @@ noncomputable def chainComplexEmbedCofanIso {α : Type v} (X : α → ChainCompl
     (by
       rintro ⟨a⟩
       dsimp [BoundedHomotopyCategory.cofan, HomotopyCategory.colimitCofan, whiskerDiscreteFunctor]
-      erw [category.id_comp, ← functor.map_comp]
+      erw [Category.id_comp, ← Functor.map_comp]
       congr 1
       dsimp [embedCoproductIso]
-      simp only [category.assoc]
+      simp only [Category.assoc]
       erw [colimit.ι_desc_assoc]
-      rw [iso.comp_inv_eq]
-      erw [(is_colimit_of_preserves (HomologicalComplex.embed ComplexShape.Embedding.natDownIntUp)
+      rw [Iso.comp_inv_eq]
+      erw [(CategoryTheory.Limits.isColimitOfPreserves (HomologicalComplex.embed ComplexShape.Embedding.natDownIntUp)
             _).fac]
       dsimp [whiskerDiscreteFunctor]
-      rw [category.id_comp])
+      rw [Category.id_comp])
 
 noncomputable instance chainComplexToBoundedHomotopyCategoryPreservesCoproducts {α : Type v} :
     PreservesColimitsOfShape (Discrete α)
       (ChainComplex.toBoundedHomotopyCategory : ChainComplex A _ ⥤ _) :=
   by
   constructor; intro K
-  let E : K ≅ discrete.functor (K.obj ∘ discrete.mk) := discrete.nat_iso fun ⟨a⟩ => iso.refl _
-  apply preserves_colimit_of_iso_diagram _ E.symm
-  apply preserves_colimit_of_preserves_colimit_cocone (colimit.is_colimit _)
+  let E : K ≅ Discrete.functor (K.obj ∘ Discrete.mk) := Discrete.natIso fun ⟨a⟩ => iso.refl _
+  apply CategoryTheory.Limits.preservesColimitOfIsoDiagram _ E.symm
+  apply CategoryTheory.Limits.preservesColimitOfPreservesColimitCocone (colimit.isColimit _)
   let Q : α → BoundedHomotopyCategory A := fun a =>
-    chain_complex.to_bounded_homotopy_category.obj (K.obj ⟨a⟩)
+    chain_complex.toBoundedHomotopyCategory.obj (K.obj ⟨a⟩)
   let P := _; change is_colimit P
   let T :
-    discrete.functor (K.obj ∘ discrete.mk) ⋙ ChainComplex.toBoundedHomotopyCategory ≅
-      discrete.functor Q :=
-    discrete.nat_iso fun _ => iso.refl _
-  let P' := (cocones.precompose T.inv).obj P
-  suffices is_colimit P' by exact is_colimit.precompose_inv_equiv _ _ this
-  apply is_colimit.of_iso_colimit (BoundedHomotopyCategory.isColimitCofan Q)
+    Discrete.functor (K.obj ∘ Discrete.mk) ⋙ ChainComplex.toBoundedHomotopyCategory ≅
+      Discrete.functor Q :=
+    Discrete.natIso fun _ => iso.refl _
+  let P' := (Cocones.precompose T.inv).obj P
+  suffices is_colimit P' by exact IsColimit.precomposeInvEquiv _ _ this
+  apply IsColimit.ofIsoColimit (BoundedHomotopyCategory.isColimitCofan Q)
   swap; infer_instance
   apply chainComplexEmbedCofanIso
 

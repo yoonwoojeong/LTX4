@@ -42,17 +42,17 @@ def locallyConstant : SemiNormedGroupCat ⥤ Profiniteᵒᵖ ⥤ SemiNormedGroup
     where
   obj V :=
     { obj := fun S => SemiNormedGroupCat.of <| LocallyConstant (unop S : Profinite) V
-      map := fun S₁ S₂ f => comapHom f.unop f.unop.Continuous
-      map_id' := fun S => comapHom_id
-      map_comp' := fun S₁ S₂ S₃ f g => (comapHom_comp _ _ _ _).symm }
+      map := fun S₁ S₂ f => comapHom f.unop f.unop.continuous
+      map_id := fun S => comapHom_id
+      map_comp := fun S₁ S₂ S₃ f g => (comapHom_comp _ _ _ _).symm }
   map V W f :=
     { app := fun S => mapHom f
-      naturality' := fun S₁ S₂ g => by
+      naturality := fun S₁ S₂ g => by
         dsimp; ext
-        simp only [map_hom_apply, comap_hom_apply, CategoryTheory.coe_comp, Function.comp_apply,
+        simp only [map_hom_apply, LocallyConstant.comapHom_apply, CategoryTheory.coe_comp, Function.comp_apply,
           map_apply, coe_comap, g.unop.continuous] }
-  map_id' := by intros; ext; rfl
-  map_comp' := by intros; ext; rfl
+  map_id := by intros; ext; rfl
+  map_comp := by intros; ext; rfl
 
 @[simp]
 theorem locallyConstant_map_apply (M : SemiNormedGroupCat) (X Y : Profinite) (f : X ⟶ Y)

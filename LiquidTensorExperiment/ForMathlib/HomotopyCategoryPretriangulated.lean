@@ -59,7 +59,7 @@ theorem rotate_mem_distinguishedTriangles (T : triangle 𝒦) (h : T ∈ disting
     ⟨_, _, _, _, _, _,
       ⟨(rotate _).mapIso e ≪≫
           neg₃_rotate.app _ ≪≫
-            (triangle.nonneg_rotate_iso _).symm ≪≫
+            (Triangle.nonnegRotateIso _).symm ≪≫
               (HomotopyCategory.liftTriangle _).mapIso
                 (triangle_of_termwise_split_cone_iso f).symm⟩⟩
 
@@ -70,17 +70,17 @@ def invRotateLiftTriangle (V : Type u) [Category.{v} V] [Abelian V] :
     (fun X =>
       mkTriangleIso (Iso.refl _) (Iso.refl _) (Iso.refl _)
         (by dsimp;
-          simp only [category.comp_id, functor.map_neg, discrete.functor_map_id, category.id_comp,
-            preadditive.comp_neg, shift_ε_inv_app, category.assoc, neg_inj, functor.map_comp,
-            nat_trans.id_app, preadditive.neg_comp])
-        (by dsimp; rw [category.comp_id, category.id_comp])
+          simp only [Category.comp_id, Functor.map_neg, Discrete.functor_map_id, Category.id_comp,
+            Preadditive.comp_neg, shift_ε_inv_app, Category.assoc, neg_inj, Functor.map_comp,
+            NatTrans.id_app, Preadditive.neg_comp])
+        (by dsimp; rw [Category.comp_id, Category.id_comp])
         (by
           dsimp;
-          simp only [shift_ε_app, discrete.functor_map_id, category.id_comp, category.assoc,
-            functor.map_comp, nat_trans.id_app, CategoryTheory.Functor.map_id,
-            unit_of_tensor_iso_unit_inv_app, shift_μ_inv_app]
-          erw [category.comp_id]))
-    (by intros; ext <;> exact (category.comp_id _).trans (category.id_comp _).symm)
+          simp only [shift_ε_app, Discrete.functor_map_id, Category.id_comp, Category.assoc,
+            Functor.map_comp, NatTrans.id_app, CategoryTheory.Functor.map_id,
+            CategoryTheory.unitOfTensorIsoUnit_inv_app, shift_μ_inv_app]
+          erw [Category.comp_id]))
+    (by intros; ext <;> exact (Category.comp_id _).trans (Category.id_comp _).symm)
 
 theorem inv_rotate_mem_distinguishedTriangles (T : triangle 𝒦) (h : T ∈ distinguishedTriangles V) :
     T.invRotate ∈ distinguishedTriangles V :=
@@ -93,7 +93,7 @@ theorem inv_rotate_mem_distinguishedTriangles (T : triangle 𝒦) (h : T ∈ dis
             ((inv_rotate_lift_triangle _).app _).symm ≪≫
               (HomotopyCategory.liftTriangle _).mapIso
                 ((neg₃_equiv _).isoEquiv _ _
-                  ((triangle.nonneg_inv_rotate_iso _).symm ≪≫ inv_rotate_iso_cone_triangle f g h))⟩⟩
+                  ((Triangle.nonnegInvRotateIso _).symm ≪≫ inv_rotate_iso_cone_triangle f g h))⟩⟩
 
 instance : pretriangulated 𝒦
     where
@@ -103,11 +103,11 @@ instance : pretriangulated 𝒦
     rintro ⟨X⟩
     refine' ⟨X, X, HomologicalComplex.zero, 𝟙 _, 0, _, ⟨_⟩⟩
     · intro i; simp only [id_f, zero_f_apply]
-      refine' splitting.splitting_of_is_iso_zero _ (homological_complex.zero_X _ _)
+      refine' Splitting.splittingOfIsIsoZero _ (HomologicalComplex.zero_x _ _)
       exact HomologicalComplex.isZero_zero
-    refine' mk_triangle_iso (iso.refl _) (iso.refl _) _ _ _ _
+    refine' CategoryTheory.Triangulated.mkTriangleIso (iso.refl _) (iso.refl _) _ _ _ _
     · dsimp [triangleₕ_of_termwise_split]
-      refine' homotopy_category.is_zero_zero.iso_zero.symm
+      refine' homotopy_category.isZero_zero.isoZero.symm
     all_goals dsimp <;> simp <;> rfl
   distinguished_cocone_triangle := by
     rintro ⟨X⟩ ⟨Y⟩ f
@@ -116,11 +116,11 @@ instance : pretriangulated 𝒦
   rotate_distinguished_triangle := by
     intro T
     constructor
-    · apply rotate_mem_distinguished_triangles
+    · apply HomotopyCategory.rotate_mem_distinguishedTriangles
     · intro h
       exact
-        mem_distinguished_of_iso ((triangle_rotation _).unitIso.app T).symm
-          (inv_rotate_mem_distinguished_triangles _ h)
+        mem_distinguished_of_iso ((CategoryTheory.Pretriangulated.triangleRotation _).unitIso.app T).symm
+          (HomotopyCategory.inv_rotate_mem_distinguishedTriangles _ h)
   complete_distinguished_triangle_morphism := by
     intros
     obtain ⟨X₁, Y₁, f₁, ⟨e₁⟩⟩ := (mem_distinguished_iff_exists_iso_cone _).mp h₁
@@ -129,29 +129,29 @@ instance : pretriangulated 𝒦
       Homotopy (f₁ ≫ Quot.out (e₁.inv.hom₂ ≫ b ≫ e₂.hom.hom₂))
         (Quot.out (e₁.inv.hom₁ ≫ a ≫ e₂.hom.hom₁) ≫ f₂) :=
       by
-      apply homotopy_of_eq
-      simp only [quotient_map_out, category.assoc, functor.map_comp]
+      apply HomotopyCategory.homotopyOfEq
+      simp only [quotient_map_out, Category.assoc, Functor.map_comp]
       erw [← e₂.hom.comm₁, reassoc_of e₁.inv.comm₁, reassoc_of comm₁]
     refine' ⟨e₁.hom.hom₃ ≫ (Quotient V _).map (cone.map h) ≫ e₂.inv.hom₃, _, _⟩
-    · rw [reassoc_of e₁.hom.comm₂, ← is_iso.eq_inv_comp]
-      simp_rw [← category.assoc]
-      rw [← is_iso.eq_comp_inv, ← inv_hom₃, ← inv_hom₂, is_iso.iso.inv_inv, is_iso.iso.inv_hom]
-      simp_rw [category.assoc]
+    · rw [reassoc_of e₁.hom.comm₂, ← IsIso.eq_inv_comp]
+      simp_rw [← Category.assoc]
+      rw [← IsIso.eq_comp_inv, ← inv_hom₃, ← inv_hom₂, IsIso.Iso.inv_inv, IsIso.Iso.inv_hom]
+      simp_rw [Category.assoc]
       rw [e₂.hom.comm₂]
-      convert (cone.triangleₕ_map h).comm₂ using 1
+      convert (cone.triangleₕMap h).comm₂ using 1
       dsimp; simp
-    · simp_rw [category.assoc]
-      rw [← is_iso.inv_comp_eq, ← inv_hom₃, is_iso.iso.inv_hom, ← reassoc_of e₁.inv.comm₃, ←
+    · simp_rw [Category.assoc]
+      rw [← IsIso.inv_comp_eq, ← inv_hom₃, IsIso.Iso.inv_hom, ← reassoc_of e₁.inv.comm₃, ←
         e₂.inv.comm₃]
       dsimp
-      have := (cone.triangleₕ_map h).comm₃
+      have := (cone.triangleₕMap h).comm₃
       dsimp at this 
-      rw [← homotopy_category.quotient_map_shift, quotient_map_out] at this 
-      simp only [preadditive.neg_comp_assoc, preadditive.comp_neg, category.assoc, neg_inj,
-        preadditive.neg_comp]
-      rw [← reassoc_of this, ← functor.map_comp, ← functor.map_comp]
+      rw [← HomotopyCategory.quotient_map_shift, quotient_map_out] at this 
+      simp only [Preadditive.neg_comp_assoc, Preadditive.comp_neg, Category.assoc, neg_inj,
+        Preadditive.neg_comp]
+      rw [← reassoc_of this, ← Functor.map_comp, ← Functor.map_comp]
       congr 2
-      rw [← is_iso.comp_inv_eq, ← inv_hom₁, is_iso.iso.inv_inv, category.assoc]
+      rw [← IsIso.comp_inv_eq, ← inv_hom₁, IsIso.Iso.inv_inv, Category.assoc]
 
 end HomotopyCategory
 

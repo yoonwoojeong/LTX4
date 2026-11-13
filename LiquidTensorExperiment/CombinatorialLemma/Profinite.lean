@@ -53,7 +53,7 @@ theorem sum'_succ {c₁ c₂ : ℝ≥0} {M : Type u} [PseudoNormedGroup M] (n : 
       castLe' (by simpa [add_mul] using h) ∘ add' ∘ fun t => ⟨sum' n le_rfl (Fin.tail t), t 0⟩ :=
   by
   ext t
-  simp only [sum', Subtype.val_eq_coe, Subtype.coe_mk, coe_cast_le', add'_eq]
+  simp only [sum', Subtype.val_eq_coe, Subtype.coe_mk, PseudoNormedGroup.coe_castLe', add'_eq]
   rw [Fin.sum_univ_succ, add_comm]
   rfl
 
@@ -109,22 +109,22 @@ def level : ℝ≥0 ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r' ⥤ Profinite.{u}
   obj c :=
     { obj := fun X => Profinite.of <| PseudoNormedGroup.filtration X c
       map := fun X Y f => ⟨f.level _, f.continuous' _⟩
-      map_id' := fun M => by ext; rfl
-      map_comp' := fun M₁ M₂ M₃ f g => by ext; rfl }
+      map_id := fun M => by ext; rfl
+      map_comp := fun M₁ M₂ M₃ f g => by ext; rfl }
   map c₁ c₂ h :=
     { app := fun X =>
         ⟨PseudoNormedGroup.castLe' h.le,
           by
           haveI : Fact (c₁ ≤ c₂) := ⟨h.le⟩
           apply ComphausFilteredPseudoNormedGroup.continuous_castLe⟩
-      naturality' := fun M₁ M₂ f => by ext; rfl }
-  map_id' c := by ext; rfl
-  map_comp' c₁ c₂ c₃ h₁₂ h₂₃ := by ext; rfl
+      naturality := fun M₁ M₂ f => by ext; rfl }
+  map_id c := by ext; rfl
+  map_comp c₁ c₂ c₃ h₁₂ h₂₃ := by ext; rfl
 
 instance (c) : PreservesLimits ((level r').obj c) :=
   by
   change preserves_limits (pFPNGT₁ToPFPNG₁ₑₗ.{u} r' ⋙ ProFiltPseuNormGrp₁.level.obj c)
-  apply (config := { instances := false }) limits.comp_preserves_limits
+  apply (config := { instances := false }) Limits.compPreservesLimits
   constructor; constructor; intro J _; constructor
 
 -- <-- looks like we have `preserves_limit` and not `preserves_limits`, but
@@ -140,15 +140,15 @@ abbrev mapLvl {X Y : ProFiltPseuNormGrpWithTinv₁.{u} r'} (f : X ⟶ Y) (c : �
 
 @[reassoc]
 theorem mapLvl_comp {X Y Z : ProFiltPseuNormGrpWithTinv₁.{u} r'} (f : X ⟶ Y) (g : Y ⟶ Z) (c : ℝ≥0) :
-    map_lvl f c ≫ map_lvl g c = map_lvl (f ≫ g) c := by ext; rfl
+    ProFiltPseuNormGrpWithTinv₁.mapLvl f c ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl g c = ProFiltPseuNormGrpWithTinv₁.mapLvl (f ≫ g) c := by ext; rfl
 
 abbrev castLvl {c₁ c₂ : ℝ≥0} (X : ProFiltPseuNormGrpWithTinv₁.{u} r') (h : c₁ ≤ c₂) :
     X.lvl c₁ ⟶ X.lvl c₂ :=
-  ((level r').map h.Hom).app _
+  ((level r').map h.hom).app _
 
 @[reassoc]
 theorem mapLvl_castLvl_eq {X Y : ProFiltPseuNormGrpWithTinv₁.{u} r'} (f : X ⟶ Y) (c₁ c₂ : ℝ≥0)
-    (h : c₁ ≤ c₂) : map_lvl f c₁ ≫ cast_lvl Y h = cast_lvl X h ≫ map_lvl f c₂ := by ext; rfl
+    (h : c₁ ≤ c₂) : ProFiltPseuNormGrpWithTinv₁.mapLvl f c₁ ≫ ProFiltPseuNormGrpWithTinv₁.castLvl Y h = ProFiltPseuNormGrpWithTinv₁.castLvl X h ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl f c₂ := by ext; rfl
 
 def sum {c₁ c₂ : ℝ≥0} (X : ProFiltPseuNormGrpWithTinv₁.{u} r') (n : ℕ) (h : ↑n * c₁ ≤ c₂) :
     (X.lvl c₁).pow n ⟶ X.lvl c₂ :=
@@ -179,34 +179,34 @@ def gadget (X : ProFiltPseuNormGrpWithTinv₁.{u} r') (N : ℕ) [Fact (0 < N)] (
 
 def mapGadget {X Y : ProFiltPseuNormGrpWithTinv₁.{u} r'} (f : X ⟶ Y) (N : ℕ) [Fact (0 < N)]
     (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ X.lvl c) (t' : Profinite.punit.{u} ⟶ Y.lvl c)
-    (w : t ≫ map_lvl f c = t') : X.gadget N c d t ⟶ Y.gadget N c d t' :=
+    (w : t ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl f c = t') : X.gadget N c d t ⟶ Y.gadget N c d t' :=
   Profinite.pullback.lift _ _
     (Profinite.pullback.fst _ _ ≫
       Profinite.pullback.lift _ _
         (Profinite.pullback.fst _ _ ≫
-          Profinite.product.lift _ fun i => Profinite.product.π _ i ≫ map_lvl f _)
-        (Profinite.pullback.snd _ _ ≫ map_lvl f _)
+          Profinite.product.lift _ fun i => Profinite.product.π _ i ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl f _)
+        (Profinite.pullback.snd _ _ ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl f _)
         (by
-          simp only [category.assoc, map_lvl_cast_lvl_eq, ← Profinite.pullback.condition_assoc]
+          simp only [Category.assoc, ProFiltPseuNormGrpWithTinv₁.mapLvl_castLvl_eq, ← Profinite.pullback.condition_assoc]
           ext ⟨⟨x₁, x₂⟩, hx⟩
-          simp only [category.assoc, Profinite.coe_comp, Function.comp_apply, nat_trans.naturality]
+          simp only [Category.assoc, Profinite.coe_comp, Function.comp_apply, NatTrans.naturality]
           dsimp [Profinite.pullback.fst, Profinite.pullback.snd]
           rw [f.map_sum, Finset.sum_congr rfl]
           rintro i -
           rfl))
     (Profinite.pullback.snd _ _)
-    (by rw [category.assoc, Profinite.pullback.lift_snd, Profinite.pullback.condition_assoc, w])
+    (by rw [Category.assoc, Profinite.pullback.lift_snd, Profinite.pullback.condition_assoc, w])
 
 theorem mapGadget_comp {X Y Z : ProFiltPseuNormGrpWithTinv₁.{u} r'} (f : X ⟶ Y) (g : Y ⟶ Z) (N : ℕ)
     [Fact (0 < N)] (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ X.lvl c)
     (t' : Profinite.punit.{u} ⟶ Y.lvl c) (t'' : Profinite.punit.{u} ⟶ Z.lvl c)
-    (w : t ≫ map_lvl f c = t') (w' : t' ≫ map_lvl g c = t'') :
-    map_gadget f N c d t t' w ≫ map_gadget g N c d t' t'' w' =
-      map_gadget (f ≫ g) N c d t t'' (by subst t''; subst t'; rw [category.assoc, map_lvl_comp]) :=
+    (w : t ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl f c = t') (w' : t' ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl g c = t'') :
+    ProFiltPseuNormGrpWithTinv₁.mapGadget f N c d t t' w ≫ ProFiltPseuNormGrpWithTinv₁.mapGadget g N c d t' t'' w' =
+      ProFiltPseuNormGrpWithTinv₁.mapGadget (f ≫ g) N c d t t'' (by subst t''; subst t'; rw [Category.assoc, ProFiltPseuNormGrpWithTinv₁.mapLvl_comp]) :=
   by
-  dsimp only [map_gadget]
+  dsimp only [ProFiltPseuNormGrpWithTinv₁.mapGadget]
   refine' Profinite.pullback.hom_ext _ _ _ _ _ _ <;>
-    simp only [category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
+    simp only [Category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
       Profinite.pullback.lift_fst_assoc, Profinite.pullback.lift_snd_assoc]
   rfl
 
@@ -215,56 +215,56 @@ def gadgetDiagram {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrpWi
     (C : Cone K) (N : ℕ) [Fact (0 < N)] (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ C.pt.lvl c) :
     J ⥤ Profinite.{u}
     where
-  obj j := (K.obj j).gadget N c d (t ≫ map_lvl (C.π.app _) c)
-  map i j f := map_gadget (K.map f) _ _ _ _ _ (by rw [category.assoc, map_lvl_comp, cone.w])
-  map_id' i := by simp only [K.map_id]; ext <;> rfl
-  map_comp' i j k h₁ h₂ := by simp only [K.map_comp]; ext <;> rfl
+  obj j := (K.obj j).gadget N c d (t ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl (C.π.app _) c)
+  map i j f := ProFiltPseuNormGrpWithTinv₁.mapGadget (K.map f) _ _ _ _ _ (by rw [Category.assoc, ProFiltPseuNormGrpWithTinv₁.mapLvl_comp, Cone.w])
+  map_id i := by simp only [K.map_id]; ext <;> rfl
+  map_comp i j k h₁ h₂ := by simp only [K.map_comp]; ext <;> rfl
 
 @[simps]
 def gadgetDiagramFstSnd {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrpWithTinv₁ r'}
     (C : Cone K) (N : ℕ) [Fact (0 < N)] (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ C.pt.lvl c) :
-    gadget_diagram C N c d t ⟶ K ⋙ (level r').obj c
+    ProFiltPseuNormGrpWithTinv₁.gadgetDiagram C N c d t ⟶ K ⋙ (level r').obj c
     where
   app j := Profinite.pullback.fst _ _ ≫ Profinite.pullback.snd _ _
-  naturality' i j h := by ext <;> rfl
+  naturality i j h := by ext <;> rfl
 
 @[simps]
 def gadgetDiagramFstFst {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrpWithTinv₁ r'}
     (C : Cone K) (N : ℕ) [Fact (0 < N)] (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ C.pt.lvl c)
-    (i : Fin N) : gadget_diagram C N c d t ⟶ K ⋙ (level r').obj (c / ↑N + d)
+    (i : Fin N) : ProFiltPseuNormGrpWithTinv₁.gadgetDiagram C N c d t ⟶ K ⋙ (level r').obj (c / ↑N + d)
     where
   app j := Profinite.pullback.fst _ _ ≫ Profinite.pullback.fst _ _ ≫ Profinite.product.π _ i
-  naturality' i j h := by ext <;> rfl
+  naturality i j h := by ext <;> rfl
 
 @[simps]
 def gadgetCone {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrpWithTinv₁ r'} (C : Cone K)
     (N : ℕ) [Fact (0 < N)] (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ C.pt.lvl c) :
-    Cone (gadget_diagram C N c d t)
+    Cone (ProFiltPseuNormGrpWithTinv₁.gadgetDiagram C N c d t)
     where
   pt := C.pt.gadget N c d t
   π :=
-    { app := fun j => map_gadget (C.π.app _) _ _ _ _ _ rfl
-      naturality' := fun i j h => by dsimp; rw [category.id_comp, map_gadget_comp]; congr;
-        rw [cone.w] }
+    { app := fun j => ProFiltPseuNormGrpWithTinv₁.mapGadget (C.π.app _) _ _ _ _ _ rfl
+      naturality := fun i j h => by dsimp; rw [Category.id_comp, ProFiltPseuNormGrpWithTinv₁.mapGadget_comp]; congr;
+        rw [Cone.w] }
 
 theorem gadget_cone_lift_fst_snd {J : Type u} [SmallCategory J]
     {K : J ⥤ ProFiltPseuNormGrpWithTinv₁ r'} (C : Cone K)
     (hC : ∀ a : ℝ≥0, IsLimit (((level r').obj a).mapCone C)) (N : ℕ) [Fact (0 < N)] (c d : ℝ≥0)
-    (t : Profinite.punit.{u} ⟶ C.pt.lvl c) (S : Cone (gadget_diagram C N c d t)) :
-    (hC c).lift ((Cones.postcompose (gadget_diagram_fst_snd C N c d t)).obj S) =
+    (t : Profinite.punit.{u} ⟶ C.pt.lvl c) (S : Cone (ProFiltPseuNormGrpWithTinv₁.gadgetDiagram C N c d t)) :
+    (hC c).lift ((Cones.postcompose (ProFiltPseuNormGrpWithTinv₁.gadgetDiagramFstSnd C N c d t)).obj S) =
       Profinite.punit.elim S.pt ≫ t :=
   by
-  refine' ((hC c).uniq ((cones.postcompose (gadgetDiagramFstSnd.{u} C N c d t)).obj S) _ _).symm
+  refine' ((hC c).uniq ((Cones.postcompose (gadgetDiagramFstSnd.{u} C N c d t)).obj S) _ _).symm
   intro j
-  simp only [functor.map_cone_π_app, cones.postcompose_obj_π, nat_trans.comp_app,
-    gadget_diagram_fst_snd_app, Profinite.pullback.condition]
-  simp only [← category.assoc]; congr 2; ext
+  simp only [Functor.mapCone_π_app, Cones.postcompose_obj_π, NatTrans.comp_app,
+    ProFiltPseuNormGrpWithTinv₁.gadgetDiagramFstSnd_app, Profinite.pullback.condition]
+  simp only [← Category.assoc]; congr 2; ext
 
 theorem gadget_cone_lift_aux {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrpWithTinv₁ r'}
     (C : Cone K) (hC : ∀ a : ℝ≥0, IsLimit (((level r').obj a).mapCone C)) (N : ℕ) [Fact (0 < N)]
-    (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ C.pt.lvl c) (S : Cone (gadget_diagram C N c d t)) :
-    let η i := gadget_diagram_fst_fst C N c d t i
-    let γ := gadget_diagram_fst_snd C N c d t
+    (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ C.pt.lvl c) (S : Cone (ProFiltPseuNormGrpWithTinv₁.gadgetDiagram C N c d t)) :
+    let η i := ProFiltPseuNormGrpWithTinv₁.gadgetDiagramFstFst C N c d t i
+    let γ := ProFiltPseuNormGrpWithTinv₁.gadgetDiagramFstSnd C N c d t
     let S' i := (Cones.postcompose (η i)).obj S
     let F : ∀ i, S.pt ⟶ _ := fun i => (hC _).lift (S' i)
     let S'' := (Cones.postcompose γ).obj S
@@ -274,24 +274,24 @@ theorem gadget_cone_lift_aux {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPs
   have h₁ := le₁ N c d
   have h₂ := le₂ N c d
   rintro η γ S' F S''
-  let γ' : gadget_diagram C N c d t ⟶ K ⋙ (level r').obj (c + ↑N * d) :=
+  let γ' : ProFiltPseuNormGrpWithTinv₁.gadgetDiagram C N c d t ⟶ K ⋙ (level r').obj (c + ↑N * d) :=
     γ ≫ whisker_left _ ((level r').map h₂.hom)
-  let T'' := (cones.postcompose γ').obj S
+  let T'' := (Cones.postcompose γ').obj S
   have : (hC c).lift S'' ≫ C.X.cast_lvl h₂ = (hC _).lift T'' :=
     by
     apply (hC _).uniq T''
     intro j
     have := (hC c).fac S'' j
     dsimp at this ⊢
-    simp [category.assoc, ← reassoc_of this]
+    simp [Category.assoc, ← reassoc_of this]
   rw [this]
   apply (hC (c + ↑N * d)).uniq T''
   intro j
   dsimp
-  simp only [category.assoc]
+  simp only [Category.assoc]
   have :
     C.X.sum N h₁ ≫ ((level r').obj (c + ↑N * d)).map (C.π.app j) =
-      (Profinite.product.lift _ fun i => Profinite.product.π _ i ≫ map_lvl (C.π.app _) _) ≫
+      (Profinite.product.lift _ fun i => Profinite.product.π _ i ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl (C.π.app _) _) ≫
         ProFiltPseuNormGrpWithTinv₁.sum _ N h₁ :=
     by
     ext x
@@ -300,12 +300,12 @@ theorem gadget_cone_lift_aux {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPs
     rfl
   rw [this]
   erw [← Profinite.pullback.condition]
-  simp only [← category.assoc]
+  simp only [← Category.assoc]
   congr 1
   apply Profinite.product.hom_ext
   intro a
   dsimp [F]
-  simp only [category.assoc, Profinite.product.lift_π, Profinite.product.lift_π_assoc]
+  simp only [Category.assoc, Profinite.product.lift_π, Profinite.product.lift_π_assoc]
   erw [(hC (c / ↑N + d)).fac (S' a) j]
   rfl
 
@@ -332,51 +332,51 @@ theorem gadget_cone_lift_aux {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPs
 -- end
 def gadgetConeIsLimit {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrpWithTinv₁ r'}
     (C : Cone K) (hC : ∀ a : ℝ≥0, IsLimit (((level r').obj a).mapCone C)) (N : ℕ) [Fact (0 < N)]
-    (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ C.pt.lvl c) : IsLimit (gadget_cone C N c d t)
+    (c d : ℝ≥0) (t : Profinite.punit.{u} ⟶ C.pt.lvl c) : IsLimit (ProFiltPseuNormGrpWithTinv₁.gadgetCone C N c d t)
     where
   lift S :=
     Profinite.pullback.lift _ _
       (Profinite.pullback.lift _ _
         (Profinite.product.lift _ fun i =>
-          (hC _).lift ((Cones.postcompose (gadget_diagram_fst_fst C N c d t i)).obj S))
-        ((hC _).lift ((Cones.postcompose (gadget_diagram_fst_snd C N c d t)).obj S))
+          (hC _).lift ((Cones.postcompose (ProFiltPseuNormGrpWithTinv₁.gadgetDiagramFstFst C N c d t i)).obj S))
+        ((hC _).lift ((Cones.postcompose (ProFiltPseuNormGrpWithTinv₁.gadgetDiagramFstSnd C N c d t)).obj S))
         (gadget_cone_lift_aux _ _ _ _ _ _ _))
       (Profinite.punit.elim _)
       (by rw [Profinite.pullback.lift_snd, eq_comm, gadget_cone_lift_fst_snd])
   fac S j := by
-    dsimp only [gadget_cone_π_app, map_gadget]
+    dsimp only [gadget_cone_π_app, ProFiltPseuNormGrpWithTinv₁.mapGadget]
     apply Profinite.pullback.hom_ext <;>
-      simp only [category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
+      simp only [Category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
         Profinite.pullback.lift_fst_assoc, Profinite.pullback.lift_snd_assoc]
     swap; · ext
     apply Profinite.pullback.hom_ext <;>
-      simp only [category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
+      simp only [Category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
         Profinite.pullback.lift_fst_assoc, Profinite.pullback.lift_snd_assoc]
     · apply Profinite.product.hom_ext; intro i
-      simp only [category.assoc, Profinite.product.lift_π, Profinite.product.lift_π_assoc]
-      exact (hC _).fac ((cones.postcompose (gadgetDiagramFstFst.{u} C N c d t i)).obj S) j
+      simp only [Category.assoc, Profinite.product.lift_π, Profinite.product.lift_π_assoc]
+      exact (hC _).fac ((Cones.postcompose (gadgetDiagramFstFst.{u} C N c d t i)).obj S) j
     · rw [gadget_cone_lift_fst_snd, Profinite.pullback.condition]
-      simp only [← category.assoc]; congr 2; ext
+      simp only [← Category.assoc]; congr 2; ext
   uniq S f h :=
     by
     apply Profinite.pullback.hom_ext <;>
-      simp only [category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
+      simp only [Category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
         Profinite.pullback.lift_fst_assoc, Profinite.pullback.lift_snd_assoc]
     swap; · ext
     apply Profinite.pullback.hom_ext <;>
-      simp only [category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
+      simp only [Category.assoc, Profinite.pullback.lift_fst, Profinite.pullback.lift_snd,
         Profinite.pullback.lift_fst_assoc, Profinite.pullback.lift_snd_assoc]
     swap
-    · rw [Profinite.pullback.condition, gadget_cone_lift_fst_snd, ← category.assoc]; congr 1; ext
+    · rw [Profinite.pullback.condition, gadget_cone_lift_fst_snd, ← Category.assoc]; congr 1; ext
     apply Profinite.product.hom_ext
     intro i
     rw [Profinite.product.lift_π]
     refine'
-      (hC (c / N + d)).uniq ((cones.postcompose (gadgetDiagramFstFst.{u} C N c d t i)).obj S) _ _
+      (hC (c / N + d)).uniq ((Cones.postcompose (gadgetDiagramFstFst.{u} C N c d t i)).obj S) _ _
     intro j
     dsimp
     rw [← h]
-    dsimp [gadget_cone, map_gadget]
+    dsimp [ProFiltPseuNormGrpWithTinv₁.gadgetCone, ProFiltPseuNormGrpWithTinv₁.mapGadget]
     simp
 
 end ProFiltPseuNormGrpWithTinv₁
@@ -408,7 +408,7 @@ def homLbarConeIsLimit (c) : IsLimit (((level r').obj c).mapCone (hom_Lbar_cone 
   by
   let E := limit.cone (S.fintype_diagram ⋙ fintypeLbar.{u, u} r')
   change is_limit ((homFunctor.{u} r' Λ ⋙ (level r').obj c).mapCone E)
-  apply is_limit_of_preserves (homFunctor.{u} r' Λ ⋙ (level r').obj c) (limit.is_limit _)
+  apply CategoryTheory.Limits.isLimitOfPreserves (homFunctor.{u} r' Λ ⋙ (level r').obj c) (limit.isLimit _)
   infer_instance
 
 -- This should follow from the finite case of lem98.
@@ -434,23 +434,23 @@ theorem gadget_nonempty (N : ℕ) [Fact (0 < N)] (T : DiscreteQuotient S) (c) (t
 theorem key (N : ℕ) [Fact (0 < N)] (c) (t) :
     Nonempty (((homFunctor r' Λ).obj ((Lbar.functor.{u, u} r').obj S)).gadget N c (d Λ N) t) :=
   by
-  let E := gadget_cone (hom_Lbar_cone r' Λ _) N c (d Λ N) t
-  let hE : is_limit E := gadget_cone_is_limit _ _ _ _ _ _
+  let E := ProFiltPseuNormGrpWithTinv₁.gadgetCone (hom_Lbar_cone r' Λ _) N c (d Λ N) t
+  let hE : is_limit E := ProFiltPseuNormGrpWithTinv₁.gadgetConeIsLimit _ _ _ _ _ _
   swap; · intro a; apply hom_Lbar_cone_is_limit
-  let E' := Profinite.to_Top.map_cone E
-  let hE' : is_limit E' := is_limit_of_preserves _ hE
-  let G := gadget_diagram (hom_Lbar_cone r' Λ S) N c (d Λ N) t ⋙ Profinite.toTopCat
+  let E' := Profinite.to_Top.mapCone E
+  let hE' : is_limit E' := CategoryTheory.Limits.isLimitOfPreserves _ hE
+  let G := ProFiltPseuNormGrpWithTinv₁.gadgetDiagram (hom_Lbar_cone r' Λ S) N c (d Λ N) t ⋙ Profinite.toTopCat
   let T : E'.X ≅ (TopCat.limitCone.{u, u} G).pt :=
-    hE'.cone_point_unique_up_to_iso (TopCat.limitConeIsLimit G)
+    hE'.conePointUniqueUpToIso (TopCat.limitConeIsLimit G)
   suffices Nonempty (TopCat.limitCone.{u, u} G).pt by obtain ⟨a⟩ := this; exact ⟨T.inv a⟩
   apply (config := { instances := false }) TopCat.nonempty_limitCone_of_compact_t2_cofiltered_system
   · infer_instance
   · intros; apply gadget_nonempty
   · intro j
-    change CompactSpace ((gadget_diagram (hom_Lbar_cone r' Λ S) N c (d Λ N) t).obj j)
+    change CompactSpace ((ProFiltPseuNormGrpWithTinv₁.gadgetDiagram (hom_Lbar_cone r' Λ S) N c (d Λ N) t).obj j)
     infer_instance
   · intro j
-    change T2Space ((gadget_diagram (hom_Lbar_cone r' Λ S) N c (d Λ N) t).obj j)
+    change T2Space ((ProFiltPseuNormGrpWithTinv₁.gadgetDiagram (hom_Lbar_cone r' Λ S) N c (d Λ N) t).obj j)
     infer_instance
 
 /-- Lemma 9.8 of [Analytic], with somewhat restrictive universes -/

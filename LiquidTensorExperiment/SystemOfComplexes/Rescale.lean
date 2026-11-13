@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.SystemOfComplexes.Basic
 import LiquidTensorExperiment.Rescale.NormedGroup
 
-#align_import system_of_complexes.rescale
+#align_import SystemOfComplexes.rescale
 
 /-!
 
@@ -58,8 +58,8 @@ def toRescale (r : ℝ≥0) [Fact (0 < r)] : 𝟭 SystemOfComplexes ⟶ rescale 
     { app := fun c =>
         { f := fun _ => (SemiNormedGroupCat.toRescale r).app _
           comm' := by intros; exact ((SemiNormedGroupCat.toRescale r).naturality _).symm }
-      naturality' := by intro c₁ c₂ h; ext i : 2; rfl }
-  naturality' C₁ C₂ f := by ext; rfl
+      naturality := by intro c₁ c₂ h; ext i : 2; rfl }
+  naturality C₁ C₂ f := by ext; rfl
 
 def scale (i j : ℝ≥0) [Fact (0 < i)] [Fact (0 < j)] : rescale i ⟶ rescale j :=
   (whiskeringRight _ _ _).map <| NatTrans.mapHomologicalComplex (SemiNormedGroupCat.scale i j) _
@@ -133,7 +133,7 @@ def scaleIndexLeft (C : SystemOfComplexes) (κ : ℝ≥0) :=
 
 theorem Admissible.scaleIndexLeft {C : SystemOfComplexes} (hC : C.Admissible) (κ : ℝ≥0) :
     (C.scaleIndexLeft κ).Admissible :=
-  { d_norm_noninc' := fun c i j hij => by apply admissible.d_norm_noninc C hC (κ * c) i j
+  { d_norm_noninc' := fun c i j hij => by apply admissible.d_normNoninc C hC (κ * c) i j
     res_normNoninc := fun c₁ c₂ i hc => hC.res_normNoninc _ _ i (by skip; dsimp; infer_instance) }
 
 theorem IsWeakBoundedExact.scaleIndexLeft {C : SystemOfComplexes} {k K : ℝ≥0} {m : ℕ} (c₀ c₁ : ℝ≥0)
@@ -166,7 +166,7 @@ def scaleIndexRight (C : SystemOfComplexes) (κ : ℝ≥0) :=
 
 theorem Admissible.scaleIndexRight {C : SystemOfComplexes} (hC : C.Admissible) (κ : ℝ≥0) :
     (C.scaleIndexRight κ).Admissible :=
-  { d_norm_noninc' := fun c i j hij => by apply admissible.d_norm_noninc C hC (c * κ) i j
+  { d_norm_noninc' := fun c i j hij => by apply admissible.d_normNoninc C hC (c * κ) i j
     res_normNoninc := fun c₁ c₂ i hc => hC.res_normNoninc _ _ i (by skip; dsimp; infer_instance) }
 
 theorem IsWeakBoundedExact.scaleIndexRight {C : SystemOfComplexes} {k K : ℝ≥0} {m : ℕ} (c₀ c₁ : ℝ≥0)
@@ -204,8 +204,8 @@ def toRescale' (r : ℝ≥0) [Fact (0 < r)] :
     where
   app V :=
     { app := fun c => (SemiNormedGroupCat.toRescale r).app _
-      naturality' := by intro c₁ c₂ h; dsimp; ext i : 2; rfl }
-  naturality' C₁ C₂ f := by ext; rfl
+      naturality := by intro c₁ c₂ h; dsimp; ext i : 2; rfl }
+  naturality C₁ C₂ f := by ext; rfl
 
 @[simps app]
 def scale' (i j : ℝ≥0) [Fact (0 < i)] [Fact (0 < j)] :

@@ -247,8 +247,8 @@ def mkOfBound (f : M₁ →+ M₂) (C : ℝ≥0)
       obtain ⟨_, H⟩ := hC c₁
       haveI : Fact (C * c₁ ≤ max (C * c₁) c₂) := ⟨le_max_left _ _⟩
       haveI : Fact (c₂ ≤ max (C * c₁) c₂) := ⟨le_max_right _ _⟩
-      rw [(embedding_cast_le c₂ (max (C * c₁) c₂)).continuous_iff]
-      rw [(embedding_cast_le (C * c₁) (max (C * c₁) c₂)).continuous_iff] at H 
+      rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe c₂ (max (C * c₁) c₂)).continuous_iff]
+      rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe (C * c₁) (max (C * c₁) c₂)).continuous_iff] at H 
       convert H using 1
       ext; dsimp; rw [← hf₀]; rfl }
 
@@ -264,7 +264,7 @@ def mkOfStrict (f : M₁ →+ M₂)
     obtain ⟨w, H⟩ := h c
     refine' ⟨_, _⟩
     · simpa only [one_mul]
-    · rwa [(embedding_cast_le (1 * c) c).continuous_iff]
+    · rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (1 * c) c).continuous_iff]
 
 /-- Make a profinitely filtered pseudo-normed group hom
 from a group hom and a proof that it is bounded and continuous. -/
@@ -349,7 +349,7 @@ def id : ComphausFilteredPseudoNormedGroupHom M M :=
     refine' fun c => ⟨_, _⟩
     · intros; rwa [one_mul]
     haveI : Fact (1 * c ≤ c) := by rw [one_mul]; exact ⟨le_rfl⟩
-    rw [(embedding_cast_le (1 * c) c).continuous_iff]
+    rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe (1 * c) c).continuous_iff]
     convert continuous_id; ext; rfl
 
 /-- The composition of `profinitely_filtered_pseudo_normed_group_hom`s. -/
@@ -367,7 +367,7 @@ noncomputable def comp (g : ComphausFilteredPseudoNormedGroupHom M₂ M₃)
     let g₀ : filtration M₂ (Cf * c) → filtration M₃ (Cg * (Cf * c)) := fun x => ⟨g x, hCg x.2⟩
     have hg₀ : Continuous g₀ := g.continuous _ fun x => rfl
     haveI : Fact (Cg * Cf * c ≤ Cg * (Cf * c)) := by rw [mul_assoc]; exact ⟨le_rfl⟩
-    rw [(embedding_cast_le (Cg * Cf * c) (Cg * (Cf * c))).continuous_iff]
+    rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe (Cg * Cf * c) (Cg * (Cf * c))).continuous_iff]
     exact hg₀.comp hf₀
 
 theorem BoundBy.id : (id : ComphausFilteredPseudoNormedGroupHom M M).BoundBy 1 :=
@@ -572,7 +572,7 @@ def Strict.toSchfpsngHom {f : ComphausFilteredPseudoNormedGroupHom M₁ M₂} (h
     StrictComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
   { f.toAddMonoidHom with
     strict' := h
-    continuous' := fun c => f.Continuous _ fun x => rfl }
+    continuous' := fun c => f.continuous _ fun x => rfl }
 
 end ComphausFilteredPseudoNormedGroupHom
 
@@ -680,7 +680,7 @@ theorem PfpngCtu.add {f g : M₁ → M₂} (hf : PfpngCtu f) (hg : PfpngCtu g)
   have hg₀ : ∀ x, g ↑x = g₀ x := fun x => rfl
   have g₀_ctu : Continuous g₀ := hg g₀ hg₀
   have aux := f₀_ctu.prod_mk g₀_ctu
-  rw [(embedding_cast_le c₂ (cf + cg)).continuous_iff]
+  rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe c₂ (cf + cg)).continuous_iff]
   convert (continuous_add' cf cg).comp aux using 1
   ext; dsimp; rw [← hfg₀, Pi.add_apply]
 
@@ -695,8 +695,8 @@ theorem pfpngCtuId : PfpngCtu (@id M) := by
   haveI : Fact (c₁ ≤ max c₁ c₂) := ⟨le_max_left _ _⟩
   haveI : Fact (c₂ ≤ max c₁ c₂) := ⟨le_max_right _ _⟩
   have : @cast_le M _ c₂ (max c₁ c₂) _ ∘ f₀ = cast_le := by ext; dsimp; rw [← h]; rfl
-  rw [(embedding_cast_le c₂ (max c₁ c₂)).continuous_iff, this]
-  exact (embedding_cast_le _ _).Continuous
+  rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe c₂ (max c₁ c₂)).continuous_iff, this]
+  exact (ComphausFilteredPseudoNormedGroup.embedding_castLe _ _).continuous
 
 theorem pfpngCtuSmulNat : ∀ n : ℕ, PfpngCtu fun x : M => n • x
   | 0 => by simp only [zero_smul]; exact pfpngCtuConst 0
@@ -754,7 +754,7 @@ def neg (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) :
       obtain ⟨Cf, hCf⟩ := f.bound
       refine' ⟨Cf, fun c x hx => _⟩
       apply neg_mem_filtration (hCf hx)
-    continuous' := PfpngCtu.neg f.Continuous }
+    continuous' := PfpngCtu.neg f.continuous }
 
 def sub (f g : ComphausFilteredPseudoNormedGroupHom M₁ M₂) :
     ComphausFilteredPseudoNormedGroupHom M₁ M₂ :=
@@ -910,7 +910,7 @@ def filtrationPiHomeo (c : ℝ≥0) : filtration (∀ i, M i) c ≃ₜ ∀ i, fi
     rw [continuous_def]
     rintro s ⟨t, ht, s_eq⟩
     simpa [← s_eq] using continuous_def.1 _ t ht
-    · rw [filtration_pi_equiv, continuous_def]
+    · rw [PseudoNormedGroup.filtrationPiEquiv, continuous_def]
       intro U hU
       simp only [*, Equiv.coe_fn_mk, Set.preimage_id', Subtype.coe_eta, Subtype.coe_mk]
 
@@ -981,7 +981,7 @@ instance pi : ComphausFilteredPseudoNormedGroup (∀ i, M i) :=
     continuous_add' := by
       intro c₁ c₂
       rw [← Homeomorph.comp_continuous_iff (filtration_pi_homeo M (c₁ + c₂)), ←
-        Homeomorph.comp_continuous_iff' (prod_pi_homeo_pi_prod M c₁ c₂).symm]
+        Homeomorph.comp_continuous_iff' (ComphausFilteredPseudoNormedGroup.prodPiHomeoPiProd M c₁ c₂).symm]
       apply continuous_pi
       intro i
       exact (continuous_add' c₁ c₂).comp (continuous_apply i)
@@ -1008,9 +1008,9 @@ def piProj (i : ι) : ComphausFilteredPseudoNormedGroupHom (∀ i, M i) (M i) :=
   ComphausFilteredPseudoNormedGroupHom.mkOfBound (Pi.evalAddMonoidHom M i) 1 <|
     by
     refine' fun c => ⟨fun x hx => by rw [one_mul]; exact hx i, _⟩
-    have := (continuous_apply i).comp (filtration_pi_homeo M c).Continuous
+    have := (continuous_apply i).comp (filtration_pi_homeo M c).continuous
     haveI : Fact (c ≤ 1 * c) := by rw [one_mul]; exact ⟨le_rfl⟩
-    rw [(embedding_cast_le c (1 * c)).continuous_iff] at this 
+    rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe c (1 * c)).continuous_iff] at this 
     convert this using 0
 
 theorem piProjBoundBy (i : ι) : (@piProj _ M _ i).BoundBy 1 :=
@@ -1032,7 +1032,7 @@ def piLift {N : Type _} [ComphausFilteredPseudoNormedGroup N]
       apply continuous_pi
       intro i
       let g := Function.eval i ∘ filtration_pi_homeo M c₂ ∘ f₀
-      refine' (f i).Continuous g fun x => _
+      refine' (f i).continuous g fun x => _
       specialize hf₀ x; rw [Function.funext_iff] at hf₀ 
       exact hf₀ i }
 
@@ -1043,7 +1043,7 @@ noncomputable def piMap {N : ι → Type _} [∀ i, ComphausFilteredPseudoNormed
     (by
       obtain ⟨C, hC⟩ := hf
       refine' ⟨C, fun i c x hx => hC i _⟩
-      have := pi_proj_bound_by i hx
+      have := ComphausFilteredPseudoNormedGroup.piProjBoundBy i hx
       rwa [one_mul] at this )
 
 end Pi

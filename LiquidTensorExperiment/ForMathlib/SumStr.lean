@@ -59,13 +59,13 @@ variable {X₁ X₂ : 𝓐} (S₁ : SumStr A B X₁) (S₂ : SumStr A B X₂)
 
 @[simps]
 def iso : X₁ ≅ X₂ where
-  Hom := S₁.fst ≫ S₂.inl + S₁.snd ≫ S₂.inr
+  hom := S₁.fst ≫ S₂.inl + S₁.snd ≫ S₂.inr
   inv := S₂.fst ≫ S₁.inl + S₂.snd ≫ S₁.inr
-  hom_inv_id' := by
-    simp only [comp_add, add_comp_assoc, category.assoc, add_comp, inl_fst_assoc, inl_snd_assoc,
+  hom_inv_id := by
+    simp only [comp_add, add_comp_assoc, Category.assoc, add_comp, inl_fst_assoc, inl_snd_assoc,
       zero_comp, comp_zero, add_zero, inr_fst_assoc, inr_snd_assoc, zero_add, Total]
-  inv_hom_id' := by
-    simp only [comp_add, add_comp_assoc, category.assoc, add_comp, inl_fst_assoc, inl_snd_assoc,
+  inv_hom_id := by
+    simp only [comp_add, add_comp_assoc, Category.assoc, add_comp, inl_fst_assoc, inl_snd_assoc,
       zero_comp, comp_zero, add_zero, inr_fst_assoc, inr_snd_assoc, zero_add, Total]
 
 end Iso

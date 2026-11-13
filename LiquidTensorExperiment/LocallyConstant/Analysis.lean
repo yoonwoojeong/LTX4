@@ -106,7 +106,7 @@ theorem exists_ub_range_dist [Dist Y] (f g : LocallyConstant X Y) :
   apply exists_upper_bound_image
   simp only [← Function.uncurry_apply_pair dist]
   rw [range_comp]
-  apply finite.image
+  apply Finite.image
   apply (f.range_finite.prod g.range_finite).Subset
   apply range_pair_subset
 
@@ -281,7 +281,7 @@ def comapHom (f : X → Y) (hf : Continuous f) :
 theorem comapHom_id : @comapHom X X V _ _ _ _ _ id continuous_id = NormedAddGroupHom.id _ :=
   by
   ext
-  simp only [comap_id, comap_hom_apply, id.def, NormedAddGroupHom.id_apply,
+  simp only [comap_id, LocallyConstant.comapHom_apply, id.def, NormedAddGroupHom.id_apply,
     AddMonoidHom.toFun_eq_coe, AddMonoidHom.id_apply]
 
 @[simp]
@@ -291,8 +291,8 @@ theorem comapHom_comp (f : X → Y) (g : Y → Z) (hf : Continuous f) (hg : Cont
   ext φ x
   -- `[simps]` is producing bad lemmas... I don't know how to trick it into creating good ones
   -- so we use `show` instead, to get into a defeq shape that is usable
-  show (comap_hom f hf) ((comap_hom g hg) φ) x = _
-  simp only [hg.comp hf, hf, hg, comap_hom_apply, coe_comap]
+  show (LocallyConstant.comapHom f hf) ((LocallyConstant.comapHom g hg) φ) x = _
+  simp only [hg.comp hf, hf, hg, LocallyConstant.comapHom_apply, coe_comap]
 
 theorem comapHom_normNoninc (f : X → Y) (hf : Continuous f) :
     (@comapHom _ _ V _ _ _ _ _ f hf).NormNoninc :=

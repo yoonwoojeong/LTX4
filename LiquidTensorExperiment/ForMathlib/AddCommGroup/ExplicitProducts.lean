@@ -67,18 +67,18 @@ instance isIso_homProductComparison {α : Type v} (A : AddCommGroupCat.{max v u}
   let t :
     (∏ fun i : α => AddCommGroupCat.of (A ⟶ X i)) ≅
       AddCommGroupCat.of (∀ i, AddCommGroupCat.of (A ⟶ X i)) :=
-    (limits.limit.is_limit _).conePointUniqueUpToIso (is_limit_pi_fan fun i => of (A ⟶ X i))
-  suffices is_iso (A.hom_product_comparison X ≫ t.hom) by apply is_iso.of_is_iso_comp_right _ t.hom;
+    (Limits.limit.isLimit _).conePointUniqueUpToIso (AddCommGroupCat.isLimitPiFan fun i => of (A ⟶ X i))
+  suffices is_iso (A.hom_product_comparison X ≫ t.hom) by apply IsIso.of_isIso_comp_right _ t.hom;
     exact this
   have ht :
     A.hom_product_comparison X ≫ t.hom =
-      (is_limit_pi_fan fun i => of (A ⟶ X i)).lift
+      (AddCommGroupCat.isLimitPiFan fun i => of (A ⟶ X i)).lift
         ⟨_,
-          discrete.nat_trans fun i =>
+          Discrete.natTrans fun i =>
             (preadditive_yoneda.flip.obj (Opposite.op A)).map (limits.pi.π _ _)⟩ :=
     by
-    apply (is_limit_pi_fan _).hom_ext; intro j
-    simp [hom_product_comparison]
+    apply (AddCommGroupCat.isLimitPiFan _).hom_ext; intro j
+    simp [AddCommGroupCat.homProductComparison]
   rw [ht]; clear ht
   apply (config := { instances := false }) is_iso_of_mono_of_epi
   infer_instance
@@ -89,8 +89,8 @@ instance isIso_homProductComparison {α : Type v} (A : AddCommGroupCat.{max v u}
     exact h
   · rw [epi_iff_surjective]
     intro f
-    use limits.pi.lift fun i => f i
-    dsimp [is_limit_pi_fan, pi_lift]
+    use Limits.Pi.lift fun i => f i
+    dsimp [AddCommGroupCat.isLimitPiFan, pi_lift]
     simp [pi_lift_π]
 
 def directSumπ {α : Type v} (X : α → AddCommGroupCat.{max v u}) (i) :
@@ -148,7 +148,7 @@ def isLimitDirectSumFan {α : Type v} [Fintype α] (X : α → AddCommGroupCat.{
     apply direct_sum_lift_π
   uniq := by
     intro S m hm
-    apply direct_sum_hom_ext
+    apply AddCommGroupCat.directSum_hom_ext
     intro i
     specialize hm ⟨i⟩
     erw [hm, direct_sum_lift_π]
@@ -164,13 +164,13 @@ def directSumPunitIso (A : AddCommGroupCat.{max v u}) :
     where
   hom := directSumπ _ PUnit.unit
   inv := toDirectSum (fun i => A) PUnit.unit
-  hom_inv_id' := by
+  hom_inv_id := by
     ext ⟨⟩ ⟨⟩
     ext t ⟨⟩
     -- WAT?
     dsimp [direct_sum_π, to_direct_sum]
     simp
-  inv_hom_id' := by
+  inv_hom_id := by
     ext a
     dsimp [direct_sum_π, to_direct_sum]
     simp
@@ -186,15 +186,15 @@ def directSumDesc {α : Type v} {Y : AddCommGroupCat.{max v u}} (X : α → AddC
 @[simp, reassoc]
 theorem directSumι_desc {α : Type v} {Y : AddCommGroupCat.{max v u}}
     (X : α → AddCommGroupCat.{max v u}) (f : ∀ i, X i ⟶ Y) (i) :
-    directSumι X i ≫ directSumDesc X f = f _ := by ext; dsimp [direct_sum_ι, direct_sum_desc]; simp
+    directSumι X i ≫ directSumDesc X f = f _ := by ext; dsimp [direct_sum_ι, AddCommGroupCat.directSumDesc]; simp
 
 theorem directSum_hom_ext' {α : Type v} {Y : AddCommGroupCat.{max v u}}
     (X : α → AddCommGroupCat.{max v u}) (f g : AddCommGroupCat.of (DirectSum α fun i => X i) ⟶ Y)
     (h : ∀ i, directSumι X i ≫ f = directSumι X i ≫ g) : f = g :=
   by
-  have hf : f = direct_sum_desc X fun i => direct_sum_ι X i ≫ f := by ext t;
+  have hf : f = AddCommGroupCat.directSumDesc X fun i => direct_sum_ι X i ≫ f := by ext t;
     apply DirectSum.toAddMonoid.unique
-  have hg : g = direct_sum_desc X fun i => direct_sum_ι X i ≫ g := by ext t;
+  have hg : g = AddCommGroupCat.directSumDesc X fun i => direct_sum_ι X i ≫ g := by ext t;
     apply DirectSum.toAddMonoid.unique
   rw [hf, hg]
   congr 1; ext i; rw [h]
@@ -212,7 +212,7 @@ def isColimitDirectSumCofan {α : Type v} (X : α → AddCommGroupCat.{max v u})
     apply direct_sum_ι_desc
   uniq := by
     intro S m hm
-    apply direct_sum_hom_ext'
+    apply AddCommGroupCat.directSum_hom_ext'
     intro i
     specialize hm ⟨i⟩
     erw [hm]; rw [direct_sum_ι_desc]

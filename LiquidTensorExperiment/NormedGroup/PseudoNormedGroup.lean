@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.PseudoNormedGroup.Basic
 import Mathlib.Analysis.NormedSpace.Basic
 
-#align_import normed_group.pseudo_normed_group
+#align_import normed_group.pseudoNormedGroup
 
 /-!
 

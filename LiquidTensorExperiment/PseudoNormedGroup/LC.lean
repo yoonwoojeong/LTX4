@@ -78,7 +78,7 @@ theorem norm_t_le [NormedWithAut r V] [Fact (0 < r)] (A) : ‖((lC.t r V).hom.ap
 
 @[simps (config := { fullyApplied := false })]
 def tInv [NormedWithAut r V] [Fact (0 < r)] : lC V ⟶ lC V :=
-  (locallyConstant.map (NormedWithAut.t.inv : V ⟶ V) : _)
+  (LocallyConstant.map (NormedWithAut.t.inv : V ⟶ V) : _)
 
 theorem tInv_eq [NormedWithAut r V] [Fact (0 < r)] : (t r V).inv = tInv r V :=
   rfl
@@ -117,7 +117,7 @@ theorem res_refl : res V r' c c n = 𝟙 _ := by simp [res, filtrationPow.castLe
 
 theorem res_comp_res [h₁ : Fact (c₃ ≤ c₂)] [h₂ : Fact (c₂ ≤ c₁)] :
     res V r' c₁ c₂ n ≫ res V r' c₂ c₃ n = @res V r' c₁ c₃ ⟨le_trans h₁.1 h₂.1⟩ n := by
-  simp only [res, ← whisker_right_comp, ← nat_trans.op_comp, filtrationPow.castLe_comp]
+  simp only [res, ← whisker_right_comp, ← NatTrans.op_comp, filtrationPow.castLe_comp]
 
 theorem res_normNoninc [Fact (c₂ ≤ c₁)] (M) : ((res V r' c₁ c₂ n).app M).NormNoninc :=
   LocallyConstant.comapHom_normNoninc _ _
@@ -140,7 +140,7 @@ theorem res_comp_tinv [Fact (c₂ ≤ c₁)] [Fact (c₃ ≤ c₂)] [Fact (c₂ 
     [Fact (c₃ ≤ r' * c₂)] :
     res V r' c₁ c₂ n ≫ tinv V r' c₂ c₃ n = tinv V r' c₁ c₂ n ≫ res V r' c₂ c₃ n :=
   by
-  simp only [Tinv, res, ← whisker_right_comp, ← nat_trans.op_comp]
+  simp only [Tinv, res, ← whisker_right_comp, ← NatTrans.op_comp]
   rfl
 
 theorem tinv_normNoninc [Fact (c₂ ≤ r' * c₁)] (M) : ((tinv V r' c₁ c₂ n).app M).NormNoninc :=
@@ -168,7 +168,7 @@ theorem tInv_eq [Fact (0 < r)] : (t r V r' c n).inv = tInv r V r' c n :=
 
 theorem tInv_def [Fact (0 < r)] :
     tInv r V r' c n =
-      (whiskerLeft (filtrationPow r' c n).op (locallyConstant.map (NormedWithAut.t.inv : V ⟶ V)) :
+      (whiskerLeft (filtrationPow r' c n).op (LocallyConstant.map (NormedWithAut.t.inv : V ⟶ V)) :
         _) :=
   rfl
 
@@ -191,7 +191,7 @@ def evalLCFP (c₁ c₂ : ℝ≥0) [ϕ.Suitable c₂ c₁] : lCFP V r' c₁ n �
 
 def evalLCFP' (c₁ c₂ : ℝ≥0) : lCFP V r' c₁ n ⟶ lCFP V r' c₂ m :=
   if H : ϕ.Suitable c₂ c₁ then
-    (whisker_right (nat_trans.op <| ϕ.eval_FP r' c₂ c₁) (LocallyConstant.obj V) : _)
+    (whisker_right (NatTrans.op <| ϕ.evalFP r' c₂ c₁) (LocallyConstant.obj V) : _)
   else 0
 
 theorem evalLCFP_eq_evalLCFP' (h : ϕ.Suitable c₂ c₁) :
@@ -210,8 +210,8 @@ theorem evalLCFP'_comp (f : BasicUniversalMap m n) (g : BasicUniversalMap l m)
     (BasicUniversalMap.comp f g).evalLCFP' V r' c₁ c₃ =
       f.evalLCFP' V r' c₁ c₂ ≫ g.evalLCFP' V r' c₂ c₃ :=
   by
-  haveI : (basic_universal_map.comp f g).Suitable c₃ c₁ := suitable_comp c₂
-  simp only [eval_LCFP'_def, eval_FP_comp r' _ c₂, nat_trans.op_comp, whisker_right_comp]
+  haveI : (BasicUniversalMap.comp f g).Suitable c₃ c₁ := suitable_comp c₂
+  simp only [eval_LCFP'_def, eval_FP_comp r' _ c₂, NatTrans.op_comp, whisker_right_comp]
 
 theorem evalLCFP_comp (f : BasicUniversalMap m n) (g : BasicUniversalMap l m)
     [hf : f.Suitable c₂ c₁] [hg : g.Suitable c₃ c₂] :
@@ -221,21 +221,21 @@ theorem evalLCFP_comp (f : BasicUniversalMap m n) (g : BasicUniversalMap l m)
 
 theorem res_comp_evalLCFP [Fact (c₂ ≤ c₁)] [Fact (c₄ ≤ c₃)] [ϕ.Suitable c₄ c₂] [ϕ.Suitable c₃ c₁] :
     res V r' c₁ c₂ n ≫ ϕ.evalLCFP V r' c₂ c₄ = ϕ.evalLCFP V r' c₁ c₃ ≫ res V r' c₃ c₄ m := by
-  simp only [res, eval_LCFP, ← whisker_right_comp, ← nat_trans.op_comp,
+  simp only [res, eval_LCFP, ← whisker_right_comp, ← NatTrans.op_comp,
     cast_le_comp_eval_FP _ c₄ c₃ c₂ c₁]
 
 theorem tinv_comp_evalLCFP [Fact (0 < r')] [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)]
     [ϕ.Suitable c₄ c₂] [ϕ.Suitable c₃ c₁] :
     tinv V r' c₁ c₂ n ≫ ϕ.evalLCFP V r' c₂ c₄ = ϕ.evalLCFP V r' c₁ c₃ ≫ tinv V r' c₃ c₄ m := by
-  simp only [Tinv, eval_LCFP, ← whisker_right_comp, ← nat_trans.op_comp,
+  simp only [Tinv, eval_LCFP, ← whisker_right_comp, ← NatTrans.op_comp,
     Tinv_comp_eval_FP _ _ c₄ c₃ c₂ c₁]
 
 theorem tInv_comp_evalLCFP [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ c₁] :
     tInv r V r' c₁ n ≫ ϕ.evalLCFP V r' c₁ c₂ = ϕ.evalLCFP V r' c₁ c₂ ≫ tInv r V r' c₂ m :=
   by
   ext M : 2
-  simp only [T_inv_def, eval_LCFP, nat_trans.comp_app, whisker_right_app, whisker_left_app,
-    nat_trans.naturality]
+  simp only [T_inv_def, eval_LCFP, NatTrans.comp_app, CategoryTheory.whiskerRight_app, CategoryTheory.whiskerLeft_app,
+    NatTrans.naturality]
 
 end BasicUniversalMap
 
@@ -248,7 +248,7 @@ variable (ϕ : UniversalMap m n)
 def evalLCFP [ϕ.Suitable c₂ c₁] : lCFP V r' c₁ n ⟶ lCFP V r' c₂ m :=
   ∑ g : { g : BasicUniversalMap m n // g ∈ ϕ.support },
     haveI := suitable_of_mem_support ϕ c₂ c₁ g g.2
-    coeff (g : basic_universal_map m n) ϕ • basic_universal_map.eval_LCFP V r' g c₁ c₂
+    coeff (g : BreenDeligne.BasicUniversalMap m n) ϕ • BasicUniversalMap.evalLCFP V r' g c₁ c₂
 
 def evalLCFP' : lCFP V r' c₁ n ⟶ lCFP V r' c₂ m :=
   ∑ g in ϕ.support, coeff g ϕ • g.evalLCFP' V r' c₁ c₂
@@ -256,7 +256,7 @@ def evalLCFP' : lCFP V r' c₁ n ⟶ lCFP V r' c₂ m :=
 theorem evalLCFP_eq_evalLCFP' (h : ϕ.Suitable c₂ c₁) :
     ϕ.evalLCFP V r' c₁ c₂ = ϕ.evalLCFP' V r' c₁ c₂ :=
   by
-  simp only [eval_LCFP, eval_LCFP', basic_universal_map.eval_LCFP_eq_eval_LCFP', Subtype.val_eq_coe]
+  simp only [eval_LCFP, eval_LCFP', BasicUniversalMap.evalLCFP_eq_evalLCFP', Subtype.val_eq_coe]
   symm
   apply Finset.sum_subtype ϕ.support fun _ => Iff.rfl
 
@@ -268,7 +268,7 @@ theorem evalLCFP'_of (f : BasicUniversalMap m n) :
 @[simp]
 theorem evalLCFP_of (f : BasicUniversalMap m n) [f.Suitable c₂ c₁] :
     evalLCFP V r' c₁ c₂ (of f) = f.evalLCFP V r' c₁ c₂ := by
-  rw [eval_LCFP_eq_eval_LCFP', eval_LCFP'_of, basic_universal_map.eval_LCFP_eq_eval_LCFP']
+  rw [eval_LCFP_eq_eval_LCFP', eval_LCFP'_of, BasicUniversalMap.evalLCFP_eq_evalLCFP']
 
 @[simp]
 theorem evalLCFP'_zero : (0 : UniversalMap m n).evalLCFP' V r' c₁ c₂ = 0 := by
@@ -316,8 +316,8 @@ theorem evalLCFP'_comp_of (g : BasicUniversalMap m n) (f : BasicUniversalMap l m
       evalLCFP' V r' c₁ c₂ (of g) ≫ evalLCFP' V r' c₂ c₃ (of f) :=
   by
   simp only [comp_of, eval_LCFP'_of]
-  haveI hfg : (basic_universal_map.comp g f).Suitable c₃ c₁ := basic_universal_map.suitable_comp c₂
-  rw [← basic_universal_map.eval_LCFP'_comp]
+  haveI hfg : (BasicUniversalMap.comp g f).Suitable c₃ c₁ := BasicUniversalMap.suitable_comp c₂
+  rw [← BasicUniversalMap.evalLCFP'_comp]
 
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Preadditive
 
@@ -327,7 +327,7 @@ theorem evalLCFP'_comp (g : UniversalMap m n) (f : UniversalMap l m) [hg : g.Sui
   by
   revert hf
   apply
-      FreeAbelianGroup.induction_on_freePredicate (suitable c₂ c₁) (suitable_free_predicate c₂ c₁) g
+      FreeAbelianGroup.induction_on_freePredicate (suitable c₂ c₁) (BreenDeligne.UniversalMap.suitable_freePredicate c₂ c₁) g
         hg <;>
     clear! g
   · intro h₂
@@ -336,7 +336,7 @@ theorem evalLCFP'_comp (g : UniversalMap m n) (f : UniversalMap l m) [hg : g.Sui
   · intro g hg hf
     -- now do another nested induction on `f`
       apply
-        FreeAbelianGroup.induction_on_freePredicate (suitable c₃ c₂) (suitable_free_predicate c₃ c₂)
+        FreeAbelianGroup.induction_on_freePredicate (suitable c₃ c₂) (BreenDeligne.UniversalMap.suitable_freePredicate c₃ c₂)
           f hf <;>
       clear! f
     · simp only [eval_LCFP'_zero, comp_zero, AddMonoidHom.map_zero]
@@ -346,15 +346,15 @@ theorem evalLCFP'_comp (g : UniversalMap m n) (f : UniversalMap l m) [hg : g.Sui
       apply eval_LCFP'_comp_of
     · intro f hf IH
       simp only [IH, eval_LCFP'_neg, AddMonoidHom.map_neg, comp_neg]
-    · rintro (f₁ : universal_map l m) (f₂ : universal_map l m) hf₁ hf₂ IH₁ IH₂; skip
-      haveI Hg₁f : (comp (of g) f₁).Suitable c₃ c₁ := suitable.comp c₂
-      haveI Hg₂f : (comp (of g) f₂).Suitable c₃ c₁ := suitable.comp c₂
+    · rintro (f₁ : BreenDeligne.UniversalMap l m) (f₂ : BreenDeligne.UniversalMap l m) hf₁ hf₂ IH₁ IH₂; skip
+      haveI Hg₁f : (comp (of g) f₁).Suitable c₃ c₁ := Suitable.comp c₂
+      haveI Hg₂f : (comp (of g) f₂).Suitable c₃ c₁ := Suitable.comp c₂
       simp only [AddMonoidHom.map_add, eval_LCFP'_add, IH₁, IH₂, comp_add]
   · intro g hg IH hf; skip; specialize IH
     simp only [IH, AddMonoidHom.map_neg, eval_LCFP'_neg, AddMonoidHom.neg_apply, neg_inj, neg_comp]
-  · rintro (g₁ : universal_map m n) (g₂ : universal_map m n) hg₁ hg₂ IH₁ IH₂ hf; skip
-    haveI Hg₁f : (comp g₁ f).Suitable c₃ c₁ := suitable.comp c₂
-    haveI Hg₂f : (comp g₂ f).Suitable c₃ c₁ := suitable.comp c₂
+  · rintro (g₁ : BreenDeligne.UniversalMap m n) (g₂ : BreenDeligne.UniversalMap m n) hg₁ hg₂ IH₁ IH₂ hf; skip
+    haveI Hg₁f : (comp g₁ f).Suitable c₃ c₁ := Suitable.comp c₂
+    haveI Hg₂f : (comp g₂ f).Suitable c₃ c₁ := Suitable.comp c₂
     simp only [AddMonoidHom.map_add, AddMonoidHom.add_apply, eval_LCFP'_add, IH₁, IH₂, add_comp]
 
 theorem evalLCFP_comp (g : UniversalMap m n) (f : UniversalMap l m) [hg : g.Suitable c₂ c₁]
@@ -371,7 +371,7 @@ theorem res_comp_evalLCFP [Fact (c₂ ≤ c₁)] [Fact (c₄ ≤ c₃)] [ϕ.Suit
   rintro ⟨g, hg⟩ -
   haveI : g.suitable c₃ c₁ := suitable_of_mem_support ϕ _ _ g hg
   haveI : g.suitable c₄ c₂ := suitable_of_mem_support ϕ _ _ g hg
-  simp only [Subtype.coe_mk, g.res_comp_eval_LCFP V r' c₁ c₂ c₃ c₄]
+  simp only [Subtype.coe_mk, g.res_comp_evalLCFP V r' c₁ c₂ c₃ c₄]
 
 theorem tinv_comp_evalLCFP [Fact (0 < r')] [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)]
     [ϕ.Suitable c₃ c₁] [ϕ.Suitable c₄ c₂] :
@@ -382,7 +382,7 @@ theorem tinv_comp_evalLCFP [Fact (0 < r')] [Fact (c₂ ≤ r' * c₁)] [Fact (c�
   rintro ⟨g, hg⟩ -
   haveI : g.suitable c₃ c₁ := suitable_of_mem_support ϕ _ _ g hg
   haveI : g.suitable c₄ c₂ := suitable_of_mem_support ϕ _ _ g hg
-  congr 1; apply basic_universal_map.Tinv_comp_eval_LCFP V r'
+  congr 1; apply BasicUniversalMap.tinv_comp_evalLCFP V r'
 
 theorem tInv_comp_evalLCFP [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ c₁] :
     tInv r V r' c₁ n ≫ ϕ.evalLCFP V r' c₁ c₂ = ϕ.evalLCFP V r' c₁ c₂ ≫ tInv r V r' c₂ m :=
@@ -392,20 +392,20 @@ theorem tInv_comp_evalLCFP [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ 
   rintro ⟨g, hg⟩ -
   haveI : g.suitable c₂ c₁ := suitable_of_mem_support ϕ _ _ g hg
   congr 1
-  apply basic_universal_map.T_inv_comp_eval_LCFP r V r'
+  apply BasicUniversalMap.tInv_comp_evalLCFP r V r'
 
 theorem norm_evalLCFP_le [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ c₁] (N : ℕ)
     (h : ϕ.BoundBy N) (M) : ‖((ϕ.evalLCFP V r' c₁ c₂).app M)‖ ≤ N :=
   by
   rw [eval_LCFP_eq_eval_LCFP', eval_LCFP']
-  have : (∑ g : basic_universal_map m n in support ϕ, (coeff g ϕ).natAbs : ℝ) ≤ N := by
+  have : (∑ g : BreenDeligne.BasicUniversalMap m n in support ϕ, (coeff g ϕ).natAbs : ℝ) ≤ N := by
     exact_mod_cast h
-  simp only [← nat_trans.app_hom_apply, AddMonoidHom.map_sum, AddMonoidHom.map_zsmul]
+  simp only [← NatTrans.appHom_apply, AddMonoidHom.map_sum, AddMonoidHom.map_zsmul]
   refine' le_trans (norm_sum_le_of_le ϕ.support _) this
   intro g hg
   have aux := ϕ.suitable_of_mem_support c₂ c₁ g hg
   refine' le_trans (norm_zsmul_le _ _) _
-  suffices ‖((nat_trans.app_hom M) (basic_universal_map.eval_LCFP' V r' g c₁ c₂))‖ ≤ 1
+  suffices ‖((NatTrans.appHom M) (BasicUniversalMap.evalLCFP' V r' g c₁ c₂))‖ ≤ 1
     by
     have aux₁ : ‖((coeff g) ϕ)‖ = ↑((coeff g) ϕ).natAbs :=
       by
@@ -413,7 +413,7 @@ theorem norm_evalLCFP_le [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ c�
       rfl
     rw [aux₁]
     exact mul_le_of_le_one_right ((coeff g) ϕ).natAbs.cast_nonneg this
-  rw [← g.eval_LCFP_eq_eval_LCFP' V r' c₁ c₂, basic_universal_map.eval_LCFP]
+  rw [← g.evalLCFP_eq_evalLCFP' V r' c₁ c₂, BasicUniversalMap.evalLCFP]
   · apply NormedAddGroupHom.NormNoninc.normNoninc_iff_norm_le_one.1
     exact LocallyConstant.comapHom_normNoninc _ _; exact aux
 

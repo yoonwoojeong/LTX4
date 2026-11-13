@@ -5,7 +5,7 @@ import LiquidTensorExperiment.ForMathlib.Profinite.DisjointUnion
 import LiquidTensorExperiment.ForMathlib.FintypeInduction
 import Mathlib.Tactic.DeriveFintype
 
-#align_import condensed.is_proetale_sheaf
+#align_import condensed.IsProetaleSheaf
 
 -- for pbool
 -- for pbool
@@ -58,8 +58,8 @@ theorem productEquiv_compatible {α β : Type w} [Fintype α] [Fintype β] (e : 
     P.map (Profinite.sigma.ι _ b).op ((sigmaEquiv P e X).symm a) =
       (productEquiv P e X).symm (fun b => P.map (Profinite.sigma.ι _ _).op a) b :=
   by
-  dsimp [product_equiv, sigma_equiv]
-  simp only [← functor_to_types.map_comp_apply]
+  dsimp [CategoryTheory.Functor.FiniteProductAux.productEquiv, CategoryTheory.Functor.FiniteProductAux.sigmaEquiv]
+  simp only [← FunctorToTypes.map_comp_apply]
   rfl
 
 end FiniteProductAux
@@ -73,12 +73,12 @@ theorem finiteProductConditionOf_equiv (α β : FintypeCat.{w}) (e : α ≃ β)
   specialize h (X ∘ e)
   let f := _; show Function.Bijective f
   let g := _; change Function.Bijective g at h 
-  have : f = product_equiv _ _ _ ∘ g ∘ (sigma_equiv P e X).symm :=
+  have : f = CategoryTheory.Functor.FiniteProductAux.productEquiv _ _ _ ∘ g ∘ (CategoryTheory.Functor.FiniteProductAux.sigmaEquiv P e X).symm :=
     by
-    suffices (product_equiv _ _ _).symm ∘ f = g ∘ (sigma_equiv P e X).symm by rw [← this]; ext; simp
+    suffices (CategoryTheory.Functor.FiniteProductAux.productEquiv _ _ _).symm ∘ f = g ∘ (CategoryTheory.Functor.FiniteProductAux.sigmaEquiv P e X).symm by rw [← this]; ext; simp
     symm
     ext a
-    apply product_equiv_compatible
+    apply CategoryTheory.Functor.FiniteProductAux.productEquiv_compatible
   rw [this]
   apply Function.Bijective.comp (Equiv.bijective _) (h.comp (Equiv.bijective _))
 
@@ -94,13 +94,13 @@ theorem finiteProductCondition_iff_finiteProductCondition' :
     let f := _; show Function.Bijective f
     specialize h n (X ∘ e)
     let g := _; change Function.Bijective g at h 
-    have : f = product_equiv _ _ _ ∘ g ∘ (sigma_equiv P e X).symm :=
+    have : f = CategoryTheory.Functor.FiniteProductAux.productEquiv _ _ _ ∘ g ∘ (CategoryTheory.Functor.FiniteProductAux.sigmaEquiv P e X).symm :=
       by
-      suffices (product_equiv _ _ _).symm ∘ f = g ∘ (sigma_equiv P e X).symm by rw [← this]; ext;
+      suffices (CategoryTheory.Functor.FiniteProductAux.productEquiv _ _ _).symm ∘ f = g ∘ (CategoryTheory.Functor.FiniteProductAux.sigmaEquiv P e X).symm by rw [← this]; ext;
         simp
       symm
       ext a
-      apply product_equiv_compatible
+      apply CategoryTheory.Functor.FiniteProductAux.productEquiv_compatible
     rw [this]
     apply Function.Bijective.comp (Equiv.bijective _) (h.comp (Equiv.bijective _))
 
@@ -148,18 +148,18 @@ theorem finiteProductConditionOf_pair_iff_productCondition :
   constructor
   · intro h A B
     let f := _; show Function.Bijective f
-    let X : limits.walking_pair → Profinite.{w} := fun i => limits.walking_pair.rec_on i A B
+    let X : Limits.WalkingPair → Profinite.{w} := fun i => Limits.WalkingPair.recOn i A B
     specialize h (X ∘ ULift.down)
     let g := _; change Function.Bijective g at h 
     let e : P.obj (op (A.sum B)) ≃ P.obj (op (Profinite.sigma (X ∘ ULift.down))) :=
       (P.map_iso (Profinite.sigmaWalkingPairIso (X ∘ ULift.down)).op).toEquiv
-    let q : (∀ a : limits.walking_pair, P.obj (op (X a))) ≃ P.obj (op A) × P.obj (op B) :=
-      ⟨fun f => ⟨f limits.walking_pair.left, f limits.walking_pair.right⟩, fun x a =>
-        limits.walking_pair.rec_on a x.1 x.2, _, _⟩
+    let q : (∀ a : Limits.WalkingPair, P.obj (op (X a))) ≃ P.obj (op A) × P.obj (op B) :=
+      ⟨fun f => ⟨f Limits.WalkingPair.left, f Limits.WalkingPair.right⟩, fun x a =>
+        Limits.WalkingPair.recOn a x.1 x.2, _, _⟩
     rotate_left; · intro a; ext ⟨x | x⟩; rfl; rfl; · rintro ⟨a, b⟩; ext ⟨x | x⟩; rfl; rfl
     let g' :
-      (∀ a : FintypeCat.of (ULift.{w} limits.walking_pair), P.obj (Opposite.op (X a.down))) ≃
-        ∀ a : limits.walking_pair, P.obj (Opposite.op (X a)) :=
+      (∀ a : FintypeCat.of (ULift.{w} Limits.WalkingPair), P.obj (Opposite.op (X a.down))) ≃
+        ∀ a : Limits.WalkingPair, P.obj (Opposite.op (X a)) :=
       ⟨fun f a => f ⟨a⟩, fun f a => f a.down, _, _⟩
     rotate_left
     · intro f; ext ⟨a⟩; rfl
@@ -168,22 +168,22 @@ theorem finiteProductConditionOf_pair_iff_productCondition :
       ext a
       all_goals
         dsimp [f, q, g, e]
-        simp_rw [← functor_to_types.map_comp_apply, ← op_comp]
+        simp_rw [← FunctorToTypes.map_comp_apply, ← op_comp]
         rfl
     rw [this]
     refine' q.bijective.comp _
     refine' g'.bijective.comp (h.comp e.bijective)
   · intro h X
     let f := _; show Function.Bijective f
-    specialize h (X ⟨limits.walking_pair.left⟩) (X ⟨limits.walking_pair.right⟩)
+    specialize h (X ⟨Limits.WalkingPair.left⟩) (X ⟨Limits.WalkingPair.right⟩)
     let g := _; change Function.Bijective g at h 
     let e : P.obj (op (Profinite.sigma X)) ≃ P.obj (op (Profinite.sum _ _)) :=
       (P.map_iso (Profinite.sigmaWalkingPairIso X).op).symm.toEquiv
     let q :
-      P.obj (op (X ⟨limits.walking_pair.left⟩)) × P.obj (op (X ⟨limits.walking_pair.right⟩)) ≃
-        ∀ a : ULift.{w} limits.walking_pair, P.obj (op (X a)) :=
-      ⟨fun x ⟨a⟩ => limits.walking_pair.rec_on a x.1 x.2, fun f =>
-        (f ⟨limits.walking_pair.left⟩, f ⟨limits.walking_pair.right⟩), _, _⟩
+      P.obj (op (X ⟨Limits.WalkingPair.left⟩)) × P.obj (op (X ⟨Limits.WalkingPair.right⟩)) ≃
+        ∀ a : ULift.{w} Limits.WalkingPair, P.obj (op (X a)) :=
+      ⟨fun x ⟨a⟩ => Limits.WalkingPair.recOn a x.1 x.2, fun f =>
+        (f ⟨Limits.WalkingPair.left⟩, f ⟨Limits.WalkingPair.right⟩), _, _⟩
     rotate_left
     · rintro ⟨a, b⟩; ext ⟨x | x⟩; rfl; rfl
     · intro a; ext ⟨x | x⟩; rfl; rfl
@@ -191,7 +191,7 @@ theorem finiteProductConditionOf_pair_iff_productCondition :
       ext a ⟨x | x⟩
       all_goals
         dsimp [f, q, g, e]
-        simp_rw [← functor_to_types.map_comp_apply, ← op_comp]
+        simp_rw [← FunctorToTypes.map_comp_apply, ← op_comp]
         rfl
     rw [this]
     exact q.bijective.comp (h.comp e.bijective)
@@ -227,11 +227,11 @@ theorem finiteProductConditionOf_sum (α β : FintypeCat.{w}) (h1 : P.ProductCon
     ext i
     cases i
     · dsimp [f, e, q, g, t, p, I, Profinite.sigmaSumIso']
-      simp_rw [← functor_to_types.map_comp_apply, ← op_comp]
+      simp_rw [← FunctorToTypes.map_comp_apply, ← op_comp]
       rfl
     · cases i
       dsimp [f, e, q, g, t, p, I, Profinite.sigmaSumIso']
-      simp_rw [← functor_to_types.map_comp_apply, ← op_comp]
+      simp_rw [← FunctorToTypes.map_comp_apply, ← op_comp]
       rfl
   rw [this]
   exact e.symm.bijective.comp (r.bijective.comp (q.bijective.comp (h1.comp t.bijective)))
@@ -242,20 +242,20 @@ theorem finiteProductCondition_iff_empty_product :
   constructor
   · intro h
     constructor
-    rw [← finite_product_condition_of_empty_iff_empty_condition]
+    rw [← CategoryTheory.Functor.finiteProductConditionOf_empty_iff_emptyCondition]
     apply h
-    rw [← finite_product_condition_of_pair_iff_product_condition]
+    rw [← CategoryTheory.Functor.finiteProductConditionOf_pair_iff_productCondition]
     apply h
   · rintro ⟨h1, h2⟩
     have :=
       @FintypeCat.induction_empty_sum fun α : FintypeCat.{w} => P.finite_product_condition_of α
     apply this
     · intro α β e h
-      apply finite_product_condition_of_equiv _ _ _ e h
-    · erw [finite_product_condition_of_empty_iff_empty_condition]
+      apply CategoryTheory.Functor.finiteProductConditionOf_equiv _ _ _ e h
+    · erw [CategoryTheory.Functor.finiteProductConditionOf_empty_iff_emptyCondition]
       assumption
     · intro α h
-      apply finite_product_condition_of_sum P α (FintypeCat.of PUnit)
+      apply CategoryTheory.Functor.finiteProductConditionOf_sum P α (FintypeCat.of PUnit)
       assumption
       assumption
 
@@ -316,7 +316,7 @@ theorem is_singleton_iff_exists_bijective_to_is_singleton (X : Sort _) :
     refine' ⟨⟨g hY1.some⟩, ⟨fun a b => finj <| Subsingleton.elim _ _⟩⟩
 
 theorem Subsingleton.map_equiv {X Y : Type _} (e : X ≃ Y) : Subsingleton X → Subsingleton Y :=
-  fun h => ⟨fun a b => e.symm.Injective <| @Subsingleton.elim _ h _ _⟩
+  fun h => ⟨fun a b => e.symm.injective <| @Subsingleton.elim _ h _ _⟩
 
 end IsSingleton
 
@@ -506,7 +506,7 @@ theorem finiteProductCondition_of_isProetaleSheafOfTypes (h : P.IsProetaleSheafO
     · intro a b Z g₁ g₂ hhh
       by_cases hZ : IsEmpty Z
       · haveI := hZ
-        haveI := subsingleton_empty_of_is_proetale_sheaf_of_types P h Z
+        haveI := CategoryTheory.Functor.subsingletonEmpty_of_isProetaleSheafOfTypes P h Z
         apply Subsingleton.elim
       simp at hZ 
       obtain ⟨z⟩ := hZ
@@ -529,19 +529,19 @@ theorem finiteProductCondition_of_isProetaleSheafOfTypes (h : P.IsProetaleSheafO
 theorem isProetaleSheafOfTypes_iff :
     P.IsProetaleSheafOfTypes ↔ Presieve.IsSheaf proetaleTopology P :=
   by
-  erw [presieve.is_sheaf_pretopology]
+  erw [Presieve.isSheaf_pretopology]
   constructor
   · intro h B S hS
     obtain ⟨α, _, X, f, surj, rfl⟩ := hS
     skip
     intro x hx
-    dsimp [presieve.family_of_elements] at x 
+    dsimp [Presieve.FamilyOfElements] at x 
     let y : ∀ a : α, P.obj (op (X a)) := fun a => x (f a) _
     swap
-    · rw [presieve.mem_of_arrows_iff]; use a, rfl; simp
+    · rw [Presieve.mem_ofArrows_iff]; use a, rfl; simp
     specialize h α B X f surj y _
     · intro a b Z g₁ g₂ hh
-      dsimp [presieve.family_of_elements.compatible] at hx 
+      dsimp [Presieve.FamilyOfElements.Compatible] at hx 
       apply hx
       assumption
     convert h
@@ -551,11 +551,11 @@ theorem isProetaleSheafOfTypes_iff :
       intro a
       apply hh
     · intro hh Y g hg
-      rw [presieve.mem_of_arrows_iff] at hg 
+      rw [Presieve.mem_ofArrows_iff] at hg 
       obtain ⟨u, rfl, rfl⟩ := hg
       simp [hh]
   · intro h α _ B X f surj x compat
-    let R : presieve B := presieve.of_arrows X f
+    let R : presieve B := Presieve.ofArrows X f
     have hR : R ∈ proetalePretopology B := ⟨α, inferInstance, X, f, surj, rfl⟩
     have hhh : ∀ ⦃Y⦄ (g : Y ⟶ B) (hg : R g), ∃ (a : α) (ha : Y = X a), g = eq_to_hom ha ≫ f a :=
       by
@@ -574,7 +574,7 @@ theorem isProetaleSheafOfTypes_iff :
       change (P.map _ ≫ P.map _) _ = (P.map _ ≫ P.map _) _
       simp_rw [← P.map_comp, ← op_comp]
       apply compat
-      simp_rw [category.assoc]
+      simp_rw [Category.assoc]
       convert hh
       all_goals
         symm
@@ -589,14 +589,14 @@ theorem isProetaleSheafOfTypes_iff :
     · intro hh a
       have : R (f a) := by
         dsimp [R]
-        rw [presieve.mem_of_arrows_iff]
+        rw [Presieve.mem_ofArrows_iff]
         use a, rfl
         simp
       rw [hh (f a) this]
       dsimp [y]
       specialize compat (aa (f a) this) a (X a) (eq_to_hom _) (𝟙 _) _
       · apply haa
-      rw [category.id_comp]
+      rw [Category.id_comp]
       apply (haa' _ _).symm
       simpa using compat
 
@@ -607,9 +607,9 @@ theorem isProetaleSheafOfTypesPullback_iff :
   · intro h α _ B X f surj x compat
     apply h α B X f surj x
     intro a b Z g₁ g₂ h
-    let g : Z ⟶ limits.pullback (f a) (f b) := limits.pullback.lift _ _ h
-    rw [show g₁ = g ≫ limits.pullback.fst by simp [g]]
-    rw [show g₂ = g ≫ limits.pullback.snd by simp [g]]
+    let g : Z ⟶ Limits.pullback (f a) (f b) := Limits.pullback.lift _ _ h
+    rw [show g₁ = g ≫ Limits.pullback.fst by simp [g]]
+    rw [show g₂ = g ≫ Limits.pullback.snd by simp [g]]
     simp only [op_comp, P.map_comp]
     dsimp
     rw [compat]
@@ -617,7 +617,7 @@ theorem isProetaleSheafOfTypesPullback_iff :
     apply h α B X f surj x
     intro a b
     apply compat
-    exact limits.pullback.condition
+    exact Limits.pullback.condition
 
 theorem isProetaleSheafOfTypesExplicitPullback_iff :
     P.IsProetaleSheafOfTypes ↔ P.IsProetaleSheafOfTypesExplicitPullback :=
@@ -641,7 +641,7 @@ theorem isProetaleSheafOfTypesExplicitPullback_iff :
 theorem equalizerCondition_of_isProetaleSheafOfTypes (h : P.IsProetaleSheafOfTypes) :
     P.EqualizerCondition := by
   intro X B π surj
-  rw [is_proetale_sheaf_of_types_explicit_pullback_iff] at h 
+  rw [CategoryTheory.Functor.isProetaleSheafOfTypesExplicitPullback_iff] at h 
   specialize h PUnit B (fun _ => X) (fun _ => π) _
   · intro b
     use PUnit.unit
@@ -649,7 +649,7 @@ theorem equalizerCondition_of_isProetaleSheafOfTypes (h : P.IsProetaleSheafOfTyp
   dsimp at h 
   constructor
   · intro x y hh
-    dsimp [map_to_equalizer] at hh 
+    dsimp [CategoryTheory.Functor.mapToEqualizer] at hh 
     apply_fun fun e => e.val at hh 
     specialize h (fun _ => P.map π.op x) _
     · intros
@@ -711,7 +711,7 @@ theorem equalizes_of_compat {α : FintypeCat.{w}} {B} {X : α → Profinite.{w}}
   simp_rw [← P.map_comp, ← op_comp]
   erw [Profinite.sigmaPullbackToPullbackSigma_fst]
   erw [Profinite.sigmaPullbackToPullbackSigma_snd]
-  let E := sigma_pi_equiv P X h
+  let E := CategoryTheory.Functor.sigmaPiEquiv P X h
   specialize h ⟨α × α⟩ fun a => Profinite.pullback (f a.1) (f a.2)
   let E' := Equiv.ofBijective _ h
   apply_fun E'
@@ -731,14 +731,14 @@ theorem equalizes_of_compat {α : FintypeCat.{w}} {B} {X : α → Profinite.{w}}
 theorem is_proetale_sheaf_of_finiteProductCondition_of_equalizerCondition
     (h1 : P.FiniteProductCondition) (h2 : P.EqualizerCondition) : P.IsProetaleSheafOfTypes :=
   by
-  rw [is_proetale_sheaf_of_types_explicit_pullback_iff]
+  rw [CategoryTheory.Functor.isProetaleSheafOfTypesExplicitPullback_iff]
   intro α _ B X f surj x compat
   let A : FintypeCat := FintypeCat.of α
   change ∀ x : A, _ at x 
   change ∀ x : A, _ at f 
   change ∀ a b : A, _ at compat 
   change A → _ at X 
-  let E := sigma_pi_equiv P X h1
+  let E := CategoryTheory.Functor.sigmaPiEquiv P X h1
   let F :=
     equalizer_equiv P h2 (Profinite.sigma.desc X f) (Profinite.sigma.desc_surjective _ _ surj)
   let π1 := Profinite.pullback.fst (Profinite.sigma.desc X f) (Profinite.sigma.desc X f)
@@ -755,7 +755,7 @@ theorem is_proetale_sheaf_of_finiteProductCondition_of_equalizerCondition
         (fun u : ∀ a, P.obj (op <| X a) => u a) ∘
           (fun u : {t : S | P.map π1.op t = P.map π2.op t} => E u.val) ∘ F :=
       by
-      ext t; dsimp [E, F, sigma_pi_equiv, equalizer_equiv, map_to_equalizer]
+      ext t; dsimp [E, F, CategoryTheory.Functor.sigmaPiEquiv, equalizer_equiv, CategoryTheory.Functor.mapToEqualizer]
       change _ = (P.map _ ≫ P.map _) _
       simp_rw [← P.map_comp, ← op_comp, Profinite.sigma.ι_desc]
     rw [this]
@@ -773,7 +773,7 @@ theorem is_proetale_sheaf_of_finiteProductCondition_of_equalizerCondition
     apply_fun E
     change _ = (E ∘ E.symm) _
     simp only [Equiv.self_comp_symm, id.def]
-    dsimp [E, F, sigma_pi_equiv, equalizer_equiv, map_to_equalizer]
+    dsimp [E, F, CategoryTheory.Functor.sigmaPiEquiv, equalizer_equiv, CategoryTheory.Functor.mapToEqualizer]
     ext a
     change (P.map _ ≫ P.map _) _ = _
     simp_rw [← P.map_comp, ← op_comp, Profinite.sigma.ι_desc, hy a]
@@ -790,14 +790,14 @@ theorem isProetaleSheafOfTypes_tFAE :
   tfae_have 2 → 5;
   · intro h
     constructor
-    · exact finite_product_condition_of_is_proetale_sheaf_of_types _ h
-    · exact equalizer_condition_of_is_proetale_sheaf_of_types _ h
+    · exact CategoryTheory.Functor.finiteProductCondition_of_isProetaleSheafOfTypes _ h
+    · exact CategoryTheory.Functor.equalizerCondition_of_isProetaleSheafOfTypes _ h
   tfae_have 5 → 2;
   · rintro ⟨h1, h2⟩
-    apply is_proetale_sheaf_of_finite_product_condition_of_equalizer_condition
+    apply CategoryTheory.Functor.is_proetale_sheaf_of_finiteProductCondition_of_equalizerCondition
     assumption'
   tfae_have 5 ↔ 6;
-  · rw [finite_product_condition_iff_empty_product]
+  · rw [CategoryTheory.Functor.finiteProductCondition_iff_empty_product]
     rw [and_assoc']
   tfae_finish
 
@@ -843,15 +843,15 @@ theorem isProetaleSheafPullback_iff : Q.IsProetaleSheaf ↔ Q.IsProetaleSheafPul
     apply h α B X f surj T x
     intro a b Z g₁ g₂ h
     specialize compat a b
-    let g : Z ⟶ limits.pullback (f a) (f b) := limits.pullback.lift g₁ g₂ h
-    rw [show g₁ = g ≫ limits.pullback.fst by simp [g]]
-    rw [show g₂ = g ≫ limits.pullback.snd by simp [g]]
+    let g : Z ⟶ Limits.pullback (f a) (f b) := Limits.pullback.lift g₁ g₂ h
+    rw [show g₁ = g ≫ Limits.pullback.fst by simp [g]]
+    rw [show g₂ = g ≫ Limits.pullback.snd by simp [g]]
     simp only [op_comp, Q.map_comp, reassoc_of compat]
   · intro h α _ B X f surj T x compat
     apply h α B X f surj T x
     intro a b
     apply compat
-    exact limits.pullback.condition
+    exact Limits.pullback.condition
 
 theorem isProetaleSheaf_iff : Q.IsProetaleSheaf ↔ Presheaf.IsSheaf proetaleTopology Q :=
   by
@@ -891,7 +891,7 @@ theorem empty_of_empty_coyoneda [Limits.HasTerminal C] :
   let P := Q ⋙ coyoneda.obj (op <| Q.obj (op <| Profinite.empty))
   rcases hh with ⟨h1, h2⟩
   rcases hh' with ⟨h1', h2'⟩
-  dsimp [empty_condition']
+  dsimp [CategoryTheory.Functor.EmptyCondition']
   obtain ⟨f, -⟩ := h2 PUnit.unit
   use f
   simp only [and_true_iff, eq_iff_true_of_subsingleton]
@@ -902,21 +902,21 @@ theorem empty_coyoneda_of_empty [Limits.HasTerminal C] :
     Q.EmptyCondition' → ∀ X : C, (Q ⋙ coyoneda.obj (op X)).EmptyCondition :=
   by
   intro h X
-  let e := limits.terminal.from (Q.obj (op <| Profinite.empty))
+  let e := Limits.terminal.from (Q.obj (op <| Profinite.empty))
   change is_iso e at h 
   skip
   constructor
   · rintro f g -
-    dsimp [coyoneda, empty_condition'] at f g 
+    dsimp [coyoneda, CategoryTheory.Functor.EmptyCondition'] at f g 
     suffices f ≫ e = g ≫ e
       by
       apply_fun fun t => t ≫ CategoryTheory.inv e at this 
-      simp_rw [category.assoc] at this 
-      simpa only [category.comp_id, is_iso.hom_inv_id] using this
+      simp_rw [Category.assoc] at this 
+      simpa only [Category.comp_id, IsIso.hom_inv_id] using this
     simp only [eq_iff_true_of_subsingleton]
   · rintro a
     dsimp [coyoneda]
-    use limits.terminal.from X ≫ CategoryTheory.inv e
+    use Limits.terminal.from X ≫ CategoryTheory.inv e
     simp
 
 theorem product_of_product_coyoneda [Limits.HasBinaryProducts C] :
@@ -933,12 +933,12 @@ theorem product_of_product_coyoneda [Limits.HasBinaryProducts C] :
   dsimp [P1, P2, coyoneda] at hh hh' 
   rcases hh with ⟨-, hh⟩
   rcases hh' with ⟨hh', -⟩
-  obtain ⟨f, hf⟩ := hh ⟨limits.prod.fst, limits.prod.snd⟩
+  obtain ⟨f, hf⟩ := hh ⟨Limits.prod.fst, Limits.prod.snd⟩
   use f
   dsimp at *
   simp only [Prod.mk.inj_iff] at hf 
   cases' hf with hf1 hf2
-  simp only [hf1, hf2, and_true_iff, limits.prod.comp_lift, limits.prod.lift_fst_snd,
+  simp only [hf1, hf2, and_true_iff, Limits.prod.comp_lift, Limits.prod.lift_fst_snd,
     eq_self_iff_true]
   apply hh'
   simp [hf1, hf2]
@@ -948,7 +948,7 @@ theorem product_coyoneda_of_product [Limits.HasBinaryProducts C] :
   by
   intro h X A B
   specialize h A B
-  let e := limits.prod.lift (Q.map (Profinite.sum.inl A B).op) (Q.map (Profinite.sum.inr A B).op)
+  let e := Limits.prod.lift (Q.map (Profinite.sum.inl A B).op) (Q.map (Profinite.sum.inr A B).op)
   change is_iso e at h 
   skip
   constructor
@@ -959,18 +959,18 @@ theorem product_coyoneda_of_product [Limits.HasBinaryProducts C] :
     suffices f ≫ e = g ≫ e
       by
       apply_fun fun t => t ≫ CategoryTheory.inv e at this 
-      simp_rw [category.assoc] at this 
+      simp_rw [Category.assoc] at this 
       simpa using this
-    apply limits.prod.hom_ext
+    apply Limits.prod.hom_ext
     · simp [hl]
     · simp [hr]
   · rintro ⟨a, b⟩
     dsimp at a b ⊢
-    use limits.prod.lift a b ≫ CategoryTheory.inv e
-    have ha : CategoryTheory.inv e ≫ Q.map (Profinite.sum.inl A B).op = limits.prod.fst := by
-      simp [is_iso.inv_comp_eq, e]
-    have hb : CategoryTheory.inv e ≫ Q.map (Profinite.sum.inr A B).op = limits.prod.snd := by
-      simp [is_iso.inv_comp_eq, e]
+    use Limits.prod.lift a b ≫ CategoryTheory.inv e
+    have ha : CategoryTheory.inv e ≫ Q.map (Profinite.sum.inl A B).op = Limits.prod.fst := by
+      simp [IsIso.inv_comp_eq, e]
+    have hb : CategoryTheory.inv e ≫ Q.map (Profinite.sum.inr A B).op = Limits.prod.snd := by
+      simp [IsIso.inv_comp_eq, e]
     simp [ha, hb]
 
 theorem equalizer_of_equalizer_coyoneda [Limits.HasEqualizers C] :
@@ -980,17 +980,17 @@ theorem equalizer_of_equalizer_coyoneda [Limits.HasEqualizers C] :
   let h1 := h (Q.obj (Opposite.op B)) X B f hf
   let π1 := Profinite.pullback.fst f f
   let π2 := Profinite.pullback.snd f f
-  let h2 := h (limits.equalizer (Q.map π1.op) (Q.map π2.op)) X B f hf
-  dsimp [map_to_equalizer] at h1 h2 
-  obtain ⟨e, he⟩ := h2.2 ⟨limits.equalizer.ι _ _, _⟩
-  swap; · dsimp [π1, π2]; simp [limits.equalizer.condition]
+  let h2 := h (Limits.equalizer (Q.map π1.op) (Q.map π2.op)) X B f hf
+  dsimp [CategoryTheory.Functor.mapToEqualizer] at h1 h2 
+  obtain ⟨e, he⟩ := h2.2 ⟨Limits.equalizer.ι _ _, _⟩
+  swap; · dsimp [π1, π2]; simp [Limits.equalizer.condition]
   use e
-  dsimp [map_to_equalizer'] at *
+  dsimp [CategoryTheory.Functor.mapToEqualizer'] at *
   simp at he 
   constructor
   · apply h1.1
     simp [he]
-  · apply limits.equalizer.hom_ext; simp [he]
+  · apply Limits.equalizer.hom_ext; simp [he]
 
 theorem equalizer_coyoneda_of_equalizer [Limits.HasEqualizers C] :
     Q.EqualizerCondition' → ∀ X : C, (Q ⋙ coyoneda.obj (op X)).EqualizerCondition :=
@@ -1004,28 +1004,28 @@ theorem equalizer_coyoneda_of_equalizer [Limits.HasEqualizers C] :
   skip
   constructor
   · intro a b hh
-    dsimp [map_to_equalizer] at a b hh 
+    dsimp [CategoryTheory.Functor.mapToEqualizer] at a b hh 
     simp at hh 
     suffices a ≫ e = b ≫ e
       by
       apply_fun fun t => t ≫ CategoryTheory.inv e at this 
-      simp_rw [category.assoc] at this 
+      simp_rw [Category.assoc] at this 
       simpa using this
-    apply limits.equalizer.hom_ext
-    simpa [e, map_to_equalizer']
+    apply Limits.equalizer.hom_ext
+    simpa [e, CategoryTheory.Functor.mapToEqualizer']
   · rintro ⟨a, ha⟩
     dsimp at a ha 
-    use limits.equalizer.lift a ha ≫ CategoryTheory.inv e
-    have : CategoryTheory.inv e ≫ Q.map f.op = limits.equalizer.ι _ _ := by
-      simp [e, is_iso.comp_inv_eq, map_to_equalizer']
-    simp [map_to_equalizer, this]
+    use Limits.equalizer.lift a ha ≫ CategoryTheory.inv e
+    have : CategoryTheory.inv e ≫ Q.map f.op = Limits.equalizer.ι _ _ := by
+      simp [e, IsIso.comp_inv_eq, CategoryTheory.Functor.mapToEqualizer']
+    simp [CategoryTheory.Functor.mapToEqualizer, this]
 
 theorem isProetaleSheaf_of_empty_of_product_of_equalizer [Limits.HasTerminal C]
     [Limits.HasBinaryProducts C] [Limits.HasEqualizers C] :
     Q.EmptyCondition' ∧ Q.ProductCondition' ∧ Q.EqualizerCondition' → Q.IsProetaleSheaf :=
   by
   rintro ⟨h1, h2, h3⟩
-  rw [is_proetale_sheaf_iff]
+  rw [CategoryTheory.Functor.isProetaleSheaf_iff]
   intro X
   rw [(Q ⋙ coyoneda.obj (op X)).isProetaleSheafOfTypes_tFAE.out 0 5]
   refine' ⟨_, _, _⟩

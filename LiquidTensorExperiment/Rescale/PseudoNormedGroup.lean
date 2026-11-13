@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.PseudoNormedGroup.Category.Default
 import LiquidTensorExperiment.Rescale.Basic
 
-#align_import rescale.pseudo_normed_group
+#align_import Rescale.pseudoNormedGroup
 
 noncomputable section
 
@@ -109,7 +109,7 @@ instance [ComphausFilteredPseudoNormedGroup M] : ComphausFilteredPseudoNormedGro
   continuous_add' := by
     intro c₁ c₂
     haveI : Fact ((c₁ + c₂) * r⁻¹ ≤ c₁ * r⁻¹ + c₂ * r⁻¹) := ⟨(add_mul _ _ _).le⟩
-    rw [(embedding_cast_le ((c₁ + c₂) * r⁻¹) (c₁ * r⁻¹ + c₂ * r⁻¹)).continuous_iff]
+    rw [(ComphausFilteredPseudoNormedGroup.embedding_castLe ((c₁ + c₂) * r⁻¹) (c₁ * r⁻¹ + c₂ * r⁻¹)).continuous_iff]
     exact continuous_add' (c₁ * r⁻¹) (c₂ * r⁻¹)
   continuous_neg' c := continuous_neg' _
   continuous_castLe c₁ c₂ h := continuous_cast_le _ _
@@ -132,7 +132,7 @@ def mapComphausFilteredPseudoNormedGroupHom {M₁ M₂ : Type _} [ComphausFilter
     rw [Rescale.mem_filtration] at hx ⊢
     simp only [Function.comp_apply, Equiv.symm_apply_apply, mul_assoc]
     exact hC hx
-  continuous' c₁ c₂ f₀ hf₀ := f.Continuous f₀ hf₀
+  continuous' c₁ c₂ f₀ hf₀ := f.continuous f₀ hf₀
 
 @[simps]
 def mapStrictComphausFilteredPseudoNormedGroupHom {M₁ M₂ : Type _}

@@ -47,16 +47,16 @@ noncomputable def evalFunctorColimitIso {M : Type} (c : ComplexShape M)
     (fun i => preservesColimitIso (HomologicalComplex.eval A c i) _)
     (by
       intro i j hij
-      rw [← iso.eq_inv_comp]
+      rw [← Iso.eq_inv_comp]
       apply colimit.hom_ext
       intro k
       dsimp
-      simp only [colimit.ι_map, whisker_left_app, ι_preserves_colimits_iso_inv_assoc,
+      simp only [colimit.ι_map, CategoryTheory.whiskerLeft_app, ι_preserves_colimits_iso_inv_assoc,
         HomologicalComplex.eval_map, HomologicalComplex.Hom.comm_assoc]
       congr
-      rw [preserves_colimit_iso, ←
-        limits.colimit.iso_colimit_cocone_ι_inv
-          ⟨_, preserves_colimit.preserves (colimit.is_colimit F)⟩]
+      rw [CategoryTheory.preservesColimitIso, ←
+        Limits.colimit.isoColimitCocone_ι_inv
+          ⟨_, PreservesColimit.preserves (colimit.isColimit F)⟩]
       rfl)
 
 noncomputable instance homologyFunctorPreservesFilteredColimit {M : Type} (c : ComplexShape M)
@@ -66,9 +66,9 @@ noncomputable instance homologyFunctorPreservesFilteredColimit {M : Type} (c : C
 noncomputable instance homologyFunctorPreservesFilteredColimits {M : Type} (c : ComplexShape M)
     (i : M)
     [∀ (J : Type v) [hJ : SmallCategory J] [@IsFiltered J hJ],
-        preserves_finite_limits (limits.colim : (J ⥤ A) ⥤ A)]
+        preserves_finite_limits (Limits.colim : (J ⥤ A) ⥤ A)]
     [∀ (J : Type v) [hJ : SmallCategory J] [@IsFiltered J hJ],
-        preserves_finite_colimits (limits.colim : (J ⥤ A) ⥤ A)] :
+        preserves_finite_colimits (Limits.colim : (J ⥤ A) ⥤ A)] :
     PreservesFilteredColimits (homology'Functor A c i : HomologicalComplex A c ⥤ A) := by
   constructor; intro J _ _; constructor
 

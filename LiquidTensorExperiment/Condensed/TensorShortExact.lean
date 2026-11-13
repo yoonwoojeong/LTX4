@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.Condensed.Tensor
 import LiquidTensorExperiment.ForMathlib.PreservesFiniteLimits
 
-#align_import condensed.tensor_short_exact
+#align_import condensed.tensor_shortExact
 
 noncomputable section
 
@@ -15,7 +15,7 @@ namespace AddCommGroupCat
 
 @[reassoc]
 theorem mapTensor_flip {A B C D : AddCommGroupCat} (f : A ⟶ B) (g : C ⟶ D) :
-    mapTensor f g ≫ (tensorFlip _ _).Hom = (tensorFlip _ _).Hom ≫ mapTensor g f := by
+    mapTensor f g ≫ (tensorFlip _ _).hom = (tensorFlip _ _).hom ≫ mapTensor g f := by
   apply AddCommGroupCat.tensor_ext; intro a c; rfl
 
 end AddCommGroupCat
@@ -26,28 +26,28 @@ def tensorTunit (A : AddCommGroupCat) (h : AddCommGroupCat.IsTensorUnit A) :
     tensorFunctor.flip.obj A ≅ 𝟭 _ :=
   by
   refine' _ ≪≫ (condensedExtrSheafEquiv Ab).counitIso
-  refine' nat_iso.of_components _ _
+  refine' NatIso.ofComponents _ _
   · intro M
     refine' (condensedExtrSheafEquiv Ab).Functor.mapIso _
-    refine' Sheaf.iso.mk _ _ _
-    refine' nat_iso.of_components _ _
+    refine' Sheaf.Iso.mk _ _ _
+    refine' NatIso.ofComponents _ _
     · intro S
       refine' (AddCommGroup.tensor_functor_iso_flip.app _).app _ ≪≫ _
       refine' AddCommGroupCat.tensorUnitIso _ _ h
     · intro S T f
       dsimp [ExtrSheaf.tensor, AddCommGroupCat.tensorFunctorIsoFlip]
-      simp only [category.assoc]
+      simp only [Category.assoc]
       erw [AddCommGroupCat.tensorUnitIso_naturality]
       rw [← AddCommGroupCat.mapTensor_flip_assoc]; rfl
   · intro M N f
-    dsimp only [tensor_functor, map_tensor, functor.flip_obj_map, functor.comp_map,
-      functor.map_iso_hom]
-    simp only [← functor.map_comp]; congr 1
+    dsimp only [tensor_functor, map_tensor, Functor.flip_obj_map, Functor.comp_map,
+      Functor.mapIso_hom]
+    simp only [← Functor.map_comp]; congr 1
     ext S : 3
     dsimp only [Sheaf.category_theory.category_comp_val, ExtrSheaf.mapTensor_val,
-      Sheaf.iso.mk_hom_val, nat_iso.of_components_hom_app, nat_trans.comp_app,
-      ExtrSheafProd.mapTensor_val_app, iso.trans_hom]
-    simp only [category.assoc]
+      Sheaf.Iso.mk_hom_val, NatIso.ofComponents_hom_app, NatTrans.comp_app,
+      ExtrSheafProd.mapTensor_val_app, Iso.trans_hom]
+    simp only [Category.assoc]
     dsimp [AddCommGroupCat.tensorFunctorIsoFlip]
     rw [AddCommGroupCat.mapTensor_flip_assoc]; congr 1
     symm; apply AddCommGroupCat.tensorUnitIso_naturality

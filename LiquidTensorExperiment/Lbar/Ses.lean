@@ -54,7 +54,7 @@ theorem toLaurentMeasuresFun_pos' (F : Invpoly r' S) (s : S) (n : ℕ) :
 theorem toLaurentMeasuresFun_pos'' (F : Invpoly r' S) (s : S) {m : ℤ} (hn : 0 < m) :
     toLaurentMeasuresFun r' S F s m = 0 :=
   by
-  convert to_laurent_measures_fun_pos' r' S F s (m - 1).natAbs
+  convert Invpoly.toLaurentMeasuresFun_pos' r' S F s (m - 1).natAbs
   rw [Int.natAbs_of_nonneg]
   · ring
   · linarith
@@ -71,8 +71,8 @@ theorem toLaurentMeasuresFun_nonpos (F : Invpoly r' S) (s : S) (n : ℕ) :
     toLaurentMeasuresFun r' S F s (-n) = (F s).coeff n :=
   by
   cases n
-  · exact to_laurent_measures_fun_zero r' S F s
-  · exact to_laurent_measures_fun_neg r' S F s n
+  · exact Invpoly.toLaurentMeasuresFun_zero r' S F s
+  · exact Invpoly.toLaurentMeasuresFun_neg r' S F s n
 
 /-- The natural inclusion from an S-indexed set of polynomials `Fₛ : ℤ[T⁻¹]` to
 the corresponding power series `Fₛ : ℤ[[T]][T⁻¹]`. -/
@@ -86,7 +86,7 @@ def toLaurentMeasures (F : Invpoly r' S) : LaurentMeasures r' S
     constructor
     · have := F.nnreal_summable s
       rw [← NNReal.summable_coe] at this 
-      convert (Equiv.summable_iff (equiv.nonpos_ge_zero ℤ)).mpr _
+      convert (Equiv.summable_iff (Equiv.nonposGeZero ℤ)).mpr _
       rotate_left
       · exact fun a => (‖((F s).coeff (Int.toNat a))‖₊ * r' ^ (-a.1) : ℝ)
       rotate_left
@@ -99,7 +99,7 @@ def toLaurentMeasures (F : Invpoly r' S) : LaurentMeasures r' S
           exact Int.add_pos_of_nonneg_of_pos (Int.ofNat_zero_le x) zero_lt_one
         · simp only [Subtype.coe_mk, zpow_negSucc, Nonneg.coe_mul, coe_nnnorm, NNReal.coe_pow,
             Subtype.val_eq_coe, zpow_neg, Function.comp_apply, NNReal.coe_eq_zero,
-            equiv.nonpos_ge_zero_eval, inv_inv, inv_eq_zero, pow_eq_zero_iff, Nat.succ_pos']
+            Equiv.nonposGeZero_eval, inv_inv, inv_eq_zero, pow_eq_zero_iff, Nat.succ_pos']
           congr
       · refine' (Equiv.summable_iff (int_subtype_nonneg_equiv.symm : ℕ ≃ { z : ℤ // 0 ≤ z })).mp _
         simpa
@@ -158,8 +158,8 @@ theorem ofLaurentMeasures_strict [Fact (r' < 1)] (F : LaurentMeasures r' S) :
   unfold NNNorm.nnnorm
   apply Finset.sum_le_sum; rintro s -
   change tsum _ ≤ tsum _
-  delta of_laurent_measures
-  simp_rw [polynomial.sum_range_int_mul_X_pow_coeff]
+  delta Invpoly.ofLaurentMeasures
+  simp_rw [Polynomial.sum_range_int_hMul_x_pow_coeff]
   apply tsum_le_tsum_of_inj fun n : ℕ => -(n : ℤ)
   · intro a b h; simpa using h
   · intros; apply zero_le
@@ -191,13 +191,13 @@ theorem toLaurentMeasures_ofLaurentMeasures [Fact (r' < 1)] (F : Invpoly r' S) :
         (show (0 : ℝ) < r' by norm_cast <;> exact Fact.elim inferInstance)
         (by norm_cast <;> exact Fact.elim inferInstance) (to_laurent_measures r' S F)).choose_spec
   ext s n
-  delta of_laurent_measures
+  delta Invpoly.ofLaurentMeasures
   suffices :
     (∑ n : ℕ in range (1 - d).toNat, C (to_laurent_measures r' S F s (-↑n)) * X ^ n).coeff n =
       (F s).coeff n
   simpa
-  rw [polynomial.sum_range_const_mul_X_pow_coeff]
-  rw [← to_laurent_measures_fun_nonpos]
+  rw [Polynomial.sum_range_const_hMul_x_pow_coeff]
+  rw [← Invpoly.toLaurentMeasuresFun_nonpos]
   split_ifs; rfl
   symm
   apply hd
@@ -219,11 +219,11 @@ def toLaurentMeasuresAddhom : Invpoly r' S →+ LaurentMeasures r' S :=
     by
     intro F G; ext s ((_ | n) | n)
     ·
-      simp only [to_laurent_measures_fun, add_apply, Int.ofNat_zero, to_laurent_measures_to_fun,
+      simp only [Invpoly.toLaurentMeasuresFun, add_apply, Int.ofNat_zero, Invpoly.toLaurentMeasures_to_fun,
         LaurentMeasures.add_apply, Polynomial.coeff_add]
     · rfl
     ·
-      simp only [to_laurent_measures_fun, add_apply, to_laurent_measures_to_fun,
+      simp only [Invpoly.toLaurentMeasuresFun, add_apply, Invpoly.toLaurentMeasures_to_fun,
         LaurentMeasures.add_apply, Polynomial.coeff_add]
 
 theorem toLaurentMeasuresAddhom_isometry (p : Invpoly r' S) :
@@ -241,15 +241,15 @@ theorem toLaurentMeasuresAddhom_isometry (p : Invpoly r' S) :
     rcases n with ((_ | n) | n)
     · exact ⟨⟨0, hn⟩, rfl⟩
     · exfalso
-      simpa [to_laurent_measures_addhom, to_laurent_measures_fun_pos'] using hn
+      simpa [Invpoly.toLaurentMeasuresAddhom, Invpoly.toLaurentMeasuresFun_pos'] using hn
     · exact ⟨⟨n + 1, hn⟩, rfl⟩
   · rintro ⟨n, hn⟩
-    simp only [to_laurent_measures_addhom, AddMonoidHom.mk'_apply, to_laurent_measures_to_fun,
+    simp only [Invpoly.toLaurentMeasuresAddhom, AddMonoidHom.mk'_apply, Invpoly.toLaurentMeasures_to_fun,
       Subtype.coe_mk, zpow_neg, zpow_ofNat, mul_eq_mul_right_iff, Subtype.mk_eq_mk, inv_eq_zero]
     left
     cases' n with n
-    · simp [to_laurent_measures_fun_zero]
-    · simp only [to_laurent_measures_fun_neg']
+    · simp [Invpoly.toLaurentMeasuresFun_zero]
+    · simp only [Invpoly.toLaurentMeasuresFun_neg']
 
 def toLaurentMeasuresHom [Fact (r' < 1)] :
     ComphausFilteredPseudoNormedGroupWithTinvHom r' (Invpoly r' S) (LaurentMeasures r' S) :=
@@ -260,46 +260,46 @@ def toLaurentMeasuresHom [Fact (r' < 1)] :
       rintro c p hp
       simp only [AddMonoidHom.toFun_eq_coe, LaurentMeasures.mem_filtration_iff]
       simp only [mem_filtration_iff] at hp 
-      rwa [to_laurent_measures_addhom_isometry]
+      rwa [Invpoly.toLaurentMeasuresAddhom_isometry]
     continuous' := fun c => continuous_bot
     map_Tinv' := by
       intro F
       ext s z
       change
-        to_laurent_measures_fun r' S (fun s : ↥S => Polynomial.X * F s) s z =
-          to_laurent_measures_fun r' S F s (z + 1)
+        Invpoly.toLaurentMeasuresFun r' S (fun s : ↥S => Polynomial.X * F s) s z =
+          Invpoly.toLaurentMeasuresFun r' S F s (z + 1)
       rcases lt_trichotomy 0 z with (hz | rfl | hz)
       · let n := (z - 1).natAbs
         have hn : z - 1 = n := Int.eq_natAbs_of_zero_le (Int.le_sub_one_of_lt hz)
         rw [sub_eq_iff_eq_add] at hn 
-        rw [hn, to_laurent_measures_fun_pos', (by norm_cast : (n : ℤ) + 1 = (n + 1 : ℕ)),
-          to_laurent_measures_fun_pos']
-      · rw [to_laurent_measures_fun_zero, (by norm_cast : (0 : ℤ) + 1 = (0 + 1 : ℕ)),
-          to_laurent_measures_fun_pos]
+        rw [hn, Invpoly.toLaurentMeasuresFun_pos', (by norm_cast : (n : ℤ) + 1 = (n + 1 : ℕ)),
+          Invpoly.toLaurentMeasuresFun_pos']
+      · rw [Invpoly.toLaurentMeasuresFun_zero, (by norm_cast : (0 : ℤ) + 1 = (0 + 1 : ℕ)),
+          Invpoly.toLaurentMeasuresFun_pos]
         simp only [Polynomial.mul_coeff_zero, Polynomial.coeff_X_zero, MulZeroClass.zero_mul]
       · let n := (z + 1).natAbs
         have hn : (n : ℤ) = -(z + 1) := Int.natAbs_of_nonpos (Int.add_one_le_of_lt hz)
         rw [eq_neg_iff_eq_neg] at hn 
         rw [hn]
         rw [← eq_sub_iff_add_eq] at hn 
-        rw [hn, to_laurent_measures_fun_nonpos, (by simp; ring : -(n : ℤ) - 1 = -(n + 1 : ℕ)),
-          to_laurent_measures_fun_nonpos, Polynomial.coeff_X_mul] }
+        rw [hn, Invpoly.toLaurentMeasuresFun_nonpos, (by simp; ring : -(n : ℤ) - 1 = -(n + 1 : ℕ)),
+          Invpoly.toLaurentMeasuresFun_nonpos, Polynomial.coeff_X_mul] }
 
 @[simps]
 def toLaurentMeasuresNatTrans [Fact (r' < 1)] : fintypeInvpoly r' ⟶ fintypeLaurentMeasures r'
     where
   app S := toLaurentMeasuresHom r' S
-  naturality' S T f := by
+  naturality S T f := by
     ext p t n
     classical
     suffices :
-      to_laurent_measures_fun r' T (map f p) t n =
+      Invpoly.toLaurentMeasuresFun r' T (map f p) t n =
         (Finset.filter (fun t_1 : S.α => f t_1 = t) Finset.univ).Sum fun x : S.α =>
-          to_laurent_measures_fun r' S p x n
-    simpa [to_laurent_measures_hom, to_laurent_measures_addhom]
+          Invpoly.toLaurentMeasuresFun r' S p x n
+    simpa [Invpoly.toLaurentMeasuresHom, Invpoly.toLaurentMeasuresAddhom]
     rcases n with ((_ | n) | n)
     · convert map_apply f p t 0
-    · simp only [Int.ofNat_eq_coe, to_laurent_measures_fun_pos, Finset.sum_const_zero]
+    · simp only [Int.ofNat_eq_coe, Invpoly.toLaurentMeasuresFun_pos, Finset.sum_const_zero]
     · convert map_apply f p t (n + 1)
 
 end Invpoly
@@ -328,7 +328,7 @@ vanishes on non-positive integers. -/
 def toLbarSection (G : Lbar r' S) : LaurentMeasures r' S :=
   ⟨fun s n => G s n.toNat, by
     intro s
-    refine' (nnreal.summable_iff_on_nat_less 0 fun n n0 => _).mpr _
+    refine' (Nnreal.summable_iff_on_nat_less 0 fun n n0 => _).mpr _
     · simp [Int.toNat_of_nonpos n0.le]
     · simp only [Int.toNat_coe_nat, zpow_ofNat]
       simpa only [← NNReal.coe_natAbs] using G.summable' s⟩
@@ -460,7 +460,7 @@ def toLbarHom : ComphausFilteredPseudoNormedGroupWithTinvHom r' (LaurentMeasures
 def toLbarNatTrans : fintypeLaurentMeasures r' ⟶ fintypeLbar r'
     where
   app S := toLbarHom r' S
-  naturality' S₁ S₂ f := by
+  naturality S₁ S₂ f := by
     ext
     simp only [fintypeLaurentMeasures_map, CategoryTheory.comp_apply, to_Lbar_hom_to_fun,
       to_Lbar_to_fun, fintypeLbar_map_to_fun, Lbar.map_to_fun, map_hom, map_apply,
@@ -486,7 +486,7 @@ theorem shortExact (S : Profinite) [Fact (r' < 1)] :
   · apply Invpoly.toLaurentMeasures_injective
   · intro S; ext F s (_ | n) <;> rfl
   · rintro S c F ⟨hF1, hF2⟩
-    simp only [whisker_right_app, LaurentMeasures.toLbarNatTrans_app, functor.comp_map,
+    simp only [CategoryTheory.whiskerRight_app, LaurentMeasures.toLbarNatTrans_app, Functor.comp_map,
       Set.mem_preimage, Set.mem_singleton_iff] at hF1 hF2 
     change LaurentMeasures.toLbar r' S F = 0 at hF1 
     change F ∈ PseudoNormedGroup.filtration (LaurentMeasures r' S) c at hF2 

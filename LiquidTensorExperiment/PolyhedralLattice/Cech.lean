@@ -73,7 +73,7 @@ instance l_saturated [hf : Fact f.toAddMonoidHom.range.saturated] : Fact (l f m)
   intro hn
   refine' ⟨hl'.resolve_left hn, fun i => _⟩
   obtain ⟨li, hli⟩ := Hl' i
-  have hl'i : n • l' i ∈ f.to_add_monoid_hom.range := by rw [← hli, AddMonoidHom.mem_range];
+  have hl'i : n • l' i ∈ f.toAddMonoidHom.range := by rw [← hli, AddMonoidHom.mem_range];
     refine' ⟨li, rfl⟩
   have Hf := hf.1
   exact (Hf hl'i).resolve_left hn
@@ -90,14 +90,14 @@ theorem l_le_comap {n} (g : Fin (n + 1) → Fin (m + 1)) :
   refine' ⟨_, _⟩
   · have aux1 : (l'.sum fun _ => AddMonoidHom.id _) = ∑ i, l' i :=
       Finsupp.sum_fintype _ _ fun _ => rfl
-    have aux2 := @sum_map_domain_index_add_monoid_hom _ _ _ _ _ _ g l' fun _ => AddMonoidHom.id _
+    have aux2 := @Finsupp.sum_mapDomain_index_addMonoidHom _ _ _ _ _ _ g l' fun _ => AddMonoidHom.id _
     dsimp only at aux2 
     rw [aux1, Finsupp.sum_fintype, hl'] at aux2 
     · simpa only [AddMonoidHom.id_apply] using aux2
     · intro; rfl
   · intro i
     choose l hl using Hl'
-    simp only [map_domain.add_monoid_hom_apply, map_domain]
+    simp only [mapDomain.addMonoidHom_apply, Finsupp.mapDomain]
     refine' ⟨∑ j, if g j = i then l j else 0, _⟩
     rw [Finsupp.sum_apply, Finsupp.sum_fintype]
     swap; · intro; simp only [coe_zero, Pi.zero_apply, single_zero]
@@ -165,8 +165,8 @@ def mapAddHom : Obj f (n + 1) →+ Obj f (m + 1) :=
 theorem map_domain_addMonoidHom_strict (x : Fin (n + 1) →₀ Λ) :
     ‖mapDomain.addMonoidHom g x‖ ≤ ‖x‖ :=
   by
-  simp only [norm_def, map_domain.add_monoid_hom_apply]
-  dsimp [map_domain]
+  simp only [norm_def, mapDomain.addMonoidHom_apply]
+  dsimp [Finsupp.mapDomain]
   rw [sum_fintype]; swap; · intro; exact norm_zero
   simp only [sum_apply]
   rw [sum_fintype]; swap; · intro; exact norm_zero
@@ -192,8 +192,8 @@ theorem mapAddHom_strict (x : Obj f (n + 1)) : ‖mapAddHom f g x‖ ≤ ‖x‖
   intro ε hε
   obtain ⟨x, rfl, h⟩ := norm_mk_lt x hε
   calc
-    _ ≤ ‖map_domain.add_monoid_hom g x‖ := quotient_norm_mk_le _ _
-    _ ≤ ‖x‖ := (map_domain_add_monoid_hom_strict _ _)
+    _ ≤ ‖mapDomain.addMonoidHom g x‖ := quotient_norm_mk_le _ _
+    _ ≤ ‖x‖ := (PolyhedralLattice.Conerve.map_domain_addMonoidHom_strict _ _)
     _ ≤ _ := h.le
 
 theorem mapAddHom_mk (x : Fin (n + 1) →₀ Λ') :
@@ -216,16 +216,16 @@ theorem map_id : map f (id : Fin (m + 1) → Fin (m + 1)) = PolyhedralLatticeHom
   ext x
   apply QuotientAddGroup.induction_on x <;> clear x
   intro x
-  simp only [AddMonoidHom.toFun_eq_coe, map_apply, PolyhedralLatticeHom.id_apply, map_add_hom_mk,
-    map_domain.add_monoid_hom_apply, map_domain_id]
+  simp only [AddMonoidHom.toFun_eq_coe, map_apply, PolyhedralLatticeHom.id_apply, PolyhedralLattice.Conerve.mapAddHom_mk,
+    mapDomain.addMonoidHom_apply, Finsupp.mapDomain_id]
 
 theorem map_comp : map f (g' ∘ g) = (map f g').comp (map f g) :=
   by
   ext x
   apply QuotientAddGroup.induction_on x <;> clear x
   intro x
-  simp only [AddMonoidHom.toFun_eq_coe, map_apply, PolyhedralLatticeHom.comp_apply, map_add_hom_mk,
-    map_domain.add_monoid_hom_apply, ← map_domain_comp]
+  simp only [AddMonoidHom.toFun_eq_coe, map_apply, PolyhedralLatticeHom.comp_apply, PolyhedralLattice.Conerve.mapAddHom_mk,
+    mapDomain.addMonoidHom_apply, ← Finsupp.mapDomain_comp]
 
 end Maps
 
@@ -276,11 +276,11 @@ def mapSuccZeroAux (m : ℕ) (g : Fin (m + 2) →o Fin 1) : obj f (m + 1) →+ �
   (applyAddHom (0 : Fin 1)).comp <|
     by
     -- TODO: this is very ugly
-    let foo := QuotientAddGroup.lift (conerve.L f (m + 1 + 1)) (map_domain.add_monoid_hom g)
+    let foo := QuotientAddGroup.lift (Conerve.l f (m + 1 + 1)) (mapDomain.addMonoidHom g)
     refine' foo _
     rintro l' ⟨hl', Hl'⟩
     ext i
-    simp only [map_domain.add_monoid_hom_apply, map_domain, sum_apply, single_apply, zero_apply]
+    simp only [mapDomain.addMonoidHom_apply, Finsupp.mapDomain, sum_apply, single_apply, zero_apply]
     rw [Finsupp.sum_fintype]
     swap; · simp only [forall_const, if_true, eq_iff_true_of_subsingleton]
     convert hl'
@@ -299,7 +299,7 @@ def mapSuccZero (m : ℕ) (g : Fin (m + 2) →o Fin 1) : obj f (m + 1) ⟶ Λ' :
         ‖Finsupp.mapDomain.addMonoidHom g x 0‖ ≤
             ‖Finsupp.mapDomain.addMonoidHom g x‖ :=
           _
-        _ ≤ ‖x‖ := (conerve.map_domain_add_monoid_hom_strict g x)
+        _ ≤ ‖x‖ := (Conerve.map_domain_addMonoidHom_strict g x)
         _ ≤ _ := h.le
       rw [Finsupp.norm_def, Finsupp.sum_fintype, Fin.sum_univ_succ, Fin.sum_univ_zero, add_zero]
       intro; exact norm_zero }
@@ -313,7 +313,7 @@ def finsuppFinOneIso : of (Fin 1 →₀ Λ') ≅ Λ' :=
 
 @[simp]
 theorem finsuppFinOneIso_hom (l') :
-    (@finsuppFinOneIso Λ').Hom l' = Finsupp.applyAddHom (0 : Fin 1) l' :=
+    (@finsuppFinOneIso Λ').hom l' = Finsupp.applyAddHom (0 : Fin 1) l' :=
   rfl
 
 @[simp]
@@ -350,9 +350,9 @@ instance (m : ℕ) : Epi (πHom f m) :=
 theorem map_const_objZeroIso (m : ℕ) (i : Fin (m + 1)) (l : Λ') :
     Conerve.map f (fun _ => i) ((objZeroIso f).inv l) = Conerve.π f (m + 1) (Finsupp.single i l) :=
   by
-  dsimp only [conerve.map_apply, AddMonoidHom.toFun_eq_coe, conerve.map_add_hom, obj_zero_iso,
-    iso.trans_inv, Finsupp.singleAddHom_apply]
-  simp only [comp_apply, finsupp_fin_one_iso_inv, obj_zero_iso'_inv, conerve.π]
+  dsimp only [Conerve.map_apply, AddMonoidHom.toFun_eq_coe, Conerve.mapAddHom, PolyhedralLatticeCat.CechConerve.objZeroIso,
+    Iso.trans_inv, Finsupp.singleAddHom_apply]
+  simp only [comp_apply, PolyhedralLatticeCat.CechConerve.finsuppFinOneIso_inv, PolyhedralLatticeCat.CechConerve.objZeroIso'_inv, conerve.π]
   delta QuotientAddGroup.map
   erw [QuotientAddGroup.lift_mk']
   simp only [AddMonoidHom.comp_apply]
@@ -368,8 +368,8 @@ def cechConerve : CosimplicialObject PolyhedralLatticeCat
     where
   obj n := obj f n.len
   map n m g := Conerve.map f g.toOrderHom
-  map_id' _ := Conerve.map_id f
-  map_comp' _ _ _ _ _ := Conerve.map_comp f _ _
+  map_id _ := Conerve.map_id f
+  map_comp _ _ _ _ _ := Conerve.map_comp f _ _
 
 @[simps]
 def cechAugmentationMap : Λ ⟶ (cechConerve f).obj (mk 0) :=
@@ -380,11 +380,11 @@ def augmentedCechConerve : CosimplicialObject.Augmented PolyhedralLatticeCat :=
     (by
       intro n g₁ g₂
       ext l : 2
-      simp only [comp_apply, Cech_augmentation_map_apply, Cech_conerve_map, conerve.map_apply,
-        AddMonoidHom.toFun_eq_coe, obj_zero_iso, iso.trans_inv, Finsupp.singleAddHom_apply,
-        finsupp_fin_one_iso_inv, obj_zero_iso'_inv]
-      have H1 := conerve.map_add_hom_π f g₁.to_order_hom (Finsupp.single 0 (f l))
-      have H2 := conerve.map_add_hom_π f g₂.to_order_hom (Finsupp.single 0 (f l))
+      simp only [comp_apply, Cech_augmentation_map_apply, Cech_conerve_map, Conerve.map_apply,
+        AddMonoidHom.toFun_eq_coe, PolyhedralLatticeCat.CechConerve.objZeroIso, Iso.trans_inv, Finsupp.singleAddHom_apply,
+        PolyhedralLatticeCat.CechConerve.finsuppFinOneIso_inv, PolyhedralLatticeCat.CechConerve.objZeroIso'_inv]
+      have H1 := Conerve.mapAddHom_π f g₁.toOrderHom (Finsupp.single 0 (f l))
+      have H2 := Conerve.mapAddHom_π f g₂.toOrderHom (Finsupp.single 0 (f l))
       refine' H1.trans (Eq.trans _ H2.symm); clear H1 H2
       simp only [Finsupp.mapDomain_single, Finsupp.mapDomain.addMonoidHom_apply]
       rw [← sub_eq_zero, ← _root_.map_sub, conerve.π_apply_eq_zero_iff]
@@ -392,13 +392,13 @@ def augmentedCechConerve : CosimplicialObject.Augmented PolyhedralLatticeCat :=
       ·
         simp only [Finsupp.sub_apply, Finset.sum_sub_distrib, sub_eq_zero, Finsupp.single_apply,
           Finset.sum_ite_eq, Finset.mem_univ, if_true]
-      · by_cases H : g₁.to_order_hom 0 = g₂.to_order_hom 0
+      · by_cases H : g₁.toOrderHom 0 = g₂.toOrderHom 0
         · refine' ⟨0, _⟩; simp only [H, sub_self, f.map_zero, Finsupp.zero_apply]
         simp only [Finsupp.sub_apply, Finsupp.single_apply]
-        by_cases h₁ : i = g₁.to_order_hom 0
+        by_cases h₁ : i = g₁.toOrderHom 0
         · refine' ⟨l, _⟩; subst i
           simp only [if_neg (Ne.symm H), if_true, eq_self_iff_true, sub_zero]
-        by_cases h₂ : i = g₂.to_order_hom 0
+        by_cases h₂ : i = g₂.toOrderHom 0
         · refine' ⟨-l, _⟩; subst i
           simp only [if_neg H, if_true, eq_self_iff_true, zero_sub, f.map_neg]
         · refine' ⟨0, _⟩; simp only [if_false, Ne.symm h₁, Ne.symm h₂, f.map_zero, sub_zero])
@@ -408,17 +408,17 @@ theorem augmentation_map_equalizes :
       cechAugmentationMap f ≫ (cechConerve f).map (δ 1) :=
   by
   ext l
-  simp only [conerve.map_apply, AddMonoidHom.toFun_eq_coe, Cech_augmentation_map_apply,
-    Cech_conerve_map, comp_apply, Finsupp.singleAddHom_apply, obj_zero_iso, iso.trans_inv,
-    finsupp_fin_one_iso_inv, obj_zero_iso'_inv]
-  have H1 := conerve.map_add_hom_π f (@hom.to_order_hom (mk 0) _ (δ 0)) (Finsupp.single 0 (f l))
-  have H2 := conerve.map_add_hom_π f (@hom.to_order_hom (mk 0) _ (δ 1)) (Finsupp.single 0 (f l))
+  simp only [Conerve.map_apply, AddMonoidHom.toFun_eq_coe, Cech_augmentation_map_apply,
+    Cech_conerve_map, comp_apply, Finsupp.singleAddHom_apply, PolyhedralLatticeCat.CechConerve.objZeroIso, Iso.trans_inv,
+    PolyhedralLatticeCat.CechConerve.finsuppFinOneIso_inv, PolyhedralLatticeCat.CechConerve.objZeroIso'_inv]
+  have H1 := Conerve.mapAddHom_π f (@Hom.toOrderHom (mk 0) _ (δ 0)) (Finsupp.single 0 (f l))
+  have H2 := Conerve.mapAddHom_π f (@Hom.toOrderHom (mk 0) _ (δ 1)) (Finsupp.single 0 (f l))
   refine' H1.trans (Eq.trans _ H2.symm); clear H1 H2
   show (conerve.π f 2) _ = (conerve.π f 2) _
   simp only [Finsupp.mapDomain_single, Finsupp.mapDomain.addMonoidHom_apply]
   rw [← sub_eq_zero, ← _root_.map_sub, conerve.π_apply_eq_zero_iff]
-  have hδ0 : hom.to_order_hom (δ (0 : Fin 2)) 0 = 1 := rfl
-  have hδ1 : hom.to_order_hom (δ (1 : Fin 2)) 0 = 0 := rfl
+  have hδ0 : Hom.toOrderHom (δ (0 : Fin 2)) 0 = 1 := rfl
+  have hδ1 : Hom.toOrderHom (δ (1 : Fin 2)) 0 = 0 := rfl
   erw [hδ0, hδ1]
   refine' ⟨_, fun i => _⟩
   ·

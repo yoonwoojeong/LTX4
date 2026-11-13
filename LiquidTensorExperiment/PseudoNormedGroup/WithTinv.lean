@@ -56,7 +56,7 @@ def tinv₀ (c c₂ : ℝ≥0) [h : Fact (c ≤ r' * c₂)] (x : filtration M c)
   ⟨tinv (x : M), filtration_mono (aux h.1) (tinv_mem_filtration _ _ x.2)⟩
 
 theorem tinv₀_continuous (c c₂ : ℝ≥0) [Fact (c ≤ r' * c₂)] : Continuous (@tinv₀ r' M _ c c₂ _) :=
-  tinv.Continuous _ fun x => rfl
+  tinv.continuous _ fun x => rfl
 
 theorem tinvBoundBy : (@tinv _ M _).BoundBy r'⁻¹ :=
   tinv_mem_filtration
@@ -197,8 +197,8 @@ def comp (g : ComphausFilteredPseudoNormedGroupWithTinvHom r' M₂ M₃)
     continuous' := fun c => (g.level_continuous c).comp (f.level_continuous c)
     map_Tinv' := fun x =>
       calc
-        g (f (tinv x)) = g (tinv (f x)) := by rw [f.map_Tinv]
-        _ = tinv (g (f x)) := by rw [g.map_Tinv] }
+        g (f (tinv x)) = g (tinv (f x)) := by rw [f.map_tinv]
+        _ = tinv (g (f x)) := by rw [g.map_tinv] }
 
 variable (f)
 
@@ -219,7 +219,7 @@ def mk' (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) (hf1 : f.BoundBy 1)
   { f with
     toFun := f
     strict' := fun c x hx => by simpa only [one_mul] using hf1 hx
-    continuous' := fun c => f.Continuous _ fun x => rfl
+    continuous' := fun c => f.continuous _ fun x => rfl
     map_Tinv' := hfT }
 
 @[simp]
@@ -245,7 +245,7 @@ def invOfEquivOfStrict (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
       rw [continuous_iff_isClosed]
       intro U hU
       rw [← g.image_eq_preimage]
-      exact (hcont.closed_embedding g.injective).IsClosedMap U hU
+      exact (hcont.closedEmbedding g.injective).IsClosedMap U hU
     map_Tinv' := fun x => by
       apply e.injective
       simp only [AddEquiv.coe_toAddMonoidHom, AddMonoidHom.toFun_eq_coe]
@@ -254,12 +254,12 @@ def invOfEquivOfStrict (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
 @[simp]
 theorem invOfEquivOfStrict.apply (x : M₁) (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
     (strict : ∀ ⦃c x⦄, x ∈ filtration M₂ c → e.symm x ∈ filtration M₁ c) :
-    (invOfEquivOfStrict e he strict) (f x) = x := by simp [inv_of_equiv_of_strict, he]
+    (invOfEquivOfStrict e he strict) (f x) = x := by simp [ComphausFilteredPseudoNormedGroupWithTinvHom.invOfEquivOfStrict, he]
 
 @[simp]
 theorem InvOfEquivOfStrictSymm.apply (x : M₂) (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
     (strict : ∀ ⦃c x⦄, x ∈ filtration M₂ c → e.symm x ∈ filtration M₁ c) :
-    f (invOfEquivOfStrict e he strict x) = x := by simp [inv_of_equiv_of_strict, he]
+    f (invOfEquivOfStrict e he strict x) = x := by simp [ComphausFilteredPseudoNormedGroupWithTinvHom.invOfEquivOfStrict, he]
 
 end ComphausFilteredPseudoNormedGroupWithTinvHom
 
@@ -312,7 +312,7 @@ def piProj (i : ι) : ComphausFilteredPseudoNormedGroupWithTinvHom r' (∀ i, M 
   { Pi.evalAddMonoidHom M i with
     toFun := Pi.evalAddMonoidHom M i
     strict' := fun c x hx => hx i
-    continuous' := fun c => (continuous_apply i).comp (filtrationPiHomeo M c).Continuous
+    continuous' := fun c => (continuous_apply i).comp (filtrationPiHomeo M c).continuous
     map_Tinv' := fun x => rfl }
 
 /-- Universal property of the product of

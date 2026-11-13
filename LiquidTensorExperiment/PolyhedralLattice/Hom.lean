@@ -3,7 +3,7 @@ import LiquidTensorExperiment.PolyhedralLattice.Int
 import LiquidTensorExperiment.PolyhedralLattice.Category
 import LiquidTensorExperiment.PseudoNormedGroup.Category.Default
 
-#align_import polyhedral_lattice.Hom
+#align_import PolyhedralLattice.hom
 
 /-!
 
@@ -52,16 +52,16 @@ def hom (M : ProFiltPseuNormGrpWithTinv r') : PolyhedralLatticeCatᵒᵖ ⥤ Pro
       map_add' := fun g₁ g₂ => AddMonoidHom.add_comp _ _ _
       strict' := fun c g hg c' l hl => hg ((f.unop.strict_nnnorm _).trans hl)
       continuous' := fun c => by
-        rw [add_monoid_hom.continuous_iff]
+        rw [AddMonoidHom.continuous_iff]
         intro l
         haveI : Fact (‖f.unop l‖₊ ≤ ‖l‖₊) := ⟨f.unop.strict_nnnorm l⟩
         have aux :=
-          (continuous_apply (f.unop l)).comp (add_monoid_hom.incl_continuous Λ₁.unop r' M c)
-        rwa [(embedding_cast_le (c * ‖f.unop l‖₊) (c * ‖l‖₊)).continuous_iff] at
+          (continuous_apply (f.unop l)).comp (AddMonoidHom.incl_continuous Λ₁.unop r' M c)
+        rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖f.unop l‖₊) (c * ‖l‖₊)).continuous_iff] at
           aux 
       map_Tinv' := fun g => by ext l; rfl }
-  map_id' Λ := by ext; rfl
-  map_comp' := by intros; ext; rfl
+  map_id Λ := by ext; rfl
+  map_comp := by intros; ext; rfl
 
 end PolyhedralLatticeCat
 
@@ -104,7 +104,7 @@ theorem homZMapEquiv_ctu (c : ℝ≥0) :
     Continuous (level (homZMapEquiv M) (fun c x => (homZMapEquiv_strict M c x).1) c) :=
   by
   haveI : Fact (c * ‖1 : ℤ‖₊ ≤ c) := ⟨by rw [nnnorm_one, mul_one]⟩
-  have aux := add_monoid_hom.incl_continuous ℤ r' M c
+  have aux := AddMonoidHom.incl_continuous ℤ r' M c
   have aux2 := (continuous_apply 1).comp aux
   rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖1 : ℤ‖₊)
         c).continuous_iff] at

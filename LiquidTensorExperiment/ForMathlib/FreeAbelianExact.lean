@@ -100,7 +100,7 @@ theorem norm_eq_zero_iff : a.norm = 0 ↔ a = 0 :=
       exact this
     apply_fun to_finsupp
     ext
-    exacts [h_cz _, AddEquiv.injective (equiv_finsupp X), fun _ => abs_nonneg _]
+    exacts [h_cz _, AddEquiv.injective (FreeAbelianGroup.equivFinsupp X), fun _ => abs_nonneg _]
   · intro h
     have h_cz : ∀ x : X, coeff x a = 0 := by
       intro x
@@ -108,7 +108,7 @@ theorem norm_eq_zero_iff : a.norm = 0 ↔ a = 0 :=
       simp only [_root_.map_zero, eq_self_iff_true]
     apply Finset.sum_eq_zero
     rintro x -
-    exact int.nat_abs_eq_zero.mpr (h_cz x)
+    exact int.natAbs_eq_zero.mpr (h_cz x)
 
 theorem exists_of_norm_eq_succ_aux1 (n : ℤ) (H : 0 < n) : n.natAbs = (n - 1).natAbs + 1 :=
   by

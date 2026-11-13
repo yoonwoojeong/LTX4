@@ -75,7 +75,7 @@ zpow_le_zpow' :
 -/
 def NNReal.zpow_le_zpow' {n : ℤ} {a b : ℝ≥0} (hn : 0 ≤ n) (hab : a ≤ b) : a ^ n ≤ b ^ n :=
   by
-  let m := n.nat_abs
+  let m := n.natAbs
   rw [Int.eq_natAbs_of_zero_le hn]
   suffices : a ^ m ≤ b ^ m
   assumption_mod_cast
@@ -153,12 +153,12 @@ theorem binary_le_one (r : ℝ≥0) (n : ℤ) : binary r n ≤ 1 :=
   rcases lt_or_eq_of_le hn with (h1 | h2)
   · rw [Int.lt_iff_add_one_le, le_iff_exists_nonneg_add] at h1 
     rcases h1 with ⟨c, hc1, rfl⟩
-    convert NNReal.Nat.digit.succ_le_one (r * 2 ^ d) c.nat_abs
-    suffices (c + 1).natAbs = c.nat_abs + 1 by convert this; ring
+    convert NNReal.Nat.digit.succ_le_one (r * 2 ^ d) c.natAbs
+    suffices (c + 1).natAbs = c.natAbs + 1 by convert this; ring
     exact Int.natAbs_add_nonneg hc1 zero_le_one
   · clear hn
     rw [← h2]
-    rw [nat.digit, sub_self, Int.natAbs_zero, nat.binary.zero_fst_def, ← Nat.lt_add_one_iff]
+    rw [Nat.digit, sub_self, Int.natAbs_zero, Nat.binary.zero_fst_def, ← Nat.lt_add_one_iff]
     rw [Nat.floor_lt']; swap; norm_num
     have := z_lt_pow_d_succ (zero_lt_iff.mpr hr)
     have h : (2⁻¹ : ℝ≥0) ≠ 0; norm_num

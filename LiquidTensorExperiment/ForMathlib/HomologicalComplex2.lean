@@ -17,7 +17,7 @@ section
 variable {ι X 𝒜 : Type _} [Category X] [Category 𝒜] [Preadditive 𝒜] {c : ComplexShape ι}
 
 instance evaluation_additive (x : X) : ((evaluation X 𝒜).obj x).Additive
-    where map_add' F G f g := by simp only [evaluation_obj_map, nat_trans.app_add]
+    where map_add' F G f g := by simp only [evaluation_obj_map, NatTrans.app_add]
 
 @[simps]
 def FunctorEval.obj (x : X) : HomologicalComplex (X ⥤ 𝒜) c ⥤ HomologicalComplex 𝒜 c :=
@@ -31,9 +31,9 @@ def functorEval : X ⥤ HomologicalComplex (X ⥤ 𝒜) c ⥤ HomologicalComplex
     { app := fun C =>
         { f := fun i => (C.pt i).map f
           comm' := fun _ _ _ => NatTrans.naturality _ _ }
-      naturality' := fun _ _ _ => by ext i; symm; apply nat_trans.naturality }
-  map_id' := by intros; ext; dsimp; rw [CategoryTheory.Functor.map_id]
-  map_comp' := by intros; ext; dsimp; rw [CategoryTheory.Functor.map_comp]
+      naturality := fun _ _ _ => by ext i; symm; apply NatTrans.naturality }
+  map_id := by intros; ext; dsimp; rw [CategoryTheory.Functor.map_id]
+  map_comp := by intros; ext; dsimp; rw [CategoryTheory.Functor.map_comp]
 
 @[simps]
 def EvalFunctor.obj (F : X ⥤ HomologicalComplex 𝒜 c) : HomologicalComplex (X ⥤ 𝒜) c
@@ -42,7 +42,7 @@ def EvalFunctor.obj (F : X ⥤ HomologicalComplex 𝒜 c) : HomologicalComplex (
   d i j :=
     whiskerLeft _ <|
       { app := fun T => T.d _ _
-        naturality' := by intros; dsimp; rw [f.comm] }
+        naturality := by intros; dsimp; rw [f.comm] }
   shape' := by intros; ext; apply shape; assumption
   d_comp_d' := by intros; ext; apply d_comp_d
 
@@ -53,8 +53,8 @@ def evalFunctor : (X ⥤ HomologicalComplex 𝒜 c) ⥤ HomologicalComplex (X �
   map F G η :=
     { f := fun i => whiskerRight η _
       comm' := by intros; ext; dsimp; rw [(η.app _).comm] }
-  map_id' := by intros; ext; rfl
-  map_comp' := by intros; ext; rfl
+  map_id := by intros; ext; rfl
+  map_comp := by intros; ext; rfl
 
 def evalFunctorEquiv : X ⥤ HomologicalComplex 𝒜 c ≌ HomologicalComplex (X ⥤ 𝒜) c :=
   Equivalence.mk evalFunctor functorEval.flip
@@ -63,17 +63,17 @@ def evalFunctorEquiv : X ⥤ HomologicalComplex 𝒜 c ≌ HomologicalComplex (X
         NatIso.ofComponents
           (fun x =>
             Hom.isoOfComponents (fun i => Iso.refl _)
-              (by intros; simp only [iso.refl_hom, category.id_comp, category.comp_id]; rfl))
-          (by intros; ext; dsimp; simp only [category.id_comp, category.comp_id]))
-      (by intros; ext; dsimp; simp only [category.id_comp, category.comp_id]))
+              (by intros; simp only [Iso.refl_hom, Category.id_comp, Category.comp_id]; rfl))
+          (by intros; ext; dsimp; simp only [Category.id_comp, Category.comp_id]))
+      (by intros; ext; dsimp; simp only [Category.id_comp, Category.comp_id]))
     (NatIso.ofComponents
       (fun T =>
         Hom.isoOfComponents
           (fun i =>
             NatIso.ofComponents (fun x => Iso.refl _)
-              (by intros; simp only [iso.refl_hom, category.id_comp, category.comp_id]; rfl))
-          (by intros; ext; dsimp; simp only [category.id_comp, category.comp_id]))
-      (by intros; ext; dsimp; simp only [category.id_comp, category.comp_id]))
+              (by intros; simp only [Iso.refl_hom, Category.id_comp, Category.comp_id]; rfl))
+          (by intros; ext; dsimp; simp only [Category.id_comp, Category.comp_id]))
+      (by intros; ext; dsimp; simp only [Category.id_comp, Category.comp_id]))
 
 end
 
@@ -85,10 +85,10 @@ variable {ι : Type} {X : Type max u v} {𝒜 : Type w} [Category.{u} X] [Catego
 noncomputable section
 
 instance (x : X) : PreservesFiniteLimits ((evaluation X 𝒜).obj x) :=
-  ⟨by intro J; intro; intro; apply limits.evaluation_preserves_limits_of_shape⟩
+  ⟨by intro J; intro; intro; apply Limits.evaluationPreservesLimitsOfShape⟩
 
 instance (x : X) : PreservesFiniteColimits ((evaluation X 𝒜).obj x) :=
-  ⟨by intro J; intro; intro; apply limits.evaluation_preserves_colimits_of_shape⟩
+  ⟨by intro J; intro; intro; apply Limits.evaluationPreservesColimitsOfShape⟩
 
 def functorEvalHomologyIso (G : HomologicalComplex (X ⥤ 𝒜) c) (i) :
     G.homology' i ≅ functorEval.flip.obj G ⋙ homology'Functor _ c i :=
@@ -106,11 +106,11 @@ def functorEvalHomologyNatIso (i : ι) :
       functorEval.flip ⋙ (whiskeringRight _ _ _).obj (homology'Functor 𝒜 c i) :=
   NatIso.ofComponents (fun G => functorEvalHomologyIso G i) fun G₁ G₂ φ =>
     by
-    apply nat_trans.ext
+    apply NatTrans.ext
     ext1 x
-    dsimp only [functor_eval_homology_iso, nat_iso.of_components]
-    simp only [iso.app_hom, nat_trans.comp_app, functor.comp_map]
-    exact (((evaluation X 𝒜).obj x).homology'FunctorIso c i).Hom.naturality φ
+    dsimp only [HomologicalComplex.functorEvalHomologyIso, NatIso.ofComponents]
+    simp only [Iso.app_hom, NatTrans.comp_app, Functor.comp_map]
+    exact (((evaluation X 𝒜).obj x).homology'FunctorIso c i).hom.naturality φ
 
 end HomologicalComplex
 

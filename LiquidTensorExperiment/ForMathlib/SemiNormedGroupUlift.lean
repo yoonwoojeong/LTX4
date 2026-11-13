@@ -24,8 +24,8 @@ def ulift : SemiNormedGroupCat.{u} ⥤ SemiNormedGroupCat.{max u v}
     { toFun := fun v => ⟨f v.down⟩
       map_add' := by rintro ⟨x⟩ ⟨y⟩; congr; apply f.map_add'
       bound' := by obtain ⟨C, h1, h2⟩ := f.bound; refine' ⟨C, _⟩; rintro ⟨x⟩; apply h2 }
-  map_id' V := by ext; rfl
-  map_comp' := by intros; ext; rfl
+  map_id V := by ext; rfl
+  map_comp := by intros; ext; rfl
 
 open scoped NNReal
 

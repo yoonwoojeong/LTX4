@@ -78,11 +78,11 @@ def limitCone {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrp₁.{u
               by
               dsimp [CompHausFiltPseuNormGrp₁.ConePointTypeFilt]
               infer_instance
-            apply E.symm.totally_disconnected_space }
+            apply E.symm.totallyDisconnectedSpace }
       exhaustive' := CompHausFiltPseuNormGrp₁.exhaustive _ }
   π :=
     { app := fun j => (CompHausFiltPseuNormGrp₁.limitCone (K ⋙ pFPNG₁ToCHFPNG₁ₑₗ)).π.app j
-      naturality' := (CompHausFiltPseuNormGrp₁.limitCone (K ⋙ pFPNG₁ToCHFPNG₁ₑₗ)).π.naturality }
+      naturality := (CompHausFiltPseuNormGrp₁.limitCone (K ⋙ pFPNG₁ToCHFPNG₁ₑₗ)).π.naturality }
 
 instance {J : Type u} [SmallCategory J] : CreatesLimitsOfShape J pFPNG₁ToCHFPNG₁ₑₗ
     where CreatesLimit K :=
@@ -110,8 +110,8 @@ theorem eq_of_π_eq {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrp
     (cond : ∀ j, C.π.app j x = C.π.app j y) : x = y :=
   by
   let D := limit_cone K
-  let hD : limits.is_limit D := limit_cone_is_limit _
-  let E : C.X ≅ D.X := hC.cone_point_unique_up_to_iso hD
+  let hD : Limits.IsLimit D := limit_cone_is_limit _
+  let E : C.X ≅ D.X := hC.conePointUniqueUpToIso hD
   apply_fun E.hom
   swap;
   · intro a b h
@@ -145,12 +145,12 @@ instance {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrp₁.{u}) (c
   by
   constructor
   intro E hE
-  apply limits.is_limit_of_reflects profiniteToCompHaus
+  apply Limits.isLimitOfReflects profiniteToCompHaus
   change
-    limits.is_limit
+    Limits.IsLimit
       ((CompHausFiltPseuNormGrp₁.level.obj c).mapCone (PFPNG₁_to_CHFPNG₁ₑₗ.map_cone E))
-  apply limits.is_limit_of_preserves
-  apply limits.is_limit_of_preserves
+  apply Limits.isLimitOfPreserves
+  apply Limits.isLimitOfPreserves
   assumption
 
 theorem mem_filtration_iff_of_isLimit {J : Type u} [SmallCategory J]

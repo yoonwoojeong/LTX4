@@ -71,7 +71,7 @@ theorem homology'_map_eq : ShortComplex.homologyFunctor.map φ = h₁.Iso.inv �
     h₂.iso₂.inv_hom_id_assoc, h₂.cokernel_f'_eq_π_iso₂_hom]
   congr 1
   simp only [← cancel_epi h₂.iso₁.inv, ← h₂.iso₁_hom_kernel_ι, assoc, h₂.iso₁.inv_hom_id_assoc, ←
-    h₂.has_homology.π_ι, h₂.has_homology_π, h₂.has_homology_ι]
+    h₂.hasHomology.π_ι, h₂.hasHomology_π, h₂.hasHomology_ι]
 
 end HomologyMapDatum
 
@@ -128,7 +128,7 @@ theorem homologyFunctor_map_eq_id {K : ShortComplex C} (φ : K ⟶ K) (hφ : φ.
       fac₁' := by ext; dsimp; simp only [comp_id, kernel.lift_ι, assoc, ← φ.comm₁₂, hφ]
       fac₂' := by dsimp; simp only [hφ, id_comp, comp_id]
       fac₃' := by simp only [comp_id, id_comp] }
-  simpa only [μ.homology_map_eq, HomologyIsoDatum.tautological'_iso, iso.refl_hom, comp_id]
+  simpa only [μ.homology'_map_eq, HomologyIsoDatum.tautological'_iso, Iso.refl_hom, comp_id]
 
 end ShortComplex
 

@@ -149,11 +149,11 @@ theorem extδFunctor_is_universal_for_Hom (Y : 𝓐)
         (ext'ZeroFlipIso 𝓐 Y).inv ≫ (e : extδFunctor 𝓐 Y ⟶ F) 0 :=
   by
   let e0' : extδFunctor 𝓐 Y 0 ⟶ F 0 := (Ext'_zero_flip_iso _ _).hom ≫ e0
-  obtain ⟨e, he1, he2⟩ := delta_functor.universal.cond F e0'
+  obtain ⟨e, he1, he2⟩ := DeltaFunctor.Universal.cond F e0'
   refine' ⟨e, _, _⟩
-  · dsimp; simp only [e0', he1, iso.inv_hom_id_assoc]
+  · dsimp; simp only [e0', he1, Iso.inv_hom_id_assoc]
   · intro η hη; specialize he2 η
-    apply he2; rw [iso.eq_inv_comp] at hη 
+    apply he2; rw [Iso.eq_inv_comp] at hη 
     exact hη.symm
 
 open AddCommGroupCat
@@ -170,8 +170,8 @@ example (n : ℕ) (hn : n ≠ 0) :
       AddCommGroupCat.of (ZMod n) :=
   by
   refine'
-    ext'Iso (op <| of <| ZMod n) (of <| ZMod n) 1 (zmod_resolution n) (zmod_resolution_pi n)
-        (zmod_resolution_is_resolution n hn) ≪≫
+    ext'Iso (op <| of <| ZMod n) (of <| ZMod n) 1 (AddCommGroupCat.zmodResolution n) (AddCommGroupCat.zmodResolutionPi n)
+        (AddCommGroupCat.zmodResolutionIsResolution n hn) ≪≫
       CategoryTheory.homologyIso _ 0 (-1) (-2) rfl rfl ≪≫ _
   refine' AddCommGroupCat.homologyIso _ _ _ ≪≫ _
   refine' add_equiv_iso_AddCommGroup_iso.hom _
@@ -181,24 +181,24 @@ example (n : ℕ) (hn : n ≠ 0) :
   refine' (AddEquiv.addSubgroupCongr _).trans _
   · exact ⊤
   · convert AddMonoidHom.ker_zero using 2
-    refine' is_zero.eq_of_tgt _ _ _
+    refine' IsZero.eq_of_tgt _ _ _
     refine' AddCommGroupCat.isZero_of_eq _ _
     intro f g
     apply CategoryTheory.Limits.HasZeroObject.from_zero_ext
-  · refine' (add_subgroup.equiv_top _).symm.trans (zmultiplesAddHom _).symm
+  · refine' (AddSubgroup.equivTop _).symm.trans (zmultiplesAddHom _).symm
   · simp only [AddMonoidHom.ker_zero, QuotientAddGroup.ker_mk',
-      functor.map_homological_complex_obj_d, HomologicalComplex.op_d]
+      Functor.mapHomologicalComplex_obj_d, HomologicalComplex.op_d]
     ext ⟨f, hf⟩
     simp only [AddSubgroup.mem_comap, AddEquiv.coe_toAddMonoidHom, AddEquiv.coe_trans,
       Function.comp_apply, zmultiplesAddHom_symm_apply, AddSubgroup.coeSubtype, AddSubgroup.coe_mk,
       AddMonoidHom.mem_range]
-    simp only [add_subgroup.equiv_top_symm_apply, AddMonoidHom.mem_ker]
-    dsimp [AddEquiv.addSubgroupCongr, zmod_resolution]
+    simp only [AddSubgroup.equivTop_symm_apply, AddMonoidHom.mem_ker]
+    dsimp [AddEquiv.addSubgroupCongr, AddCommGroupCat.zmodResolution]
     constructor
     · intro hf1; refine' ⟨0, comp_zero.trans _⟩; ext1; exact hf1.symm
     · intro H; cases' H with g hg; rw [← hg, coe_comp]
       convert g.map_nsmul _ _ using 1
-      simp only [eq_to_hom_refl, id_apply, zmod.nsmul_eq_zero]
+      simp only [CategoryTheory.eqToHom_refl, id_apply, Zmod.nsmul_eq_zero]
 
 end Ext
 

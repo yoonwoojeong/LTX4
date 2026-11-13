@@ -41,7 +41,7 @@ theorem CategoryTheory.Abelian.isIso_of_isIso_of_isIso_of_isIso_of_is_iso' :
   intro U B C D A' B' C' D' f g h f' g' h' α β γ δ w1 w2 w3 E E' i i' ε w4
   intro hfg hgh hhi hf'g' hg'h' hh'i' hα hβ hδ hε; skip
   apply
-    abelian.is_iso_of_is_iso_of_is_iso_of_is_iso_of_is_iso w1 w2 w3 w4 hfg hgh hhi hf'g' hg'h' hh'i'
+    Abelian.isIso_of_epi_of_isIso_of_isIso_of_mono w1 w2 w3 w4 hfg hgh hhi hf'g' hg'h' hh'i'
 
 namespace IsIsoConeSetup
 
@@ -56,7 +56,7 @@ theorem isZero_homology'_cone_id (n : ℤ) : IsZero ((cone (𝟙 X)).homology' n
     refine' ⟨_, _, 𝟙 X, ⟨iso.refl _⟩⟩
   have E := five_term_exact_seq' (HomotopyCategory.homology'Functor A (ComplexShape.up ℤ) n) T hT
   dsimp [T] at E 
-  apply is_zero_of_exact_seq_of_is_iso_of_is_iso _ _ _ _ E
+  apply CategoryTheory.isZero_of_exactSeq_of_is_iso_of_is_iso _ _ _ _ E
 
 def coneIdToCone : cone (𝟙 X) ⟶ cone f
     where
@@ -67,82 +67,82 @@ def coneIdToCone : cone (𝟙 X) ⟶ cone f
     rintro i j ⟨rfl⟩
     apply CategoryTheory.Limits.biprod.hom_ext'
     apply CategoryTheory.Limits.biprod.hom_ext
-    · simp; dsimp [cone, cone.d]; simp
-    · simp; dsimp [cone, cone.d]; simp
+    · simp; dsimp [cone, Cone.d]; simp
+    · simp; dsimp [cone, Cone.d]; simp
     · apply CategoryTheory.Limits.biprod.hom_ext
-      simp; dsimp [cone, cone.d]; simp; dsimp [cone, cone.d]; simp
+      simp; dsimp [cone, Cone.d]; simp; dsimp [cone, Cone.d]; simp
 
 def kernelConeπIso (w) (n : ℤ) :
     Limits.kernel ((cone.π f g w).f n) ≅ biprod (X.pt (n + 1)) (Limits.kernel (g.f n))
     where
-  Hom :=
+  hom :=
     biprod.lift (Limits.kernel.ι _ ≫ biprod.fst)
       (Limits.kernel.lift _ (Limits.kernel.ι _ ≫ biprod.snd)
         (by
           simp
           let t := _; change _ ≫ t = _
           have ht : t = (cone.π f g w).f n := by ext; dsimp [cone.π]; simp; dsimp [cone.π]; simp
-          rw [ht, limits.kernel.condition]))
+          rw [ht, Limits.kernel.condition]))
   inv :=
     biprod.desc (Limits.kernel.lift _ biprod.inl (by dsimp [cone.π]; simp))
       (Limits.kernel.lift _ (Limits.kernel.ι _ ≫ biprod.inr) (by simp))
-  hom_inv_id' := by ext; dsimp; simp; dsimp; simp
-  inv_hom_id' := by ext; dsimp; simp; dsimp; simp; dsimp; simp; dsimp; simp
+  hom_inv_id := by ext; dsimp; simp; dsimp; simp
+  inv_hom_id := by ext; dsimp; simp; dsimp; simp; dsimp; simp; dsimp; simp
 
 def cokernelConeIdToConeIso (n) : cokernel ((coneIdToCone f).f n) ≅ cokernel (f.f n)
     where
-  Hom :=
-    cokernel.desc _ (biprod.desc 0 (cokernel.π _)) (by dsimp [cone_id_to_cone]; ext; simp; simp)
+  hom :=
+    cokernel.desc _ (biprod.desc 0 (cokernel.π _)) (by dsimp [HomologicalComplex.IsIsoConeSetup.coneIdToCone]; ext; simp; simp)
   inv :=
     cokernel.desc _ (biprod.inr ≫ cokernel.π _)
       (by
-        rw [← category.assoc]
+        rw [← Category.assoc]
         let t := _; change t ≫ _ = _
-        have ht : t = biprod.inr ≫ (cone_id_to_cone f).f n :=
+        have ht : t = biprod.inr ≫ (HomologicalComplex.IsIsoConeSetup.coneIdToCone f).f n :=
           by
-          ext; dsimp [cone_id_to_cone]; simp; simp
-          dsimp [cone_id_to_cone]; simp
+          ext; dsimp [HomologicalComplex.IsIsoConeSetup.coneIdToCone]; simp; simp
+          dsimp [HomologicalComplex.IsIsoConeSetup.coneIdToCone]; simp
         simp [ht])
-  hom_inv_id' := by
-    ext; dsimp; simp; dsimp [cone_id_to_cone]; simp
+  hom_inv_id := by
+    ext; dsimp; simp; dsimp [HomologicalComplex.IsIsoConeSetup.coneIdToCone]; simp
     let t := _; let s := _; change _ = t ≫ cokernel.π s
     have ht : t = biprod.inl ≫ s := by ext; simp; simp
     rw [ht]; simp
     simp
-  inv_hom_id' := by ext; dsimp; simp
+  inv_hom_id := by ext; dsimp; simp
 
 -- `0 → C(𝟙 X) → C(f) → Z → 0` is a SES of complexes.
 theorem coneIdToCone_shortExact (ses : ∀ i : ℤ, ShortExact (f.f i) (g.f i)) (n : ℤ) :
     ShortExact ((coneIdToCone f).f n) ((cone.π f g fun i => (ses i).exact.w).f _) :=
   { mono := by
       constructor; intro Z i j h
-      dsimp [cone_id_to_cone] at h 
+      dsimp [HomologicalComplex.IsIsoConeSetup.coneIdToCone] at h 
       apply biprod.hom_ext
       · apply_fun fun e => e ≫ biprod.fst at h 
         simpa using h
       · apply_fun fun e => e ≫ biprod.snd at h 
-        simp at h ; simp_rw [← category.assoc] at h 
+        simp at h ; simp_rw [← Category.assoc] at h 
         haveI : mono (f.f n) := (ses n).mono
         rwa [cancel_mono] at h 
     Epi := by
       constructor; intro W i j h
-      dsimp [cone_id_to_cone] at h 
-      simp only [category.assoc] at h 
+      dsimp [HomologicalComplex.IsIsoConeSetup.coneIdToCone] at h 
+      simp only [Category.assoc] at h 
       rw [cancel_epi] at h 
       haveI : epi (g.f n) := (ses n).Epi
       rwa [cancel_epi] at h 
     exact := by
-      rw [abelian.exact_iff]; constructor
-      · dsimp [cone_id_to_cone]; ext; simp
+      rw [Abelian.exact_iff]; constructor
+      · dsimp [HomologicalComplex.IsIsoConeSetup.coneIdToCone]; ext; simp
         erw [biprod.lift_snd_assoc]
         simp [(ses n).exact.w]
       · rw [← cancel_epi (kernel_cone_π_iso f g _ _).inv]
         swap; infer_instance
-        rw [← cancel_mono (cokernel_cone_id_to_cone_iso f n).Hom]
-        dsimp [kernel_cone_π_iso, cokernel_cone_id_to_cone_iso]
+        rw [← cancel_mono (HomologicalComplex.IsIsoConeSetup.cokernelConeIdToConeIso f n).hom]
+        dsimp [kernel_cone_π_iso, HomologicalComplex.IsIsoConeSetup.cokernelConeIdToConeIso]
         ext; simp
         simp
-        have := (ses n).exact; rw [abelian.exact_iff] at this 
+        have := (ses n).exact; rw [Abelian.exact_iff] at this 
         exact this.2 }
 
 /-
@@ -154,11 +154,11 @@ theorem isIso_homology_map_cone_π (ses : ∀ i : ℤ, ShortExact (f.f i) (g.f i
     IsIso ((homology'Functor _ _ n).map (cone.π f g fun i => (ses i).exact.w)) :=
   by
   have E :=
-    six_term_exact_seq (cone_id_to_cone f) (cone.π f g fun i => (ses i).exact.w)
-      (cone_id_to_cone_short_exact _ _ _)
-  apply is_iso_of_exact_of_is_zero_of_is_zero _ _ _ _ _ ((E n (n + 1) rfl).extract 0 3)
-  apply is_zero_homology_cone_id
-  apply is_zero_homology_cone_id
+    six_term_exact_seq (HomologicalComplex.IsIsoConeSetup.coneIdToCone f) (cone.π f g fun i => (ses i).exact.w)
+      (HomologicalComplex.IsIsoConeSetup.coneIdToCone_shortExact _ _ _)
+  apply CategoryTheory.isIso_of_exact_of_isZero_of_isZero _ _ _ _ _ ((E n (n + 1) rfl).extract 0 3)
+  apply HomologicalComplex.IsIsoConeSetup.isZero_homology'_cone_id
+  apply HomologicalComplex.IsIsoConeSetup.isZero_homology'_cone_id
 
 end IsIsoConeSetup
 
@@ -241,7 +241,7 @@ instance isQuasiIsoMapConeπ (ses : ∀ i : ℤ, ShortExact (f.f i) (g.f i)) :
       ((HomotopyCategory.quotient _ _).map (cone.π f g fun i => (ses i).exact.w)) :=
   by
   constructor; intro i
-  apply is_iso_cone_setup.is_iso_homology_map_cone_π
+  apply IsIsoConeSetup.isIso_homology_map_cone_π
 
 --apply is_iso_homology_functor_map,
 end HomologicalComplex
@@ -283,7 +283,7 @@ def cone [HomotopyCategory.IsBoundedAbove ((HomotopyCategory.quotient _ _).obj X
     obtain ⟨b, hb⟩ := HomotopyCategory.IsBoundedAbove.cond ((HomotopyCategory.quotient _ _).obj Y)
     constructor; use max a b + 1
     intro t ht
-    apply is_zero_biprod
+    apply CategoryTheory.Limits.isZero_biprod
     · apply ha; refine' le_trans (le_trans _ ht) _
       refine' le_trans (le_max_left a b) _
       all_goals linarith
@@ -326,7 +326,7 @@ instance isIso_ext_map_cone_π (n : ℤ) [EnoughProjectives A] (W : BoundedHomot
     (w : ∀ i, ShortExact (f.f i) (g.f i)) :
     IsIso (((ext n).flip.obj W).rightOp.map (cone.π f g fun i => (w i).exact.w)) :=
   by
-  dsimp [functor.right_op]
+  dsimp [Functor.rightOp]
   apply (config := { instances := false }) CategoryTheory.isIso_op
   apply BoundedHomotopyCategory.isIso_ext_flip_obj_map_of_isQuasiIso
 
@@ -349,33 +349,33 @@ def ext_five_term_exactSeq (n : ℤ) [EnoughProjectives A] (W : BoundedHomotopyC
       [E.map (ofHom f), E.map (ofHom g), connectingHom' f g n W w, E.map (-ofHom f⟦(1 : ℤ)⟧')] :=
   by
   intro E
-  have hg : of_hom g = (cone_triangle f).mor₂ ≫ cone.π f g fun i => (w i).exact.w :=
+  have hg : of_hom g = (BoundedHomotopyCategory.coneTriangle f).mor₂ ≫ cone.π f g fun i => (w i).exact.w :=
     by
-    dsimp [of_hom, cone_triangle, cone.π, HomotopyCategory.cone.π]
-    erw [← functor.map_comp]; congr 1
+    dsimp [of_hom, BoundedHomotopyCategory.coneTriangle, cone.π, HomotopyCategory.cone.π]
+    erw [← Functor.map_comp]; congr 1
     ext ii
     dsimp [cone.in]; rw [biprod.inr_snd_assoc]
   let e := E.map (cone.π f g fun i => (w i).exact.w)
-  let ee := as_iso e
-  have firsttwo := homological_functor.cond E (cone_triangle f) (dist_cone_triangle _)
-  apply exact_seq.cons
-  · rw [hg, functor.map_comp]
+  let ee := CategoryTheory.asIso e
+  have firsttwo := homologicalFunctor.cond E (BoundedHomotopyCategory.coneTriangle f) (BoundedHomotopyCategory.dist_coneTriangle _)
+  apply ExactSeq.cons
+  · rw [hg, Functor.map_comp]
     rw [exact_comp_iso]
     apply firsttwo
-  apply exact_seq.cons
-  · have next_two := homological_functor.cond E (cone_triangle f).rotate _
-    dsimp only [connecting_hom']; rw [hg, functor.map_comp]
+  apply ExactSeq.cons
+  · have next_two := homologicalFunctor.cond E (BoundedHomotopyCategory.coneTriangle f).rotate _
+    dsimp only [BoundedHomotopyCategory.connectingHom']; rw [hg, Functor.map_comp]
     change exact (_ ≫ ee.hom) (ee.inv ≫ _)
     rw [CategoryTheory.exact_comp_hom_inv_comp_iff]
     exact next_two
-    apply pretriangulated.rot_of_dist_triangle; apply dist_cone_triangle
-  rw [← exact_iff_exact_seq]
-  · dsimp only [connecting_hom']
+    apply Pretriangulated.rot_of_distTriang; apply BoundedHomotopyCategory.dist_coneTriangle
+  rw [← CategoryTheory.exact_iff_exactSeq]
+  · dsimp only [BoundedHomotopyCategory.connectingHom']
     rw [exact_iso_comp]
-    apply homological_functor.cond E (cone_triangle f).rotate.rotate
-    apply pretriangulated.rot_of_dist_triangle
-    apply pretriangulated.rot_of_dist_triangle
-    apply dist_cone_triangle
+    apply homologicalFunctor.cond E (BoundedHomotopyCategory.coneTriangle f).rotate.rotate
+    apply Pretriangulated.rot_of_distTriang
+    apply Pretriangulated.rot_of_distTriang
+    apply BoundedHomotopyCategory.dist_coneTriangle
 
 -- Do we not have this?!
 -- TODO: Move this!
@@ -387,19 +387,19 @@ def shiftIsoAux {C : Type u} [Category.{v} C] [Preadditive C] [HasShift C ℤ]
     [∀ n : ℤ, (CategoryTheory.shiftFunctor C n).Additive] (n m : ℤ) (X Y : C) :
     (X⟦n⟧ ⟶ Y⟦m + n⟧) ≃+ (X ⟶ Y⟦m⟧)
     where
-  toFun f := (shiftShiftNeg X n).inv ≫ (f ≫ (shiftAdd Y m n).Hom)⟦-n⟧' ≫ (shiftShiftNeg _ n).Hom
+  toFun f := (shiftShiftNeg X n).inv ≫ (f ≫ (shiftAdd Y m n).hom)⟦-n⟧' ≫ (shiftShiftNeg _ n).hom
   invFun f := f⟦n⟧' ≫ (shiftAdd _ _ _).inv
   left_inv f := by
     dsimp only
-    simp only [CategoryTheory.Functor.map_comp, category.assoc, category.comp_id, category.id_comp,
-      shift_shift_neg_inv_shift, shift_shift_neg_hom_shift, shift_neg_shift', iso.inv_hom_id,
-      iso.inv_hom_id_assoc, iso.hom_inv_id]
+    simp only [CategoryTheory.Functor.map_comp, Category.assoc, Category.comp_id, Category.id_comp,
+      shift_shift_neg_inv_shift, shift_shift_neg_hom_shift, shift_neg_shift', Iso.inv_hom_id,
+      Iso.inv_hom_id_assoc, Iso.hom_inv_id]
   right_inv f := by
-    simp only [category.assoc, iso.inv_hom_id, iso.inv_hom_id_assoc, category.comp_id,
+    simp only [Category.assoc, Iso.inv_hom_id, Iso.inv_hom_id_assoc, Category.comp_id,
       shift_shift_neg']
   map_add' x y := by
-    simp only [(CategoryTheory.shiftFunctor C (-n)).map_add, preadditive.comp_add,
-      preadditive.add_comp, preadditive.comp_add_assoc, preadditive.add_comp_assoc]
+    simp only [(CategoryTheory.shiftFunctor C (-n)).map_add, Preadditive.comp_add,
+      Preadditive.add_comp, Preadditive.comp_add_assoc, Preadditive.add_comp_assoc]
 
 end BoundedHomotopyCategory
 

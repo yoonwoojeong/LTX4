@@ -25,11 +25,11 @@ def whiskeringRight (adj : F ⊣ G) : (whiskeringRight C D E).obj F ⊣ (whisker
     { Unit :=
         { app := fun X =>
             (Functor.rightUnitor _).inv ≫ whiskerLeft X adj.Unit ≫ (Functor.associator _ _ _).inv
-          naturality' := by intros; ext; dsimp; simp }
+          naturality := by intros; ext; dsimp; simp }
       counit :=
         { app := fun X =>
-            (Functor.associator _ _ _).Hom ≫ whiskerLeft X adj.counit ≫ (Functor.rightUnitor _).Hom
-          naturality' := by intros; ext; dsimp; simp }
+            (Functor.associator _ _ _).hom ≫ whiskerLeft X adj.counit ≫ (Functor.rightUnitor _).hom
+          naturality := by intros; ext; dsimp; simp }
       left_triangle := by ext; dsimp; simp
       right_triangle := by ext; dsimp; simp }
 
@@ -42,7 +42,7 @@ theorem whiskeringRight_unit (adj : F ⊣ G) (X : C ⥤ D) :
 @[simp]
 theorem whiskeringRight_counit (adj : F ⊣ G) (X : C ⥤ E) :
     (adj.whiskeringRight C).counit.app X =
-      (Functor.associator _ _ _).Hom ≫ whiskerLeft X adj.counit ≫ (Functor.rightUnitor _).Hom :=
+      (Functor.associator _ _ _).hom ≫ whiskerLeft X adj.counit ≫ (Functor.rightUnitor _).hom :=
   rfl
 
 end CategoryTheory.Adjunction

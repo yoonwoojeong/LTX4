@@ -287,7 +287,7 @@ theorem hasSum : HasSum (fun n => (digit r n : ℝ≥0) * 2⁻¹ ^ n) r :=
   rw [Filter.mem_map]
   rw [Filter.mem_atTop_sets]
   -- choose a large enough such that (r-2⁻¹^a,r] ⊆ V
-  obtain ⟨ε, hε, hεV⟩ := metric.is_open_iff.mp hV1 r hVr
+  obtain ⟨ε, hε, hεV⟩ := metric.isOpen_iff.mp hV1 r hVr
   change 0 < ε at hε 
   have foo : ∃ a : ℕ, (2⁻¹ : ℝ≥0) ^ a ≤ ⟨ε, hε.le⟩ :=
     by

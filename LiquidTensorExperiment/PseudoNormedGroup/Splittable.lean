@@ -1,6 +1,6 @@
 import LiquidTensorExperiment.PseudoNormedGroup.Basic
 
-#align_import pseudo_normed_group.splittable
+#align_import PseudoNormedGroup.Splittable
 
 attribute [local instance] typePow
 

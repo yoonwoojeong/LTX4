@@ -8,7 +8,7 @@ open CategoryTheory
 
 namespace CategoryTheory.Limits
 
-attribute [local instance] concrete_category.has_coe_to_fun concrete_category.has_coe_to_sort
+attribute [local instance] concrete_category.hasCoeToFun concrete_category.hasCoeToSort
 
 variable {C : Type u} [Category.{v} C] [ConcreteCategory.{v} C]
 
@@ -18,10 +18,10 @@ theorem Concrete.equalizer_ext {X Y : C} (f g : X ⟶ Y) [HasEqualizer f g]
     [PreservesLimit (parallelPair f g) (forget C)] (x y : equalizer f g)
     (h : equalizer.ι f g x = equalizer.ι f g y) : x = y :=
   by
-  apply concrete.limit_ext
+  apply Concrete.limit_ext
   rintro (a | a)
   · apply h
-  · rw [← limit.w (parallel_pair f g) walking_parallel_pair_hom.right, comp_apply, comp_apply, h]
+  · rw [← limit.w (CategoryTheory.Limits.parallelPair f g) WalkingParallelPairHom.right, comp_apply, comp_apply, h]
 
 def Concrete.equalizerEquivAux {X Y : C} (f g : X ⟶ Y) :
     (parallelPair f g ⋙ forget C).sections ≃ { x : X // f x = g x }
@@ -36,8 +36,8 @@ def Concrete.equalizerEquivAux {X Y : C} (f g : X ⟶ Y) :
   invFun x :=
     { val := fun j =>
         match j with
-        | walking_parallel_pair.zero => x.1
-        | walking_parallel_pair.one => f x.1
+        | WalkingParallelPair.zero => x.1
+        | WalkingParallelPair.one => f x.1
       property := by
         dsimp [CategoryTheory.Functor.sections]
         rintro (a | a) (b | b) (f | f)

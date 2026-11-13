@@ -33,8 +33,8 @@ def linearMap (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) : Locally
   toFun e := (S.π.app e.DiscreteQuotient t).1 e.locally_constant_lift
   map_add' := by
     intro e₁ e₂
-    let W₁ := e₁.discrete_quotient
-    let W₂ := e₂.discrete_quotient
+    let W₁ := e₁.discreteQuotient
+    let W₂ := e₂.discreteQuotient
     let W₁₂ := (e₁ + e₂).DiscreteQuotient
     let W := W₁ ⊓ W₂ ⊓ W₁₂
     let π₁ : W ⟶ W₁ := hom_of_le (le_trans inf_le_left inf_le_left)
@@ -46,7 +46,7 @@ def linearMap (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) : Locally
     ext ⟨⟩; rfl
   map_smul' := by
     intro r e
-    let W₁ := e.discrete_quotient
+    let W₁ := e.discreteQuotient
     let W₂ := (r • e).DiscreteQuotient
     let W := W₁ ⊓ W₂
     let π₁ : W ⟶ W₁ := hom_of_le inf_le_left
@@ -72,7 +72,7 @@ def weakDual (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) :
       have hp' : (p : ℝ) ≠ 0 := ne_of_gt hp
       rw [← NNReal.rpow_le_rpow_iff hp, NNReal.mul_rpow, ← NNReal.rpow_mul]
       rw [show 1 / (p : ℝ) * p = 1 by field_simp, NNReal.rpow_one]
-      have H := ((S.π.app e.discrete_quotient) t).2 ⊥
+      have H := ((S.π.app e.discreteQuotient) t).2 ⊥
       replace H := mul_le_mul H (le_refl (‖e‖₊ ^ (p : ℝ))) (zero_le _) (zero_le _)
       refine' le_trans _ H
       rw [mul_comm, Finset.mul_sum]
@@ -80,24 +80,24 @@ def weakDual (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) :
       simp_rw [map_sum, LinearMap.map_smul]
       refine' le_trans (Real.pow_nnnorm_sum_le _ _ _) _
       have :
-        ∑ x : (⊥ : DiscreteQuotient e.discrete_quotient),
+        ∑ x : (⊥ : DiscreteQuotient e.discreteQuotient),
             ‖e‖₊ ^ (p : ℝ) *
-              ‖(((S.π.app e.discrete_quotient) t).val
-                    ((⊥ : DiscreteQuotient e.discrete_quotient).fibre x).indicatorLC)‖₊ ^
+              ‖(((S.π.app e.discreteQuotient) t).val
+                    ((⊥ : DiscreteQuotient e.discreteQuotient).fibre x).indicatorLC)‖₊ ^
                 (p : ℝ) =
-          ∑ x : e.discrete_quotient,
+          ∑ x : e.discreteQuotient,
             ‖e‖₊ ^ (p : ℝ) *
-              ‖((LinearMap X p c S t) (e.discrete_quotient.fibre x).indicatorLC)‖₊ ^
+              ‖((LinearMap X p c S t) (e.discreteQuotient.fibre x).indicatorLC)‖₊ ^
                 (p : ℝ) :=
         by
         fapply Finset.sum_bij'
-        · intro a _; exact discrete_quotient.equiv_bot.symm a
+        · intro a _; exact discrete_quotient.equivBot.symm a
         · intros; exact Finset.mem_univ _
         · intros; congr 3; dsimp [LinearMap]
-          let T₁ := e.discrete_quotient
+          let T₁ := e.discreteQuotient
           let T₂ :=
-            (e.discrete_quotient.fibre
-                  (discrete_quotient.equiv_bot.symm a)).indicatorLC.DiscreteQuotient
+            (e.discreteQuotient.fibre
+                  (discrete_quotient.equivBot.symm a)).indicatorLC.DiscreteQuotient
           let T := T₁ ⊓ T₂
           let π₁ : T ⟶ T₁ := hom_of_le inf_le_left
           let π₂ : T ⟶ T₂ := hom_of_le inf_le_right
@@ -106,7 +106,7 @@ def weakDual (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) :
           congr 1
           ext b; obtain ⟨b, rfl⟩ := DiscreteQuotient.proj_surjective _ b
           dsimp [ContinuousMap.comapLC]
-          change _ = (e.discrete_quotient.fibre (discrete_quotient.equiv_bot.symm a)).indicatorLC b
+          change _ = (e.discreteQuotient.fibre (discrete_quotient.equivBot.symm a)).indicatorLC b
           dsimp only [TopologicalSpace.Clopens.indicatorLC_apply]
           rw [show X.fintype_diagram.map π₁ (T.proj b) = T₁.proj b by rfl]
           erw [DiscreteQuotient.mem_fibre_iff']
@@ -145,7 +145,7 @@ def radonLC (S : Cone (X.diagram ⋙ radonLCFunctor p c)) (t : S.pt) : X.radonLC
       change (T.fibre a).indicatorLC b = _
       dsimp [TopologicalSpace.Clopens.indicatorLC_apply]
       erw [DiscreteQuotient.mem_fibre_iff]
-    · intro a _; exact discrete_quotient.equiv_bot.symm a
+    · intro a _; exact discrete_quotient.equivBot.symm a
     · intros; apply Finset.mem_univ
     · intros; apply Equiv.symm_apply_apply
     · intros; apply Equiv.apply_symm_apply
@@ -167,8 +167,8 @@ def isLimitRadonLCCone (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)] [Fact 
   lift S := ⟨IsLimitRadonLCCone.radonLC X p c S, IsLimitRadonLCCone.continuous_radonLC X p c S⟩
   fac := by
     intro S T; ext t e
-    dsimp [Radon_LC_cone, Radon_LC_functor, map_Radon_LC, is_limit_Radon_LC_cone.weak_dual,
-      is_limit_Radon_LC_cone.Radon_LC, WeakDual.comap, is_limit_Radon_LC_cone.linear_map]
+    dsimp [Radon_LC_cone, Radon_LC_functor, map_Radon_LC, IsLimitRadonLCCone.weakDual,
+      IsLimitRadonLCCone.radonLC, WeakDual.comap, IsLimitRadonLCCone.linearMap]
     let W₁ := ((ContinuousMap.comapLC (X.as_limit_cone.π.app T)) e).DiscreteQuotient
     let W := W₁ ⊓ T
     let π₁ : W ⟶ W₁ := hom_of_le inf_le_left
@@ -182,7 +182,7 @@ def isLimitRadonLCCone (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)] [Fact 
     specialize hm T.discrete_quotient
     apply_fun fun e => (e t).1 T.locally_constant_lift at hm 
     convert hm using 1
-    dsimp [is_limit_Radon_LC_cone.Radon_LC, is_limit_Radon_LC_cone.weak_dual, Radon_LC_cone,
+    dsimp [IsLimitRadonLCCone.radonLC, IsLimitRadonLCCone.weakDual, Radon_LC_cone,
       Radon_LC_functor, map_Radon_LC, WeakDual.comap]
     congr 1; ext; rfl
 
@@ -201,7 +201,7 @@ instance compactSpace_radonLC_of_discreteQuotient (X : Profinite.{0}) (p c : ℝ
       CompactSpace
         ((X.fintype_diagram ⋙ RealMeasures.functor p ⋙ CompHausFiltPseuNormGrp₁.level.obj c).obj T)
     infer_instance
-  exact e.symm.compact_space
+  exact e.symm.compactSpace
 
 /-- An auxiliary definition to be used in the constructions below. -/
 def radonLCCompHausDiagram (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] :
@@ -209,12 +209,12 @@ def radonLCCompHausDiagram (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)] [F
     where
   obj T := CompHaus.of <| (X.diagram.obj T).radonLC p c
   map S T e := (radonLCFunctor p c).map <| X.diagram.map e
-  map_id' := by
+  map_id := by
     intro T
     rw [X.diagram.map_id]
     rw [(Radon_LC_functor p c).map_id]
     rfl
-  map_comp' := by
+  map_comp := by
     intro S T W f g
     rw [X.diagram.map_comp]
     rw [(Radon_LC_functor p c).map_comp]
@@ -224,24 +224,24 @@ instance compactSpace_radonLC (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)]
     CompactSpace (X.radonLC p c) :=
   by
   let e₁ : X.Radon_LC p c ≅ limit (X.diagram ⋙ Radon_LC_functor p c) :=
-    (X.is_limit_Radon_LC_cone p c).conePointUniqueUpToIso (limit.is_limit _)
+    (X.is_limit_Radon_LC_cone p c).conePointUniqueUpToIso (limit.isLimit _)
   let e₂ :
     CompHaus_to_Top.obj (limit <| X.Radon_LC_CompHaus_diagram p c) ≅
       limit (X.diagram ⋙ Radon_LC_functor p c) :=
-    (is_limit_of_preserves compHausToTop (limit.is_limit _)).conePointUniqueUpToIso
-      (limit.is_limit _)
+    (CategoryTheory.Limits.isLimitOfPreserves compHausToTop (limit.isLimit _)).conePointUniqueUpToIso
+      (limit.isLimit _)
   let e := TopCat.homeoOfIso (e₂ ≪≫ e₁.symm)
   have : CompactSpace (CompHaus_to_Top.obj (limit <| X.Radon_LC_CompHaus_diagram p c)) := by
     show CompactSpace ↥(limit <| X.Radon_LC_CompHaus_diagram p c); infer_instance
-  exact e.compact_space
+  exact e.compactSpace
 
 /-- An auxiliary definition to be used in the constructions below. -/
 def radonLCCompHausFunctor (p c : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] : Profinite.{0} ⥤ CompHaus.{0}
     where
   obj X := CompHaus.of <| X.radonLC p c
   map X Y f := (radonLCFunctor p c).map f
-  map_id' := (radonLCFunctor p c).map_id
-  map_comp' X Y Z f g := (radonLCFunctor p c).map_comp f g
+  map_id := (radonLCFunctor p c).map_id
+  map_comp X Y Z f g := (radonLCFunctor p c).map_comp f g
 
 /-- This is the cone which will exhibit `X.Radon_LC p c` as the limit of `T.Radon_LC p c`
 where `T` varies over the discrete quotients of `X`.
@@ -258,7 +258,7 @@ Radon measures and `ℳ_p`.
 def isLimitRadonLCCompHausCone (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] :
     IsLimit (X.radonLCCompHausCone p c) :=
   by
-  apply is_limit_of_reflects compHausToTop
+  apply CategoryTheory.Limits.isLimitOfReflects compHausToTop
   apply is_limit_Radon_LC_cone
 
 end Profinite

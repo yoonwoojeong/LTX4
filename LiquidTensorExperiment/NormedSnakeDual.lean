@@ -1,6 +1,6 @@
 import LiquidTensorExperiment.SystemOfComplexes.Basic
 
-#align_import normed_snake_dual
+#align_import normedSnakeDual
 
 /-!
 # The normed snake dual lemma: weak and non-weak
@@ -223,7 +223,7 @@ theorem exists_norm_sub_le_hMul_add {k k' c ρ : ℝ≥0} {i : ℕ} [hk : Fact (
   rw [res_res, d_res] at hy 
   refine' ⟨i - 1, _, rfl, rfl, _⟩
   refine' ⟨y, hy.trans (add_le_add_right (mul_le_mul_of_nonneg_left _ ρ.2) ε)⟩
-  exact hM_adm.res_norm_noninc _ _ _ _ _
+  exact hM_adm.res_normNoninc _ _ _ _ _
 
 /-!
 This argument proves the main inequality in the case where the indices are `0` or `1`.
@@ -291,7 +291,7 @@ theorem exist_norm_sub_le_hMul_norm_add {k k' K K' r₁ r₂ c₀ c : ℝ≥0} {
     convert norm_sub_le_hMul_hMul_norm_add (K' * r₁ * r₂) _ hfnrm _ hn₁
     · norm_cast; ring
     · exact ε₁_le_ε hε (K' * r₁ * r₂) rfl
-    · exact (admissible_of_isometry hN_adm hf).res_normNoninc _ _ _ _ _
+    · exact (SystemOfComplexes.admissibleOfIsometry hN_adm hf).res_normNoninc _ _ _ _ _
   · refine' norm_sub_le_hMul_norm_add _ hN_adm hgnrm hfnrm _ _ hn₁ hp₂ hnrmnew₁ hm₁ _
     · exact Nat.succ_pred_eq_of_pos (Nat.pos_of_ne_zero hizero)
     · rw [inv_mul_cancel_right₀]
@@ -326,7 +326,7 @@ theorem exists_norm_sub_le_hMul {M : SystemOfComplexes} {k k' c ρ : ℝ≥0} {i
   rw [res_res, d_res] at hy 
   refine' ⟨i - 1, _, rfl, rfl, _⟩
   refine' ⟨y, hy.trans (mul_le_mul_of_nonneg_left _ ρ.2)⟩
-  exact hM_adm.res_norm_noninc _ _ _ _ _
+  exact hM_adm.res_normNoninc _ _ _ _ _
 
 variable (M N P f g)
 
@@ -347,7 +347,7 @@ theorem weakNormedSnakeDual (k k' K K' r₁ r₂ : ℝ≥0) [hk : Fact (1 ≤ k)
     M.IsWeakBoundedExact (k * k') (K + r₁ * r₂ * K * K') a c₀ :=
   by
   intro c hc i hi
-  apply exists_norm_sub_le_hMul_add (admissible_of_isometry hN_adm hf)
+  apply exists_norm_sub_le_hMul_add (SystemOfComplexes.admissibleOfIsometry hN_adm hf)
   intro m ε hε
   have hε₁ : 0 < ε / 2 * (1 + K' * r₁ * r₂)⁻¹ :=
     mul_pos (half_pos hε)
@@ -381,7 +381,7 @@ theorem normedSnakeDual {k k' K K' r₁ r₂ : ℝ≥0} [hk : Fact (1 ≤ k)] [h
     M.IsBoundedExact (k * k') (K + r₁ * r₂ * K * K') a c₀ :=
   by
   intro c hc i hi
-  refine' exists_norm_sub_le_hMul (admissible_of_isometry hN_adm hf) _
+  refine' exists_norm_sub_le_hMul (SystemOfComplexes.admissibleOfIsometry hN_adm hf) _
   intro m
   obtain ⟨_, _, rfl, rfl, n₁, hn₁⟩ :=
     hN _ ⟨hc.out.trans <| le_mul_of_one_le_left' hk'.out⟩ _ (trans hi a.le_succ) (f m)

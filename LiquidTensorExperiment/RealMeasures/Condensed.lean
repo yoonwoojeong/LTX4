@@ -3,7 +3,7 @@ import LiquidTensorExperiment.Condensed.Ab
 import LiquidTensorExperiment.ForMathlib.Profinite.Extend
 import LiquidTensorExperiment.Condensed.Condensify
 
-#align_import real_measures.condensed
+#align_import RealMeasures.condensed
 
 open scoped NNReal
 

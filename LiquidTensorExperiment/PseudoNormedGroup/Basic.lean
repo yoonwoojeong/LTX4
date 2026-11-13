@@ -345,14 +345,14 @@ theorem mkFromPi_apply {ι : Type _} [Fintype ι] {M : ι → Type _} [∀ i, Ad
 @[simp]
 theorem coe_mkFromPi {ι : Type _} [Fintype ι] {M : ι → Type _} [∀ i, AddCommMonoid (M i)]
     (f : ∀ i, M i →+ M₂) : ⇑(mkFromPi f) = ∑ i, f i ∘ Pi.evalAddMonoidHom M i := by ext x;
-  rw [@mk_from_pi_apply M₂ _ ι _ M _ f x, Fintype.sum_apply]; rfl
+  rw [@AddMonoidHom.mkFromPi_apply M₂ _ ι _ M _ f x, Fintype.sum_apply]; rfl
 
 theorem mkFromPi_mem_filtration {ι : Type _} [Fintype ι] {M : ι → Type _}
     [∀ i, PseudoNormedGroup (M i)] (f : ∀ i, M i →+ M₂) {c : ι → ℝ≥0}
     (hfc : ∀ i, f i ∈ filtration (M i →+ M₂) (c i)) :
     mkFromPi f ∈ filtration ((∀ i, M i) →+ M₂) (∑ i, c i) := fun c' x h =>
   by
-  rw [Finset.sum_mul, @mk_from_pi_apply M₂ _ ι _ M _ f x]
+  rw [Finset.sum_mul, @AddMonoidHom.mkFromPi_apply M₂ _ ι _ M _ f x]
   refine' sum_mem_filtration _ _ _ _
   rintro i -
   exact hfc i (h i)

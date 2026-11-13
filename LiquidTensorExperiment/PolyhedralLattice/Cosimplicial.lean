@@ -49,15 +49,15 @@ def diagonalEmbedding : Λ ⟶ rescaledPower Λ N
     apply le_of_eq
     rw [div_eq_iff]; swap
     · norm_cast; exact hN.out.ne'
-    simp only [← apply_add_hom_apply, AddMonoidHom.map_sum]
-    simp only [apply_add_hom_apply, single_add_hom_apply, single_apply]
+    simp only [← Finsupp.applyAddHom_apply, AddMonoidHom.map_sum]
+    simp only [Finsupp.applyAddHom_apply, single_add_hom_apply, single_apply]
     convert Finset.sum_const (‖l‖ : ℝ)
     · ext i; simp only [Finset.sum_ite_eq', Finset.mem_univ, if_true]
     rw [mul_comm, nsmul_eq_mul, Finset.card_univ, Fintype.card_fin]
 
 theorem diagonalEmbedding_apply (l : Λ) (i : Fin N) :
     ((@Rescale.of N (Fin N →₀ Λ)).symm (Λ.diagonalEmbedding N l) : Fin N →₀ Λ) i = l := by
-  simp only [diagonal_embedding, single_add_hom_apply, Finset.sum_apply',
+  simp only [PolyhedralLatticeCat.diagonalEmbedding, single_add_hom_apply, Finset.sum_apply',
     PolyhedralLatticeHom.coe_mk, Equiv.symm_apply_apply, Finsupp.single_apply, Finset.sum_ite_eq',
     Finset.mem_univ, if_true]
 
@@ -70,7 +70,7 @@ def cosimplicialLift {M : Type _} [AddCommGroup M] (m : ℕ) (g₀ : Λ →+ M)
     intro l₁ l₂ h
     rw [Finsupp.ext_iff] at h 
     specialize h ⟨0, Fact.out _⟩
-    erw [diagonal_embedding_apply, diagonal_embedding_apply] at h 
+    erw [PolyhedralLatticeCat.diagonalEmbedding_apply, PolyhedralLatticeCat.diagonalEmbedding_apply] at h 
     exact h
 
 theorem zsmul_rescaledPower (n : ℤ) (l : Λ.rescaledPower N) :
@@ -90,7 +90,7 @@ instance : Fact (PolyhedralLatticeHom.toAddMonoidHom (Λ.diagonalEmbedding N)).r
   refine' @smul_right_injective ℤ _ _ _ _ _ n hn _ _ _
   rw [← hl, ← PolyhedralLatticeHom.map_zsmul]
   dsimp only [l₀]
-  rw [← Finsupp.smul_apply, zsmul_rescaled_power _ _ n l', ← hl, diagonal_embedding_apply]
+  rw [← Finsupp.smul_apply, PolyhedralLatticeCat.zsmul_rescaledPower _ _ n l', ← hl, PolyhedralLatticeCat.diagonalEmbedding_apply]
 
 def cosimplicial : CosimplicialObject PolyhedralLatticeCat.{u} :=
   cechConerve <| diagonalEmbedding Λ N

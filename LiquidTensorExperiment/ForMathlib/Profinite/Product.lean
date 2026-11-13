@@ -54,7 +54,7 @@ def isLimitProdCone : IsLimit (prodCone X Y)
     · specialize h ⟨CategoryTheory.Limits.WalkingPair.left⟩
       apply_fun fun e => e x at h 
       exact h
-    · specialize h ⟨walking_pair.right⟩
+    · specialize h ⟨WalkingPair.right⟩
       apply_fun fun e => e x at h 
       exact h
 

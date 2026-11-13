@@ -129,14 +129,14 @@ instance quatroConsAcyclic :
   constructor
   intro n
   obtain ⟨n, rfl⟩ : ∃ k, k + 1 = n := ⟨n - 1, sub_add_cancel _ _⟩
-  refine' is_zero.of_iso _ (homology_iso _ n (n + 1) (n + 1 + 1) rfl rfl)
-  refine' exact.homology_is_zero _ _ _
+  refine' IsZero.of_iso _ (homology_iso _ n (n + 1) (n + 1 + 1) rfl rfl)
+  refine' Exact.homology'_isZero _ _ _
   rcases n with ((_ | _ | _ | _ | _ | _ | n) | (_ | n))
   · exact exact_kernel_ι
   · exact (h₁.drop 0).pair
   · exact (h₁.drop 1).pair
   · exact (h₁.drop 2).pair
-  · exact abelian.exact_cokernel _
+  · exact Abelian.exact_cokernel _
   · show exact (cokernel.π _) _; exact exact_epi_zero _
   · exact exact_of_zero _ _
   · show exact _ (kernel.ι _); exact exact_zero_mono _
@@ -150,16 +150,16 @@ instance quatroConsHomQuasiIso :
   by
   constructor
   intro n
-  refine' is_zero.is_iso _ _ _ <;> apply is_acyclic.cond
+  refine' IsZero.isIso _ _ _ <;> apply IsAcyclic.cond
 
 instance quatroConeAcyclic :
     IsAcyclic <| (HomotopyCategory.quotient _ _).obj <| quatroCone h₁ h₂ sq₁ sq₂ sq₃ sq₄ :=
   by
   let f :=
     (HomologicalComplex.embed ComplexShape.Embedding.natUpIntUp).map
-      (quatro_cons_hom h₁ h₂ sq₁ sq₂ sq₃ sq₄)
+      (Bicartesian.quatroConsHom h₁ h₂ sq₁ sq₂ sq₃ sq₄)
   have := cone_triangleₕ_mem_distinguished_triangles _ _ f
-  refine' (is_quasi_iso_iff_is_acyclic _ this).mp _
+  refine' (HomotopyCategory.isQuasiIso_iff_isAcyclic _ this).mp _
   apply Bicartesian.quatroConsHomQuasiIso
 
 end HomotopyCategory

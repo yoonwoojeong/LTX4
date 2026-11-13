@@ -42,18 +42,18 @@ def mapHomologicalComplexEmbed {𝓐 𝓑 : Type _} [Category 𝓐] [Abelian �
         (fun n => by
           rcases n with ((_ | n) | n)
           · exact iso.refl _
-          · apply functor.map_zero_object
+          · apply Functor.mapZeroObject
           · exact iso.refl _)
         (by
           rintro i j (rfl : _ = _); rcases i with (n | (_ | n))
-          · apply is_zero.eq_of_tgt; apply is_zero_zero
-          · erw [category.id_comp, category.comp_id]; rfl
-          · erw [category.id_comp, category.comp_id]; rfl))
+          · apply IsZero.eq_of_tgt; apply is_zero_zero
+          · erw [Category.id_comp, Category.comp_id]; rfl
+          · erw [Category.id_comp, Category.comp_id]; rfl))
     (by
       intro C₁ C₂ f; ext ((_ | n) | n) : 2
       · rw [HomologicalComplex.comp_f, HomologicalComplex.comp_f]
-        dsimp; erw [category.id_comp, category.comp_id]; rfl
-      · apply is_zero.eq_of_tgt; apply is_zero_zero
+        dsimp; erw [Category.id_comp, Category.comp_id]; rfl
+      · apply IsZero.eq_of_tgt; apply is_zero_zero
       · rw [HomologicalComplex.comp_f, HomologicalComplex.comp_f]
-        dsimp; erw [category.id_comp, category.comp_id])
+        dsimp; erw [Category.id_comp, Category.comp_id])
 

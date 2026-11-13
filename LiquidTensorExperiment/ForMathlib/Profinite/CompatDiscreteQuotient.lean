@@ -19,20 +19,20 @@ variable {X Y : Profinite.{u}} (f : X ⟶ Y) (surj : Function.Surjective f)
 
 /-- The relation defining the largest quotient of f.right compatible with S. -/
 inductive MakeRel (S : DiscreteQuotient X) : Y → Y → Prop
-  | of (x y : X) (h : S.Rel x y) : make_rel (f x) (f y)
-  | trans {x y z : Y} : make_rel x y → make_rel y z → make_rel x z
+  | of (x y : X) (h : S.Rel x y) : DiscreteQuotient.MakeRel (f x) (f y)
+  | trans {x y z : Y} : DiscreteQuotient.MakeRel x y → DiscreteQuotient.MakeRel y z → DiscreteQuotient.MakeRel x z
 
 theorem makeRelImpl (S : DiscreteQuotient X) (x y : X) : S.Rel x y → S.MakeRel f (f x) (f y) :=
   MakeRel.of _ _
 
 theorem makeRel_equiv (S : DiscreteQuotient X) : Equivalence (S.MakeRel f) :=
   by
-  refine' ⟨fun x => _, fun x y h => _, fun x y z h1 h2 => make_rel.trans h1 h2⟩
+  refine' ⟨fun x => _, fun x y h => _, fun x y z h1 h2 => MakeRel.trans h1 h2⟩
   · obtain ⟨x, rfl⟩ := surj x
-    exact make_rel.of _ _ (S.refl _)
+    exact MakeRel.of _ _ (S.refl _)
   · induction' h with x y h1 x y z h1 h2 h3 h4
-    exact make_rel.of y x (S.symm x y h1)
-    exact make_rel.trans h4 h3
+    exact MakeRel.of y x (S.symm x y h1)
+    exact MakeRel.trans h4 h3
 
 /-- The setoid assoc. to make_rel. -/
 def makeSetoid (S : DiscreteQuotient X) : Setoid Y :=
@@ -48,7 +48,7 @@ def makeProj (S : DiscreteQuotient X) : Y → S.MakeQuotient f surj :=
   Quotient.mk''
 
 theorem makeProj_comm (S : DiscreteQuotient X) :
-    S.makeProj f surj ∘ f = (Quotient.map' f <| make_rel_impl _ _) ∘ S.proj := by ext; rfl
+    S.makeProj f surj ∘ f = (Quotient.map' f <| DiscreteQuotient.makeRelImpl _ _) ∘ S.proj := by ext; rfl
 
 variable (f)
 
@@ -62,7 +62,7 @@ def make (S : DiscreteQuotient X) : DiscreteQuotient Y
     intro x
     have : setOf (S.make_rel f x) = S.make_proj f surj ⁻¹' {S.make_proj f surj x} :=
       by
-      dsimp [make_proj]
+      dsimp [DiscreteQuotient.makeProj]
       ext
       simp only [Set.mem_preimage, Set.mem_singleton_iff, Quotient.eq'', Set.mem_setOf_eq]
       refine' ⟨fun h => Setoid.symm' _ h, fun h => Setoid.symm' _ h⟩
@@ -89,9 +89,9 @@ theorem make_right_mono (S1 S2 : DiscreteQuotient X) (h : S1 ≤ S2) :
     S1.make f surj ≤ S2.make f surj := by
   intro x y h
   induction h
-  · refine' make_rel.of _ _ (h _ _ _)
+  · refine' MakeRel.of _ _ (h _ _ _)
     assumption
-  · apply make_rel.trans
+  · apply MakeRel.trans
     assumption'
 
 end DiscreteQuotient

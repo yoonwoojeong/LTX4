@@ -40,12 +40,12 @@ def extδFunctor (B : A) : Aᵒᵖ ⥤δ Ab.{v}
   δ n :=
     { app := fun S => by
         apply ext'δ B (ShortExactSequence.shortExact <| ShortExactSequence.unop S) n
-      naturality' := by
+      naturality := by
         intro S T f
-        dsimp only [functor.comp_map]
+        dsimp only [Functor.comp_map]
         have :=
-          ext'δ_natural _ _ _ _ ((short_exact_sequence.Trd Aᵒᵖ).map f).unop _
-            ((short_exact_sequence.Fst Aᵒᵖ).map f).unop _ _ B
+          ext'δ_natural _ _ _ _ ((ShortExactSequence.trd Aᵒᵖ).map f).unop _
+            ((ShortExactSequence.fst Aᵒᵖ).map f).unop _ _ B
             (ShortExactSequence.shortExact <| ShortExactSequence.unop T)
             (ShortExactSequence.shortExact <| ShortExactSequence.unop S) n
         dsimp only [Quiver.Hom.op_unop] at this 
@@ -61,44 +61,44 @@ def extδFunctor (B : A) : Aᵒᵖ ⥤δ Ab.{v}
       by
       dsimp [t]
       erw [← e.hom.naturality_assoc]
-      rw [← nat_trans.comp_app, iso.hom_inv_id, nat_trans.id_app, category.comp_id]
+      rw [← NatTrans.comp_app, Iso.hom_inv_id, NatTrans.id_app, Category.comp_id]
       rfl
     rw [ht]; clear ht t
     apply (config := { instances := false }) mono_comp; infer_instance
     apply (config := { instances := false }) mono_comp; swap; infer_instance
-    apply concrete_category.mono_of_injective; intro a b h
+    apply ConcreteCategory.mono_of_injective; intro a b h
     dsimp at h 
     rwa [← cancel_epi S.f.unop]
   exact' := by
     intro n S
     have :=
-      (short_exact.Ext'_five_term_exact_seq B
+      (ShortExact.ext'_five_term_exactSeq B
             (ShortExactSequence.shortExact <| ShortExactSequence.unop S) n).extract
         0 2
-    rw [exact_iff_exact_seq]; exact this
+    rw [CategoryTheory.exact_iff_exactSeq]; exact this
   exact_δ := by
     intro n S
     have :=
-      (short_exact.Ext'_five_term_exact_seq B
+      (ShortExact.ext'_five_term_exactSeq B
             (ShortExactSequence.shortExact <| ShortExactSequence.unop S) n).extract
         1 2
-    rw [exact_iff_exact_seq]; exact this
+    rw [CategoryTheory.exact_iff_exactSeq]; exact this
   δ_exact := by
     intro n S
     have :=
-      (short_exact.Ext'_five_term_exact_seq B
+      (ShortExact.ext'_five_term_exactSeq B
             (ShortExactSequence.shortExact <| ShortExactSequence.unop S) n).extract
         2 3
-    rw [exact_iff_exact_seq]; exact this
+    rw [CategoryTheory.exact_iff_exactSeq]; exact this
 
 instance (B : A) : DeltaFunctor.Tohoku.Effaceable (extδFunctor A B) :=
   by
   constructor; intro X n
-  let P := projective.over X.unop
+  let P := Projective.over X.unop
   let π : P ⟶ X.unop := projective.π _
   constructor
   refine' ⟨_, π.op, _⟩
-  apply limits.is_zero.eq_of_tgt
+  apply Limits.IsZero.eq_of_tgt
   apply BoundedDerivedCategory.ext'_isZero_of_projective
   infer_instance
   norm_cast

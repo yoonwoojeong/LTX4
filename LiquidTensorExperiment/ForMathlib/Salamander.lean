@@ -66,10 +66,10 @@ structure LBC where
   vw : g₁₂ ≫ g₂₂ = 0
   diagIn : A₁₁ ⟶ A₂₂
   diagOut : A₂₂ ⟶ A₃₃
-  diagIn_tr₁ : g₁₁ ≫ f₂₁ = diag_in
-  diagIn_tr₂ : f₁₁ ≫ g₁₂ = diag_in
-  diagOut_tr₁ : g₂₂ ≫ f₃₂ = diag_out
-  diagOut_tr₂ : f₂₂ ≫ g₂₃ = diag_out
+  diagIn_tr₁ : g₁₁ ≫ f₂₁ = LBC.diagIn
+  diagIn_tr₂ : f₁₁ ≫ g₁₂ = LBC.diagIn
+  diagOut_tr₁ : g₂₂ ≫ f₃₂ = LBC.diagOut
+  diagOut_tr₂ : f₂₂ ≫ g₂₃ = LBC.diagOut
   (pt y : 𝓐)
   sum₁ : SumStr A₁₂ A₂₁ X
   sum₂ : SumStr A₂₃ A₃₂ Y
@@ -94,11 +94,11 @@ attribute [reassoc] LBC.hw LBC.vw
 
 @[reassoc]
 theorem sq₁ (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : f₁₁ ≫ g₁₂ = g₁₁ ≫ f₂₁ := by
-  rw [lbc.diag_in_tr₁, diag_in_tr₂]
+  rw [lbc.diagIn_tr₁, diag_in_tr₂]
 
 @[reassoc]
 theorem sq₂ (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : f₂₂ ≫ g₂₃ = g₂₂ ≫ f₃₂ := by
-  rw [lbc.diag_out_tr₁, diag_out_tr₂]
+  rw [lbc.diagOut_tr₁, diag_out_tr₂]
 
 @[simps]
 def ofCore (lbc : Core f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂
@@ -156,10 +156,10 @@ protected def op (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂
   vw := by rw [← op_comp, lbc.vw, op_zero]
   diagIn := lbc.diagOut.op
   diagOut := lbc.diagIn.op
-  diagIn_tr₁ := by rw [← op_comp, lbc.diag_out_tr₂]
-  diagIn_tr₂ := by rw [← op_comp, lbc.diag_out_tr₁]
-  diagOut_tr₁ := by rw [← op_comp, lbc.diag_in_tr₂]
-  diagOut_tr₂ := by rw [← op_comp, lbc.diag_in_tr₁]
+  diagIn_tr₁ := by rw [← op_comp, lbc.diagOut_tr₂]
+  diagIn_tr₂ := by rw [← op_comp, lbc.diagOut_tr₁]
+  diagOut_tr₁ := by rw [← op_comp, lbc.diagIn_tr₂]
+  diagOut_tr₂ := by rw [← op_comp, lbc.diagIn_tr₁]
   pt := op lbc.y
   y := op lbc.pt
   sum₁ := lbc.symm.sum₂.op
@@ -211,10 +211,10 @@ protected def unop (lbc : LBC f'₁₁ g'₁₁ g'₁₂ f'₂₁ f'₂₂ g'₂
   vw := by rw [← unop_comp, lbc.vw, unop_zero]
   diagIn := lbc.diagOut.unop
   diagOut := lbc.diagIn.unop
-  diagIn_tr₁ := by rw [← unop_comp, lbc.diag_out_tr₂]
-  diagIn_tr₂ := by rw [← unop_comp, lbc.diag_out_tr₁]
-  diagOut_tr₁ := by rw [← unop_comp, lbc.diag_in_tr₂]
-  diagOut_tr₂ := by rw [← unop_comp, lbc.diag_in_tr₁]
+  diagIn_tr₁ := by rw [← unop_comp, lbc.diagOut_tr₂]
+  diagIn_tr₂ := by rw [← unop_comp, lbc.diagOut_tr₁]
+  diagOut_tr₁ := by rw [← unop_comp, lbc.diagIn_tr₂]
+  diagOut_tr₂ := by rw [← unop_comp, lbc.diagIn_tr₁]
   pt := unop lbc.y
   y := unop lbc.pt
   sum₁ := lbc.symm.sum₂.unop
@@ -242,37 +242,37 @@ end
 
 @[reassoc]
 theorem diagIn_r (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : lbc.diagIn ≫ f₂₂ = 0 := by
-  rw [← lbc.diag_in_tr₁, category.assoc, lbc.hw, comp_zero]
+  rw [← lbc.diagIn_tr₁, Category.assoc, lbc.hw, comp_zero]
 
 @[reassoc]
 theorem diagIn_d (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : lbc.diagIn ≫ g₂₂ = 0 := by
-  rw [← lbc.diag_in_tr₂, category.assoc, lbc.vw, comp_zero]
+  rw [← lbc.diagIn_tr₂, Category.assoc, lbc.vw, comp_zero]
 
 @[reassoc]
 theorem r_diagOut (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : f₂₁ ≫ lbc.diagOut = 0 := by
-  rw [← lbc.diag_out_tr₂, ← category.assoc, lbc.hw, zero_comp]
+  rw [← lbc.diagOut_tr₂, ← Category.assoc, lbc.hw, zero_comp]
 
 @[reassoc]
 theorem d_diagOut (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : g₁₂ ≫ lbc.diagOut = 0 := by
-  rw [← lbc.diag_out_tr₁, ← category.assoc, lbc.vw, zero_comp]
+  rw [← lbc.diagOut_tr₁, ← Category.assoc, lbc.vw, zero_comp]
 
 theorem π_eq (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) :
     lbc.π = lbc.sum₁.fst ≫ g₁₂ + lbc.sum₁.snd ≫ f₂₁ := by
-  rw [← category.id_comp lbc.π, ← lbc.sum₁.total, preadditive.add_comp, category.assoc,
-    category.assoc, lbc.inl_π, lbc.inr_π]
+  rw [← Category.id_comp lbc.π, ← lbc.sum₁.total, Preadditive.add_comp, Category.assoc,
+    Category.assoc, lbc.inl_π, lbc.inr_π]
 
 theorem ι_eq (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) :
     lbc.ι = f₂₂ ≫ lbc.sum₂.inl + g₂₂ ≫ lbc.sum₂.inr := by
-  rw [← category.comp_id lbc.ι, ← lbc.sum₂.total, preadditive.comp_add, ← category.assoc, ←
-    category.assoc, lbc.ι_fst, lbc.ι_snd]
+  rw [← Category.comp_id lbc.ι, ← lbc.sum₂.total, Preadditive.comp_add, ← Category.assoc, ←
+    Category.assoc, lbc.ι_fst, lbc.ι_snd]
 
 theorem diagIn_ι (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : lbc.diagIn ≫ lbc.ι = 0 := by
-  simp only [lbc.ι_eq, preadditive.comp_add, category.assoc, zero_comp, add_zero,
-    reassoc_of lbc.ι_fst, reassoc_of lbc.ι_snd, lbc.diag_in_r_assoc, lbc.diag_in_d_assoc]
+  simp only [lbc.ι_eq, Preadditive.comp_add, Category.assoc, zero_comp, add_zero,
+    reassoc_of lbc.ι_fst, reassoc_of lbc.ι_snd, lbc.diagIn_r_assoc, lbc.diagIn_d_assoc]
 
 theorem π_diagOut (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : lbc.π ≫ lbc.diagOut = 0 := by
-  simp only [lbc.π_eq, preadditive.add_comp, category.assoc, comp_zero, add_zero,
-    reassoc_of lbc.inl_π, reassoc_of lbc.inr_π, lbc.r_diag_out, lbc.d_diag_out]
+  simp only [lbc.π_eq, Preadditive.add_comp, Category.assoc, comp_zero, add_zero,
+    reassoc_of lbc.inl_π, reassoc_of lbc.inr_π, lbc.r_diagOut, lbc.d_diagOut]
 
 theorem drd₁ (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) : g₁₁ ≫ f₂₁ ≫ g₂₂ = 0 := by
   rw [← lbc.sq₁_assoc, lbc.vw, comp_zero]
@@ -306,11 +306,11 @@ variable (lbc : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃
 
 theorem h_isZero_iff : IsZero lbc.h ↔ Exact f₂₁ f₂₂ :=
   by
-  rw [preadditive.exact_iff_homology_zero]
+  rw [Preadditive.exact_iff_homology'_zero]
   simp only [lbc.hw, eq_self_iff_true, exists_true_left]
   constructor
   refine' fun h => ⟨h.isoZero⟩
-  rintro ⟨i⟩; exact is_zero_of_iso_of_zero (is_zero_zero _) i.symm
+  rintro ⟨i⟩; exact CategoryTheory.Limits.isZero_of_iso_of_zero (is_zero_zero _) i.symm
 
 theorem v_isZero_iff : IsZero lbc.V ↔ Exact g₁₂ g₂₂ :=
   lbc.symm.h_isZero_iff
@@ -320,40 +320,40 @@ def rcpToH : lbc.rcp ⟶ lbc.h :=
   homology'.map _ _
     { left := g₁₁
       right := 𝟙 _
-      w' := by dsimp; rw [category.comp_id, lbc.diag_in_tr₁] }
+      w' := by dsimp; rw [Category.comp_id, lbc.diagIn_tr₁] }
     { left := 𝟙 _
       right := lbc.sum₂.fst
-      w' := by dsimp; rw [category.id_comp, lbc.ι_fst] } rfl
+      w' := by dsimp; rw [Category.id_comp, lbc.ι_fst] } rfl
 
 /-- The intramural map from the receptor to the vertical homology. -/
 def rcpToV : lbc.rcp ⟶ lbc.V :=
   homology'.map _ _
     { left := f₁₁
       right := 𝟙 _
-      w' := by dsimp; rw [category.comp_id, lbc.diag_in_tr₂] }
+      w' := by dsimp; rw [Category.comp_id, lbc.diagIn_tr₂] }
     { left := 𝟙 _
       right := lbc.sum₂.snd
-      w' := by dsimp; rw [category.id_comp, lbc.ι_snd] } rfl
+      w' := by dsimp; rw [Category.id_comp, lbc.ι_snd] } rfl
 
 /-- The intramural map from the horizontal homology to the donor. -/
 def hToDon : lbc.h ⟶ lbc.don :=
   homology'.map _ _
     { left := lbc.sum₁.inr
       right := 𝟙 _
-      w' := by dsimp; rw [category.comp_id, lbc.inr_π] }
+      w' := by dsimp; rw [Category.comp_id, lbc.inr_π] }
     { left := 𝟙 _
       right := g₂₃
-      w' := by dsimp; rw [category.id_comp, lbc.diag_out_tr₂] } rfl
+      w' := by dsimp; rw [Category.id_comp, lbc.diagOut_tr₂] } rfl
 
 /-- The intramural map from the vertical homology to the donor. -/
 def vToDon : lbc.V ⟶ lbc.don :=
   homology'.map _ _
     { left := lbc.sum₁.inl
       right := 𝟙 _
-      w' := by dsimp; rw [category.comp_id, lbc.inl_π] }
+      w' := by dsimp; rw [Category.comp_id, lbc.inl_π] }
     { left := 𝟙 _
       right := f₃₂
-      w' := by dsimp; rw [category.id_comp, lbc.diag_out_tr₁] } rfl
+      w' := by dsimp; rw [Category.id_comp, lbc.diagOut_tr₁] } rfl
 
 theorem rcpToH_comp_hToDon : lbc.rcpToH ≫ lbc.hToDon = lbc.rcpToV ≫ lbc.vToDon :=
   by
@@ -368,13 +368,13 @@ def exH (lbc₁ : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f�
     { left := lbc₁.sum₁.fst
       right := f₂₂
       w' := by dsimp;
-        rw [lbc₁.π_eq, preadditive.add_comp, category.assoc, category.assoc, lbc₁.hw, comp_zero,
-          add_zero, lbc₂.diag_in_tr₁] }
+        rw [lbc₁.π_eq, Preadditive.add_comp, Category.assoc, Category.assoc, lbc₁.hw, comp_zero,
+          add_zero, lbc₂.diagIn_tr₁] }
     { left := f₂₂
       right := lbc₂.sum₂.inr
       w' := by dsimp;
-        rw [lbc₂.ι_eq, preadditive.comp_add, ← category.assoc, ← category.assoc, lbc₂.hw, zero_comp,
-          zero_add, lbc₁.diag_out_tr₂] }
+        rw [lbc₂.ι_eq, Preadditive.comp_add, ← Category.assoc, ← Category.assoc, lbc₂.hw, zero_comp,
+          zero_add, lbc₁.diagOut_tr₂] }
     rfl
 
 theorem vToDon_comp_exH_comp_rcpToV (lbc₁ : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂)
@@ -382,11 +382,11 @@ theorem vToDon_comp_exH_comp_rcpToV (lbc₁ : LBC f₁₁ g₁₁ g₁₂ f₂�
     lbc₁.vToDon ≫ exH lbc₁ lbc₂ ≫ lbc₂.rcpToV =
       homology'.map _ _ ⟨f₁₂, f₂₂, lbc₂.sq₁⟩ ⟨f₂₂, f₃₂, lbc₁.sq₂⟩ rfl :=
   by
-  delta V_to_don ex_h rcp_to_V
+  delta V_to_don LBC.exH rcp_to_V
   rw [homology'.map_comp, homology'.map_comp]
   congr 1 <;> apply CategoryTheory.CommaMorphism.ext <;> dsimp <;>
     simp only [SumStr.inl_fst, SumStr.inl_fst_assoc, SumStr.inr_snd, SumStr.inr_snd_assoc,
-      category.id_comp, category.comp_id]
+      Category.id_comp, Category.comp_id]
 
 /-- The vertical extramural map. -/
 def exV (lbc₁ : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂) (lbc₂ : LBC f₂₁ g₂₁ g₂₂ f₃₁ f₃₂ g₃₂ g₃₃ f₄₂) :
@@ -395,13 +395,13 @@ def exV (lbc₁ : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f�
     { left := lbc₁.sum₁.snd
       right := g₂₂
       w' := by dsimp;
-        rw [lbc₁.π_eq, preadditive.add_comp, category.assoc, category.assoc, lbc₁.vw, comp_zero,
-          zero_add, lbc₂.diag_in_tr₂] }
+        rw [lbc₁.π_eq, Preadditive.add_comp, Category.assoc, Category.assoc, lbc₁.vw, comp_zero,
+          zero_add, lbc₂.diagIn_tr₂] }
     { left := g₂₂
       right := lbc₂.sum₂.inl
       w' := by dsimp;
-        rw [lbc₂.ι_eq, preadditive.comp_add, ← category.assoc, ← category.assoc, lbc₂.vw, zero_comp,
-          add_zero, lbc₁.diag_out_tr₁] }
+        rw [lbc₂.ι_eq, Preadditive.comp_add, ← Category.assoc, ← Category.assoc, lbc₂.vw, zero_comp,
+          add_zero, lbc₁.diagOut_tr₁] }
     rfl
 
 theorem hToDon_comp_exV_comp_rcpToH (lbc₁ : LBC f₁₁ g₁₁ g₁₂ f₂₁ f₂₂ g₂₂ g₂₃ f₃₂)
@@ -409,11 +409,11 @@ theorem hToDon_comp_exV_comp_rcpToH (lbc₁ : LBC f₁₁ g₁₁ g₁₂ f₂�
     lbc₁.hToDon ≫ exV lbc₁ lbc₂ ≫ lbc₂.rcpToH =
       homology'.map _ _ ⟨g₂₁, g₂₂, lbc₂.sq₁.symm⟩ ⟨g₂₂, g₂₃, lbc₁.sq₂.symm⟩ rfl :=
   by
-  delta H_to_don ex_v rcp_to_H
+  delta H_to_don LBC.exV rcp_to_H
   rw [homology'.map_comp, homology'.map_comp]
   congr 1 <;> apply CategoryTheory.CommaMorphism.ext <;> dsimp <;>
     simp only [SumStr.inl_fst, SumStr.inl_fst_assoc, SumStr.inr_snd, SumStr.inr_snd_assoc,
-      category.id_comp, category.comp_id]
+      Category.id_comp, Category.comp_id]
 
 /-
 #############################################

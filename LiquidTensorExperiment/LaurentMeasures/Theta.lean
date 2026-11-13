@@ -124,9 +124,9 @@ theorem eventually_antitone : Antitone (auxY ξ x) :=
   apply antitone_nat_of_succ_le
   intro n
   by_cases hn : n = 0
-  · rw [hn, zero_add, aux_y]
+  · rw [hn, zero_add, Theta.auxY]
     simp only [Nat.one_ne_zero, if_true, eq_self_iff_true, if_false]
-  · simp only [aux_y, if_neg hn, Function.comp_apply, Nat.succ_ne_zero, if_false]
+  · simp only [Theta.auxY, if_neg hn, Function.comp_apply, Nat.succ_ne_zero, if_false]
     replace hn : n ≥ 1 := le_of_not_gt ((not_iff_not.mpr Nat.lt_one_iff).mpr hn)
     exact eventually_le ξ x n hn
 
@@ -171,30 +171,30 @@ variable [Fact (0 < ξ)]
 
 theorem exists_limit_y : ∃ a, Tendsto (fun n => y ξ x n) atTop (𝓝 a) :=
   by
-  have h_bdd : BddBelow (range (aux_y ξ x)) := by
+  have h_bdd : BddBelow (range (Theta.auxY ξ x)) := by
     use 0
     intro z hz
     obtain ⟨m, h_mz⟩ := Set.mem_range.mp hz
     by_cases hm : m = 0
-    · simp_rw [hm, aux_y, if_pos] at h_mz 
+    · simp_rw [hm, Theta.auxY, if_pos] at h_mz 
       rw [← h_mz]
       exact eventually_pos_y ξ x 1 (le_of_eq (refl _))
-    simp_rw [aux_y, if_neg hm] at h_mz 
+    simp_rw [Theta.auxY, if_neg hm] at h_mz 
     rw [← h_mz]
     replace hm : m ≥ 1 := le_of_not_gt ((not_iff_not.mpr Nat.lt_one_iff).mpr hm)
     exact eventually_pos_y ξ x m hm
   have := tendsto_atTop_ciInf (eventually_antitone ξ x) h_bdd
-  use⨅ i : ℕ, aux_y ξ x i
-  apply @tendsto.congr' _ _ (aux_y ξ x) _ _ _ _ this
+  use⨅ i : ℕ, Theta.auxY ξ x i
+  apply @Tendsto.congr' _ _ (Theta.auxY ξ x) _ _ _ _ this
   apply Filter.eventuallyEq_iff_exists_mem.mpr
   use{n | n ≥ 1}
-  simp only [mem_at_top_sets, ge_iff_le, mem_set_of_eq]
+  simp only [Filter.mem_atTop_sets, ge_iff_le, Set.mem_setOf_eq]
   use 1
   simp only [imp_self, forall_const]
   intro n hn
-  replace hn : n ≥ 1 := by simp_all only [ge_iff_le, mem_set_of_eq]
+  replace hn : n ≥ 1 := by simp_all only [ge_iff_le, Set.mem_setOf_eq]
   have := ne_of_lt (lt_of_lt_of_le Nat.zero_lt_one hn)
-  rw [aux_y, ite_eq_right_iff]
+  rw [Theta.auxY, ite_eq_right_iff]
   tauto
 
 theorem summable_norm (r : ℝ≥0) (hr₁ : r < 1) :
@@ -270,8 +270,8 @@ theorem limit_y [Fact (ξ < 1)] : Tendsto (fun n => y ξ x n) atTop (𝓝 0) :=
   have h_right : ∀ n, n ≥ 1 → (⌊y ξ x n / ξ ^ n⌋ : ℝ) ≤ y ξ x n / ξ ^ n := fun _ _ => Int.floor_le _
   replace h_right : ∀ n, n ≥ 1 → (⌊y ξ x n / ξ ^ n⌋ : ℝ) * ξ ^ n ≤ y ξ x n := fun n hn =>
     (le_div_iff (pow_pos h_pos n)).mp (h_right n hn)
-  replace h_right : ∀ᶠ n in at_top, (⌊y ξ x n / ξ ^ n⌋ : ℝ) * ξ ^ n ≤ y ξ x n
-  · simp only [ge_iff_le, eventually_at_top]; use 1, h_right
+  replace h_right : ∀ᶠ n in Filter.atTop, (⌊y ξ x n / ξ ^ n⌋ : ℝ) * ξ ^ n ≤ y ξ x n
+  · simp only [ge_iff_le, Filter.eventually_atTop]; use 1, h_right
   have h_left : ∀ n, n ≥ 1 → y ξ x n / ξ ^ n - 1 ≤ ⌊y ξ x n / ξ ^ n⌋ := fun n hn =>
     le_of_lt (Int.sub_one_lt_floor _)
   replace h_left : ∀ n, n ≥ 1 → y ξ x n - ξ ^ n ≤ ⌊y ξ x n / ξ ^ n⌋ * ξ ^ n
@@ -281,11 +281,11 @@ theorem limit_y [Fact (ξ < 1)] : Tendsto (fun n => y ξ x n) atTop (𝓝 0) :=
       y ξ x n - ξ ^ n = (y ξ x n / ξ ^ n - 1) * ξ ^ n := by
         rw [sub_mul, one_mul, div_mul_cancel _ (h_one _).ne']
       _ ≤ ⌊y ξ x n / ξ ^ n⌋ * ξ ^ n := (mul_le_mul_right (h_one n)).mpr (h_left n hn)
-  replace h_left : ∀ᶠ n in at_top, y ξ x n - ξ ^ n ≤ (⌊y ξ x n / ξ ^ n⌋ : ℝ) * ξ ^ n
-  · simp only [eventually_at_top]; use 1, h_left
-  have : tendsto (fun n => y ξ x n - ξ ^ n) at_top (𝓝 (exists_limit_y ξ x).some) :=
+  replace h_left : ∀ᶠ n in Filter.atTop, y ξ x n - ξ ^ n ≤ (⌊y ξ x n / ξ ^ n⌋ : ℝ) * ξ ^ n
+  · simp only [Filter.eventually_atTop]; use 1, h_left
+  have : tendsto (fun n => y ξ x n - ξ ^ n) Filter.atTop (𝓝 (exists_limit_y ξ x).some) :=
     by
-    convert tendsto.add (exists_limit_y ξ x).choose_spec (limit_neg_geometric ξ)
+    convert Tendsto.add (exists_limit_y ξ x).choose_spec (limit_neg_geometric ξ)
     rw [add_zero]
   have h₁ :=
     (le_of_tendsto_of_tendsto this (summable_floor ξ x ξ₀ _).tendsto_atTop_zero h_left).antisymm
@@ -301,9 +301,9 @@ theorem hasSum_x [Fact (ξ < 1)] : HasSum (fun i => (⌊(y ξ x i / ξ ^ i : ℝ
   apply (summable_floor ξ x ξ₀ _).hasSum_iff_tendsto_nat.mpr
   simp_rw [Subtype.coe_mk, ← finite_sum' ξ x, sub_eq_add_neg]
   nth_rw_rhs 1 [← add_zero x]
-  apply @tendsto.const_add ℕ ℝ _ _ _ x 0 _ at_top
+  apply @Tendsto.const_add ℕ ℝ _ _ _ x 0 _ Filter.atTop
   rw [← neg_zero]
-  refine' tendsto.neg (limit_y ξ x)
+  refine' Tendsto.neg (limit_y ξ x)
   · rw [← NNReal.coe_lt_coe, NNReal.coe_one, Subtype.coe_mk]
     exact Fact.out _
 
@@ -380,7 +380,7 @@ theorem ϑ_surjective (r p : ℝ≥0) (S : FintypeCat) (g : RealMeasures p S) [F
     by
     intro s
     apply (@Function.Injective.hasSum_iff _ _ _ _ _ _ (g s) _ hinj (h_range s)).mp
-    exact has_sum_x ξ (g s)
+    exact Theta.hasSum_x ξ (g s)
   funext
   apply HasSum.tsum_eq
   exact this s

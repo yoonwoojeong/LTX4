@@ -26,8 +26,8 @@ variable {𝒞 : Type _} [Category 𝒞] {r : HomRel 𝒞} [Congruence r]
 
 variable {X Y : 𝒞} {f g : X ⟶ Y}
 
-theorem CompClosure.rel (h : CompClosure r f g) : r f g := by cases h; apply congruence.comp_left;
-  apply congruence.comp_right; assumption
+theorem CompClosure.rel (h : CompClosure r f g) : r f g := by cases h; apply Congruence.compLeft;
+  apply Congruence.compRight; assumption
 
 end Quotient
 
@@ -40,7 +40,7 @@ variable {C D : HomologicalComplex V c} {f f₁ f₂ g g₁ g₂ : C ⟶ D}
 @[simps (config := { fullyApplied := false })]
 protected def neg (h : Homotopy f g) : Homotopy (-f) (-g)
     where
-  Hom := -h.Hom
+  hom := -h.hom
   zero' i j H := by dsimp; rw [h.zero i j H, neg_zero]
   comm i := by simp only [neg_f_apply, AddMonoidHom.map_neg, h.comm, neg_add]
 
@@ -147,7 +147,7 @@ instance : Preadditive (HomotopyCategory V c)
     calc
       (Quotient V c).map (f₁ + f₂) ≫ (Quotient V c).map g = (Quotient V c).map ((f₁ + f₂) ≫ g) := by
         rw [(Quotient V c).map_comp]
-      _ = (Quotient V c).map (f₁ ≫ g + f₂ ≫ g) := by rw [preadditive.add_comp]
+      _ = (Quotient V c).map (f₁ ≫ g + f₂ ≫ g) := by rw [Preadditive.add_comp]
       _ = (Quotient V c).map (f₁ ≫ g) + (Quotient V c).map (f₂ ≫ g) := by rw [quotient_map_add]
   comp_add X Y Z f g₁ g₂ := by
     apply Quot.induction_on₃ f g₁ g₂; clear f g₁ g₂
@@ -157,7 +157,7 @@ instance : Preadditive (HomotopyCategory V c)
     calc
       (Quotient V c).map f ≫ (Quotient V c).map (g₁ + g₂) = (Quotient V c).map (f ≫ (g₁ + g₂)) := by
         rw [(Quotient V c).map_comp]
-      _ = (Quotient V c).map (f ≫ g₁ + f ≫ g₂) := by rw [preadditive.comp_add]
+      _ = (Quotient V c).map (f ≫ g₁ + f ≫ g₂) := by rw [Preadditive.comp_add]
       _ = (Quotient V c).map (f ≫ g₁) + (Quotient V c).map (f ≫ g₂) := by rw [quotient_map_add]
 
 instance quotient.additive : (quotient V c).Additive where
@@ -171,10 +171,10 @@ protected def zero [HasZeroObject V] : HomotopyCategory V c where as := Homologi
 protected theorem isZero_zero [HasZeroObject V] :
     IsZero (HomotopyCategory.zero : HomotopyCategory V c) :=
   by
-  rw [is_zero_iff_id_eq_zero]
+  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero]
   apply eq_of_homotopy
   apply Homotopy.ofEq
-  rw [← is_zero_iff_id_eq_zero]
+  rw [← CategoryTheory.Limits.isZero_iff_id_eq_zero]
   exact HomologicalComplex.isZero_zero
 
 instance [HasZeroObject V] : HasZeroObject (HomotopyCategory V c) :=
@@ -196,8 +196,8 @@ def mapHomotopyCategoryComp {W : Type _} [Category W] [Preadditive W] (F : V ⥤
       HomotopyCategory.quotient V c ⋙ Functor.mapHomotopyCategory c F :=
   NatIso.ofComponents (fun X => eqToIso (by rfl)) fun X Y f =>
     by
-    simp only [functor.comp_map, eq_to_iso_refl, iso.refl_hom, category.comp_id,
-      functor.map_homotopy_category_map, category.id_comp]
+    simp only [Functor.comp_map, eq_to_iso_refl, Iso.refl_hom, Category.comp_id,
+      Functor.mapHomotopyCategory_map, Category.id_comp]
     apply CategoryTheory.Quotient.sound
     exact Nonempty.intro (F.map_homotopy (HomotopyCategory.homotopyOutMap f)).symm
 

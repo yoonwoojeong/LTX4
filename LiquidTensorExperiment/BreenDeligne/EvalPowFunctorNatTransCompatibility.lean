@@ -1,6 +1,6 @@
 import LiquidTensorExperiment.BreenDeligne.ApplyPow
 
-#align_import breen_deligne.eval_Pow_functor_nat_trans_compatibility
+#align_import BreenDeligne.evalPowFunctor_nat_trans_compatibility
 
 noncomputable section
 
@@ -22,10 +22,10 @@ theorem evalPowFunctor_nat_trans_compatibility
       e.hom.app _ ≫ F₂.map ((applyPow G n).hom.app M) ≫ ((evalPowFunctor F₂).obj n).map (τ.app M) :=
   by
   dsimp only [eval_Pow_functor]
-  have h₁ := nat_trans.congr_app h ((Pow n).obj M)
-  simp only [nat_trans.comp_app, whisker_right_app, whisker_left] at h₁ 
+  have h₁ := NatTrans.congr_app h ((Pow n).obj M)
+  simp only [NatTrans.comp_app, CategoryTheory.whiskerRight_app, whisker_left] at h₁ 
   slice_lhs 1 2 => erw [← h₁]
-  simp only [category.assoc]
+  simp only [Category.assoc]
   erw [← F₂.map_comp, ← F₂.map_comp]
   congr 2
   apply apply_Pow_naturality

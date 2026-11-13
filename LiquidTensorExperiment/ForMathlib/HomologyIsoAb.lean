@@ -36,13 +36,13 @@ noncomputable def MulEquiv.surjectiveCongr {A B C D : Type _} [CommGroup A] [Com
     obtain ⟨x, rfl⟩ := hf x
     delta MonoidHom.liftOfSurjective
     simp only [MonoidHom.liftOfRightInverse_comp_apply, Subtype.coe_mk, MonoidHom.comp_apply]
-    convert MonoidHom.liftOfRightInverse_comp_apply _ _ _ _ (e.to_monoid_hom x) using 1
+    convert MonoidHom.liftOfRightInverse_comp_apply _ _ _ _ (e.toMonoidHom x) using 1
     exact f.congr_arg (e.symm_apply_apply x).symm
   right_inv x := by
     obtain ⟨x, rfl⟩ := hg x
     delta MonoidHom.liftOfSurjective
     simp only [MonoidHom.liftOfRightInverse_comp_apply, Subtype.coe_mk, MonoidHom.comp_apply]
-    convert MonoidHom.liftOfRightInverse_comp_apply _ _ _ _ (e.symm.to_monoid_hom x) using 1
+    convert MonoidHom.liftOfRightInverse_comp_apply _ _ _ _ (e.symm.toMonoidHom x) using 1
     exact g.congr_arg (e.apply_symm_apply x).symm
   map_mul' x y := MonoidHom.map_mul _ _ _
 
@@ -82,7 +82,7 @@ protected noncomputable def homology {A B C : AddCommGroupCat.{u}} (f : A ⟶ B)
 
 def hasHomology : HasHomology f g (AddCommGroupCat.homology f g) :=
   { w
-    π := (AddCommGroupCat.kernelIsoKer _).Hom ≫ ofHom (QuotientAddGroup.mk' _)
+    π := (AddCommGroupCat.kernelIsoKer _).hom ≫ ofHom (QuotientAddGroup.mk' _)
     ι :=
       QuotientAddGroup.lift _ ((cokernel.π f).comp <| AddSubgroup.subtype _)
         (by
@@ -90,9 +90,9 @@ def hasHomology : HasHomology f g (AddCommGroupCat.homology f g) :=
           dsimp only [AddMonoidHom.comp_apply, QuotientAddGroup.mk'_apply, Subtype.coe_mk,
             AddSubgroup.coeSubtype]
           rw [← comp_apply, cokernel.condition, zero_apply])
-    π_ι := by rw [← kernel_iso_ker_hom_comp_subtype]; rfl
+    π_ι := by rw [← AddCommGroupCat.kernelIsoKer_hom_comp_subtype]; rfl
     ex_π := by
-      rw [← exact_comp_hom_inv_comp_iff (kernel_iso_ker g), iso.inv_hom_id_assoc]
+      rw [← exact_comp_hom_inv_comp_iff (kernel_iso_ker g), Iso.inv_hom_id_assoc]
       rw [AddCommGroupCat.exact_iff']
       constructor
       · ext; simp
@@ -133,7 +133,7 @@ def hasHomology : HasHomology f g (AddCommGroupCat.homology f g) :=
       rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk] at hy 
       rw [AddSubgroup.mem_comap]
       dsimp at hy ⊢
-      have : exact f (cokernel.π f) := abelian.exact_cokernel f
+      have : exact f (cokernel.π f) := Abelian.exact_cokernel f
       rw [AddCommGroupCat.exact_iff'] at this 
       exact this.2 hy }
 
@@ -197,9 +197,9 @@ noncomputable def homologyMap : AddCommGroupCat.homology f₁ g₁ ⟶ AddCommGr
 theorem homologyMap_apply_mk (t) :
     homologyMap w₁ w₂ sq1 sq2 (QuotientAddGroup.mk t) = QuotientAddGroup.mk (kerMap sq2 t) :=
   by
-  dsimp [homology_map, HasHomology.map, HasHomology.desc]
+  dsimp [AddCommGroupCat.homologyMap, HasHomology.map, HasHomology.desc]
   generalize_proofs _ h _ _ h1 h2
-  have := h.comp_epi_desc ((HasHomology f₂ g₂ w₂).lift (kernel.ι g₁ ≫ β ≫ cokernel.π f₂) h1) h2
+  have := h.comp_epiDesc ((HasHomology f₂ g₂ w₂).lift (kernel.ι g₁ ≫ β ≫ cokernel.π f₂) h1) h2
   let e : kernel g₁ ≅ AddCommGroupCat.of (AddMonoidHom.ker g₁) := AddCommGroupCat.kernelIsoKer _
   let s := e.inv t
   let p := (HasHomology f₁ g₁ w₁).π
@@ -207,27 +207,27 @@ theorem homologyMap_apply_mk (t) :
     dsimp [s, p]; rw [← comp_apply]
     let pp : AddCommGroupCat.of g₁.ker ⟶ AddCommGroupCat.homology f₁ g₁ := QuotientAddGroup.mk' _
     suffices : pp = e.inv ≫ p; rw [← this]; rfl
-    rw [iso.eq_inv_comp]
+    rw [Iso.eq_inv_comp]
     ext t; rfl
   rw [ht, ← comp_apply, this]
   dsimp [s]
   rw [← comp_apply]
   dsimp [e, HasHomology.desc, HasHomology.lift]
   generalize_proofs hh
-  let q := (kernel_iso_ker g₁).inv ≫ hh.mono_lift (kernel.ι g₁ ≫ β ≫ cokernel.π f₂) h1
+  let q := (kernel_iso_ker g₁).inv ≫ hh.monoLift (kernel.ι g₁ ≫ β ≫ cokernel.π f₂) h1
   let pp : AddCommGroupCat.of g₂.ker ⟶ AddCommGroupCat.homology f₂ g₂ := QuotientAddGroup.mk' _
   let tt : AddCommGroupCat.of g₁.ker ⟶ AddCommGroupCat.of g₂.ker := ker_map sq2
-  have hq : (kernel_iso_ker g₁).inv ≫ hh.mono_lift (kernel.ι g₁ ≫ β ≫ cokernel.π f₂) h1 = tt ≫ pp :=
+  have hq : (kernel_iso_ker g₁).inv ≫ hh.monoLift (kernel.ι g₁ ≫ β ≫ cokernel.π f₂) h1 = tt ≫ pp :=
     by
-    rw [iso.inv_comp_eq]
-    have := hh.mono_lift_comp (kernel.ι g₁ ≫ β ≫ cokernel.π f₂) h1
+    rw [Iso.inv_comp_eq]
+    have := hh.monoLift_comp (kernel.ι g₁ ≫ β ≫ cokernel.π f₂) h1
     rw [← cancel_mono (HasHomology f₂ g₂ w₂).ι, this]
     ext; rfl
   rw [hq]; rfl
 
 noncomputable def homologyIso_hom_homologyMap :
-    (AddCommGroupCat.homologyIso f₁ g₁ w₁).Hom ≫ homologyMap w₁ w₂ sq1 sq2 =
-      homology'.map' w₁ w₂ sq1 sq2 ≫ (AddCommGroupCat.homologyIso f₂ g₂ w₂).Hom :=
+    (AddCommGroupCat.homologyIso f₁ g₁ w₁).hom ≫ homologyMap w₁ w₂ sq1 sq2 =
+      homology'.map' w₁ w₂ sq1 sq2 ≫ (AddCommGroupCat.homologyIso f₂ g₂ w₂).hom :=
   by
   erw [HasHomology.map_comp_map]
   erw [HasHomology.map_comp_map]
@@ -236,7 +236,7 @@ noncomputable def homologyIso_hom_homologyMap :
 noncomputable def homologyIso_inv_homologyMap :
     (AddCommGroupCat.homologyIso f₁ g₁ w₁).inv ≫ homology'.map' w₁ w₂ sq1 sq2 =
       homologyMap w₁ w₂ sq1 sq2 ≫ (AddCommGroupCat.homologyIso f₂ g₂ w₂).inv :=
-  by rw [iso.inv_comp_eq, ← category.assoc, iso.eq_comp_inv, homology_iso_hom_homology_map]
+  by rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv, AddCommGroupCat.homologyIso_hom_homologyMap]
 
 end AddCommGroupCat
 

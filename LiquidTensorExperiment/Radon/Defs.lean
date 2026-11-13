@@ -62,10 +62,10 @@ def radonFunctor (p c : ℝ≥0) [Fact (0 < p)] : Profinite.{0} ⥤ TopCat.{0}
     where
   obj X := X.radon p c
   map X Y f := mapRadon f _ _
-  map_id' X := by
+  map_id X := by
     ext; dsimp [map_Radon, WeakDual.comap]; congr 1
     ext; rfl
-  map_comp' X Y Z f g := by ext; rfl
+  map_comp X Y Z f g := by ext; rfl
 
 /-- The functor sending a topological space to the space of `p`-Radon
 measures bounded by `c`. This is the locally constant variant.
@@ -74,8 +74,8 @@ def radonLCFunctor (p c : ℝ≥0) [Fact (0 < p)] : Profinite.{0} ⥤ TopCat.{0}
     where
   obj X := X.radonLC p c
   map X Y f := mapRadonLC f _ _
-  map_id' X := by ext; dsimp [map_Radon_LC, WeakDual.comap]; congr 1; ext; rfl
-  map_comp' X Y Z f g := by ext; rfl
+  map_id X := by ext; dsimp [map_Radon_LC, WeakDual.comap]; congr 1; ext; rfl
+  map_comp X Y Z f g := by ext; rfl
 
 /-- An auxiliary definition to be used in the constructions below.
 -/
@@ -170,7 +170,7 @@ def weakDualLCToC (X : Profinite.{0}) : WeakDual ℝ (LocallyConstant X ℝ) →
       rw [(LocallyConstant.pkg X ℝ).extend_coe]
       rfl
       any_goals infer_instance
-      exact f.uniform_continuous
+      exact f.uniformContinuous
       exact (r • f).UniformContinuous
 
 end Profinite

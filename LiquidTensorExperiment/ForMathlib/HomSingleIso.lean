@@ -2,7 +2,7 @@ import LiquidTensorExperiment.ForMathlib.Derived.KProjective
 import LiquidTensorExperiment.ForMathlib.HomologicalComplexOp
 import LiquidTensorExperiment.ForMathlib.HomologyIsoAb
 
-#align_import for_mathlib.hom_single_iso
+#align_import for_mathlib.homSingleIso
 
 noncomputable section
 
@@ -27,17 +27,17 @@ noncomputable def Homotopy.toSingle [DecidableEq ι] [DecidableRel c.Rel]
   Hom i₁ i₂ :=
     if r' : c.Rel i₂ i₁ then
       if e : i₂ = i then
-        (X.xEqToIso (c.next_eq (e ▸ r' : c.Rel i i₁) r)).Hom ≫ h ≫ eqToHom (if_pos e).symm
+        (X.xEqToIso (c.next_eq (e ▸ r' : c.Rel i i₁) r)).hom ≫ h ≫ eqToHom (if_pos e).symm
       else 0
     else 0
   zero' _ _ e := dif_neg e
   comm k := by
     dsimp
     by_cases hki : k = i
-    swap; · apply is_zero.eq_of_tgt; dsimp; rw [if_neg hki]; exact is_zero_zero _
+    swap; · apply IsZero.eq_of_tgt; dsimp; rw [if_neg hki]; exact is_zero_zero _
     subst hki
     rw [← dNext_eq_dFrom_fromNext, ← prevD_eq_toPrev_dTo, dNext_eq _ r, dif_pos r, dif_pos rfl,
-      X.X_eq_to_iso_refl, category.id_comp, H]
+      X.X_eq_to_iso_refl, Category.id_comp, H]
     nth_rw_lhs 1 [← AddMonoid.add_zero (X.d k j ≫ h ≫ eq_to_hom _)]
     congr
     by_cases aux : c.rel (c.prev k) k
@@ -56,7 +56,7 @@ theorem homotopic_to_single_iff [DecidableEq ι] {X : HomologicalComplex C c} {B
   refine' ⟨_, fun ⟨h, H⟩ => ⟨Homotopy.toSingle r f g h H⟩⟩
   rintro ⟨h⟩
   use h.hom j i ≫ eq_to_hom (if_pos rfl)
-  rw [category.assoc, eq_to_hom_trans, eq_to_hom_refl, category.comp_id, ← add_zero (_ ≫ _)]
+  rw [Category.assoc, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_refl, Category.comp_id, ← add_zero (_ ≫ _)]
   have := h.comm i
   rw [dNext_eq _ r] at this 
   convert this
@@ -82,14 +82,14 @@ noncomputable def HomologicalComplex.homSingleIso (P : CochainComplex C ℤ) (B 
   invFun f :=
     by
     refine'
-      ⟨fun j => if e : j = i then (P.X_eq_to_iso <| e).Hom ≫ f.1 ≫ eq_to_hom (if_pos e).symm else 0,
+      ⟨fun j => if e : j = i then (P.X_eq_to_iso <| e).hom ≫ f.1 ≫ eq_to_hom (if_pos e).symm else 0,
         _⟩
     rintro j k (rfl : j + 1 = k)
     dsimp
     rw [comp_zero]
     split_ifs
     · have := eq_sub_iff_add_eq.mpr h; subst this
-      rw [P.X_d_eq_to_iso_assoc, ← category.assoc, ← Subtype.val_eq_coe,
+      rw [P.X_d_eq_to_iso_assoc, ← Category.assoc, ← Subtype.val_eq_coe,
         show P.d (i - 1) i ≫ f.1 = 0 from f.2, zero_comp]
     · exact comp_zero.symm
   left_inv := by
@@ -98,7 +98,7 @@ noncomputable def HomologicalComplex.homSingleIso (P : CochainComplex C ℤ) (B 
     dsimp
     split_ifs
     · subst h; simp
-    · apply is_zero.eq_of_tgt; rw [if_neg h]; exact is_zero_zero _
+    · apply IsZero.eq_of_tgt; rw [if_neg h]; exact is_zero_zero _
   right_inv f := by ext; dsimp; simp
   map_add' f g := Subtype.ext (Preadditive.add_comp _ _ _ _ _ _)
 
@@ -133,17 +133,17 @@ def mapHomology {P₁ P₂ : BoundedHomotopyCategory C} (f : P₁ ⟶ P₂) (B :
     (Arrow.homMk <| (mapHomComplex f B).comm _ _) rfl
 
 theorem aux₁_naturality (P₁ P₂ : BoundedHomotopyCategory C) (f : P₁ ⟶ P₂) (B : C) (i : ℤ) :
-    (aux₁ P₂ B i).Hom ≫ (homology'Functor _ _ _).map (mapHomComplex f B) =
-      mapHomology f _ _ ≫ (aux₁ P₁ B i).Hom :=
+    (aux₁ P₂ B i).hom ≫ (homology'Functor _ _ _).map (mapHomComplex f B) =
+      mapHomology f _ _ ≫ (aux₁ P₁ B i).hom :=
   by
-  dsimp only [map_homology, aux₁, homology_iso', iso.symm_hom, homology'.mapIso,
+  dsimp only [BoundedHomotopyCategory.HomSingleIsoSetup.mapHomology, aux₁, CategoryTheory.homologyIso', Iso.symm_hom, homology'.mapIso,
     homology'Functor_map]
   rw [homology'.map_eq_desc'_lift_left]
   rw [homology'.map_eq_lift_desc'_left]
   rw [homology'.map_eq_desc'_lift_left]
   rw [homology'.map_eq_lift_desc'_left]
   apply homology'.hom_from_ext; apply homology'.hom_to_ext
-  simp only [homology'.π'_desc', category.assoc, homology'.π'_desc'_assoc, homology'.lift_ι,
+  simp only [homology'.π'_desc', Category.assoc, homology'.π'_desc'_assoc, homology'.lift_ι,
     homology'.lift_ι_assoc]
   let t := _; change t ≫ _ = _
   have ht : t = kernel.lift _ (kernel.ι _) _ ≫ homology'.π' _ _ _
@@ -154,18 +154,18 @@ theorem aux₁_naturality (P₁ P₂ : BoundedHomotopyCategory C) (f : P₁ ⟶ 
   · apply homology'.hom_to_ext
     simp; dsimp; simp
   rw [ht]; clear ht; clear t
-  simp only [kernel.lift_ι_assoc, category.assoc, arrow.hom_mk_left, arrow.iso_mk_inv_left,
-    iso.refl_inv, HomologicalComplex.Hom.sqFrom_left, homology'.π'_desc']
+  simp only [kernel.lift_ι_assoc, Category.assoc, Arrow.homMk_left, Arrow.isoMk_inv_left,
+    Iso.refl_inv, HomologicalComplex.Hom.sqFrom_left, homology'.π'_desc']
   let t := _; change _ = _ ≫ t
   have ht : t = homology'.ι _ _ _ ≫ cokernel.desc _ (cokernel.π _) _
   rotate_left 2
-  · have := (hom_complex P₁ B).dTo_eq (by simp : (ComplexShape.up ℤ).symm.Rel (i + 1) i)
-    rw [← iso.inv_comp_eq] at this 
-    rw [← this, category.assoc, cokernel.condition, comp_zero]
+  · have := (BoundedHomotopyCategory.HomSingleIsoSetup.homComplex P₁ B).dTo_eq (by simp : (ComplexShape.up ℤ).symm.Rel (i + 1) i)
+    rw [← Iso.inv_comp_eq] at this 
+    rw [← this, Category.assoc, cokernel.condition, comp_zero]
   · apply homology'.hom_from_ext
     simp; dsimp; simp
   rw [ht]; clear ht; clear t
-  simp only [category.assoc, cokernel.π_desc, homology'.lift_ι_assoc]
+  simp only [Category.assoc, cokernel.π_desc, homology'.lift_ι_assoc]
 
 def aux₂ (P : BoundedHomotopyCategory C) (B : C) (i : ℤ) :
     homology' ((homComplex P B).d (i + 1) i) ((homComplex P B).d i (i - 1))
@@ -180,10 +180,10 @@ def kerHom {P₁ P₂ : BoundedHomotopyCategory C} (f : P₁ ⟶ P₂) (B : C) (
     ⟨(mapHomComplex f B).f _ ↑x, by
       change _ = _
       have : _ = _ := x.2
-      dsimp [hom_complex, map_hom_complex] at *
-      rw [← category.assoc, ← f.out.comm, category.assoc, this, comp_zero]⟩
+      dsimp [BoundedHomotopyCategory.HomSingleIsoSetup.homComplex, BoundedHomotopyCategory.HomSingleIsoSetup.mapHomComplex] at *
+      rw [← Category.assoc, ← f.out.comm, Category.assoc, this, comp_zero]⟩
   map_zero' := by ext; simp
-  map_add' := by intro x y; ext; dsimp [map_hom_complex]; simp
+  map_add' := by intro x y; ext; dsimp [BoundedHomotopyCategory.HomSingleIsoSetup.mapHomComplex]; simp
 
 def mapExplicitHomology {P₁ P₂ : BoundedHomotopyCategory C} (f : P₁ ⟶ P₂) (B : C) (i : ℤ) :
     AddCommGroupCat.homology ((homComplex P₂ B).d (i + 1) i) ((homComplex P₂ B).d i (i - 1)) ⟶
@@ -191,14 +191,14 @@ def mapExplicitHomology {P₁ P₂ : BoundedHomotopyCategory C} (f : P₁ ⟶ P�
   QuotientAddGroup.lift _ (AddMonoidHom.comp (QuotientAddGroup.mk' _) <| kerHom f _ _)
     (by
       rintro ⟨x, hx : _ = _⟩ hh
-      dsimp [ker_hom, map_hom_complex]
+      dsimp [BoundedHomotopyCategory.HomSingleIsoSetup.kerHom, BoundedHomotopyCategory.HomSingleIsoSetup.mapHomComplex]
       rw [QuotientAddGroup.eq_zero_iff]
       rw [AddSubgroup.mem_comap] at *; dsimp at *
       change ∃ e, _
       obtain ⟨e, he⟩ := hh
-      dsimp [hom_complex] at *
+      dsimp [BoundedHomotopyCategory.HomSingleIsoSetup.homComplex] at *
       use f.out.f _ ≫ e
-      rw [← category.assoc, ← f.out.comm, category.assoc, he])
+      rw [← Category.assoc, ← f.out.comm, Category.assoc, he])
 
 --TODO: This relates the above construction to AddcommGroup.homology_map
 -- the above def has more convenient defeq properties for some of the proofs below, but
@@ -214,16 +214,16 @@ theorem mapExplicitHomology_eq {P₁ P₂ : BoundedHomotopyCategory C} (f : P₁
   symm; apply AddCommGroupCat.homologyMap_apply_mk
 
 theorem aux₂_naturality (P₁ P₂ : BoundedHomotopyCategory C) (f : P₁ ⟶ P₂) (B : C) (i : ℤ) :
-    (aux₂ P₂ B i).Hom ≫ mapExplicitHomology f _ _ = mapHomology f _ _ ≫ (aux₂ P₁ B i).Hom :=
+    (aux₂ P₂ B i).hom ≫ mapExplicitHomology f _ _ = mapHomology f _ _ ≫ (aux₂ P₁ B i).hom :=
   by
-  rw [map_explicit_homology_eq]
+  rw [BoundedHomotopyCategory.HomSingleIsoSetup.mapExplicitHomology_eq]
   dsimp [aux₂]
-  dsimp [AddCommGroupCat.homologyIso, AddCommGroupCat.homologyMap, map_homology]
+  dsimp [AddCommGroupCat.homologyIso, AddCommGroupCat.homologyMap, BoundedHomotopyCategory.HomSingleIsoSetup.mapHomology]
   generalize_proofs _ _ w _ w'
   apply (homology'.has _ _ w).ext_π
   apply (AddCommGroupCat.hasHomology _ _ w').ext_ι
   rw [HasHomology.homology'_map_eq]
-  simp only [HasHomology.π_map, category.assoc, HasHomology.π_map_assoc, HasHomology.map_ι,
+  simp only [HasHomology.π_map, Category.assoc, HasHomology.π_map_assoc, HasHomology.map_ι,
     HasHomology.map_ι_assoc]
   let t := _; change t ≫ _ = _
   have ht : t = kernel.lift _ (kernel.ι _) _ ≫ (AddCommGroupCat.hasHomology _ _ w).π
@@ -237,14 +237,14 @@ theorem aux₂_naturality (P₁ P₂ : BoundedHomotopyCategory C) (f : P₁ ⟶ 
   rotate_left 2
   · apply cokernel.condition
   · apply (homology'.has _ _ w').ext_π
-    rw [← category.assoc, HasHomology.π_ι]
+    rw [← Category.assoc, HasHomology.π_ι]
     simp
   rw [ht]; clear ht; clear t
   simp
 
 theorem aux₂_naturality_inv (P₁ P₂ : BoundedHomotopyCategory C) (f : P₁ ⟶ P₂) (B : C) (i : ℤ) :
     mapExplicitHomology f _ _ ≫ (aux₂ P₁ B i).inv = (aux₂ P₂ B i).inv ≫ mapHomology f _ _ := by
-  rw [iso.comp_inv_eq, category.assoc, iso.eq_inv_comp, aux₂_naturality]
+  rw [Iso.comp_inv_eq, Category.assoc, Iso.eq_inv_comp, aux₂_naturality]
 
 def aux₃ (P : BoundedHomotopyCategory C) (B : C) (i : ℤ) :
     (P ⟶ (single C i).obj B) ≃+
@@ -261,32 +261,32 @@ def aux₃ (P : BoundedHomotopyCategory C) (B : C) (i : ℤ) :
     AddSubgroup.coe_mk, AddEquiv.coe_mk, AddMonoidHom.mem_range]
   rw [← (HomotopyCategory.quotient _ _).map_zero]
   any_goals infer_instance
-  erw [quotient.functor_map_eq_iff]
+  erw [Quotient.functor_map_eq_iff]
   rw [homotopic_to_single_iff (show (ComplexShape.up ℤ).Rel i (i + 1) from rfl)]
   apply exists_congr
   intro g
   simp only [add_zero, Quiver.Hom.unop_op, LinearMap.toAddMonoidHom_coe,
     preadditive_yoneda_obj_map_apply, HomologicalComplex.zero_f_apply,
     HomologicalComplex.homSingleIso_apply_coe]
-  rw [← is_iso.comp_inv_eq, eq_comm]
+  rw [← IsIso.comp_inv_eq, eq_comm]
   constructor
   · intro h
-    rw [h, is_iso.comp_inv_eq, category.assoc, category.assoc, eq_to_hom_trans, eq_to_hom_refl,
-      category.comp_id]
+    rw [h, IsIso.comp_inv_eq, Category.assoc, Category.assoc, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_refl,
+      Category.comp_id]
     rfl
   · intro h
-    rw [h, is_iso.eq_comp_inv, category.assoc, category.assoc, eq_to_hom_trans, eq_to_hom_refl,
-      category.comp_id]
+    rw [h, IsIso.eq_comp_inv, Category.assoc, Category.assoc, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_refl,
+      Category.comp_id]
     rfl
 
 theorem aux₃_apply (P : BoundedHomotopyCategory C) (B : C) (i : ℤ) (f : P ⟶ (single C i).obj B) :
     aux₃ P B i f =
       QuotientAddGroup.mk
         ⟨f.out.f i ≫ eqToHom (if_pos rfl), by
-          change _ = _; dsimp [hom_complex]
-          rw [← category.assoc, ← f.out.comm, category.assoc]
+          change _ = _; dsimp [BoundedHomotopyCategory.HomSingleIsoSetup.homComplex]
+          rw [← Category.assoc, ← f.out.comm, Category.assoc]
           convert zero_comp
-          apply is_zero.eq_of_tgt; convert is_zero_zero _
+          apply IsZero.eq_of_tgt; convert is_zero_zero _
           dsimp [single]; rw [if_neg]; simp⟩ :=
   rfl
 
@@ -296,13 +296,13 @@ theorem aux₃_naturality (P₁ P₂ : BoundedHomotopyCategory C) (f : P₁ ⟶ 
   by
   ext ⟨x⟩
   dsimp; simp_rw [aux₃_apply]
-  dsimp [map_explicit_homology, ker_hom, map_hom_complex]
+  dsimp [BoundedHomotopyCategory.HomSingleIsoSetup.mapExplicitHomology, BoundedHomotopyCategory.HomSingleIsoSetup.kerHom, BoundedHomotopyCategory.HomSingleIsoSetup.mapHomComplex]
   rw [← sub_eq_zero]
   erw [QuotientAddGroup.eq_zero_iff]
   rw [AddSubgroup.mem_comap]
-  dsimp [hom_complex]
+  dsimp [BoundedHomotopyCategory.HomSingleIsoSetup.homComplex]
   -- now we need to use a homotopy...
-  simp_rw [← category.assoc, ← HomologicalComplex.comp_f]
+  simp_rw [← Category.assoc, ← HomologicalComplex.comp_f]
   let t := _; let s := _
   change ∃ _, _ = HomologicalComplex.Hom.f t i ≫ _ - HomologicalComplex.Hom.f s i ≫ _
   let hh : Homotopy t s := by
@@ -310,7 +310,7 @@ theorem aux₃_naturality (P₁ P₂ : BoundedHomotopyCategory C) (f : P₁ ⟶ 
     simpa
   let e := hh.hom (i + 1) i
   use e ≫ eq_to_hom (if_pos rfl)
-  rw [← preadditive.sub_comp _ _ (eq_to_hom _), ← category.assoc]
+  rw [← Preadditive.sub_comp _ _ (eq_to_hom _), ← Category.assoc]
   congr 1
   erw [hh.comm i]
   simp only [HomologicalComplex.cochainComplex_dNext, HomologicalComplex.cochainComplex_prevD,
@@ -318,7 +318,7 @@ theorem aux₃_naturality (P₁ P₂ : BoundedHomotopyCategory C) (f : P₁ ⟶ 
   exact comp_zero
 
 theorem comp_addEquiv_iso_AddcommGroup_iso_eq_comp (X X' B : AddCommGroupCat.{u}) (e' : X' ≃+ B)
-    (f : X ⟶ X') : f ≫ (addEquivIsoAddCommGroupIso.Hom e').Hom = e'.toAddMonoidHom.comp f :=
+    (f : X ⟶ X') : f ≫ (addEquivIsoAddCommGroupIso.hom e').hom = e'.toAddMonoidHom.comp f :=
   rfl
 
 def homMk {A B : Type u} [AddCommGroup A] [AddCommGroup B] (f : A →+ B) :
@@ -355,33 +355,33 @@ instance valAsBddAbove (P : BoundedHomotopyCategory C) :
   rcases P with ⟨P, ⟨a, ha⟩⟩; use a; intro i hi; exact ha i hi
 
 theorem homSingleIso_naturality (P₁ P₂ : BoundedHomotopyCategory C) (B : C) (i : ℤ) (f : P₁ ⟶ P₂) :
-    (preadditiveYoneda.obj _).map f.op ≫ (homSingleIso P₁ B i).Hom =
-      (homSingleIso P₂ B i).Hom ≫
+    (preadditiveYoneda.obj _).map f.op ≫ (homSingleIso P₁ B i).hom =
+      (homSingleIso P₂ B i).hom ≫
         (((preadditiveYoneda.obj B).rightOp.mapHomologicalComplex _ ⋙
                 HomologicalComplex.unopFunctor.rightOp ⋙ (homology'Functor _ _ _).op).map
             f.out).unop :=
   by
-  dsimp only [hom_single_iso, iso.trans_hom, iso.symm_hom, functor.comp_map, functor.op_map,
-    functor.right_op_map, Quiver.Hom.unop_op]
-  simp_rw [← category.assoc, comp_add_equiv_iso_AddcommGroup_iso_eq_comp]
+  dsimp only [hom_single_iso, Iso.trans_hom, Iso.symm_hom, Functor.comp_map, Functor.op_map,
+    Functor.rightOp_map, Quiver.Hom.unop_op]
+  simp_rw [← Category.assoc, comp_add_equiv_iso_AddcommGroup_iso_eq_comp]
   rw [← aux₃_naturality]
-  rw [category.assoc]
+  rw [Category.assoc]
   let t := hom_mk (aux₃ P₂ B i).toAddMonoidHom
-  change (t ≫ map_explicit_homology f B i) ≫ _ ≫ _ = _
+  change (t ≫ BoundedHomotopyCategory.HomSingleIsoSetup.mapExplicitHomology f B i) ≫ _ ≫ _ = _
   slice_lhs 2 3 => rw [aux₂_naturality_inv]
-  simp_rw [category.assoc]
+  simp_rw [Category.assoc]
   rw [← aux₁_naturality]
   rfl
 
 theorem homSingleIso_naturality' (P₁ P₂ : BoundedHomotopyCategory C) (B : C) (i : ℤ)
     (f : P₁.val.as ⟶ P₂.val.as) :
-    (preadditiveYoneda.obj ((single C i).obj B)).map (ofHom f).op ≫ (homSingleIso P₁ B i).Hom =
-      (homSingleIso P₂ B i).Hom ≫
+    (preadditiveYoneda.obj ((single C i).obj B)).map (ofHom f).op ≫ (homSingleIso P₁ B i).hom =
+      (homSingleIso P₂ B i).hom ≫
         (((preadditiveYoneda.obj B).rightOp.mapHomologicalComplex _ ⋙
                 HomologicalComplex.unopFunctor.rightOp ⋙ (homology'Functor _ _ _).op).map
             f).unop :=
   by
-  erw [hom_single_iso_naturality P₁ P₂ B i (of_hom f)]
+  erw [BoundedHomotopyCategory.homSingleIso_naturality P₁ P₂ B i (of_hom f)]
   refine' congr_arg₂ _ rfl _
   apply homology'_map_eq_of_homotopy
   let h := (preadditive_yoneda.obj B).rightOp.mapHomotopy (HomotopyCategory.homotopyOutMap f)

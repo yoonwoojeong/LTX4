@@ -51,7 +51,7 @@ instance bundled_hom : bundled_hom (@comphaus_filtered_pseudo_normed_group_with_
 -/
 deriving instance
   «./././Mathport/Syntax/Translate/Command.lean:43:9: unsupported derive handler λ α,
-  has_coe_to_sort[has_coe_to_sort] α (Sort*)», LargeCategory, ConcreteCategory for
+  CoeSort[CoeSort] α (Sort*)», LargeCategory, ConcreteCategory for
   ProFiltPseuNormGrpWithTinv
 
 /-- Construct a bundled `ProFiltPseuNormGrpWithTinv` from the underlying type and typeclass. -/
@@ -125,21 +125,21 @@ whose inverse is strict. -/
 def isoOfEquivOfStrict (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
     (strict : ∀ ⦃c x⦄, x ∈ filtration M₂ c → e.symm x ∈ filtration M₁ c) : M₁ ≅ M₂
     where
-  Hom := f
+  hom := f
   inv := invOfEquivOfStrict e he strict
-  hom_inv_id' := by ext x; simp [inv_of_equiv_of_strict, he]
-  inv_hom_id' := by ext x; simp [inv_of_equiv_of_strict, he]
+  hom_inv_id := by ext x; simp [ComphausFilteredPseudoNormedGroupWithTinvHom.invOfEquivOfStrict, he]
+  inv_hom_id := by ext x; simp [ComphausFilteredPseudoNormedGroupWithTinvHom.invOfEquivOfStrict, he]
 
 @[simp]
 theorem isoOfEquivOfStrict.apply (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
     (strict : ∀ ⦃c x⦄, x ∈ filtration M₂ c → e.symm x ∈ filtration M₁ c) (x : M₁) :
-    (isoOfEquivOfStrict e he strict).Hom x = f x :=
+    (isoOfEquivOfStrict e he strict).hom x = f x :=
   rfl
 
 @[simp]
 theorem IsoOfEquivOfStrictSymm.apply (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
     (strict : ∀ ⦃c x⦄, x ∈ filtration M₂ c → e.symm x ∈ filtration M₁ c) (x : M₂) :
-    (isoOfEquivOfStrict e he strict).symm.Hom x = e.symm x :=
+    (isoOfEquivOfStrict e he strict).symm.hom x = e.symm x :=
   rfl
 
 def isoOfEquivOfStrict' (e : M₁ ≃+ M₂)
@@ -159,7 +159,7 @@ theorem isoOfEquivOfStrict'_hom_apply (e : M₁ ≃+ M₂)
     (strict' : ∀ c x, x ∈ filtration M₁ c ↔ e x ∈ filtration M₂ c)
     (continuous' : ∀ c, Continuous (PseudoNormedGroup.level e (fun c x => (strict' c x).1) c))
     (map_Tinv' : ∀ x, e (tinv x) = tinv (e x)) (x : M₁) :
-    (isoOfEquivOfStrict' e strict' continuous' map_Tinv').Hom x = e x :=
+    (isoOfEquivOfStrict' e strict' continuous' map_Tinv').hom x = e x :=
   rfl
 
 @[simp]
@@ -177,8 +177,8 @@ def pow (n : ℕ) : ProFiltPseuNormGrpWithTinv.{u} r' ⥤ ProFiltPseuNormGrpWith
     where
   obj M := of r' <| M ^ n
   map M₁ M₂ f := ProfinitelyFilteredPseudoNormedGroupWithTinv.piMap r' _ _ fun i => f
-  map_id' M := by ext; rfl
-  map_comp' := by intros; ext; rfl
+  map_id M := by ext; rfl
+  map_comp := by intros; ext; rfl
 
 @[simps]
 def powPowXEquiv (N n : ℕ) : M ^ (N * n) ≃+ (M ^ N) ^ n :=
@@ -212,11 +212,11 @@ def powPowX (N n : ℕ) (M : ProFiltPseuNormGrpWithTinv.{u} r') :
           simpa only [Prod.mk.eta, Equiv.apply_symm_apply] using this)
       (by
         intro c; dsimp
-        rw [← (filtration_pi_homeo (fun _ => M ^ N) c).comp_continuous_iff, ←
-          (filtration_pi_homeo (fun _ => M) c).symm.comp_continuous_iff']
+        rw [← (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo (fun _ => M ^ N) c).comp_continuous_iff, ←
+          (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo (fun _ => M) c).symm.comp_continuous_iff']
         apply continuous_pi
         intro i
-        rw [← (filtration_pi_homeo (fun _ => M) c).comp_continuous_iff]
+        rw [← (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo (fun _ => M) c).comp_continuous_iff]
         apply continuous_pi
         intro j
         have := @continuous_apply _ (fun _ => filtration M c) _ (finProdFinEquiv (j, i))

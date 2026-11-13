@@ -39,21 +39,21 @@ def Equivalence.pullbackCone : Cone (cospan f g)
     { app := fun i =>
         match i with
         | none => e.Functor.map pullback.fst ≫ e.counit.app X ≫ f
-        | walking_cospan.left => e.Functor.map pullback.fst ≫ e.counit.app X
-        | walking_cospan.right => e.Functor.map pullback.snd ≫ e.counit.app Y
-      naturality' := by
+        | WalkingCospan.left => e.Functor.map pullback.fst ≫ e.counit.app X
+        | WalkingCospan.right => e.Functor.map pullback.snd ≫ e.counit.app Y
+      naturality := by
         rintro (i | i | i) (j | j | j) (h | h)
-        · dsimp; simp only [category.id_comp, Functor.map_id]; dsimp; simp only [category.comp_id]
-        · dsimp; simp only [category.id_comp]; dsimp [equivalence.pullback_cone._match_1]
-          simp only [category.assoc]
-        · dsimp; simp only [category.id_comp, Functor.map_id]; dsimp; simp only [category.comp_id]
+        · dsimp; simp only [Category.id_comp, Functor.map_id]; dsimp; simp only [Category.comp_id]
+        · dsimp; simp only [Category.id_comp]; dsimp [equivalence.pullbackCone._match_1]
+          simp only [Category.assoc]
+        · dsimp; simp only [Category.id_comp, Functor.map_id]; dsimp; simp only [Category.comp_id]
         · unfold_aux
           dsimp; simp; delta id
           have : e.counit.app X ≫ f = e.functor.map (e.inverse.map f) ≫ e.counit.app B := by tidy
           rw [this]; clear this
           have : e.counit.app Y ≫ g = e.functor.map (e.inverse.map g) ≫ e.counit.app B := by tidy
           rw [this]; clear this
-          simp_rw [← category.assoc, ← e.functor.map_comp, limits.pullback.condition]
+          simp_rw [← Category.assoc, ← e.functor.map_comp, Limits.pullback.condition]
         · tidy }
 
 attribute [reassoc] CategoryTheory.Equivalence.unit_inverse_comp
@@ -70,65 +70,65 @@ def Equivalence.isLimitPullbackCone : Limits.IsLimit (e.pullbackCone f g)
           (by
             simp_rw [← e.inverse.map_comp]
             change
-              e.inverse.map (_ ≫ (cospan f g).map walking_cospan.hom.inl) =
-                e.inverse.map (_ ≫ (cospan f g).map walking_cospan.hom.inr)
+              e.inverse.map (_ ≫ (cospan f g).map WalkingCospan.Hom.inl) =
+                e.inverse.map (_ ≫ (cospan f g).map WalkingCospan.Hom.inr)
             rw [S.w, S.w]))
   fac := by
     rintro S (j | j | j)
-    · dsimp [equivalence.pullback_cone._match_1]
-      simp only [category.assoc]
+    · dsimp [equivalence.pullbackCone._match_1]
+      simp only [Category.assoc]
       have : e.counit.app X ≫ f = e.functor.map (e.inverse.map f) ≫ e.counit.app B :=
         by
         dsimp;
-        simp only [equivalence.fun_inv_map, category.assoc, iso.inv_hom_id_app,
-          nat_iso.cancel_nat_iso_hom_left]
-        erw [category.comp_id]
+        simp only [Equivalence.fun_inv_map, Category.assoc, Iso.inv_hom_id_app,
+          NatIso.cancel_natIso_hom_left]
+        erw [Category.comp_id]
       rw [this]; clear this
-      simp_rw [← category.assoc _ _ (e.counit.app B), ← e.functor.map_comp]
-      simp only [functor.map_comp, pullback.lift_fst_assoc, equivalence.fun_inv_map, category.assoc,
-        iso.inv_hom_id_app_assoc, iso.inv_hom_id_app]
+      simp_rw [← Category.assoc _ _ (e.counit.app B), ← e.functor.map_comp]
+      simp only [Functor.map_comp, pullback.lift_fst_assoc, Equivalence.fun_inv_map, Category.assoc,
+        Iso.inv_hom_id_app_assoc, Iso.inv_hom_id_app]
       dsimp
-      simp only [category.comp_id]
-      change _ ≫ (cospan f g).map walking_cospan.hom.inl = _
+      simp only [Category.comp_id]
+      change _ ≫ (cospan f g).map WalkingCospan.Hom.inl = _
       rw [S.w]
-    · dsimp [equivalence.pullback_cone._match_1]
-      simp only [category.assoc]
-      simp_rw [← category.assoc _ _ (e.counit.app X), ← e.functor.map_comp]
-      simp only [pullback.lift_fst, equivalence.fun_inv_map, iso.inv_hom_id_app_assoc,
-        category.assoc, iso.inv_hom_id_app]
+    · dsimp [equivalence.pullbackCone._match_1]
+      simp only [Category.assoc]
+      simp_rw [← Category.assoc _ _ (e.counit.app X), ← e.functor.map_comp]
+      simp only [pullback.lift_fst, Equivalence.fun_inv_map, Iso.inv_hom_id_app_assoc,
+        Category.assoc, Iso.inv_hom_id_app]
       dsimp
-      rw [category.comp_id]
-    · dsimp [equivalence.pullback_cone._match_1]
-      simp only [category.assoc]
-      simp_rw [← category.assoc _ _ (e.counit.app Y), ← e.functor.map_comp]
-      simp only [pullback.lift_snd, equivalence.fun_inv_map, iso.inv_hom_id_app_assoc,
-        category.assoc, iso.inv_hom_id_app]
+      rw [Category.comp_id]
+    · dsimp [equivalence.pullbackCone._match_1]
+      simp only [Category.assoc]
+      simp_rw [← Category.assoc _ _ (e.counit.app Y), ← e.functor.map_comp]
+      simp only [pullback.lift_snd, Equivalence.fun_inv_map, Iso.inv_hom_id_app_assoc,
+        Category.assoc, Iso.inv_hom_id_app]
       dsimp
-      rw [category.comp_id]
+      rw [Category.comp_id]
   uniq := by
     intro S m h
     --dsimp at *,
     change m = (e.counitIso.app S.X).inv ≫ _
     rw [CategoryTheory.Iso.eq_inv_comp]
-    apply equivalence.hom_eq_map
-    change _ = (e.unit_iso.app _).inv ≫ _ ≫ (e.unit_iso.app _).hom
-    rw [iso.eq_inv_comp]
+    apply Equivalence.hom_eq_map
+    change _ = (e.unitIso.app _).inv ≫ _ ≫ (e.unitIso.app _).hom
+    rw [Iso.eq_inv_comp]
     symm
-    rw [← iso.eq_comp_inv]
-    simp only [category.assoc]
+    rw [← Iso.eq_comp_inv]
+    simp only [Category.assoc]
     apply pullback.hom_ext
-    · simp only [functor.map_comp, pullback.lift_fst, iso.app_hom, iso.app_inv, category.assoc]
-      specialize h walking_cospan.left
+    · simp only [Functor.map_comp, pullback.lift_fst, Iso.app_hom, Iso.app_inv, Category.assoc]
+      specialize h WalkingCospan.left
       rw [← h]
-      simp only [functor.map_comp, equivalence.inv_fun_map, category.assoc,
-        equivalence.unit_inverse_comp_assoc, category.comp_id, equivalence.pullback_cone,
-        equivalence.pullback_cone_π_app, functor.map_comp, equivalence.unit_inverse_comp]
-    · simp only [functor.map_comp, pullback.lift_snd, iso.app_hom, iso.app_inv, category.assoc]
-      specialize h walking_cospan.right
+      simp only [Functor.map_comp, Equivalence.inv_fun_map, Category.assoc,
+        Equivalence.unit_inverse_comp_assoc, Category.comp_id, Equivalence.pullbackCone,
+        Equivalence.pullbackCone_π_app, Functor.map_comp, Equivalence.unit_inverse_comp]
+    · simp only [Functor.map_comp, pullback.lift_snd, Iso.app_hom, Iso.app_inv, Category.assoc]
+      specialize h WalkingCospan.right
       rw [← h]
-      simp only [functor.map_comp, equivalence.inv_fun_map, category.assoc,
-        equivalence.unit_inverse_comp_assoc, category.comp_id, equivalence.pullback_cone,
-        equivalence.pullback_cone_π_app, functor.map_comp, equivalence.unit_inverse_comp]
+      simp only [Functor.map_comp, Equivalence.inv_fun_map, Category.assoc,
+        Equivalence.unit_inverse_comp_assoc, Category.comp_id, Equivalence.pullbackCone,
+        Equivalence.pullbackCone_π_app, Functor.map_comp, Equivalence.unit_inverse_comp]
 
 theorem Equivalence.hasPullback {X Y B : D} (f : X ⟶ B) (g : Y ⟶ B)
     [HasPullback (e.inverse.map f) (e.inverse.map g)] : HasPullback f g :=

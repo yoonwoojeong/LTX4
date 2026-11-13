@@ -106,7 +106,7 @@ theorem Lbar.mkAux_mem_filtration (ι : Type) (c : ℝ≥0) (N : ℕ) (hN : 0 < 
     rw [mul_comm, div_mul_cancel]
     exact_mod_cast hN.ne'
   have hN' : (0 : ℝ≥0) < N := by exact_mod_cast hN
-  rw [hl.add_monoid_hom_mem_filtration_iff] at hx ⊢
+  rw [hl.addMonoidHom_mem_filtration_iff] at hx ⊢
   intro i
   specialize hx i
   rw [Lbar.mem_filtration_iff] at hx ⊢
@@ -386,7 +386,7 @@ theorem lem98Finite [Fact (r' < 1)] (Λ : Type _) [PolyhedralLattice Λ] (S : Ty
     all_goals intros; rfl
   use y, hxy
   intro j
-  rw [hl.add_monoid_hom_mem_filtration_iff] at hx ⊢
+  rw [hl.addMonoidHom_mem_filtration_iff] at hx ⊢
   intro i
   specialize hx i
   simp only [Lbar.mem_filtration_iff] at hx hy'2 ⊢

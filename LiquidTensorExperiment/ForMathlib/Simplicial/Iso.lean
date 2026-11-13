@@ -31,10 +31,10 @@ theorem isIso_of [IsIso f.left] [IsIso f.right] : IsIso f :=
           right := inv f.right
           w' := by
             dsimp
-            simp only [is_iso.eq_comp_inv, functor.map_inv, comma_morphism.w, is_iso.inv_comp_eq,
-              category.assoc]
+            simp only [IsIso.eq_comp_inv, Functor.map_inv, CommaMorphism.w, IsIso.inv_comp_eq,
+              Category.assoc]
             simp },
-        by constructor <;> ext <;> dsimp <;> simp only [is_iso.hom_inv_id, is_iso.inv_hom_id]⟩ }
+        by constructor <;> ext <;> dsimp <;> simp only [IsIso.hom_inv_id, IsIso.inv_hom_id]⟩ }
 
 end Comma
 
@@ -52,14 +52,14 @@ theorem isIso_of [hf : ∀ n, IsIso (f.app n)] : IsIso f :=
       by
       let g : Y ⟶ X :=
         { app := fun n => inv (f.app n)
-          naturality' := fun m n φ => _ }
+          naturality := fun m n φ => _ }
       ·
         refine' ⟨g, _, _⟩ <;>
           · ext n
-            simp only [nat_trans.id_app, nat_trans.comp_app, is_iso.hom_inv_id, is_iso.inv_hom_id]
+            simp only [NatTrans.id_app, NatTrans.comp_app, IsIso.hom_inv_id, IsIso.inv_hom_id]
       ·
-        simp only [is_iso.inv_hom_id_assoc, nat_trans.naturality, is_iso.comp_inv_eq,
-          category.assoc] }
+        simp only [IsIso.inv_hom_id_assoc, NatTrans.naturality, IsIso.comp_inv_eq,
+          Category.assoc] }
 
 end
 

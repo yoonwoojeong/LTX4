@@ -7,7 +7,7 @@ import Mathlib.Topology.Algebra.InfiniteSum.Ring
 import Mathlib.Topology.Instances.ENNReal
 import Mathlib.Topology.Algebra.Monoid
 
-#align_import combinatorial_lemma.partition
+#align_import CombinatorialLemma.partition
 
 open scoped NNReal BigOperators
 
@@ -60,8 +60,8 @@ structure RecursionData (N : ℕ) (hN : 0 < N) (f : ℕ → ℝ≥0) (hf : ∀ n
   M : Fin N → Prop
   hm : ∃! i, m i
   partialSums : Fin N → ℝ≥0
-  h₁ : ∑ i, partial_sums i = ∑ n in range (k + 1), f n
-  h₂ : ∀ i, partial_sums i ≤ (∑ n in range (k + 1), f n) / N + 1
+  h₁ : ∑ i, CombinatorialLemma.RecursionData.partialSums i = ∑ n in range (k + 1), f n
+  h₂ : ∀ i, CombinatorialLemma.RecursionData.partialSums i ≤ (∑ n in range (k + 1), f n) / N + 1
   [decInst : ∀ i, Decidable (m i)]
 
 attribute [instance] CombinatorialLemma.RecursionData.decInst
@@ -103,11 +103,11 @@ noncomputable def recursionDataSucc (N : ℕ) (hN : 0 < N) (f : ℕ → ℝ≥0)
       intro i
       split_ifs
       · rw [h]
-        have : dat.partial_sums I.some * N ≤ ∑ n in range (k + 1 + 1), f n :=
+        have : dat.partialSums I.some * N ≤ ∑ n in range (k + 1 + 1), f n :=
           by
           calc
-            dat.partial_sums I.some * N = ∑ i : Fin N, dat.partial_sums I.some := _
-            _ ≤ ∑ i, dat.partial_sums i := _
+            dat.partialSums I.some * N = ∑ i : Fin N, dat.partialSums I.some := _
+            _ ≤ ∑ i, dat.partialSums i := _
             -- follows from I
                 _ =
                 ∑ n in range (k + 1), f n :=
@@ -119,11 +119,11 @@ noncomputable def recursionDataSucc (N : ℕ) (hN : 0 < N) (f : ℕ → ℝ≥0)
             intro j hj; exact HI j hj
           · rw [sum_range_succ _ (k + 1)]
             simp
-        have : dat.partial_sums I.some ≤ (∑ n in range (k + 1 + 1), f n) / ↑N := by
+        have : dat.partialSums I.some ≤ (∑ n in range (k + 1 + 1), f n) / ↑N := by
           rwa [NNReal.le_div_iff_mul_le]; exact_mod_cast hN.ne'
         exact add_le_add this (hf (k + 1))
       · calc
-          dat.partial_sums i + 0 ≤ (∑ n in range (k + 1), f n) / ↑N + 1 := by simpa using dat.h₂ i
+          dat.partialSums i + 0 ≤ (∑ n in range (k + 1), f n) / ↑N + 1 := by simpa using dat.h₂ i
           _ ≤ (∑ n in range (k + 1 + 1), f n) / ↑N + 1 := add_le_add _ le_rfl
         simp only [div_eq_mul_inv, Fin.sum_univ_eq_sum_range]
         refine' mul_le_mul' _ le_rfl

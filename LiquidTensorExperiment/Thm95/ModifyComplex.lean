@@ -20,7 +20,7 @@ def modify (C : HomologicalComplex V₁ c) (F : ι → V₁ ⥤ V₂) (α : ∀ 
   d i j := (F i).map (C.d i j) ≫ (α i j).app _
   shape' i j h := by rw [C.shape _ _ h, CategoryTheory.Functor.map_zero, zero_comp]
   d_comp_d' i j k hij hjk := by
-    simp only [nat_trans.naturality_assoc, ← functor.map_comp_assoc, category.assoc, C.d_comp_d,
+    simp only [NatTrans.naturality_assoc, ← Functor.map_comp_assoc, Category.assoc, C.d_comp_d,
       CategoryTheory.Functor.map_zero, zero_comp, comp_zero]
 
 -- this is a generalization of `functor.map_homological_complex`
@@ -33,10 +33,10 @@ def modifyFunctor (F : ι → V₁ ⥤ V₂) (α : ∀ i j, F i ⟶ F j) [∀ i,
     { f := fun i => (F i).map (f.f i)
       comm' := by
         intro i j hij; dsimp
-        rw [← category.assoc, ← (F i).map_comp, f.comm, (F i).map_comp, category.assoc,
-          (α _ _).naturality, category.assoc] }
-  map_id' := by intro X; dsimp at *; simp at *; rfl
-  map_comp' := by intro X Y Z f g; dsimp at *; simp at *; rfl
+        rw [← Category.assoc, ← (F i).map_comp, f.comm, (F i).map_comp, Category.assoc,
+          (α _ _).naturality, Category.assoc] }
+  map_id := by intro X; dsimp at *; simp at *; rfl
+  map_comp := by intro X Y Z f g; dsimp at *; simp at *; rfl
 
 end HomologicalComplex
 

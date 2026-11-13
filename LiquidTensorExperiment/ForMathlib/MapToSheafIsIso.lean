@@ -23,21 +23,21 @@ variable {C : Type u} [Category.{v} C] (J : GrothendieckTopology C) {D : Type w}
 theorem isIso_of_eval {F : Sheaf J D} {G : Cᵒᵖ ⥤ D} (γ : F ⟶ (presheafToSheaf _ _).obj G)
     (η : F.val ⟶ G) [∀ X : C, IsIso (η.app (op X))] (h : γ.val = η ≫ J.toSheafify _) : IsIso γ :=
   by
-  haveI : is_iso (J.to_sheafify F.val) := grothendieck_topology.is_iso_to_sheafify J F.2
+  haveI : is_iso (J.to_sheafify F.val) := GrothendieckTopology.isIso_toSheafify J F.2
   have : γ.val = J.to_sheafify F.val ≫ J.sheafify_map η :=
     by
-    rw [← is_iso.inv_comp_eq]
+    rw [← IsIso.inv_comp_eq]
     apply J.sheafify_hom_ext; apply Sheaf.cond
-    rw [← grothendieck_topology.to_sheafify_naturality, ← h]
+    rw [← GrothendieckTopology.toSheafify_naturality, ← h]
     simp
   suffices is_iso ((Sheaf_to_presheaf _ _).map γ) by skip;
-    apply is_iso_of_fully_faithful (Sheaf_to_presheaf J D)
+    apply CategoryTheory.isIso_of_fully_faithful (Sheaf_to_presheaf J D)
   dsimp; rw [this]
-  suffices is_iso (J.sheafify_map η) by skip; apply is_iso.comp_is_iso
+  suffices is_iso (J.sheafify_map η) by skip; apply IsIso.comp_isIso
   change is_iso ((Sheaf_to_presheaf _ _).map ((presheaf_to_Sheaf _ _).map η))
   have : is_iso η :=
     by
-    apply (config := { instances := false }) nat_iso.is_iso_of_is_iso_app
+    apply (config := { instances := false }) NatIso.isIso_of_isIso_app
     intro X;
     run_tac
       tactic.op_induction';

@@ -50,7 +50,7 @@ instance : DiscreteTopology Λ :=
   discreteTopology_of_open_singleton_zero <| by
     classical
     have aux := filtration_finite Λ 1
-    let s := aux.to_finset
+    let s := aux.toFinset
     let s₀ := s.erase 0
     by_cases hs₀ : s₀.nonempty
     · let ε : ℝ≥0 := Finset.min' (s₀.image <| nnnorm) (hs₀.image _)

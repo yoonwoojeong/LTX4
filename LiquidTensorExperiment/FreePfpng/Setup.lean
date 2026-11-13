@@ -73,10 +73,10 @@ theorem free'Lift_eq_finsupp_lift {X : Type (u + 1)} {A : Ab.{u + 1}} (f : X →
     free'Lift f = (Finsupp.lift _ _ _ f).toAddMonoidHom :=
   by
   dsimp [free'Lift]
-  apply_fun AddCommGroup.adj'.hom_equiv X A
+  apply_fun AddCommGroup.adj'.homEquiv X A
   rw [Equiv.apply_symm_apply]
-  dsimp [AddCommGroupCat.adj', adjunction.of_nat_iso_left, AddCommGroupCat.freeIsoFree']
-  simp only [adjunction.hom_equiv_unit, forget_map_eq_coe]
+  dsimp [AddCommGroupCat.adj', Adjunction.ofNatIsoLeft, AddCommGroupCat.freeIsoFree']
+  simp only [Adjunction.homEquiv_unit, forget_map_eq_coe]
   dsimp [AddCommGroupCat.adj, AddCommGroupCat.free]
   ext i
   simp only [types_comp_apply, comp_apply, AddEquiv.coe_toAddMonoidHom,
@@ -107,7 +107,7 @@ def Profinite.limitFree (S : Profinite.{u}) : Ab.{u + 1} :=
 -- move me
 theorem Finsupp.mapDomain_equiv_fun_on_fintype_symm {α β R : Type _} [Fintype α] [Semiring R]
     (f : α → β) (g : α → R) :
-    Finsupp.mapDomain f (finsupp.equiv_fun_on_fintype.symm g) =
+    Finsupp.mapDomain f (finsupp.equivFunOnFintype.symm g) =
       Finset.univ.Sum fun x : α => Finsupp.single (f x) (g x) :=
   by
   dsimp [Finsupp.mapDomain]
@@ -117,7 +117,7 @@ theorem Finsupp.mapDomain_equiv_fun_on_fintype_symm {α β R : Type _} [Fintype 
 -- move me
 theorem Finsupp.mapDomain_equiv_fun_on_fintype_symm_apply {α β R : Type _} [Fintype α] [Semiring R]
     (f : α → β) (g : α → R) (b : β) [DecidablePred fun a : α => f a = b] :
-    Finsupp.mapDomain f (finsupp.equiv_fun_on_fintype.symm g) b =
+    Finsupp.mapDomain f (finsupp.equivFunOnFintype.symm g) b =
       (Finset.filter (fun a : α => f a = b) Finset.univ).Sum g :=
   by
   rw [Finsupp.mapDomain_equiv_fun_on_fintype_symm, Finset.sum_apply']
@@ -130,7 +130,7 @@ def Profinite.condensedFreePfpngSpecializeCone (S B : Profinite.{u}) (b : B) :
   π :=
     { app := fun T =>
         AddMonoidHom.mk'
-          (fun t => ⟨finsupp.equiv_fun_on_fintype.symm (S.freePfpngπ T (t.down.1 b))⟩)
+          (fun t => ⟨finsupp.equivFunOnFintype.symm (S.freePfpngπ T (t.down.1 b))⟩)
           (by
             intro f g
             ext x
@@ -138,12 +138,12 @@ def Profinite.condensedFreePfpngSpecializeCone (S B : Profinite.{u}) (b : B) :
               finsupp.equiv_fun_on_fintype_symm_apply_to_fun, Finsupp.coe_add, Pi.add_apply]
             erw [StrictComphausFilteredPseudoNormedGroupHom.map_add]
             rfl)
-      naturality' := fun T₁ T₂ f => by
+      naturality := fun T₁ T₂ f => by
         ext g x
         rw [← Profinite.freePfpngπ_w _ f]
         simp only [Subtype.val_eq_coe, finsupp.equiv_fun_on_fintype_symm_apply_to_fun,
-          functor.const_obj_map, comp_apply, id_apply, AddMonoidHom.mk'_apply, functor.comp_map,
-          forget_map_eq_coe, concrete_category.has_coe_to_fun_Type, AddCommGroupCat.free'_map,
+          Functor.const_obj_map, comp_apply, id_apply, AddMonoidHom.mk'_apply, Functor.comp_map,
+          forget_map_eq_coe, ConcreteCategory.hasCoeToFun_Type, AddCommGroupCat.free'_map,
           Ab.uLift_map_apply_down, Finsupp.mapDomain.addMonoidHom_apply, FreePfpng.map,
           freePfpngFunctor_map, StrictComphausFilteredPseudoNormedGroupHom.coe_mk]
         classical

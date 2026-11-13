@@ -20,26 +20,26 @@ variable (𝓐 : Type u) [Category.{v} 𝓐] [Abelian 𝓐] [HasCoproducts.{v} �
 instance : AB4 (Endomorphisms 𝓐) := by
   constructor; intro α X Y f hf
   let t := _; change mono t
-  suffices mono ((endomorphisms.forget _).map t) by
-    refine' (endomorphisms.forget _).mono_of_mono_map this
+  suffices mono ((Endomorphisms.forget _).map t) by
+    refine' (Endomorphisms.forget _).mono_of_mono_map this
   let e₁ :
-    (endomorphisms.forget 𝓐).obj (∐ fun a : α => X a) ≅
-      ∐ fun a : α => (endomorphisms.forget _).obj (X a) :=
-    preserves_colimit_iso _ _ ≪≫ has_colimit.iso_of_nat_iso (discrete.nat_iso fun _ => iso.refl _)
-  let e₂ : (endomorphisms.forget 𝓐).obj (∐ Y) ≅ ∐ fun a => (endomorphisms.forget _).obj (Y a) :=
-    preserves_colimit_iso _ _ ≪≫ has_colimit.iso_of_nat_iso (discrete.nat_iso fun _ => iso.refl _)
-  have : (endomorphisms.forget _).map t = e₁.hom ≫ _ ≫ e₂.inv
+    (Endomorphisms.forget 𝓐).obj (∐ fun a : α => X a) ≅
+      ∐ fun a : α => (Endomorphisms.forget _).obj (X a) :=
+    CategoryTheory.preservesColimitIso _ _ ≪≫ HasColimit.isoOfNatIso (Discrete.natIso fun _ => iso.refl _)
+  let e₂ : (Endomorphisms.forget 𝓐).obj (∐ Y) ≅ ∐ fun a => (Endomorphisms.forget _).obj (Y a) :=
+    CategoryTheory.preservesColimitIso _ _ ≪≫ HasColimit.isoOfNatIso (Discrete.natIso fun _ => iso.refl _)
+  have : (Endomorphisms.forget _).map t = e₁.hom ≫ _ ≫ e₂.inv
   rotate_left 2
   · apply sigma.desc
     intro a
     refine' _ ≫ sigma.ι _ a
-    refine' (endomorphisms.forget _).map (f a)
+    refine' (Endomorphisms.forget _).map (f a)
   · dsimp [e₁, e₂, t]
-    apply (is_colimit_of_preserves (endomorphisms.forget 𝓐) (colimit.is_colimit _)).hom_ext
+    apply (CategoryTheory.Limits.isColimitOfPreserves (Endomorphisms.forget 𝓐) (colimit.isColimit _)).hom_ext
     intro j
     dsimp
-    simp only [category.assoc]
-    erw [(is_colimit_of_preserves (endomorphisms.forget 𝓐) (colimit.is_colimit _)).fac_assoc]
+    simp only [Category.assoc]
+    erw [(CategoryTheory.Limits.isColimitOfPreserves (Endomorphisms.forget 𝓐) (colimit.isColimit _)).fac_assoc]
     rw [← comp_f, colimit.ι_desc]; dsimp; simp; dsimp; simp; infer_instance
   rw [this]
   apply (config := { instances := false }) mono_comp; infer_instance

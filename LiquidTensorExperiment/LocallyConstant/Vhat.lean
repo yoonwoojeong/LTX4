@@ -42,32 +42,32 @@ instance normedWithAutCompletion (V : SemiNormedGroupCat.{u}) (r : ℝ≥0) [Nor
   t := completion.mapIso NormedWithAut.t
   norm_t := by
     rw [← Function.funext_iff]
-    refine' AbstractCompletion.funext completion.cpkg _ _ _
-    · apply continuous_norm.comp _; exact completion.continuous_map
+    refine' AbstractCompletion.funext Completion.cPkg _ _ _
+    · apply continuous_norm.comp _; exact Completion.continuous_map
     · exact (continuous_const.mul continuous_norm : _)
     intro v
     calc
-      _ = _ := congr_arg norm (completion.map_coe _ _)
+      _ = _ := congr_arg norm (Completion.map_coe _ _)
       _ = _ := _
     · exact NormedAddGroupHom.uniformContinuous _
-    · erw [completion.norm_coe, NormedWithAut.norm_t, completion.norm_coe]
+    · erw [Completion.norm_coe, NormedWithAut.norm_t, Completion.norm_coe]
 
 @[simp]
 theorem completion_t_inv_eq (V : SemiNormedGroupCat.{u}) (r : ℝ≥0) [NormedWithAut r V] :
-    (NormedWithAut.t.Hom : completion.obj V ⟶ _) = completion.map NormedWithAut.t.Hom :=
+    (NormedWithAut.t.hom : completion.obj V ⟶ _) = Completion.map NormedWithAut.t.hom :=
   rfl
 
 theorem t_hom_incl {V : SemiNormedGroupCat} {r : ℝ≥0} [NormedWithAut r V] :
-    (incl : V ⟶ _) ≫ NormedWithAut.t.Hom = NormedWithAut.t.Hom ≫ incl :=
+    (incl : V ⟶ _) ≫ NormedWithAut.t.hom = NormedWithAut.t.hom ≫ incl :=
   by
   ext x
   simp only [incl_apply, CategoryTheory.comp_apply, Completion_T_inv_eq]
-  change completion.map normed_with_aut.T.hom _ = _
-  rw [completion.map_coe]
+  change Completion.map normed_with_aut.T.hom _ = _
+  rw [Completion.map_coe]
   exact NormedAddGroupHom.uniformContinuous _
 
 theorem t_hom_eq {V : SemiNormedGroupCat} {r : ℝ≥0} [NormedWithAut r V] :
-    NormedWithAut.t.Hom = completion.lift ((NormedWithAut.t.Hom : V ⟶ V) ≫ incl) :=
+    NormedWithAut.t.hom = completion.lift ((NormedWithAut.t.hom : V ⟶ V) ≫ incl) :=
   lift_unique _ _ t_hom_incl
 
 /-- `LCC` (Locally Constant Completion) is the bifunctor
@@ -77,12 +77,12 @@ def lCC : SemiNormedGroupCat ⥤ Profiniteᵒᵖ ⥤ SemiNormedGroupCat :=
   curry.obj (uncurry.obj locallyConstant ⋙ completion)
 
 theorem lCC_obj_map' (V : SemiNormedGroupCat) {X Y : Profiniteᵒᵖ} (f : Y ⟶ X) :
-    (lCC.obj V).map f = completion.map ((locallyConstant.obj V).map f) :=
+    (lCC.obj V).map f = Completion.map ((locallyConstant.obj V).map f) :=
   by
   delta LCC
-  simp only [curry_obj_obj_map, LocallyConstant_obj_map, functor.comp_map, uncurry_obj_map,
-    nat_trans.id_app, functor.map_comp, Functor.map_id, CategoryTheory.Functor.map_id]
-  erw [← functor.map_comp, category.id_comp]
+  simp only [curry_obj_obj_map, LocallyConstant_obj_map, Functor.comp_map, uncurry_obj_map,
+    NatTrans.id_app, Functor.map_comp, Functor.map_id, CategoryTheory.Functor.map_id]
+  erw [← Functor.map_comp, Category.id_comp]
 
 theorem lCC_obj_map (V : SemiNormedGroupCat) {X Y : Profiniteᵒᵖ} (f : Y ⟶ X)
     (v : (lCC.obj V).obj Y) :
@@ -92,7 +92,7 @@ theorem lCC_obj_map (V : SemiNormedGroupCat) {X Y : Profiniteᵒᵖ} (f : Y ⟶ 
 theorem lCC_obj_map_normNoninc (V : SemiNormedGroupCat) {X Y : Profiniteᵒᵖ} (f : Y ⟶ X) :
     ((lCC.obj V).map f).NormNoninc := by
   rw [LCC_obj_map']
-  exact Completion.map_norm_noninc <| LocallyConstant_obj_map_norm_noninc _ _ _ _
+  exact completion.map_normNoninc <| LocallyConstant_obj_map_norm_noninc _ _ _ _
 
 variable (S : Type _) [TopologicalSpace S] [CompactSpace S]
 

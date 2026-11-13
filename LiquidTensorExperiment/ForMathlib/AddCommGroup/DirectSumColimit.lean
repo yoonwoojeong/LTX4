@@ -40,7 +40,7 @@ theorem explicitCoconePointKernel_eq_of_asSmall_nat (F : AsSmall.{u} ℕ ⥤ Add
   · erw [AddSubgroup.closure_le]
     rintro x ⟨⟨i⟩, ⟨j⟩, f, t, rfl⟩
     obtain ⟨k, rfl⟩ : ∃ k : ℕ, j = i + k :=
-      haveI : i ≤ j := le_of_hom (as_small.down.map f)
+      haveI : i ≤ j := CategoryTheory.leOfHom (as_small.down.map f)
       le_iff_exists_add.mp this
     induction' k with k hk
     · have : f = 𝟙 _; ext; rw [this]
@@ -57,15 +57,15 @@ theorem explicitCoconePointKernel_eq_of_asSmall_nat (F : AsSmall.{u} ℕ ⥤ Add
       rw [show t' = t' - s + s by simp]
       let A :=
         AddSubgroup.closure
-          {x : DirectSum (as_small ℕ) fun i : as_small ℕ => ↥(F.obj i) |
-            ∃ (i : as_small ℕ) (t : ↥(F.obj i)),
+          {x : DirectSum (CategoryTheory.AsSmall ℕ) fun i : CategoryTheory.AsSmall ℕ => ↥(F.obj i) |
+            ∃ (i : CategoryTheory.AsSmall ℕ) (t : ↥(F.obj i)),
               x =
-                (DirectSum.of (fun i : as_small ℕ => ↥(F.obj i)) (as_small_succ i))
+                (DirectSum.of (fun i : CategoryTheory.AsSmall ℕ => ↥(F.obj i)) (as_small_succ i))
                     ((F.map (to_as_small_succ i)) t) -
-                  (DirectSum.of (fun i : as_small ℕ => ↥(F.obj i)) i) t}
+                  (DirectSum.of (fun i : CategoryTheory.AsSmall ℕ => ↥(F.obj i)) i) t}
       change _ ∈ A
       suffices t' - s ∈ A by exact A.add_mem this hk
-      dsimp [t', s]; simp only [functor.map_comp, comp_apply, sub_sub_sub_cancel_right]
+      dsimp [t', s]; simp only [Functor.map_comp, comp_apply, sub_sub_sub_cancel_right]
       apply AddSubgroup.subset_closure
       use as_small.up.obj (i + k)
       let tt : F.obj (as_small.up.obj (i + k)) := F.map f₁ t
@@ -84,7 +84,7 @@ def explicitCocone : Cocone F where
   pt := explicitCoconePoint F
   ι :=
     { app := fun j => AddMonoidHom.comp (QuotientAddGroup.mk' _) (DirectSum.of _ j)
-      naturality' := by
+      naturality := by
         intro i j f; ext t
         dsimp
         simp only [comp_apply, AddMonoidHom.coe_comp, QuotientAddGroup.coe_mk', Function.comp_apply,
@@ -101,12 +101,12 @@ def isColimitExplicitCocone : IsColimit (explicitCocone F)
         intro t ht
         apply AddSubgroup.closure_induction ht
         · rintro x ⟨i, j, f, t, rfl⟩
-          simp only [map_sub, DirectSum.toAddMonoid_of, cocone.w_apply, sub_self]
+          simp only [map_sub, DirectSum.toAddMonoid_of, Cocone.w_apply, sub_self]
         · simp only [map_zero]
         · intro x y hx hy; simp only [hx, hy, map_add, add_zero]
         · intro x hx; simp only [hx, map_neg, neg_zero])
   fac := by
-    intro S j; ext t; dsimp [explicit_cocone]
+    intro S j; ext t; dsimp [AddCommGroupCat.explicitCocone]
     simp only [DirectSum.toAddMonoid_of, comp_apply, AddMonoidHom.coe_comp,
       QuotientAddGroup.coe_mk', QuotientAddGroup.lift_mk]
   uniq := by

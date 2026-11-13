@@ -81,8 +81,8 @@ def fin3FunctorMk (F : Fin 3 → C) (a : F 0 ⟶ F 1) (b : F 1 ⟶ F 2) : Fin 3 
     where
   obj := F
   map i j hij := Fin3FunctorMk.map' F a b i j hij.le
-  map_id' i := Fin3FunctorMk.map'_id F a b i
-  map_comp' i j k hij hjk := by rw [fin3_functor_mk.map'_comp F a b i j k hij.le hjk.le]
+  map_id i := Fin3FunctorMk.map'_id F a b i
+  map_comp i j k hij hjk := by rw [Fin3FunctorMk.map'_comp F a b i j k hij.le hjk.le]
 
 namespace Fin4FunctorMk
 
@@ -141,8 +141,8 @@ def fin4FunctorMk (F : Fin 4 → C) (a : F 0 ⟶ F 1) (b : F 1 ⟶ F 2) (c : F 2
     where
   obj := F
   map i j hij := Fin4FunctorMk.map' F a b c i j hij.le
-  map_id' i := Fin4FunctorMk.map'_id F a b c i
-  map_comp' i j k hij hjk := by rw [fin4_functor_mk.map'_comp F a b c i j k hij.le hjk.le]
+  map_id i := Fin4FunctorMk.map'_id F a b c i
+  map_comp i j k hij hjk := by rw [Fin4FunctorMk.map'_comp F a b c i j k hij.le hjk.le]
 
 end CategoryTheory
 

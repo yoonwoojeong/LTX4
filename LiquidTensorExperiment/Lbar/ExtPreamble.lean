@@ -69,24 +69,24 @@ def embedUnop {𝓐 : Type _} [Category 𝓐] [Abelian 𝓐] :
       HomologicalComplex.unopFunctor ⋙
         HomologicalComplex.embed ComplexShape.Embedding.natUpIntDown :=
   by
-  refine' nat_iso.of_components _ _
+  refine' NatIso.ofComponents _ _
   · intro X; refine' HomologicalComplex.Hom.isoOfComponents _ _
     · rintro ((_ | n) | n)
       · exact iso.refl _
-      · refine' is_zero.iso (is_zero_zero _).unop (is_zero_zero _)
+      · refine' IsZero.iso (is_zero_zero _).unop (is_zero_zero _)
       · exact iso.refl _
     · rintro i (j | (_ | j)) (rfl : _ = _)
-      · apply is_zero.eq_of_src; exact (is_zero_zero _).unop
-      · dsimp only [iso.refl_hom]; erw [category.id_comp, category.comp_id]; rfl
-      · dsimp only [iso.refl_hom]; erw [category.id_comp, category.comp_id]; rfl
+      · apply IsZero.eq_of_src; exact (is_zero_zero _).unop
+      · dsimp only [Iso.refl_hom]; erw [Category.id_comp, Category.comp_id]; rfl
+      · dsimp only [Iso.refl_hom]; erw [Category.id_comp, Category.comp_id]; rfl
   · intro X Y f; ext ((_ | n) | n)
     · dsimp only [HomologicalComplex.comp_f, HomologicalComplex.Hom.isoOfComponents_hom_f,
-        iso.refl_hom]
-      erw [category.id_comp, category.comp_id]; rfl
-    · apply is_zero.eq_of_tgt; exact is_zero_zero _
+        Iso.refl_hom]
+      erw [Category.id_comp, Category.comp_id]; rfl
+    · apply IsZero.eq_of_tgt; exact is_zero_zero _
     · dsimp only [HomologicalComplex.comp_f, HomologicalComplex.Hom.isoOfComponents_hom_f,
-        iso.refl_hom]
-      erw [category.id_comp, category.comp_id]; rfl
+        Iso.refl_hom]
+      erw [Category.id_comp, Category.comp_id]; rfl
 
 -- move me
 theorem natUpIntDown_cIff : ComplexShape.Embedding.natUpIntDown.CIff := fun i j =>
@@ -98,15 +98,15 @@ def forget₂Unop :
       HomologicalComplex.unopFunctor ⋙
         (forget₂ SemiNormedGroupCat Ab).mapHomologicalComplex (ComplexShape.down ℕ).symm :=
   by
-  refine' nat_iso.of_components _ _
+  refine' NatIso.ofComponents _ _
   · intro X; refine' HomologicalComplex.Hom.isoOfComponents _ _
     · intro n; exact iso.refl _
-    · rintro i j (rfl : _ = _); dsimp only [iso.refl_hom]
-      rw [category.id_comp, category.comp_id]; rfl
+    · rintro i j (rfl : _ = _); dsimp only [Iso.refl_hom]
+      rw [Category.id_comp, Category.comp_id]; rfl
   · intro X Y f; ext n
     dsimp only [HomologicalComplex.comp_f, HomologicalComplex.Hom.isoOfComponents_hom_f,
-      iso.refl_hom]
-    rw [category.id_comp, category.comp_id]; rfl
+      Iso.refl_hom]
+    rw [Category.id_comp, Category.comp_id]; rfl
 
 def preadditiveYonedaObjObjCondensedSetToCondensedAb (M : Condensed.{u} Ab.{u + 1})
     (X : Profinite) :
@@ -148,12 +148,12 @@ theorem preadditiveYonedaObjObjCondensedSetToCondensedAb_natural' (M : Condensed
   ext t
   rw [comp_apply]
   rw [comp_apply]
-  dsimp [preadditiveYonedaObjObjCondensedSetToCondensedAb, adjunction.whisker_right]
-  simp only [← nat_trans.comp_app]
-  rw [← grothendieck_topology.to_sheafify_naturality_assoc]
-  dsimp [functor.right_unitor]
-  simp only [← comp_apply, category.assoc, ← nat_trans.comp_app, ← nat_trans.comp_app_assoc]
-  simp only [← nat_trans.naturality, functor.comp_map, category.assoc]
+  dsimp [preadditiveYonedaObjObjCondensedSetToCondensedAb, Adjunction.whiskerRight]
+  simp only [← NatTrans.comp_app]
+  rw [← GrothendieckTopology.toSheafify_naturality_assoc]
+  dsimp [Functor.rightUnitor]
+  simp only [← comp_apply, Category.assoc, ← NatTrans.comp_app, ← NatTrans.comp_app_assoc]
+  simp only [← NatTrans.naturality, Functor.comp_map, Category.assoc]
   rfl
 
 end

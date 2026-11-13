@@ -37,9 +37,9 @@ def imker (C : CochainComplex 𝓐 ℤ) (n : ℤ) : CochainComplex 𝓐 ℤ
     if hi : i = n - 1 then
       if hj : j = n then
         -- modulo eq_to_iso this is just the `image_to_kernel` map.
-            (eqToIso (by rw [hi, if_pos rfl]) : (_ : 𝓐) ≅ image (C.dTo n)).Hom ≫
+            (eqToIso (by rw [hi, if_pos rfl]) : (_ : 𝓐) ≅ image (C.dTo n)).hom ≫
           imageToKernel' _ _ (HomologicalComplex.dTo_comp_dFrom _ n) ≫
-            (eqToIso (by rw [if_neg, if_pos hj]; linarith)).Hom
+            (eqToIso (by rw [if_neg, if_pos hj]; linarith)).hom
       else 0
     else 0
   shape' := by
@@ -102,20 +102,20 @@ theorem d_def {n i j : ℤ} :
           (eqToIso (by rw [hi, if_pos rfl]) :
                 (if i = n - 1 then image (C.dTo n) else if i = n then kernel (C.dFrom n) else 0 :
                     𝓐) ≅
-                  image (C.dTo n)).Hom ≫
+                  image (C.dTo n)).hom ≫
             imageToKernel' _ _ (HomologicalComplex.dTo_comp_dFrom _ n) ≫
               (eqToIso (by dsimp only [imker]; rw [if_neg, if_pos hj]; linarith) :
-                  (kernel (C.dFrom n) : 𝓐) ≅ _).Hom
+                  (kernel (C.dFrom n) : 𝓐) ≅ _).hom
         else 0
       else 0 :=
   rfl
 
 theorem d_eq_im_to_ker {n i j : ℤ} (h : i = n - 1) (hj : j = n) :
     (imker C n).d i j =
-      (xIsoImageOfEq C h).Hom ≫
+      (xIsoImageOfEq C h).hom ≫
         imageToKernel' _ _ (HomologicalComplex.dTo_comp_dFrom _ n) ≫ (xIsoKernelOfEq _ hj).inv :=
   by
-  simp only [h, hj, eq_self_iff_true, d_def, eq_to_iso.hom, dif_pos, X_iso_image_of_eq_hom,
+  simp only [h, hj, eq_self_iff_true, d_def, eqToIso.hom, dif_pos, X_iso_image_of_eq_hom,
     X_iso_kernel_of_eq_inv]
   rfl
 
@@ -138,19 +138,19 @@ def toSingle (n : ℤ) : C.imker n ⟶ (single _ _ n).obj (C.homology' n)
     where
   f i :=
     if h : i = n then
-      (xIsoKernelOfEq C h).Hom ≫
+      (xIsoKernelOfEq C h).hom ≫
         cokernel.π (imageToKernel' _ _ (HomologicalComplex.dTo_comp_dFrom _ n)) ≫
           (homology'IsoCokernelImageToKernel' _ _ _).inv ≫
             (HomologicalComplex.singleObjXSelf 𝓐 (ComplexShape.up ℤ) n _).inv ≫ eqToHom (by rw [h])
     else 0
   comm' := by
     rintro i j (rfl : _ = _)
-    simp only [HomologicalComplex.singleObjXSelf_inv, eq_to_iso.hom, eq_to_hom_trans,
+    simp only [HomologicalComplex.singleObjXSelf_inv, eqToIso.hom, CategoryTheory.eqToHom_trans,
       HomologicalComplex.single_obj_d, comp_zero]
     split_ifs with hi hn
     · subst hi; clear hn
       rw [d_eq_im_to_ker C (show i = i + 1 - 1 by ring) rfl]
-      simp only [category.assoc, iso.inv_hom_id_assoc, cokernel.condition_assoc, zero_comp,
+      simp only [Category.assoc, Iso.inv_hom_id_assoc, cokernel.condition_assoc, zero_comp,
         comp_zero]
     · exact (hn rfl).elim
     · rw [comp_zero]
@@ -181,9 +181,9 @@ theorem homology'_isZero_of_isZero {V : Type _} [Category V] [HasZeroMorphisms V
     (w : f ≫ g = 0) :
     IsZero (homology' f g w) :=
   by
-  simp_rw [is_zero.eq_zero_of_tgt hB f]
-  simp_rw [is_zero.eq_zero_of_src hB g]
-  exact is_zero_of_iso_of_zero hB homology_zero_zero.symm
+  simp_rw [IsZero.eq_zero_of_tgt hB f]
+  simp_rw [IsZero.eq_zero_of_src hB g]
+  exact CategoryTheory.Limits.isZero_of_iso_of_zero hB homology_zero_zero.symm
 
 -- variant of homology_zero_zero
 -- move
@@ -217,9 +217,9 @@ theorem Cokernel.desc_spec {V : Type _} [Category V] [Abelian V] {A B C : V} {f 
 -- move
 theorem Cokernel.desc_comp_left {V : Type _} [Category V] [Abelian V] {A B C D : V} {f : A ⟶ B}
     {g : B ⟶ C} {e : C ⟶ D} (w : f ≫ g = 0) :
-    cokernel.desc f g w ≫ e = cokernel.desc f (g ≫ e) (by rw [← category.assoc, w, zero_comp]) :=
+    cokernel.desc f g w ≫ e = cokernel.desc f (g ≫ e) (by rw [← Category.assoc, w, zero_comp]) :=
   by
-  rw [← cokernel.desc_spec]
+  rw [← Cokernel.desc_spec]
   simp [cokernel.π_desc]
 
 -- move
@@ -239,9 +239,9 @@ theorem sqFrom_epi_of_epi {ι : Type _} {V : Type _} [_inst_1 : Category V] [_in
       simp at h 
       rwa [cancel_epi] at h 
     · dsimp at fR gR 
-      have fR0 : fR = 0 := is_zero.eq_zero_of_src h2 _
+      have fR0 : fR = 0 := IsZero.eq_zero_of_src h2 _
       subst fR0
-      have gR0 : gR = 0 := is_zero.eq_zero_of_src h2 _
+      have gR0 : gR = 0 := IsZero.eq_zero_of_src h2 _
       subst gR0⟩
 
 -- move
@@ -249,21 +249,21 @@ theorem kernelSubobjectMap_epi_of_epi {C : Type _} [_inst_1 : Category C] [Abeli
     {f : X ⟶ Y} (hY : IsZero Y) {X' Y' : C} {f' : X' ⟶ Y'} (hY' : IsZero Y')
     (φ : Arrow.mk f ⟶ Arrow.mk f') [Epi φ.left] : Epi (kernelSubobjectMap φ) :=
   by
-  have hf : f = 0 := is_zero.eq_zero_of_tgt hY _
-  have hf' : f' = 0 := is_zero.eq_zero_of_tgt hY' _
-  have hfiso : is_iso (kernel_subobject f).arrow :=
+  have hf : f = 0 := IsZero.eq_zero_of_tgt hY _
+  have hf' : f' = 0 := IsZero.eq_zero_of_tgt hY' _
+  have hfiso : is_iso (CategoryTheory.Limits.kernelSubobject f).arrow :=
     by
-    rw [← kernel_subobject_arrow, hf]
+    rw [← CategoryTheory.Limits.kernelSubobject_arrow, hf]
     simp
     infer_instance
-  have hf'iso : is_iso (kernel_subobject f').arrow :=
+  have hf'iso : is_iso (CategoryTheory.Limits.kernelSubobject f').arrow :=
     by
-    rw [← kernel_subobject_arrow, hf']
+    rw [← CategoryTheory.Limits.kernelSubobject_arrow, hf']
     simp
     infer_instance
-  suffices epi (kernel_subobject_map φ ≫ (kernel_subobject f').arrow) by
-    rwa [epi_is_iso_comp_iff_epi] at this 
-  rw [kernel_subobject_map_arrow]
+  suffices epi (CategoryTheory.Limits.kernelSubobjectMap φ ≫ (CategoryTheory.Limits.kernelSubobject f').arrow) by
+    rwa [CategoryTheory.Limits.epi_isIso_comp_iff_epi] at this 
+  rw [CategoryTheory.Limits.kernelSubobjectMap_arrow]
   simp
   infer_instance
 
@@ -271,17 +271,17 @@ theorem kernelSubobjectMap_epi_of_epi {C : Type _} [_inst_1 : Category C] [Abeli
 theorem imageToKernel_epi_of_epi {V : Type _} [Category V] [Abelian V] {A B C : V} (f : A ⟶ B)
     (g : B ⟶ C) [Epi f] (w : f ≫ g = 0) : Epi (imageToKernel f g w) :=
   by
-  have claim0 := image_subobject_arrow_comp f
-  have claim : (image_subobject f).arrow = imageToKernel f g w ≫ (kernel_subobject g).arrow :=
+  have claim0 := CategoryTheory.Limits.imageSubobject_arrow_comp f
+  have claim : (CategoryTheory.Limits.imageSubobject f).arrow = imageToKernel f g w ≫ (CategoryTheory.Limits.kernelSubobject g).arrow :=
     (imageToKernel_arrow f g w).symm
   have claim2 := factorThruImageSubobject_comp_imageToKernel _ _ w
-  suffices epi (factor_thru_kernel_subobject g f w)
+  suffices epi (CategoryTheory.Limits.factorThruKernelSubobject g f w)
     by
     rw [← claim2] at this 
     skip
-    apply epi_of_epi (factor_thru_image_subobject f) (imageToKernel f g w)
-  apply epi_of_epi_of_comp_epi_of_mono _ (kernel_subobject g).arrow
-  rw [factor_thru_kernel_subobject_comp_arrow g f w]
+    apply epi_of_epi (CategoryTheory.Limits.factorThruImageSubobject f) (imageToKernel f g w)
+  apply epi_of_epi_of_comp_epi_of_mono _ (CategoryTheory.Limits.kernelSubobject g).arrow
+  rw [CategoryTheory.Limits.factorThruKernelSubobject_comp_arrow g f w]
   infer_instance
 
 -- move
@@ -295,7 +295,7 @@ theorem imageToKernel_zero_left' {V : Type _} [Category V] [HasZeroMorphisms V] 
 -- move
 theorem Cokernel.desc_isIso {A B C D : 𝓐} (f : A ⟶ B) (g : B ⟶ C) (e : C ⟶ D) [IsIso e]
     (w : f ≫ g = 0) :
-    cokernel.desc f g w ≫ e = cokernel.desc f (g ≫ e) (by rw [← category.assoc, w, zero_comp]) :=
+    cokernel.desc f g w ≫ e = cokernel.desc f (g ≫ e) (by rw [← Category.assoc, w, zero_comp]) :=
   by
   rw [← cancel_epi (cokernel.π f)]
   simp
@@ -306,7 +306,7 @@ theorem imageToKernel_eq_imageToKernel_of_eq_snd {A B C : 𝓐} (f : A ⟶ B) {g
     imageToKernel f g w = imageToKernel f h (by rw [← hgh, w]) ≫ eqToHom (by rw [hgh]) :=
   by
   subst hgh
-  simp only [eq_to_hom_refl, category.comp_id]
+  simp only [CategoryTheory.eqToHom_refl, Category.comp_id]
 
 -- move
 theorem imageToKernel_eq_imageToKernel_of_eq_fst {A B C : 𝓐} (f g : A ⟶ B) {h : B ⟶ C} (hfg : f = g)
@@ -314,7 +314,7 @@ theorem imageToKernel_eq_imageToKernel_of_eq_fst {A B C : 𝓐} (f g : A ⟶ B) 
     imageToKernel f h w = eqToHom (by rw [hfg]) ≫ imageToKernel g h (by rw [← hfg, w]) :=
   by
   subst hfg
-  simp only [eq_to_hom_refl, category.id_comp]
+  simp only [CategoryTheory.eqToHom_refl, Category.id_comp]
 
 -- lemma cokernel.desc_with_isomorphisms {A B C D : 𝓐} (f : A ⟶ B) (e : B ⟶ C) (g : C ⟶ D)
 --   [is_iso e] (w : f ≫ e ≫ g = 0) :
@@ -346,7 +346,7 @@ theorem Single.dTo_eq_zero (V : Type _) [Category V] [HasZeroMorphisms V] [HasZe
 theorem HomologyFunctor.isIso_of_is_zero_of_is_zero_of_is_zero {ι : Type _} {c : ComplexShape ι}
     {i j : ι} (hij : c.Rel i j) {C₁ C₂ : HomologicalComplex 𝓐 c} (h1from : C₁.dFrom j = 0)
     (h2to : C₂.dTo j = 0) (h2from : C₂.dFrom j = 0) (isomap : cokernel (C₁.dTo j) ≅ C₂.pt j)
-    {f : C₁ ⟶ C₂} (hf : f.f j = cokernel.π (C₁.dTo j) ≫ isomap.Hom) :
+    {f : C₁ ⟶ C₂} (hf : f.f j = cokernel.π (C₁.dTo j) ≫ isomap.hom) :
     IsIso ((homology'Functor 𝓐 c j).map f) :=
   by
   rw [homology'Functor_map]
@@ -356,19 +356,19 @@ theorem HomologyFunctor.isIso_of_is_zero_of_is_zero_of_is_zero {ι : Type _} {c 
   have :=
     HasHomology.map_iso_homology'_map h₁ h₂ (Commsq.ofEq (HomologicalComplex.Hom.comm_to f j)).symm
       (Commsq.ofEq (HomologicalComplex.Hom.comm_from f j)).symm
-  rw [← is_iso_iff_is_iso_comp_left (h₁.iso (homology'.has (C₁.d_to j) (C₁.d_from j) _)).Hom]
+  rw [← CategoryTheory.Limits.isIso_iff_isIso_comp_left (h₁.iso (homology'.has (C₁.d_to j) (C₁.d_from j) _)).hom]
   swap; infer_instance
-  rw [← is_iso_iff_is_iso_comp_right (h₂.iso (homology'.has (C₂.d_to j) (C₂.d_from j) _)).inv]
+  rw [← CategoryTheory.Limits.isIso_iff_isIso_comp_right (h₂.iso (homology'.has (C₂.d_to j) (C₂.d_from j) _)).inv]
   swap; infer_instance
   suffices h2 : is_iso (h₁.map h₂ (Commsq.ofEq _).symm (Commsq.ofEq _).symm)
   · rw [this] at h2 ; convert h2 using 1; simp; congr
   convert_to is_iso isomap.hom; swap; infer_instance
   simp only [h₁, h₂, HasHomology.map, HasHomology.sndEqZero', HasHomology.fstSndEqZero',
-    HasHomology.desc, HasHomology.lift, hf, category.assoc]
+    HasHomology.desc, HasHomology.lift, hf, Category.assoc]
   symm
-  apply exact.epi_desc_unique
-  apply exact.mono_lift_unique
-  simp only [category.assoc]
+  apply Exact.epiDesc_unique
+  apply Exact.monoLift_unique
+  simp only [Category.assoc]
 
 /-- `to_single C n` induces an isomorphism of cohomology in degree `n`. -/
 theorem map_isIso (n : ℤ) :
@@ -385,19 +385,19 @@ theorem map_isIso (n : ℤ) :
   
   -/
   change is_iso ((homology'Functor 𝓐 (ComplexShape.up ℤ) n).map (to_single C n))
-  refine' homology_functor.is_iso_of_is_zero_of_is_zero_of_is_zero _ _ _ _ _ _
+  refine' HomologyFunctor.isIso_of_is_zero_of_is_zero_of_is_zero _ _ _ _ _ _
   · exact n - 1
   · show _ = _; · ring
   · rw [d_from_eq_zero]; linarith
-  · rw [single.d_to_eq_zero]
-  · rw [single.d_from_eq_zero]
+  · rw [Single.dTo_eq_zero]
+  · rw [Single.dFrom_eq_zero]
   · refine' _ ≪≫ (HomologicalComplex.singleObjXSelf _ _ _ _).symm
     refine'
-      cokernel_iso_of_eq (HomologicalComplex.dTo_eq (C.imker n) (show n - 1 + 1 = n by ring)) ≪≫ _
-    refine' cokernel_epi_comp _ _ ≪≫ _
-    refine' cokernel_iso_of_eq (d_eq_im_to_ker _ rfl rfl) ≪≫ _
-    refine' cokernel_epi_comp _ _ ≪≫ _
-    refine' cokernel_comp_is_iso _ _ ≪≫ _
+      CategoryTheory.Limits.cokernelIsoOfEq (HomologicalComplex.dTo_eq (C.imker n) (show n - 1 + 1 = n by ring)) ≪≫ _
+    refine' CategoryTheory.Limits.cokernelEpiComp _ _ ≪≫ _
+    refine' CategoryTheory.Limits.cokernelIsoOfEq (d_eq_im_to_ker _ rfl rfl) ≪≫ _
+    refine' CategoryTheory.Limits.cokernelEpiComp _ _ ≪≫ _
+    refine' CategoryTheory.Limits.cokernelCompIsIso _ _ ≪≫ _
     exact (homology'IsoCokernelImageToKernel' _ _ _).symm
   · delta to_single
     dsimp; simp
@@ -410,9 +410,9 @@ instance toSingleQuasiIso (n : ℤ) :
     rcases eq_or_ne i n with (rfl | hin)
     · -- The n'th map is the nontrivial case.
       -- First there's this quotient map to the homotopy category which we replace by `homology_functor`.
-      rw [← functor.comp_map]
+      rw [← Functor.comp_map]
       apply
-        map_is_iso_of_iso_of_map_is_iso
+        CategoryTheory.Limits.map_isIso_of_iso_of_map_isIso
           (HomotopyCategory.homology'Factors 𝓐 (ComplexShape.up ℤ) i).symm
       /- The goal now states that the middle arrow induces an isomorphism
                on homology of the below complexes:
@@ -428,17 +428,17 @@ instance toSingleQuasiIso (n : ℤ) :
     -- For the "boring" cases (where we're asserting 0 ≅ 0) we deal with degree n-1 separately.
     · rcases eq_or_ne i (n - 1) with (rfl | hin')
       -- degree n-1
-      · rw [← functor.comp_map]
+      · rw [← Functor.comp_map]
         apply
-          map_is_iso_of_iso_of_map_is_iso
+          CategoryTheory.Limits.map_isIso_of_iso_of_map_isIso
             (HomotopyCategory.homology'Factors 𝓐 (ComplexShape.up ℤ) (n - 1)).symm
-        apply is_iso_of_is_zero_of_is_zero
-        · apply @is_zero_cokernel_of_epi _ _ _ _ _ _ _
+        apply CategoryTheory.Limits.isIso_of_isZero_of_isZero
+        · apply @CategoryTheory.Limits.isZero_cokernel_of_epi _ _ _ _ _ _ _
           have foo : HomologicalComplex.dTo (C.imker n) (n - 1) = 0 :=
             by
-            apply is_zero.eq_zero_of_src
+            apply IsZero.eq_zero_of_src
             have := HomologicalComplex.xPrevIso (C.imker n) (show n - 2 + 1 = n - 1 by ring)
-            apply is_zero_of_iso_of_zero _ this.symm
+            apply CategoryTheory.Limits.isZero_of_iso_of_zero _ this.symm
             apply X_is_zero_of_ne <;> linarith
           have : mono (HomologicalComplex.dFrom (C.imker n) (n - 1)) :=
             by
@@ -448,32 +448,32 @@ instance toSingleQuasiIso (n : ℤ) :
             -- should register the instance that image_to_kernel' is mono!
             infer_instance
           convert imageToKernel_epi_of_zero_of_mono (HomologicalComplex.dFrom (C.imker n) (n - 1))
-        · rw [← functor.comp_obj]
+        · rw [← Functor.comp_obj]
           apply
-            obj_is_zero_of_iso
+            CategoryTheory.Limits.obj_isZero_of_iso
               (HomotopyCategory.homology'Factors 𝓐 (ComplexShape.up ℤ) (n - 1)).symm
           rw [homology'Functor_obj]
-          apply homology_is_zero_of_is_zero
+          apply CochainComplex.imker.homology'_isZero_of_isZero
           dsimp only
           rw [if_neg hin]
           apply is_zero_zero
       -- other degrees
-      · apply is_iso_of_is_zero_of_is_zero
-        · rw [← functor.comp_obj]
-          apply obj_is_zero_of_iso (HomotopyCategory.homology'Factors 𝓐 (ComplexShape.up ℤ) i).symm
+      · apply CategoryTheory.Limits.isIso_of_isZero_of_isZero
+        · rw [← Functor.comp_obj]
+          apply CategoryTheory.Limits.obj_isZero_of_iso (HomotopyCategory.homology'Factors 𝓐 (ComplexShape.up ℤ) i).symm
           rw [homology'Functor_obj]
           have hC := X_is_zero_of_ne C hin' hin
-          refine' is_zero_of_iso_of_zero hC _
+          refine' CategoryTheory.Limits.isZero_of_iso_of_zero hC _
           delta HomologicalComplex.homology'
           symm
           convert homology'ZeroZero
-          apply is_zero.eq_zero_of_tgt hC
-          apply is_zero.eq_zero_of_src hC
+          apply IsZero.eq_zero_of_tgt hC
+          apply IsZero.eq_zero_of_src hC
           all_goals infer_instance
-        · rw [← functor.comp_obj]
-          apply obj_is_zero_of_iso (HomotopyCategory.homology'Factors 𝓐 (ComplexShape.up ℤ) i).symm
+        · rw [← Functor.comp_obj]
+          apply CategoryTheory.Limits.obj_isZero_of_iso (HomotopyCategory.homology'Factors 𝓐 (ComplexShape.up ℤ) i).symm
           rw [homology'Functor_obj]
-          apply homology_is_zero_of_is_zero
+          apply CochainComplex.imker.homology'_isZero_of_isZero
           apply HomologicalComplex.single_obj_isZero _ _ hin⟩
 
 end Imker

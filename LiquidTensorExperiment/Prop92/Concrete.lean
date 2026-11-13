@@ -156,13 +156,13 @@ theorem bar {C ε : ℝ} (hC : 0 < C) (hε : 0 < ε)
       (NormedAddCommGroup.denseRange_toCompl _)
   intro m₂
   rcases h m₂ with ⟨g, cauchy_g, lim_g, bound_g⟩
-  have : CauchySeq (to_compl ∘ g) := cauchy_g.map to_compl.uniform_continuous
+  have : CauchySeq (to_compl ∘ g) := cauchy_g.map to_compl.uniformContinuous
   rcases cauchySeq_tendsto_of_complete this with ⟨y, hy⟩
   refine' ⟨y, _, _⟩
-  · have lim : tendsto (f.completion.comp to_compl ∘ g) at_top (𝓝 (f.completion y)) :=
+  · have lim : tendsto (f.completion.comp to_compl ∘ g) Filter.atTop (𝓝 (f.completion y)) :=
       (f.completion.continuous.tendsto _).comp hy
-    rw [f.completion_to_compl] at lim 
-    have : tendsto ((to_compl ∘ f) ∘ g) at_top (𝓝 (to_compl m₂)) :=
+    rw [f.completion_toCompl] at lim 
+    have : tendsto ((to_compl ∘ f) ∘ g) Filter.atTop (𝓝 (to_compl m₂)) :=
       (to_compl.continuous.tendsto _).comp lim_g
     exact tendsto_nhds_unique limUnder this
   · refine'
@@ -234,11 +234,11 @@ theorem LocallyConstant.norm_const_zero : ‖(LocallyConstant.const X (0 : G))�
 theorem Continuous.exists_forall_le_of_compact {X : Type _} [TopologicalSpace X] [CompactSpace X]
     [Nonempty X] {β : Type _} [ConditionallyCompleteLinearOrder β] [TopologicalSpace β]
     [OrderTopology β] {f : X → β} (hf : Continuous f) : ∃ x, sSup (range f) = f x := by
-  simpa using compact_univ.exists_Sup_image_eq univ_nonempty hf.continuous_on
+  simpa using compact_univ.exists_sSup_image_eq univ_nonempty hf.continuousOn
 
 theorem LocallyConstant.exists_norm_eq [Nonempty X] (f : LocallyConstant X G) :
     ∃ x, ‖f‖ = ‖f x‖ :=
-  (continuous_norm.comp f.Continuous).exists_forall_le_of_compact
+  (continuous_norm.comp f.continuous).exists_forall_le_of_compact
 
 theorem LocallyConstant.norm_eq_iff (f : LocallyConstant X G) {x : X} :
     ‖f‖ = ‖f x‖ ↔ ∀ x', ‖f x'‖ ≤ ‖f x‖ :=
@@ -246,7 +246,7 @@ theorem LocallyConstant.norm_eq_iff (f : LocallyConstant X G) {x : X} :
   have fin_range : (range fun x : X => ‖f x‖).Finite :=
     by
     rw [range_comp]
-    apply finite.image
+    apply Finite.image
     exact f.range_finite
   have bound : ∃ b, ∀ y ∈ range fun x : X => ‖f x‖, y ≤ b :=
     exists_upper_bound_image _ _ fin_range
@@ -286,14 +286,14 @@ theorem Embedding.norm_extend (f : LocallyConstant X G) :
     ‖he.locallyConstantExtend f‖ = ‖f‖ :=
   by
   cases isEmpty_or_nonempty X
-  · rw [f.norm_of_is_empty]
+  · rw [f.norm_of_isEmpty]
     dsimp [Embedding.locallyConstantExtend, Embedding.extend]
     have hX : ¬Nonempty X := by rwa [not_nonempty_iff]
     suffices (⨆ y : Y, ‖0 : G‖) = 0 by
       simpa only [hX, dif_neg, not_false_iff, and_false_iff]
     simp only [norm_zero, Real.iSup_zero]
   · change (⨆ y : Y, _) = ⨆ x : X, _
-    rw [Real.iSup_comp, Real.iSup_comp, he.range_locally_constant_extend f]
+    rw [Real.iSup_comp, Real.iSup_comp, he.range_locallyConstantExtend f]
 
 variable (φ : X → Y)
   -- this will be φ is T⁻¹ : M_{≤ r'c}^a → M_{≤ c}^a
@@ -344,17 +344,17 @@ def Embedding.g (f : LocallyConstant X V) (N : ℕ) : LocallyConstant Y V :=
 
 /-- T⁻¹ g_N e - g_N φ = f - h_N φ-/
 theorem one (hφ : Continuous φ) (N : ℕ) :
-    mapHom t.inv (comapHom e he.Continuous (he.g hφ f N)) - comapHom φ hφ (he.g hφ f N) =
+    mapHom t.inv (comapHom e he.continuous (he.g hφ f N)) - comapHom φ hφ (he.g hφ f N) =
       f - comapHom φ hφ (he.h hφ f N) :=
   by
   induction' N with N ih
   · dsimp [Embedding.g]
     simp only [Embedding.h, Finset.sum_singleton, sub_left_inj]
     ext x
-    simp [he.continuous, he.locally_constant_extend_extends]
-  · set c_φ : NormedAddGroupHom (LocallyConstant Y V) (LocallyConstant X V) := comap_hom φ hφ
+    simp [he.continuous, he.locallyConstantExtend_extends]
+  · set c_φ : NormedAddGroupHom (LocallyConstant Y V) (LocallyConstant X V) := LocallyConstant.comapHom φ hφ
     set c_e : NormedAddGroupHom (LocallyConstant Y V) (LocallyConstant X V) :=
-      comap_hom e he.continuous
+      LocallyConstant.comapHom e he.continuous
     set m_T : NormedAddGroupHom (LocallyConstant X V) (LocallyConstant X V) := map_hom T.inv
     set G := he.g hφ f
     set H := he.h hφ f
@@ -367,8 +367,8 @@ theorem one (hφ : Continuous φ) (N : ℕ) :
       f - c_φ (H N) + c_φ (G N) + m_T (c_e (H N.succ)) - (c_φ (G N) + c_φ (H N.succ)) =
         f - comap φ (H N.succ)
     dsimp [H, Embedding.h]
-    rw [← (he.locally_constant_extend <| comap φ <| H N).comap_map e T.hom he.continuous,
-      he.comap_locally_constant_extend, LocallyConstant.map_comp', NormedWithAut.t_inv_t_hom]
+    rw [← (he.locallyConstantExtend <| comap φ <| H N).comap_map e T.hom he.continuous,
+      he.comap_locallyConstantExtend, LocallyConstant.map_comp', NormedWithAut.t_inv_t_hom]
     simp [H]
     abel
 
@@ -380,7 +380,7 @@ variable [Fact ((r : ℝ) < 1)]
 
 theorem limit :
     Tendsto
-      (fun N => mapHom t.inv (comapHom e he.Continuous (he.g hφ f N)) - comapHom φ hφ (he.g hφ f N))
+      (fun N => mapHom t.inv (comapHom e he.continuous (he.g hφ f N)) - comapHom φ hφ (he.g hφ f N))
       atTop (𝓝 f) :=
   by
   simp_rw [one]
@@ -391,7 +391,7 @@ theorem limit :
   apply ((he.h hφ f n).norm_comap_le hφ).trans (norm_h he hφ _ _)
   rw [← MulZeroClass.zero_mul (‖f‖)]
   apply tendsto.mul_const
-  rw [tendsto_add_at_top_iff_nat]
+  rw [Filter.tendsto_add_atTop_iff_nat]
   exact tendsto_pow_atTop_nhds_0_of_lt_1 r.coe_nonneg (Fact.out _)
 
 theorem cauchySeq_g : CauchySeq (he.g hφ f) :=
@@ -420,7 +420,7 @@ open UniformSpace
 
 theorem concrete_92 [Fact (0 < r)] (f : Completion (LocallyConstant X V)) {ε : ℝ} (hε : 0 < ε) :
     ∃ g : Completion (LocallyConstant Y V),
-      ((mapHom t.inv).comp (comapHom e he.Continuous) - comapHom φ hφ).Completion g = f ∧
+      ((mapHom t.inv).comp (comapHom e he.continuous) - comapHom φ hφ).Completion g = f ∧
         ‖g‖ ≤ (r / (1 - r) + ε) * ‖f‖ :=
   by
   have : (0 : ℝ) < r / (1 - r) := by

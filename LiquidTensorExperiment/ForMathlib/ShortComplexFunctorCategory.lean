@@ -30,7 +30,7 @@ def Inverse.obj (F : J ⥤ ShortComplex C) : ShortComplex (J ⥤ C) :=
   mk (𝟙 F ◫ φ₁₂) (𝟙 F ◫ φ₂₃)
     (by
       ext
-      simp only [nat_trans.comp_app, nat_trans.hcomp_app, φ₁₂_app, nat_trans.id_app, π₂_map,
+      simp only [NatTrans.comp_app, NatTrans.hcomp_app, φ₁₂_app, NatTrans.id_app, π₂_map,
         φ₂₃_app, π₃_map, assoc, zero_app]
       erw [id_comp, comp_id]
       apply ShortComplex.zero)
@@ -46,14 +46,14 @@ def inverse : (J ⥤ ShortComplex C) ⥤ ShortComplex (J ⥤ C)
     where
   obj := Inverse.obj
   map F G := Inverse.map
-  map_id' F := by ext <;> apply comp_id
-  map_comp' F₁ F₂ F₃ φ ψ := by ext <;> dsimp <;> erw [id_comp, id_comp, id_comp]
+  map_id F := by ext <;> apply comp_id
+  map_comp F₁ F₂ F₃ φ ψ := by ext <;> dsimp <;> erw [id_comp, id_comp, id_comp]
 
 def UnitIso.obj (S : ShortComplex (J ⥤ C)) : S ≅ (functor ⋙ inverse).obj S :=
   by
   refine' iso_mk _ _ _ _ _ <;>
     try
-      refine' nat_iso.of_components (fun X => iso.refl _) _
+      refine' NatIso.ofComponents (fun X => iso.refl _) _
       intro i j f; dsimp; erw [comp_id, id_comp]; rfl
   all_goals ext; dsimp [Functor, inverse]; erw [comp_id, id_comp]
 
@@ -61,7 +61,7 @@ def unitIso :
     𝟭 (ShortComplex (J ⥤ C)) ≅
       FunctorCategoryEquivalence.functor ⋙ FunctorCategoryEquivalence.inverse :=
   NatIso.ofComponents UnitIso.obj fun S₁ S₂ ψ => by
-    ext <;> dsimp [iso_mk, nat_iso.of_components, iso_mk, Functor, inverse, unit_iso.obj] <;>
+    ext <;> dsimp [iso_mk, NatIso.ofComponents, iso_mk, Functor, inverse, UnitIso.obj] <;>
       erw [comp_id, id_comp, id_comp]
 
 def CounitIso.obj (F : J ⥤ ShortComplex C) : (inverse ⋙ functor).obj F ≅ F :=
@@ -75,17 +75,17 @@ def counitIso :
     FunctorCategoryEquivalence.inverse ⋙ FunctorCategoryEquivalence.functor ≅
       𝟭 (J ⥤ ShortComplex C) :=
   NatIso.ofComponents CounitIso.obj fun F₁ F₂ φ => by
-    ext <;> dsimp [Functor, inverse, counit_iso.obj] <;> erw [id_comp, comp_id]
+    ext <;> dsimp [Functor, inverse, CounitIso.obj] <;> erw [id_comp, comp_id]
 
 theorem functor_unitIso_comp (F : ShortComplex (J ⥤ C)) :
-    FunctorCategoryEquivalence.functor.map (FunctorCategoryEquivalence.unitIso.Hom.app F) ≫
-        FunctorCategoryEquivalence.counitIso.Hom.app (FunctorCategoryEquivalence.functor.obj F) =
+    FunctorCategoryEquivalence.functor.map (FunctorCategoryEquivalence.unitIso.hom.app F) ≫
+        FunctorCategoryEquivalence.counitIso.hom.app (FunctorCategoryEquivalence.functor.obj F) =
       𝟙 _ :=
   by
-  dsimp [functor_category_equivalence.functor, functor_category_equivalence.unit_iso,
-    functor_category_equivalence.inverse, functor_category_equivalence.counit_iso, evaluation,
-    functor.flip, functor.map_short_complex, functor_category_equivalence.counit_iso.obj,
-    functor_category_equivalence.unit_iso.obj, nat_iso.of_components]
+  dsimp [functor_category_equivalence.functor, functor_category_equivalence.unitIso,
+    functor_category_equivalence.inverse, functor_category_equivalence.counitIso, evaluation,
+    Functor.flip, Functor.mapShortComplex, FunctorCategoryEquivalence.CounitIso.obj,
+    FunctorCategoryEquivalence.UnitIso.obj, NatIso.ofComponents]
   ext <;> apply id_comp
 
 end FunctorCategoryEquivalence
@@ -111,22 +111,22 @@ def ιMiddleHomologyNatIso {A : Type _} [Category A] [Abelian A] : 𝟭 A ≅ ι
   NatIso.ofComponents (fun X => (HomologyIsoDatum.ofBothZeros _ _ rfl rfl).Iso) fun X Y f =>
     by
     erw [(HomologyMapDatum.ofBothAreZeros (ι_middle.map f) rfl rfl rfl rfl).homology'_map_eq]
-    erw [iso.hom_inv_id_assoc]
+    erw [Iso.hom_inv_id_assoc]
     rfl
 
 theorem ιMiddle_π₁_isZero [HasZeroObject C] : IsZero ((ιMiddle : C ⥤ _) ⋙ ShortComplex.π₁) :=
   by
-  rw [functor.is_zero_iff]
+  rw [Functor.isZero_iff]
   intro X
   dsimp
-  simp only [functor.zero_obj]
+  simp only [Functor.zero_obj]
 
 theorem ιMiddle_π₃_isZero [HasZeroObject C] : IsZero ((ιMiddle : C ⥤ _) ⋙ ShortComplex.π₃) :=
   by
-  rw [functor.is_zero_iff]
+  rw [Functor.isZero_iff]
   intro X
   dsimp
-  simp only [functor.zero_obj]
+  simp only [Functor.zero_obj]
 
 @[simps]
 def natTransHomMk {S₁ S₂ : J ⥤ ShortComplex C} (τ₁ : S₁ ⋙ π₁ ⟶ S₂ ⋙ π₁) (τ₂ : S₁ ⋙ π₂ ⟶ S₂ ⋙ π₂)
@@ -134,14 +134,14 @@ def natTransHomMk {S₁ S₂ : J ⥤ ShortComplex C} (τ₁ : S₁ ⋙ π₁ ⟶
     (comm₂₃ : (𝟙 S₁ ◫ φ₂₃) ≫ τ₃ = τ₂ ≫ 𝟙 S₂ ◫ φ₂₃) : S₁ ⟶ S₂ :=
   FunctorCategoryEquivalence.counitIso.inv.app S₁ ≫
     FunctorCategoryEquivalence.functor.map (homMk τ₁ τ₂ τ₃ comm₁₂ comm₂₃) ≫
-      FunctorCategoryEquivalence.counitIso.Hom.app S₂
+      FunctorCategoryEquivalence.counitIso.hom.app S₂
 
 theorem natTransHomMk_app_τ₂_eq {S₁ S₂ : J ⥤ ShortComplex C} (τ₁ : S₁ ⋙ π₁ ⟶ S₂ ⋙ π₁)
     (τ₂ : S₁ ⋙ π₂ ⟶ S₂ ⋙ π₂) (τ₃ : S₁ ⋙ π₃ ⟶ S₂ ⋙ π₃) (comm₁₂ : (𝟙 S₁ ◫ φ₁₂) ≫ τ₂ = τ₁ ≫ 𝟙 S₂ ◫ φ₁₂)
     (comm₂₃ : (𝟙 S₁ ◫ φ₂₃) ≫ τ₃ = τ₂ ≫ 𝟙 S₂ ◫ φ₂₃) (j : J) :
     ((natTransHomMk τ₁ τ₂ τ₃ comm₁₂ comm₂₃).app j).τ₂ = τ₂.app j :=
   by
-  dsimp [functor_category_equivalence.counit_iso, functor_category_equivalence.counit_iso.obj,
+  dsimp [functor_category_equivalence.counitIso, FunctorCategoryEquivalence.CounitIso.obj,
     iso.refl]
   erw [id_comp, comp_id]
   rfl
@@ -160,8 +160,8 @@ def natTransHomMk_comp {S₁ S₂ S₃ : J ⥤ ShortComplex C} (τ₁ : S₁ ⋙
   by
   ext
   all_goals
-    dsimp [functor_category_equivalence.counit_iso, nat_iso.of_components,
-      functor_category_equivalence.counit_iso.obj, functor_category_equivalence.functor]
+    dsimp [functor_category_equivalence.counitIso, NatIso.ofComponents,
+      FunctorCategoryEquivalence.CounitIso.obj, functor_category_equivalence.functor]
     erw [id_comp, id_comp, id_comp, comp_id, comp_id, comp_id]
 
 @[simp]
@@ -172,15 +172,15 @@ def natTransHomMk_id (S : J ⥤ ShortComplex C) :
   by
   ext
   all_goals
-    dsimp [functor_category_equivalence.counit_iso, nat_iso.of_components,
-      functor_category_equivalence.counit_iso.obj, functor_category_equivalence.functor]
+    dsimp [functor_category_equivalence.counitIso, NatIso.ofComponents,
+      FunctorCategoryEquivalence.CounitIso.obj, functor_category_equivalence.functor]
     erw [id_comp, comp_id]
     rfl
 
 @[simps]
 def functorNatIsoMk {S₁ S₂ : J ⥤ ShortComplex C} (τ₁ : S₁ ⋙ π₁ ≅ S₂ ⋙ π₁) (τ₂ : S₁ ⋙ π₂ ≅ S₂ ⋙ π₂)
-    (τ₃ : S₁ ⋙ π₃ ≅ S₂ ⋙ π₃) (comm₁₂ : (𝟙 S₁ ◫ φ₁₂) ≫ τ₂.Hom = τ₁.Hom ≫ 𝟙 S₂ ◫ φ₁₂)
-    (comm₂₃ : (𝟙 S₁ ◫ φ₂₃) ≫ τ₃.Hom = τ₂.Hom ≫ 𝟙 S₂ ◫ φ₂₃) : S₁ ≅ S₂ :=
+    (τ₃ : S₁ ⋙ π₃ ≅ S₂ ⋙ π₃) (comm₁₂ : (𝟙 S₁ ◫ φ₁₂) ≫ τ₂.hom = τ₁.hom ≫ 𝟙 S₂ ◫ φ₁₂)
+    (comm₂₃ : (𝟙 S₁ ◫ φ₂₃) ≫ τ₃.hom = τ₂.hom ≫ 𝟙 S₂ ◫ φ₂₃) : S₁ ≅ S₂ :=
   by
   have comm₁₂' : (𝟙 S₂ ◫ φ₁₂) ≫ τ₂.inv = τ₁.inv ≫ 𝟙 S₁ ◫ φ₁₂ := by
     simpa only [← cancel_epi τ₁.hom, ← cancel_mono τ₂.hom, assoc, τ₂.inv_hom_id, comp_id,
@@ -189,10 +189,10 @@ def functorNatIsoMk {S₁ S₂ : J ⥤ ShortComplex C} (τ₁ : S₁ ⋙ π₁ �
     simpa only [← cancel_epi τ₂.hom, ← cancel_mono τ₃.hom, assoc, τ₃.inv_hom_id, comp_id,
       τ₂.hom_inv_id_assoc] using comm₂₃.symm
   exact
-    { Hom := nat_trans_hom_mk τ₁.hom τ₂.hom τ₃.hom comm₁₂ comm₂₃
-      inv := nat_trans_hom_mk τ₁.inv τ₂.inv τ₃.inv comm₁₂' comm₂₃'
-      hom_inv_id' := by simp only [nat_trans_hom_mk_comp, iso.hom_inv_id, nat_trans_hom_mk_id]
-      inv_hom_id' := by simp only [nat_trans_hom_mk_comp, iso.inv_hom_id, nat_trans_hom_mk_id] }
+    { hom := ShortComplex.natTransHomMk τ₁.hom τ₂.hom τ₃.hom comm₁₂ comm₂₃
+      inv := ShortComplex.natTransHomMk τ₁.inv τ₂.inv τ₃.inv comm₁₂' comm₂₃'
+      hom_inv_id := by simp only [ShortComplex.natTransHomMk_comp, Iso.hom_inv_id, ShortComplex.natTransHomMk_id]
+      inv_hom_id := by simp only [ShortComplex.natTransHomMk_comp, Iso.inv_hom_id, ShortComplex.natTransHomMk_id] }
 
 end ShortComplex
 

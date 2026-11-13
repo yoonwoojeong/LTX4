@@ -27,16 +27,16 @@ def free' : Type u ⥤ AddCommGroupCat.{u}
     where
   obj X := AddCommGroupCat.of <| X →₀ ℤ
   map X Y f := Finsupp.mapDomain.addMonoidHom f
-  map_id' := by intro X; ext; dsimp; simp
-  map_comp' := by intro X Y Z f g; ext; dsimp; simp
+  map_id := by intro X; ext; dsimp; simp
+  map_comp := by intro X Y Z f g; ext; dsimp; simp
 
 @[simps]
 def ofIso {A B : Type u} [AddCommGroup A] [AddCommGroup B] (e : A ≃+ B) : of A ≅ of B
     where
-  Hom := e.toAddMonoidHom
+  hom := e.toAddMonoidHom
   inv := e.symm.toAddMonoidHom
-  hom_inv_id' := by ext; dsimp; simp
-  inv_hom_id' := by ext; dsimp; simp
+  hom_inv_id := by ext; dsimp; simp
+  inv_hom_id := by ext; dsimp; simp
 
 @[simps]
 def freeIsoFree' : free.{u} ≅ free'.{u} :=
@@ -52,7 +52,7 @@ def Types.pt {α : Type u} (a : α) : ⊤_ _ ⟶ α := fun x => a
 
 def Types.punitIso : (PUnit : Type u) ≅ ⊤_ _
     where
-  Hom := Limits.terminal.from _
+  hom := Limits.terminal.from _
   inv := Types.pt PUnit.unit
 
 namespace AddCommGroupCat
@@ -75,11 +75,11 @@ def Finsupp.punitAddEquiv (M : Type _) [AddMonoid M] : ((PUnit : Type u) →₀ 
 -- Do we really not have this?!
 def addEquivOfIso (A B : AddCommGroupCat.{u}) (e : A ≅ B) : A ≃+ B
     where
-  toFun := e.Hom
+  toFun := e.hom
   invFun := e.inv
   left_inv x := by simp
   right_inv x := by simp
-  map_add' x y := e.Hom.map_add _ _
+  map_add' x y := e.hom.map_add _ _
 
 def tunitAddEquiv : tunit.{u} ≃+ ℤ :=
   AddEquiv.trans (addEquivOfIso _ _ <| AddCommGroupCat.free'.mapIso Types.punitIso.symm)
@@ -107,16 +107,16 @@ def coproductCoconeOfBasisIsColimit {ι : Type v} {A : AddCommGroupCat.{u}} (�
     rintro s ⟨j⟩
     apply Finsupp.addHom_ext
     intro x y
-    dsimp [coproduct_cocone_of_basis]
+    dsimp [AddCommGroupCat.coproductCoconeOfBasis]
     simp [← map_zsmul]
   uniq := by
     intro s m e
-    apply (addMonoidHomLequivInt ℤ).Injective
+    apply (addMonoidHomLequivInt ℤ).injective
     swap; · infer_instance
     apply 𝓑.ext
     intro i
-    convert concrete_category.congr_hom (e ⟨i⟩) (tunit_add_equiv.symm 1) using 1
-    · dsimp [coproduct_cocone_of_basis]; simp
+    convert ConcreteCategory.congr_hom (e ⟨i⟩) (tunit_add_equiv.symm 1) using 1
+    · dsimp [AddCommGroupCat.coproductCoconeOfBasis]; simp
     · dsimp; simp
 
 -- set_option pp.universes true
@@ -283,8 +283,8 @@ instance (priority := 100) {C J : Type _} [Fintype J] [Category C] [Limits.HasZe
     rw [this]
     exact
       ⟨⟨⟨_,
-            (limits.bicone.whisker_is_bilimit_iff _ (Fintype.equivFin J)).symm
-              (limits.biproduct.is_bilimit <| F ∘ (Fintype.equivFin J).invFun)⟩⟩⟩⟩
+            (Limits.Bicone.whiskerIsBilimitIff _ (Fintype.equivFin J)).symm
+              (Limits.biproduct.isBilimit <| F ∘ (Fintype.equivFin J).invFun)⟩⟩⟩⟩
 
 theorem exists_biprod_iso_of_index (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A]
     (I : A.IndexCat) :
@@ -293,8 +293,8 @@ theorem exists_biprod_iso_of_index (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors
   by
   obtain ⟨ι, hι, e, -⟩ := exists_sigma_iso_of_index A I
   skip; use ι, hι
-  use(limits.biproduct.is_bilimit _).IsColimit.coconePointUniqueUpToIso
-        (limits.colimit.is_colimit _) ≪≫
+  use(Limits.biproduct.isBilimit _).IsColimit.coconePointUniqueUpToIso
+        (Limits.colimit.isColimit _) ≪≫
       e
 
 universe u'
@@ -304,9 +304,9 @@ theorem isIso_of_preserves {𝓐 : Type u'} [Category.{u} 𝓐] [Preadditive �
     [Limits.PreservesFilteredColimits G] (η : F ⟶ G) [hη : IsIso (η.app tunit)]
     (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] : IsIso (η.app A) :=
   by
-  let T := (limits.cocones.precompose (whisker_left A.diagram η)).obj (G.map_cocone A.cocone)
+  let T := (Limits.Cocones.precompose (whisker_left A.diagram η)).obj (G.map_cocone A.cocone)
   let S := F.map_cocone A.cocone
-  let hS : limits.is_colimit S := limits.is_colimit_of_preserves F A.is_colimit_cocone
+  let hS : Limits.IsColimit S := Limits.isColimitOfPreserves F A.is_colimit_cocone
   have : η.app A = hS.desc T := by
     apply hS.hom_ext; intro j; rw [hS.fac]
     dsimp; apply η.naturality
@@ -316,52 +316,52 @@ theorem isIso_of_preserves {𝓐 : Type u'} [Category.{u} 𝓐] [Preadditive �
     skip
     have : is_iso (whisker_left A.diagram η) :=
       by
-      apply (config := { instances := false }) nat_iso.is_iso_of_is_iso_app
+      apply (config := { instances := false }) NatIso.isIso_of_isIso_app
       intro I; exact this I
-    let hT : limits.is_colimit T :=
-      (limits.is_colimit.precompose_hom_equiv (as_iso (whisker_left A.diagram η))
+    let hT : Limits.IsColimit T :=
+      (Limits.IsColimit.precomposeHomEquiv (CategoryTheory.asIso (whisker_left A.diagram η))
             (G.map_cocone A.cocone)).symm
-        (limits.is_colimit_of_preserves G A.is_colimit_cocone)
+        (Limits.isColimitOfPreserves G A.is_colimit_cocone)
     use hT.desc S
     constructor
     · apply hS.hom_ext
       intro j
-      erw [hS.fac_assoc, hT.fac, category.comp_id]
+      erw [hS.fac_assoc, hT.fac, Category.comp_id]
     · apply hT.hom_ext
       intro j
-      erw [hT.fac_assoc, hS.fac, category.comp_id]
+      erw [hT.fac_assoc, hS.fac, Category.comp_id]
   --^ general colimit nonsense..., but I can't find applicable lemmas :-(
   intro I
   obtain ⟨ι : Type, hι, e, -⟩ := A.exists_biprod_iso_of_index I
   -- now use the fact that the functors are additive and that there exists some iso with a biproduct
   skip
   let eF : F.obj (⨁ fun i : ι => tunit.{u}) ≅ ⨁ fun i : ι => F.obj tunit :=
-    (limits.is_bilimit_of_preserves F
-            (limits.biproduct.is_bilimit fun i : ι => tunit.{u})).IsColimit.coconePointUniqueUpToIso
-      (limits.biproduct.is_bilimit fun i : ι => F.obj tunit).IsColimit
+    (Limits.isBilimitOfPreserves F
+            (Limits.biproduct.isBilimit fun i : ι => tunit.{u})).IsColimit.coconePointUniqueUpToIso
+      (Limits.biproduct.isBilimit fun i : ι => F.obj tunit).IsColimit
   let eG : G.obj (⨁ fun i : ι => tunit.{u}) ≅ ⨁ fun i : ι => G.obj tunit :=
-    (limits.is_bilimit_of_preserves G
-            (limits.biproduct.is_bilimit fun i : ι => tunit.{u})).IsColimit.coconePointUniqueUpToIso
-      (limits.biproduct.is_bilimit fun i : ι => G.obj tunit).IsColimit
+    (Limits.isBilimitOfPreserves G
+            (Limits.biproduct.isBilimit fun i : ι => tunit.{u})).IsColimit.coconePointUniqueUpToIso
+      (Limits.biproduct.isBilimit fun i : ι => G.obj tunit).IsColimit
   have :
     η.app (A.diagram.obj I) =
-      F.map e.inv ≫ eF.hom ≫ (limits.biproduct.map fun i => η.app _) ≫ eG.inv ≫ G.map e.hom :=
+      F.map e.inv ≫ eF.hom ≫ (Limits.biproduct.map fun i => η.app _) ≫ eG.inv ≫ G.map e.hom :=
     by
-    rw [← functor.map_iso_inv, iso.eq_inv_comp, ← iso.inv_comp_eq]
-    apply limits.biproduct.hom_ext'; intro i
-    simp only [functor.map_iso_hom, nat_trans.naturality, limits.biproduct.ι_map_assoc,
-      category.assoc]
-    erw [limits.biproduct.ι_desc_assoc, limits.biproduct.ι_desc_assoc]
+    rw [← Functor.mapIso_inv, Iso.eq_inv_comp, ← Iso.inv_comp_eq]
+    apply Limits.biproduct.hom_ext'; intro i
+    simp only [Functor.mapIso_hom, NatTrans.naturality, Limits.biproduct.ι_map_assoc,
+      Category.assoc]
+    erw [Limits.biproduct.ι_desc_assoc, Limits.biproduct.ι_desc_assoc]
     dsimp; rw [η.naturality_assoc]
   rw [this]
-  apply (config := { instances := false }) is_iso.comp_is_iso
+  apply (config := { instances := false }) IsIso.comp_isIso
   infer_instance
-  apply (config := { instances := false }) is_iso.comp_is_iso
+  apply (config := { instances := false }) IsIso.comp_isIso
   infer_instance
-  apply (config := { instances := false }) is_iso.comp_is_iso
+  apply (config := { instances := false }) IsIso.comp_isIso
   swap
   infer_instance
-  use limits.biproduct.desc fun i => inv (η.app _) ≫ limits.biproduct.ι _ i
+  use Limits.biproduct.desc fun i => inv (η.app _) ≫ Limits.biproduct.ι _ i
   constructor
   · ext; simp
   · ext; simp
@@ -386,12 +386,12 @@ theorem IsTensorUnit.ext {A B : AddCommGroupCat.{u}} (h : A.IsTensorUnit) (f g :
 
 def IsTensorUnit.iso {A B : AddCommGroupCat.{u}} (hA : A.IsTensorUnit) (hB : B.IsTensorUnit) : A ≅ B
     where
-  Hom := hA.asHom hB.gen
+  hom := hA.asHom hB.gen
   inv := hB.asHom hA.gen
-  hom_inv_id' := by
+  hom_inv_id := by
     apply hA.ext
     simp
-  inv_hom_id' := by
+  inv_hom_id := by
     apply hB.ext
     simp
 
@@ -403,24 +403,24 @@ theorem isTensorUnit_tunit : tunit.{u}.IsTensorUnit :=
   · intro f g h
     dsimp [tunit.gen] at h 
     change (adj'.unit.app _ ≫ (forget _).map f) _ = (adj'.unit.app _ ≫ (forget _).map g) _ at h 
-    apply_fun adj'.hom_equiv _ _
-    simp only [adjunction.hom_equiv_unit]
+    apply_fun adj'.homEquiv _ _
+    simp only [Adjunction.homEquiv_unit]
     ext t
-    let e := limits.terminal.from (PUnit : Type u)
+    let e := Limits.terminal.from (PUnit : Type u)
     suffices t = e PUnit.unit by rw [this]; exact h
-    apply_fun types.punit_iso.inv
+    apply_fun types.punitIso.inv
     · simp
-    intro i j h; apply_fun types.punit_iso.hom at h 
+    intro i j h; apply_fun types.punitIso.hom at h 
     simpa using h
   · intro t
     use tunit.lift (Types.pt t)
     dsimp only [tunit.lift, Types.pt, tunit.gen]
-    simp only [adjunction.hom_equiv_counit]
+    simp only [Adjunction.homEquiv_counit]
     change
       (adj'.unit.app _ ≫ (forget _).map ((free'.map fun x : ⊤_ Type u => t) ≫ adj'.counit.app B))
           _ =
         _
-    simp only [functor.map_comp, adjunction.unit_naturality_assoc]
+    simp only [Functor.map_comp, Adjunction.unit_naturality_assoc]
     erw [adj'.right_triangle_components]; rfl
 
 theorem isIso_of_preserves_of_isTensorUnit {𝓐 : Type u'} [Category.{u} 𝓐] [Preadditive 𝓐]
@@ -428,10 +428,10 @@ theorem isIso_of_preserves_of_isTensorUnit {𝓐 : Type u'} [Category.{u} 𝓐] 
     [Limits.PreservesFilteredColimits G] (η : F ⟶ G) (U : AddCommGroupCat) (hU : U.IsTensorUnit)
     [hη : IsIso (η.app U)] (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] : IsIso (η.app A) :=
   by
-  suffices is_iso (η.app tunit) by skip; apply is_iso_of_preserves
+  suffices is_iso (η.app tunit) by skip; apply AddCommGroupCat.isIso_of_preserves
   let e : tunit ≅ U := is_tensor_unit_tunit.iso hU
-  suffices η.app tunit = F.map e.hom ≫ η.app U ≫ G.map e.inv by rw [this]; apply is_iso.comp_is_iso
-  rw [← η.naturality, ← F.map_comp_assoc, e.hom_inv_id, F.map_id, category.id_comp]
+  suffices η.app tunit = F.map e.hom ≫ η.app U ≫ G.map e.inv by rw [this]; apply IsIso.comp_isIso
+  rw [← η.naturality, ← F.map_comp_assoc, e.hom_inv_id, F.map_id, Category.id_comp]
 
 end AddCommGroupCat
 

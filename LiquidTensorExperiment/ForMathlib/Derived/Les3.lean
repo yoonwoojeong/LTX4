@@ -25,30 +25,30 @@ open HomotopyCategory
 theorem ext_map_extIso [EnoughProjectives A] (i : ℤ) (P₁ P₂ X₁ X₂ Y : BoundedHomotopyCategory A)
     [IsKProjective P₁.val] [IsKProjective P₂.val] (f₁ : P₁ ⟶ X₁) [IsQuasiIso f₁] (f₂ : P₂ ⟶ X₂)
     [IsQuasiIso f₂] (φ : X₁ ⟶ X₂) (φ' : P₁ ⟶ P₂) (h : φ' ≫ f₂ = f₁ ≫ φ) :
-    ((ext i).flip.obj Y).map φ.op ≫ (extIso i P₁ X₁ Y f₁).Hom =
-      (extIso i P₂ X₂ Y f₂).Hom ≫ (preadditiveYoneda.obj (Y⟦i⟧)).map φ'.op :=
+    ((ext i).flip.obj Y).map φ.op ≫ (extIso i P₁ X₁ Y f₁).hom =
+      (extIso i P₂ X₂ Y f₂).hom ≫ (preadditiveYoneda.obj (Y⟦i⟧)).map φ'.op :=
   by
-  dsimp only [Ext_iso, functor.map_iso_hom, iso.op_hom, Ext, Ext0, functor.flip_obj_map,
-    functor.comp_map, whiskering_left_obj_map, whisker_left_app, functor.flip_map_app]
+  dsimp only [Ext_iso, Functor.mapIso_hom, Iso.op_hom, Ext, Ext0, Functor.flip_obj_map,
+    Functor.comp_map, CategoryTheory.whiskeringLeft_obj_map, CategoryTheory.whiskerLeft_app, Functor.flip_map_app]
   rw [← CategoryTheory.Functor.map_comp, ← op_comp, ← CategoryTheory.Functor.map_comp, ← op_comp]
   congr 2
-  dsimp only [replacement_iso_hom, Opposite.unop_op]
+  dsimp only [BoundedHomotopyCategory.replacementIso_hom, Opposite.unop_op]
   refine' lift_ext X₂.π _ _ _
-  simp only [category.assoc, lift_lifts, lift_lifts_assoc, Quiver.Hom.unop_op, h]
+  simp only [Category.assoc, lift_lifts, lift_lifts_assoc, Quiver.Hom.unop_op, h]
 
 -- move me
 @[reassoc]
 theorem ext_map_ext_iso' [EnoughProjectives A] (i : ℤ) (X₁ X₂ Y : BoundedHomotopyCategory A)
     (φ : X₁ ⟶ X₂) :
-    ((ext i).flip.obj Y).map φ.op ≫ (extIso i _ X₁ Y X₁.π).Hom =
-      (extIso i _ X₂ Y X₂.π).Hom ≫ (preadditiveYoneda.obj (Y⟦i⟧)).map (lift (X₁.π ≫ φ) X₂.π).op :=
+    ((ext i).flip.obj Y).map φ.op ≫ (extIso i _ X₁ Y X₁.π).hom =
+      (extIso i _ X₂ Y X₂.π).hom ≫ (preadditiveYoneda.obj (Y⟦i⟧)).map (lift (X₁.π ≫ φ) X₂.π).op :=
   ext_map_extIso _ _ _ _ _ _ _ _ _ _ <| by rw [lift_lifts]
 
 theorem extIso_naturality_snd_component [EnoughProjectives A] (i : ℤ)
     (P X Y₁ Y₂ : BoundedHomotopyCategory A) [IsKProjective P.val] (f : P ⟶ X) [IsQuasiIso f]
     (g : Y₁ ⟶ Y₂) :
-    ((ext i).obj _).map g ≫ (extIso i P X _ f).Hom =
-      (extIso i P X _ f).Hom ≫ (preadditiveYoneda.flip.obj (Opposite.op P)).map (g⟦i⟧') :=
+    ((ext i).obj _).map g ≫ (extIso i P X _ f).hom =
+      (extIso i P X _ f).hom ≫ (preadditiveYoneda.flip.obj (Opposite.op P)).map (g⟦i⟧') :=
   by
   dsimp only [Ext_iso, Ext, Ext0]; ext t
   dsimp; simp only [comp_apply]; dsimp; simp
@@ -65,7 +65,7 @@ def shiftIso [EnoughProjectives A] (n : ℤ) (X : CochainComplex A ℤ) (Y : Bou
   refine' e' ≪≫ _ ≪≫ e.symm
   clear e e'
   refine' AddEquiv.toAddCommGroupCatIso _
-  refine' shift_iso_aux 1 n _ _
+  refine' BoundedHomotopyCategory.shiftIsoAux 1 n _ _
 
 open CategoryTheory.Preadditive
 
@@ -73,71 +73,71 @@ theorem shiftIso_conj (n : ℤ) [EnoughProjectives A] (W : BoundedHomotopyCatego
     [HomotopyCategory.IsBoundedAbove ((HomotopyCategory.quotient _ _).obj X)]
     [HomotopyCategory.IsBoundedAbove ((HomotopyCategory.quotient _ _).obj Y)] :
     (shiftIso _ _ _).inv ≫
-        (((ext (n + 1)).flip.obj W).rightOp.map (ofHom f⟦(1 : ℤ)⟧')).unop ≫ (shiftIso _ _ _).Hom =
+        (((ext (n + 1)).flip.obj W).rightOp.map (ofHom f⟦(1 : ℤ)⟧')).unop ≫ (shiftIso _ _ _).hom =
       ((ext n).flip.obj W).map (ofHom f).op :=
   by
-  dsimp only [shift_iso, iso.trans_hom, iso.trans_inv, iso.symm_inv, iso.symm_hom,
-    functor.right_op_map, Quiver.Hom.unop_op]
-  simp only [category.assoc]
+  dsimp only [BoundedHomotopyCategory.shiftIso, Iso.trans_hom, Iso.trans_inv, Iso.symm_inv, Iso.symm_hom,
+    Functor.rightOp_map, Quiver.Hom.unop_op]
+  simp only [Category.assoc]
   rw [Ext_map_Ext_iso_assoc (n + 1)
       ((shift_functor (BoundedHomotopyCategory A) (1 : ℤ)).obj (of' X).replace)
       ((shift_functor (BoundedHomotopyCategory A) (1 : ℤ)).obj (of' Y).replace) _ _ _
       ((shift_functor (BoundedHomotopyCategory A) 1).map (of' X).π)
       ((shift_functor (BoundedHomotopyCategory A) 1).map (of' Y).π) _
       (lift ((of' X).π ≫ of_hom f) (of' Y).π⟦1⟧'),
-    iso.inv_hom_id_assoc]
+    Iso.inv_hom_id_assoc]
   swap
   · simp only [comp_neg, neg_comp, neg_inj, ← CategoryTheory.Functor.map_comp, lift_lifts]
-  simp only [← category.assoc, iso.comp_inv_eq]
-  rw [Ext_map_Ext_iso', category.assoc, category.assoc]; congr 1
-  rw [← category.assoc, ← iso.eq_comp_inv]
+  simp only [← Category.assoc, Iso.comp_inv_eq]
+  rw [Ext_map_Ext_iso', Category.assoc, Category.assoc]; congr 1
+  rw [← Category.assoc, ← Iso.eq_comp_inv]
   apply AddCommGroupCat.ext; intro φ
-  dsimp only [shift_iso_aux, AddEquiv.toAddCommGroupCatIso]
+  dsimp only [BoundedHomotopyCategory.shiftIsoAux, AddEquiv.toAddCommGroupCatIso]
   rw [comp_apply, comp_apply]
   dsimp only [AddEquiv.coe_toAddMonoidHom, AddEquiv.symm, Equiv.symm, AddEquiv.to_equiv_mk,
     AddEquiv.coe_mk]
   erw [preadditive_yoneda_obj_map_apply, preadditive_yoneda_obj_map_apply]
-  simp only [← category.assoc, Quiver.Hom.unop_op, ← CategoryTheory.Functor.map_comp]
+  simp only [← Category.assoc, Quiver.Hom.unop_op, ← CategoryTheory.Functor.map_comp]
 
 --attribute [simps] shift_iso_aux
 theorem shiftIso_conj' (n : ℤ) [EnoughProjectives A]
     [HomotopyCategory.IsBoundedAbove ((HomotopyCategory.quotient _ _).obj X)]
     (W₁ W₂ : BoundedHomotopyCategory A) (f : W₁ ⟶ W₂) :
-    (shiftIso n X W₁).inv ≫ ((ext (n + 1)).obj _).map f ≫ (shiftIso n X _).Hom =
+    (shiftIso n X W₁).inv ≫ ((ext (n + 1)).obj _).map f ≫ (shiftIso n X _).hom =
       ((ext n).obj _).map f :=
   by
-  dsimp only [shift_iso, iso.trans_hom, iso.trans_inv, iso.symm_hom, iso.symm_inv]
-  simp only [category.assoc]
+  dsimp only [BoundedHomotopyCategory.shiftIso, Iso.trans_hom, Iso.trans_inv, Iso.symm_hom, Iso.symm_inv]
+  simp only [Category.assoc]
   slice_lhs 4 5 => rw [Ext_iso_naturality_snd_component]
-  simp only [category.assoc, iso.inv_hom_id_assoc, category.id_comp]
-  rw [← iso.eq_inv_comp]
-  simp_rw [← category.assoc]
-  rw [iso.comp_inv_eq]
-  simp_rw [category.assoc]
+  simp only [Category.assoc, Iso.inv_hom_id_assoc, Category.id_comp]
+  rw [← Iso.eq_inv_comp]
+  simp_rw [← Category.assoc]
+  rw [Iso.comp_inv_eq]
+  simp_rw [Category.assoc]
   rw [Ext_iso_naturality_snd_component]
-  rw [iso.inv_hom_id_assoc]
+  rw [Iso.inv_hom_id_assoc]
   ext t
   dsimp
   simp only [comp_apply]
   dsimp
-  simp only [add_zero, unit_of_tensor_iso_unit_inv_app, discrete.functor_map_id, nat_trans.id_app,
-    category.id_comp, category.assoc, nat_trans.naturality, functor.comp_map, μ_hom_inv_app_assoc,
-    functor.map_comp, ε_inv_app_obj, discrete.right_unitor_def, eq_to_iso.hom, eq_to_hom_map,
-    eq_to_hom_app, μ_naturality_assoc, μ_inv_hom_app_assoc]
-  erw [← nat_trans.naturality_assoc]
-  erw [← nat_trans.naturality_assoc]
-  dsimp; let s := _; change _ ≫ _ ≫ s = _; rw [← category.assoc]; convert category.comp_id _
+  simp only [add_zero, CategoryTheory.unitOfTensorIsoUnit_inv_app, Discrete.functor_map_id, NatTrans.id_app,
+    Category.id_comp, Category.assoc, NatTrans.naturality, Functor.comp_map, μ_hom_inv_app_assoc,
+    Functor.map_comp, ε_inv_app_obj, Discrete.rightUnitor_def, eqToIso.hom, CategoryTheory.eqToHom_map,
+    CategoryTheory.eqToHom_app, μ_naturality_assoc, μ_inv_hom_app_assoc]
+  erw [← NatTrans.naturality_assoc]
+  erw [← NatTrans.naturality_assoc]
+  dsimp; let s := _; change _ ≫ _ ≫ s = _; rw [← Category.assoc]; convert Category.comp_id _
   dsimp [s]
-  simp only [eq_to_hom_map, eq_to_hom_app, eq_to_iso.inv, ε_app_obj, discrete.right_unitor_def,
-    category.assoc, μ_inv_hom_app_assoc, eq_to_hom_trans, eq_to_hom_refl]
+  simp only [CategoryTheory.eqToHom_map, CategoryTheory.eqToHom_app, eqToIso.inv, ε_app_obj, Discrete.rightUnitor_def,
+    Category.assoc, μ_inv_hom_app_assoc, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_refl]
 
 @[reassoc]
 theorem shiftIso_ext_map (n : ℤ) [EnoughProjectives A] (W : BoundedHomotopyCategory A)
     [HomotopyCategory.IsBoundedAbove ((HomotopyCategory.quotient _ _).obj X)]
     [HomotopyCategory.IsBoundedAbove ((HomotopyCategory.quotient _ _).obj Y)] :
-    (((ext (n + 1)).flip.obj W).rightOp.map (ofHom f⟦(1 : ℤ)⟧')).unop ≫ (shiftIso _ _ _).Hom =
-      (shiftIso _ _ _).Hom ≫ ((ext n).flip.obj W).map (ofHom f).op :=
-  by rw [← iso.inv_comp_eq, shift_iso_conj]
+    (((ext (n + 1)).flip.obj W).rightOp.map (ofHom f⟦(1 : ℤ)⟧')).unop ≫ (shiftIso _ _ _).hom =
+      (shiftIso _ _ _).hom ≫ ((ext n).flip.obj W).map (ofHom f).op :=
+  by rw [← Iso.inv_comp_eq, BoundedHomotopyCategory.shiftIso_conj]
 
 @[reassoc]
 theorem ext_map_shiftIso_inv (n : ℤ) [EnoughProjectives A] (W : BoundedHomotopyCategory A)
@@ -145,7 +145,7 @@ theorem ext_map_shiftIso_inv (n : ℤ) [EnoughProjectives A] (W : BoundedHomotop
     [HomotopyCategory.IsBoundedAbove ((HomotopyCategory.quotient _ _).obj Y)] :
     (shiftIso _ _ _).inv ≫ (((ext (n + 1)).flip.obj W).rightOp.map (ofHom f⟦(1 : ℤ)⟧')).unop =
       ((ext n).flip.obj W).map (ofHom f).op ≫ (shiftIso _ _ _).inv :=
-  by rw [iso.eq_comp_inv, category.assoc, shift_iso_conj]
+  by rw [Iso.eq_comp_inv, Category.assoc, BoundedHomotopyCategory.shiftIso_conj]
 
 def extδ (n : ℤ) [EnoughProjectives A] (W : BoundedHomotopyCategory A)
     [HomotopyCategory.IsBoundedAbove ((HomotopyCategory.quotient _ _).obj X)]
@@ -190,26 +190,26 @@ theorem extδ_natural (i : ℤ) [EnoughProjectives A] (W : BoundedHomotopyCatego
   -- TODO: This proof is SLOW.
   delta Ext_δ
   let F := HomotopyCategory.quotient A (ComplexShape.up ℤ)
-  simp only [category.assoc]
-  dsimp only [connecting_hom', unop_comp]
-  simp only [unop_inv, category.assoc]
-  simp only [← category.assoc, is_iso.comp_inv_eq]
-  simp only [category.assoc]
-  dsimp only [functor.right_op, Quiver.Hom.unop_op, functor.flip, Opposite.unop_op]
+  simp only [Category.assoc]
+  dsimp only [BoundedHomotopyCategory.connectingHom', unop_comp]
+  simp only [unop_inv, Category.assoc]
+  simp only [← Category.assoc, IsIso.comp_inv_eq]
+  simp only [Category.assoc]
+  dsimp only [Functor.rightOp, Quiver.Hom.unop_op, Functor.flip, Opposite.unop_op]
   let t := _; change _ = _ ≫ _ ≫ t
   have ht : t = ((Ext (i + 1)).map (Quiver.Hom.op _)).app W
   rotate_left 2
   · apply map_cone
     exact sq₁
   · -- Move the inv, and this should be doable.
-    dsimp [t]; rw [is_iso.inv_comp_eq]
+    dsimp [t]; rw [IsIso.inv_comp_eq]
     ext f
-    dsimp [Ext, shift_iso, Ext_iso, preadditive_yoneda_obj, LinearMap.toAddMonoidHom]
+    dsimp [Ext, BoundedHomotopyCategory.shiftIso, Ext_iso, CategoryTheory.preadditiveYonedaObj, LinearMap.toAddMonoidHom]
     simp only [comp_apply]; dsimp
-    simp only [← category.assoc]
+    simp only [← Category.assoc]
     congr 1
     apply lift_ext (of' Z₂).π; swap; infer_instance
-    simp only [category.assoc, lift_lifts, lift_lifts_assoc]
+    simp only [Category.assoc, lift_lifts, lift_lifts_assoc]
     congr 1; dsimp [map_cone, cone.π, HomotopyCategory.cone.π]
     erw [← F.map_comp, ← F.map_comp]; congr 1
     dsimp [HomologicalComplex.cone.π]
@@ -219,19 +219,19 @@ theorem extδ_natural (i : ℤ) [EnoughProjectives A] (W : BoundedHomotopyCatego
       simp only [← HomologicalComplex.comp_f, sq₂]
   rw [ht]; clear ht; clear t
   ext f
-  dsimp [Ext, shift_iso, Ext_iso, preadditive_yoneda_obj, LinearMap.toAddMonoidHom]
-  dsimp only [shift_iso_aux, AddEquiv.symm]
+  dsimp [Ext, BoundedHomotopyCategory.shiftIso, Ext_iso, CategoryTheory.preadditiveYonedaObj, LinearMap.toAddMonoidHom]
+  dsimp only [BoundedHomotopyCategory.shiftIsoAux, AddEquiv.symm]
   simp only [comp_apply]
   dsimp
-  simp only [← category.assoc]; congr 1
-  simp only [functor.map_comp, ← category.assoc]; congr 1
-  simp only [category.assoc]
+  simp only [← Category.assoc]; congr 1
+  simp only [Functor.map_comp, ← Category.assoc]; congr 1
+  simp only [Category.assoc]
   apply lift_ext ((of' X₂).π⟦(1 : ℤ)⟧')
   swap; infer_instance
-  simp only [category.assoc, ← functor.map_comp, lift_lifts]
-  simp only [functor.map_comp, lift_lifts_assoc, lift_lifts, category.assoc]
+  simp only [Category.assoc, ← Functor.map_comp, lift_lifts]
+  simp only [Functor.map_comp, lift_lifts_assoc, lift_lifts, Category.assoc]
   congr 1
-  dsimp [cone_triangle, map_cone]
+  dsimp [BoundedHomotopyCategory.coneTriangle, map_cone]
   simp only [comp_neg, neg_comp]; congr 1
   erw [← F.map_comp, ← F.map_comp]; congr 1
   dsimp [HomologicalComplex.cone.out]
@@ -248,22 +248,22 @@ theorem extδ_natural' (i : ℤ) [EnoughProjectives A] (W₁ W₂ : BoundedHomot
     ((ext i).obj _).map e ≫ extδ f g i W₂ w = extδ f g i W₁ w ≫ ((ext (i + 1)).obj _).map e :=
   by
   delta Ext_δ
-  dsimp [connecting_hom']
+  dsimp [BoundedHomotopyCategory.connectingHom']
   simp only [Quiver.Hom.unop_op, unop_inv]
-  simp_rw [← category.assoc]
-  rw [is_iso.comp_inv_eq]
-  simp_rw [category.assoc]
+  simp_rw [← Category.assoc]
+  rw [IsIso.comp_inv_eq]
+  simp_rw [Category.assoc]
   let t := _; change _ = _ ≫ _ ≫ t
   have ht : t = ((Ext (i + 1)).obj _).map e :=
     by
     dsimp only [t]
-    rw [is_iso.inv_comp_eq, nat_trans.naturality]
+    rw [IsIso.inv_comp_eq, NatTrans.naturality]
   rw [ht]; clear ht t
-  rw [iso.eq_inv_comp]
-  rw [← nat_trans.naturality]
-  simp only [← category.assoc]
+  rw [Iso.eq_inv_comp]
+  rw [← NatTrans.naturality]
+  simp only [← Category.assoc]
   congr 1
-  rw [iso.comp_inv_eq, ← shift_iso_conj', iso.hom_inv_id_assoc]
+  rw [Iso.comp_inv_eq, ← BoundedHomotopyCategory.shiftIso_conj', Iso.hom_inv_id_assoc]
 
 theorem ext_five_term_exact_seq' (n : ℤ) [EnoughProjectives A] (W : BoundedHomotopyCategory A)
     [HomotopyCategory.IsBoundedAbove ((HomotopyCategory.quotient _ _).obj X)]
@@ -276,11 +276,11 @@ theorem ext_five_term_exact_seq' (n : ℤ) [EnoughProjectives A] (W : BoundedHom
         (E (n + 1)).map (ofHom g).op] :=
   by
   refine' (Ext_five_term_exact_seq f g n W w).pair.unop.cons _
-  refine' exact.cons _ (exact.exact_seq _)
-  · rw [Ext_δ, functor.right_op_map, Quiver.Hom.unop_op, ← shift_iso_conj f n W, exact_iso_comp,
+  refine' Exact.cons _ (Exact.exactSeq _)
+  · rw [Ext_δ, Functor.rightOp_map, Quiver.Hom.unop_op, ← BoundedHomotopyCategory.shiftIso_conj f n W, exact_iso_comp,
       exact_comp_hom_inv_comp_iff]
     have := (Ext_five_term_exact_seq f g (n + 1) W w).unop.pair
-    erw [functor.map_neg, CategoryTheory.unop_neg, abelian.exact_neg_left_iff] at this 
+    erw [Functor.map_neg, CategoryTheory.unop_neg, Abelian.exact_neg_left_iff] at this 
     exact this
   · rw [Ext_δ, exact_iso_comp]
     exact ((Ext_five_term_exact_seq f g (n + 1) W w).drop 1).pair.unop
@@ -303,7 +303,7 @@ def cone (f : X ⟶ Y) : BoundedDerivedCategory A :=
         obtain ⟨b, hb⟩ := HomotopyCategory.IsBoundedAbove.cond Y.val.val
         constructor; use max a b + 1
         intro t ht
-        apply is_zero_biprod
+        apply CategoryTheory.Limits.isZero_biprod
         · apply ha; refine' le_trans (le_trans _ ht) _
           refine' le_trans (le_max_left a b) _
           all_goals linarith
@@ -342,7 +342,7 @@ def ext'δ [EnoughProjectives A] {X Y Z : A} (W : A) {f : X ⟶ Y} {g : Y ⟶ Z}
       ((HomologicalComplex.single _ _ _).map g) n _ _ (quotientSingleIsBoundedAbove _)
       (quotientSingleIsBoundedAbove _) (quotientSingleIsBoundedAbove _) _
   intro i; dsimp; by_cases hi : i = 0
-  · subst i; dsimp; simp only [eq_self_iff_true, category.comp_id, category.id_comp, if_true, h]
+  · subst i; dsimp; simp only [eq_self_iff_true, Category.comp_id, Category.id_comp, if_true, h]
   · rw [dif_neg hi, dif_neg hi, if_neg hi, if_neg hi, if_neg hi]
     refine' ⟨exact_of_zero _ _⟩
 
@@ -374,7 +374,7 @@ theorem ext'_five_term_exactSeq [EnoughProjectives A] {X Y Z : A} (W : A) {f : X
   have Hfg : ∀ i : ℤ, short_exact (f'.f i) (g'.f i) :=
     by
     intro i; dsimp; by_cases hi : i = 0
-    · subst i; dsimp; simp only [eq_self_iff_true, category.comp_id, category.id_comp, if_true, h]
+    · subst i; dsimp; simp only [eq_self_iff_true, Category.comp_id, Category.id_comp, if_true, h]
     · rw [dif_neg hi, dif_neg hi, if_neg hi, if_neg hi, if_neg hi]
       refine' ⟨exact_of_zero _ _⟩
   convert BoundedHomotopyCategory.ext_five_term_exact_seq' f' g' n W' Hfg

@@ -59,8 +59,8 @@ theorem powMulCommObjEquiv_ctu (X : ProFiltPseuNormGrpWithTinv r') (c : ℝ≥0)
       (PseudoNormedGroup.level (⇑(powMulCommObjEquiv r' m n X))
         (fun c x => (powMulCommObjEquiv_strict r' _ _ X c x).mp) c) :=
   by
-  rw [← (filtration_pi_homeo _ c).comp_continuous_iff, ←
-    (filtration_pi_homeo _ c).symm.comp_continuous_iff']
+  rw [← (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo _ c).comp_continuous_iff, ←
+    (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo _ c).symm.comp_continuous_iff']
   apply continuous_pi
   intro i
   dsimp [-finProdFinEquiv_symm_apply]
@@ -99,8 +99,8 @@ def powRescaleAux (c : ℝ≥0) (m : ℕ) (X : ProFiltPseuNormGrpWithTinv r') :
 theorem powRescaleAux_ctu (X : ProFiltPseuNormGrpWithTinv r') (c' : ℝ≥0) :
     Continuous (PseudoNormedGroup.level (⇑(powRescaleAux r' c m X)) (fun _ _ => id) c') :=
   by
-  erw [← (filtration_pi_homeo _ _).comp_continuous_iff, ←
-    (filtration_pi_homeo _ _).symm.comp_continuous_iff']
+  erw [← (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo _ _).comp_continuous_iff, ←
+    (ComphausFilteredPseudoNormedGroup.filtrationPiHomeo _ _).symm.comp_continuous_iff']
   apply continuous_pi
   intro i
   dsimp
@@ -112,7 +112,7 @@ def powRescale : pow r' m ⋙ rescale r' c ≅ rescale r' c ⋙ pow r' m :=
   NatIso.ofComponents
     (fun X => by
       dsimp
-      fapply iso_of_equiv_of_strict'
+      fapply ProFiltPseuNormGrpWithTinv.isoOfEquivOfStrict'
       apply Pow_rescale_aux
       · intro c' x
         erw [PseudoNormedGroup.mem_filtration_pi]

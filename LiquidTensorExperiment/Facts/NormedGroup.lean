@@ -1,6 +1,6 @@
 import Mathlib.Analysis.NormedSpace.Basic
 
-#align_import facts.normed_group
+#align_import facts.normedGroup
 
 variable {V : Type _} [SeminormedAddCommGroup V]
 

@@ -31,7 +31,7 @@ variable (ϕ : UniversalMap m n)
 theorem evalCLCFP_rescale [ϕ.Suitable c₂ c₁] (N : ℝ≥0) (M : ProFiltPseuNormGrpWithTinv r') :
     Arrow.mk ((evalCLCFP V r' c₁ c₂ ϕ).app (op (of r' (Rescale N M)))) =
       Arrow.mk ((evalCLCFP V r' (c₁ * N⁻¹) (c₂ * N⁻¹) ϕ).app (op M)) :=
-  by dsimp only [eval_CLCFP, whisker_right_app]; rw [eval_LCFP_rescale]; cases M; rfl
+  by dsimp only [eval_CLCFP, CategoryTheory.whiskerRight_app]; rw [eval_LCFP_rescale]; cases M; rfl
 
 end UniversalMap
 

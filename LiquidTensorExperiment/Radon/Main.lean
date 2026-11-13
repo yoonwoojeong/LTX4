@@ -102,7 +102,7 @@ theorem radon_closedEmbedding (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)]
       let T : Set (WeakDual ℝ (LocallyConstant X ℝ)) := {f | f.BddLC p c}
       change IsClosed (X.weak_dual_C_to_LC ⁻¹' T)
       apply IsClosed.preimage
-      exact (weak_dual_C_to_LC X).Continuous
+      exact (weak_dual_C_to_LC X).continuous
       convert (X.Radon_LC_closed_embedding p c).closed_range
       erw [Subtype.range_val]; rfl)
 
@@ -125,7 +125,7 @@ theorem radon_closed_embedding_range_bdd (X : Profinite) (p c : ℝ≥0) [Fact (
     let γ : WeakDual ℝ (LocallyConstant X ℝ) := X.weak_dual_C_to_LC μ
     dsimp [LocallyConstant.pkg]
     have : μ e = γ e; rfl; rw [this]; clear this
-    have : ‖e.to_continuous_map‖ = ‖e‖ := by
+    have : ‖e.toContinuousMap‖ = ‖e‖ := by
       simp only [ContinuousMap.norm_eq_iSup_norm, LocallyConstant.norm_def,
         LocallyConstant.toContinuousMap_eq_coe, LocallyConstant.coe_continuousMap]
     erw [this]; clear this
@@ -135,7 +135,7 @@ theorem radon_closed_embedding_range_bdd (X : Profinite) (p c : ℝ≥0) [Fact (
     rw [← NNReal.rpow_le_rpow_iff hp, NNReal.mul_rpow, ← NNReal.rpow_mul]
     rw [show 1 / (p : ℝ) * p = 1 from (eq_div_iff hp').mp rfl, NNReal.rpow_one]
     obtain ⟨δ, hδ⟩ := hμ
-    have H := δ.2 e.discrete_quotient
+    have H := δ.2 e.discreteQuotient
     replace H := mul_le_mul H (le_refl (‖e‖₊ ^ (p : ℝ))) (zero_le _) (zero_le _)
     refine' le_trans _ H; clear H
     rw [mul_comm, Finset.mul_sum]
@@ -157,7 +157,7 @@ instance compactSpace_radon (X : Profinite) (p c : ℝ≥0) [Fact (0 < p)] [Fact
   by
   let e : X.Radon p c ≃ₜ Set.range (X.Radon_to_weak_dual p c) :=
     Homeomorph.ofEmbedding _ (X.Radon_closed_embedding p c).toEmbedding
-  suffices CompactSpace (Set.range (X.Radon_to_weak_dual p c)) by skip; apply e.symm.compact_space
+  suffices CompactSpace (Set.range (X.Radon_to_weak_dual p c)) by skip; apply e.symm.compactSpace
   rw [← isCompact_iff_compactSpace]
   apply WeakDual.isCompact_of_bounded_of_closed
   apply Radon_closed_embedding_range_bdd
@@ -214,8 +214,8 @@ def radonCompHausFunctor (p c : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] : Profi
     where
   obj X := CompHaus.of <| X.radon p c
   map X Y f := (radonFunctor p c).map f
-  map_id' := (radonFunctor p c).map_id
-  map_comp' _ _ _ f g := (radonFunctor p c).map_comp f g
+  map_id := (radonFunctor p c).map_id
+  map_comp _ _ _ f g := (radonFunctor p c).map_comp f g
 
 /-- The functor `X ↦ X.Radon p c` is isomorphic to its locally constant variant.
 This is a variant taking values in `CompHaus` as opposed to `Top`. -/
@@ -223,10 +223,10 @@ def radonCompHausFunctorIsoRadonLCCompHausFunctor (p c : ℝ≥0) [Fact (0 < p)]
     radonCompHausFunctor p c ≅ radonLCCompHausFunctor p c :=
   NatIso.ofComponents
     (fun X =>
-      { Hom := (radonFunctorIsoRadonLCFunctor p c).Hom.app X
+      { hom := (radonFunctorIsoRadonLCFunctor p c).hom.app X
         inv := (radonFunctorIsoRadonLCFunctor p c).inv.app X
-        hom_inv_id' := by erw [← nat_trans.comp_app, iso.hom_inv_id]; rfl
-        inv_hom_id' := by erw [← nat_trans.comp_app, iso.inv_hom_id]; rfl })
+        hom_inv_id := by erw [← NatTrans.comp_app, Iso.hom_inv_id]; rfl
+        inv_hom_id := by erw [← NatTrans.comp_app, Iso.inv_hom_id]; rfl })
     (by intros; ext; rfl)
 
 /-- The cone exhibiting `X.Radon p c` as the limit of `T.Radon p c` where
@@ -241,21 +241,21 @@ def isLimitRadonCompHausCone (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)] 
     where
   lift S :=
     (X.isLimitRadonLCCompHausCone p c).lift
-        ⟨S.pt, S.π ≫ whiskerLeft _ (radonCompHausFunctorIsoRadonLCCompHausFunctor p c).Hom⟩ ≫
+        ⟨S.pt, S.π ≫ whiskerLeft _ (radonCompHausFunctorIsoRadonLCCompHausFunctor p c).hom⟩ ≫
       (radonCompHausFunctorIsoRadonLCCompHausFunctor p c).inv.app _
   fac := by
     intro S j
-    erw [category.assoc, ← nat_trans.naturality, (X.is_limit_Radon_LC_CompHaus_cone p c).fac_assoc,
-      ← nat_iso.app_inv, iso.comp_inv_eq]
+    erw [Category.assoc, ← NatTrans.naturality, (X.is_limit_Radon_LC_CompHaus_cone p c).fac_assoc,
+      ← NatIso.app_inv, Iso.comp_inv_eq]
     rfl
   uniq := by
     intro S m hm
-    rw [← nat_iso.app_inv, iso.eq_comp_inv]
+    rw [← NatIso.app_inv, Iso.eq_comp_inv]
     apply (X.is_limit_Radon_LC_CompHaus_cone p c).hom_ext; intro j
     erw [(X.is_limit_Radon_LC_CompHaus_cone p c).fac]
     dsimp; rw [← hm]
-    simp only [category.assoc]
-    erw [← nat_trans.naturality]
+    simp only [Category.assoc]
+    erw [← NatTrans.naturality]
 
 /-- The comparison between `Radon_LC` and `real_measures p` taking
 values in `CompHaus` instead of `Top`, and restricted to the discrete quotients of `X`. -/
@@ -264,13 +264,13 @@ def radonLCCompHausComparison (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)]
       X.fintypeDiagram ⋙ RealMeasures.functor p ⋙ CompHausFiltPseuNormGrp₁.level.obj c :=
   NatIso.ofComponents
     (fun T =>
-      { Hom := (X.radonLCComparison p c).Hom.app _
+      { hom := (X.radonLCComparison p c).hom.app _
         inv := (X.radonLCComparison p c).inv.app _
-        hom_inv_id' := by erw [← nat_trans.comp_app, iso.hom_inv_id]; rfl
-        inv_hom_id' := by erw [← nat_trans.comp_app, iso.inv_hom_id]; rfl })
+        hom_inv_id := by erw [← NatTrans.comp_app, Iso.hom_inv_id]; rfl
+        inv_hom_id := by erw [← NatTrans.comp_app, Iso.inv_hom_id]; rfl })
     (by
       intro S T i; dsimp
-      erw [(X.Radon_LC_comparison p c).Hom.naturality]; rfl)
+      erw [(X.Radon_LC_comparison p c).hom.naturality]; rfl)
 
 /-- The comparison between `Radon` and `real_measures p`
 restricted to the discrete quotients of `X`. -/

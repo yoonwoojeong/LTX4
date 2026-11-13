@@ -548,7 +548,7 @@ theorem finset_Gordan_aux [Module.Finite ℤ Λ] [Module.Free ℤ Λ] (S : Finse
   have e := LinearEquiv.restrictScalars ℕ (Module.Free.chooseBasis ℤ Λ).equivFun
   -- deliberately forget the data here, it makes the simp at the end easier
   let e' : (Λ →+ ℤ) → (Module.Free.ChooseBasisIndex ℤ Λ → ℤ) →+ ℤ := fun f =>
-    f.comp e.symm.to_linear_map.to_add_monoid_hom
+    f.comp e.symm.toLinearMap.toAddMonoidHom
   let L :=
     (intersectHalfspacesSet ↑(S.image e')).map
       (e.symm : (Module.Free.ChooseBasisIndex ℤ Λ → ℤ) →ₗ[ℕ] Λ)

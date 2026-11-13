@@ -12,7 +12,7 @@ variable {A : Type _} [Category A] [Abelian A]
 noncomputable section
 
 def ExactSeq.w {X₁ X₂ X₃ : A} {f : X₁ ⟶ X₂} {g : X₂ ⟶ X₃} (e : ExactSeq A [f, g]) : f ≫ g = 0 := by
-  rw [← exact_iff_exact_seq] at e ; exact e.w
+  rw [← CategoryTheory.exact_iff_exactSeq] at e ; exact e.w
 
 def ExactSeq.π {X₁ X₂ X₃ : A} {f : X₁ ⟶ X₂} {g : X₂ ⟶ X₃} (e : ExactSeq A [f, g]) :
     cokernel f ⟶ X₃ :=
@@ -21,15 +21,15 @@ def ExactSeq.π {X₁ X₂ X₃ : A} {f : X₁ ⟶ X₂} {g : X₂ ⟶ X₃} (e 
 def ExactSeq.ι {X₁ X₂ X₃ : A} {f : X₁ ⟶ X₂} {g : X₂ ⟶ X₃} (e : ExactSeq A [f, g]) : X₁ ⟶ kernel g :=
   kernel.lift _ f e.w
 
-attribute [local instance] abelian.pseudoelement.hom_to_fun
+attribute [local instance] Abelian.Pseudoelement.homToFun
 
 theorem ExactSeq.replace {X₁ X₂ X₃ X₄ X₅ : A} {f₁ : X₁ ⟶ X₂} {f₂ : X₂ ⟶ X₃} {f₃ : X₃ ⟶ X₄}
     {f₄ : X₄ ⟶ X₅} (e : ExactSeq A [f₁, f₂, f₃, f₄]) : Exact (e.extract 0 2).π (e.extract 2 3).ι :=
   by
-  apply abelian.pseudoelement.exact_of_pseudo_exact
+  apply Abelian.Pseudoelement.exact_of_pseudo_exact
   constructor
   · intro a
-    simp only [← abelian.pseudoelement.comp_apply]
+    simp only [← Abelian.Pseudoelement.comp_apply]
     suffices (e.extract 0 2).π ≫ (e.extract 2 3).ι = 0 by rw [this]; simp
     ext
     dsimp [exact_seq.π, exact_seq.ι]
@@ -37,30 +37,30 @@ theorem ExactSeq.replace {X₁ X₂ X₃ X₄ X₅ : A} {f₁ : X₁ ⟶ X₂} {
   · intro t ht
     dsimp [exact_seq.π, exact_seq.ι] at *
     apply_fun fun i => kernel.ι f₄ i at ht 
-    simp only [← abelian.pseudoelement.comp_apply, kernel.lift_ι] at ht 
+    simp only [← Abelian.Pseudoelement.comp_apply, kernel.lift_ι] at ht 
     simp at ht 
     have := e.extract 1 2
-    erw [← exact_iff_exact_seq] at this 
-    have := (@abelian.pseudoelement.pseudo_exact_of_exact _ _ _ _ _ _ _ _ this).2 _ ht
+    erw [← CategoryTheory.exact_iff_exactSeq] at this 
+    have := (@Abelian.Pseudoelement.pseudo_exact_of_exact _ _ _ _ _ _ _ _ this).2 _ ht
     obtain ⟨a, ha⟩ := this
     use cokernel.π f₁ a
-    rwa [← abelian.pseudoelement.comp_apply, cokernel.π_desc]
+    rwa [← Abelian.Pseudoelement.comp_apply, cokernel.π_desc]
 
 theorem isZero_of_exactSeq_of_is_iso_of_is_iso {X₁ X₂ X₃ X₄ X₅ : A} (f₁ : X₁ ⟶ X₂) (f₂ : X₂ ⟶ X₃)
     (f₃ : X₃ ⟶ X₄) (f₄ : X₄ ⟶ X₅) [Epi f₁] [Mono f₄] (e : ExactSeq A [f₁, f₂, f₃, f₄]) :
     IsZero X₃ := by
-  have h1 : is_zero (cokernel f₁) := is_zero_cokernel_of_epi f₁
-  have h2 : is_zero (kernel f₄) := is_zero_kernel_of_mono f₄
-  apply is_zero_of_exact_is_zero_is_zero _ _ _ h1 h2
+  have h1 : is_zero (cokernel f₁) := CategoryTheory.Limits.isZero_cokernel_of_epi f₁
+  have h2 : is_zero (kernel f₄) := CategoryTheory.Limits.isZero_kernel_of_mono f₄
+  apply CategoryTheory.Limits.isZero_of_exact_isZero_isZero _ _ _ h1 h2
   exact (e.extract 0 2).π; exact (e.extract 2 3).ι
-  apply exact_seq.replace
+  apply ExactSeq.replace
 
 theorem isIso_of_exact_of_isZero_of_isZero {X₁ X₂ X₃ X₄ : A} (f₁ : X₁ ⟶ X₂) (f₂ : X₂ ⟶ X₃)
     (f₃ : X₃ ⟶ X₄) (h₁ : IsZero X₁) (h₄ : IsZero X₄) (e : ExactSeq A [f₁, f₂, f₃]) : IsIso f₂ :=
   by
   apply (config := { instances := false }) is_iso_of_mono_of_epi; infer_instance
-  apply exact.mono_of_is_zero e.pair; assumption
-  apply exact.epi_of_is_zero (e.extract 1 2).pair; assumption
+  apply Exact.mono_of_isZero e.pair; assumption
+  apply Exact.epi_of_isZero (e.extract 1 2).pair; assumption
 
 end CategoryTheory
 

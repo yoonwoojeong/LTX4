@@ -17,7 +17,7 @@ import LiquidTensorExperiment.ForMathlib.FreeAbelianExact
 import LiquidTensorExperiment.ForMathlib.Unflip
 import LiquidTensorExperiment.BreenDeligne.EvalPowFunctorNatTransCompatibility
 
-#align_import condensed.bd_lemma
+#align_import Condensed.bd_lemma
 
 noncomputable section
 
@@ -48,16 +48,16 @@ theorem evalFreeπ_eq (A : AddCommGroupCat.{u}) (k : Fin 2) :
       biproduct.matrix fun (i : Fin 2) (j : Fin 1) => BasicUniversalMap.proj 1 k j i • 𝟙 A :=
   by
   apply biproduct.hom_ext; rintro j; fin_cases j
-  rw [biproduct.matrix_π, evalFreeπ, category.assoc, biproduct.ι_π, dif_pos rfl, eq_to_hom_refl,
-    category.comp_id]
+  rw [biproduct.matrix_π, evalFreeπ, Category.assoc, biproduct.ι_π, dif_pos rfl, CategoryTheory.eqToHom_refl,
+    Category.comp_id]
   apply biproduct.hom_ext'; rintro i; rw [biproduct.ι_desc]
-  suffices basic_universal_map.proj 1 k 0 i = if i = k then 1 else 0
+  suffices BasicUniversalMap.proj 1 k 0 i = if i = k then 1 else 0
     by
     rw [this, biproduct.ι_π]; dsimp; obtain rfl | hik := eq_or_ne i k
     · rw [if_pos rfl, if_pos rfl, one_smul]
     · rw [if_neg, if_neg hik, zero_smul]
       intro H; apply hik; exact H
-  · dsimp [basic_universal_map.proj, basic_universal_map.proj_aux]; decide!
+  · dsimp [BasicUniversalMap.proj, BasicUniversalMap.projAux]; decide!
 
 def evalFreeσ (A : AddCommGroupCat.{u}) : (Preadditive.pow 2).obj A ⟶ (Preadditive.pow 1).obj A :=
   evalFreeπ A 0 + evalFreeπ A 1
@@ -68,11 +68,11 @@ theorem eval_free_d10 (A : AddCommGroupCat.{u}) :
           ((forget _ ⋙ AddCommGroupCat.free).map <| evalFreeπ A 1) -
         ((forget _ ⋙ AddCommGroupCat.free).map <| evalFreeσ A) :=
   by
-  dsimp only [eg, eg.BD, data.eval_functor_obj_obj_d]; rw [dif_pos rfl]
-  dsimp only [universal_map.eval_Pow]; rw [lift_app]
-  dsimp only [whisker_right_app, eg.map, eg.σπ, universal_map.proj, universal_map.sum]
-  simp only [AddMonoidHom.map_sub, FreeAbelianGroup.lift.of, basic_universal_map.eval_Pow_app,
-    functor.comp_map, forget_map_eq_coe, sub_comp, add_comp, preadditive.Pow_obj, forget_obj_eq_coe,
+  dsimp only [eg, Eg.bD, Data.evalFunctor_obj_obj_d]; rw [dif_pos rfl]
+  dsimp only [UniversalMap.evalPow]; rw [lift_app]
+  dsimp only [CategoryTheory.whiskerRight_app, Eg.map, eg.σπ, UniversalMap.proj, UniversalMap.sum]
+  simp only [AddMonoidHom.map_sub, FreeAbelianGroup.lift.of, BasicUniversalMap.evalPow_app,
+    Functor.comp_map, forget_map_eq_coe, sub_comp, add_comp, Preadditive.pow_obj, forget_obj_eq_coe,
     Fin.sum_univ_two, AddMonoidHom.map_add]
   refine' congr_arg₂ _ (congr_arg₂ _ _ _) _ <;> congr 2
   · rw [evalFreeπ_eq]; rfl
@@ -87,22 +87,22 @@ def pow1Iso (A : AddCommGroupCat.{u}) : (Preadditive.pow 1).obj A ≅ A
     where
   hom := biproduct.π (fun _ => A) 0
   inv := biproduct.ι (fun _ => A) 0
-  hom_inv_id' := by erw [← biproduct.total, Fin.sum_univ_one]
-  inv_hom_id' := by simp only [biproduct.ι_π, dif_pos rfl, eq_to_hom_refl]
+  hom_inv_id := by erw [← biproduct.total, Fin.sum_univ_one]
+  inv_hom_id := by simp only [biproduct.ι_π, dif_pos rfl, CategoryTheory.eqToHom_refl]
 
 def pow2Iso (A : AddCommGroupCat.{u}) : (Preadditive.pow 2).obj A ≅ AddCommGroupCat.of (A × A)
     where
   hom := AddMonoidHom.prod (biproduct.π (fun _ => A) 0) (biproduct.π (fun _ => A) 1)
   inv := AddMonoidHom.coprod (biproduct.ι (fun _ => A) 0) (biproduct.ι (fun _ => A) 1)
-  hom_inv_id' := by
+  hom_inv_id := by
     ext x; erw [← biproduct.total, comp_apply]
     --swap, apply_instance,
     dsimp only [AddMonoidHom.coprod_apply, AddMonoidHom.prod_apply]
     simp only [← comp_apply, Fin.sum_univ_two]; rfl
-  inv_hom_id' := by
+  inv_hom_id := by
     ext1 x; rw [comp_apply, id_apply]
     dsimp only [AddMonoidHom.coprod_apply, AddMonoidHom.prod_apply]
-    simp only [AddMonoidHom.map_add, ← comp_apply, biproduct.ι_π, dif_pos rfl, eq_to_hom_refl,
+    simp only [AddMonoidHom.map_add, ← comp_apply, biproduct.ι_π, dif_pos rfl, CategoryTheory.eqToHom_refl,
       id_apply]
     rw [dif_neg]; swap; decide
     rw [dif_neg]; swap; decide
@@ -114,8 +114,8 @@ theorem evalFreeπ_eq_fst (A : AddCommGroupCat.{u}) :
   by
   ext x; simp only [comp_apply]
   dsimp only [pow2Iso, pow1Iso, evalFreeπ, AddMonoidHom.coprod_apply]
-  simp only [← comp_apply, category.assoc, biproduct.ι_π, dif_pos rfl, eq_to_hom_refl,
-    category.comp_id, AddMonoidHom.map_add, id_apply]
+  simp only [← comp_apply, Category.assoc, biproduct.ι_π, dif_pos rfl, CategoryTheory.eqToHom_refl,
+    Category.comp_id, AddMonoidHom.map_add, id_apply]
   erw [dif_neg, add_zero]; rfl; decide
 
 theorem evalFreeπ_eq_snd (A : AddCommGroupCat.{u}) :
@@ -124,8 +124,8 @@ theorem evalFreeπ_eq_snd (A : AddCommGroupCat.{u}) :
   by
   ext x; simp only [comp_apply]
   dsimp only [pow2Iso, pow1Iso, evalFreeπ, AddMonoidHom.coprod_apply]
-  simp only [← comp_apply, category.assoc, biproduct.ι_π, dif_pos rfl, eq_to_hom_refl,
-    category.comp_id, AddMonoidHom.map_add, id_apply]
+  simp only [← comp_apply, Category.assoc, biproduct.ι_π, dif_pos rfl, CategoryTheory.eqToHom_refl,
+    Category.comp_id, AddMonoidHom.map_add, id_apply]
   erw [dif_neg, zero_add]; rfl; decide
 
 theorem evalFreeσ_eq_add (A : AddCommGroupCat.{u}) :
@@ -145,19 +145,19 @@ theorem eval_free_homology_zero_exact (A : AddCommGroupCat.{u}) :
     exact_of_iso_of_exact' _ _ _ _ (F.map_iso (pow2Iso A).symm) (F.map_iso (pow1Iso A).symm)
       (iso.refl _) _ _ (FreeAbelianGroup.exact_σπ A)
   swap
-  · dsimp only [functor.map_iso_hom, iso.symm_hom, iso.refl_hom, F]
-    rw [category.comp_id, ← functor.map_iso_inv, ← functor.map_iso_hom, iso.inv_hom_id_assoc]
-  rw [← iso.comp_inv_eq, category.assoc, eval_free_d10]
+  · dsimp only [Functor.mapIso_hom, Iso.symm_hom, Iso.refl_hom, F]
+    rw [Category.comp_id, ← Functor.mapIso_inv, ← Functor.mapIso_hom, Iso.inv_hom_id_assoc]
+  rw [← Iso.comp_inv_eq, Category.assoc, eval_free_d10]
   simp only [comp_add, add_comp, comp_sub, sub_comp]
   refine' congr_arg₂ _ (congr_arg₂ _ _ _) _
-  · simp only [functor.map_iso_hom, functor.map_iso_inv, iso.symm_hom, iso.symm_inv, ←
-      functor.map_comp, evalFreeπ_eq_fst]
+  · simp only [Functor.mapIso_hom, Functor.mapIso_inv, Iso.symm_hom, Iso.symm_inv, ←
+      Functor.map_comp, evalFreeπ_eq_fst]
     rfl
-  · simp only [functor.map_iso_hom, functor.map_iso_inv, iso.symm_hom, iso.symm_inv, ←
-      functor.map_comp, evalFreeπ_eq_snd]
+  · simp only [Functor.mapIso_hom, Functor.mapIso_inv, Iso.symm_hom, Iso.symm_inv, ←
+      Functor.map_comp, evalFreeπ_eq_snd]
     rfl
-  · simp only [functor.map_iso_hom, functor.map_iso_inv, iso.symm_hom, iso.symm_inv, ←
-      functor.map_comp, evalFreeσ_eq_add]
+  · simp only [Functor.mapIso_hom, Functor.mapIso_inv, Iso.symm_hom, Iso.symm_inv, ←
+      Functor.map_comp, evalFreeσ_eq_add]
     rfl
 
 instance eval_free_homology_zero_epi (A : AddCommGroupCat.{u}) :
@@ -188,8 +188,8 @@ def ofEpiG (hfg : Exact f g) (hg : Epi g) (hγ : γ = 0) : HomologyIsoDatum f γ
   π := g
   zero₂' := hfg.w
   forkIsLimit :=
-    isLimitAux _ (fun s => s.ι) (fun s => by apply category.comp_id) fun s m hm => by rw [← hm];
-      symm; apply category.comp_id
+    isLimitAux _ (fun s => s.ι) (fun s => by apply Category.comp_id) fun s m hm => by rw [← hm];
+      symm; apply Category.comp_id
   coforkIsColimit := @Abelian.isColimitOfExactOfEpi _ _ _ _ _ _ _ _ hg hfg
 
 @[simp]
@@ -207,23 +207,23 @@ def natTransEvalFree :
   app A :=
     (forget _ ⋙ AddCommGroupCat.free).map (pow1Iso A).hom ≫
       AddCommGroupCat.ofHom (FreeAbelianGroup.lift id)
-  naturality' A₁ A₂ f :=
+  naturality A₁ A₂ f :=
     by
-    simp only [functor.comp_map, HomologicalComplex.eval_map, data.eval_functor_obj_map_f,
-      forget_map_eq_coe, AddCommGroupCat.free_map, functor.id_map, category.assoc]
+    simp only [Functor.comp_map, HomologicalComplex.eval_map, Data.evalFunctor_obj_map_f,
+      forget_map_eq_coe, AddCommGroupCat.free_map, Functor.id_map, Category.assoc]
     ext x
-    dsimp [eg, eg.BD, eg.rank] at x 
+    dsimp [eg, Eg.bD, Eg.rank] at x 
     have h : ∃ y, x = (pow1Iso A₁).inv y :=
       by
       use(pow1Iso A₁).hom x
-      rw [← comp_apply, iso.hom_inv_id, id_apply]
+      rw [← comp_apply, Iso.hom_inv_id, id_apply]
     cases' h with y hy
     subst hy
     simp only [comp_apply, FreeAbelianGroup.map_of_apply, AddCommGroupCat.ofHom_apply,
-      FreeAbelianGroup.lift.of, id.def, iso.inv_hom_id_apply, biproduct.map_eq]
+      FreeAbelianGroup.lift.of, id.def, Iso.inv_hom_id_apply, biproduct.map_eq]
     let z : Fin (eg.data.X 0) :=
       ⟨0, by
-        dsimp [eg, eg.BD, eg.rank]
+        dsimp [eg, Eg.bD, Eg.rank]
         linarith⟩
     rw [Finset.sum_eq_single z]; rotate_left
     · intro b hb₁ hb₂
@@ -233,17 +233,17 @@ def natTransEvalFree :
       --simp only [ulift.up_inj],
       rw [Fin.eq_mk_iff_val_eq]
       have hb₃ := b.is_lt
-      dsimp [eg, eg.BD, eg.rank] at hb₃ 
+      dsimp [eg, Eg.bD, Eg.rank] at hb₃ 
       linarith
     · intro h
       exfalso
       apply h
       simp only [Finset.mem_univ]
-    simp only [← comp_apply, category.assoc]
+    simp only [← comp_apply, Category.assoc]
     congr 1
     dsimp
     change _ ≫ (pow1Iso A₁).hom ≫ _ ≫ (pow1Iso A₂).inv ≫ _ = _
-    rw [iso.inv_hom_id, iso.inv_hom_id_assoc, category.comp_id]
+    rw [Iso.inv_hom_id, Iso.inv_hom_id_assoc, Category.comp_id]
 
 def shortComplexNatTransEvalFree :
     (Data.evalFunctor (forget _ ⋙ AddCommGroupCat.free)).obj BreenDeligne.eg.data ⋙
@@ -252,14 +252,14 @@ def shortComplexNatTransEvalFree :
   by
   refine'
     ShortComplex.natTransHomMk 0 natTransEvalFree 0 _
-      (by apply is_zero.eq_of_tgt; apply ShortComplex.ιMiddle_π₃_isZero)
+      (by apply IsZero.eq_of_tgt; apply ShortComplex.ιMiddle_π₃_isZero)
   ext1; ext1 A
-  simp only [zero_comp, nat_trans.app_zero, nat_trans.hcomp_app, nat_trans.comp_app,
-    nat_trans.id_app, short_complex.π₂.map_id, category.comp_id]
-  dsimp only [ShortComplex.φ₁₂, ShortComplex.functorHomologicalComplex, functor.comp_obj,
+  simp only [zero_comp, NatTrans.app_zero, NatTrans.hcomp_app, NatTrans.comp_app,
+    NatTrans.id_app, ShortComplex.π₂.map_id, Category.comp_id]
+  dsimp only [ShortComplex.φ₁₂, ShortComplex.functorHomologicalComplex, Functor.comp_obj,
     ShortComplex.mk]
   simp only [@HomologicalComplex.dTo_eq _ _ _ _ (ComplexShape.down ℕ) _ 1 0 (zero_add 1),
-    category.assoc]
+    Category.assoc]
   erw [(eval_free_homology_zero_exact A).w, comp_zero]
 
 theorem shortComplexNatTransEvalFree_app_τ₂ (A : AddCommGroupCat) :
@@ -279,18 +279,18 @@ theorem ShortComplex.homology_map_isIso_of_exact_and_epi {A : Type _} [Category 
   let μ : HomologyMapDatum φ h₁ h₂ ψ :=
     { κ := φ.τ₂
       fac₁' := by erw [φ.comm₁₂]; simp only [hf₂]; rfl
-      fac₂' := by erw [category.id_comp, category.comp_id]
-      fac₃' := by erw [category.comp_id]; apply cokernel.π_desc }
-  rw [μ.homology_map_eq]
+      fac₂' := by erw [Category.id_comp, Category.comp_id]
+      fac₃' := by erw [Category.comp_id]; apply cokernel.π_desc }
+  rw [μ.homology'_map_eq]
   suffices is_iso ψ by haveI := this; infer_instance
   exact abelian.category_theory.limits.cokernel.desc.category_theory.is_iso _ _ ex
 
 instance : IsIso evalFreeHomologyZeroNatTrans.{u} :=
   by
   suffices ∀ A, is_iso ((shortComplexNatTransEvalFree ◫ 𝟙 ShortComplex.homologyFunctor).app A) by
-    apply (config := { instances := false }) nat_iso.is_iso_of_is_iso_app; exact this
+    apply (config := { instances := false }) NatIso.isIso_of_isIso_app; exact this
   intro A
-  simp only [nat_trans.hcomp_id_app]
+  simp only [NatTrans.hcomp_id_app]
   refine' ShortComplex.homology_map_isIso_of_exact_and_epi _ _ rfl rfl _ _
   · apply HomologicalComplex.shape
     simp only [ChainComplex.next_nat_zero, ComplexShape.down_Rel, Nat.one_ne_zero, not_false_iff]
@@ -299,11 +299,11 @@ instance : IsIso evalFreeHomologyZeroNatTrans.{u} :=
       exact HomologicalComplex.xPrevIso _ (zero_add 1)
     · rfl
     · apply eq_to_iso; cases A; rfl
-    · dsimp only [ShortComplex.functorHomologicalComplex, functor.comp_obj, ShortComplex.mk]
+    · dsimp only [ShortComplex.functorHomologicalComplex, Functor.comp_obj, ShortComplex.mk]
       rw [HomologicalComplex.dTo_eq]; pick_goal 3; exact 1; swap; dsimp; rfl
-      simp only [iso.symm_hom, iso.refl_hom, category.comp_id]
-      apply iso.inv_hom_id_assoc
-    · apply category.id_comp
+      simp only [Iso.symm_hom, Iso.refl_hom, Category.comp_id]
+      apply Iso.inv_hom_id_assoc
+    · apply Category.id_comp
   · rw [shortComplexNatTransEvalFree_app_τ₂]
     dsimp [natTransEvalFree]
     convert eval_free_homology_zero_epi.{u} A
@@ -368,26 +368,26 @@ instance : HasFiniteColimits (Endomorphisms <| Condensed.{u} Ab.{u + 1}) :=
   Abelian.hasFiniteColimits
 
 -- move this
-attribute [reassoc] homology_bd_eval_natural
+attribute [reassoc] Condensed.homologyBdEval_natural
 
 def existsTensorIso (A : Endomorphisms (Condensed.{u} Ab.{u + 1}))
     [∀ S : ExtrDisc.{u}, NoZeroSMulDivisors ℤ (A.pt.val.obj (op S.val))] (n : ℕ) :
     ((Package.endoT tensorFunctor).obj A).obj (hQ'Z (-n)) ≅
       ((eg.eval freeCond'.mapEndomorphisms).obj A).val.as.homology' (-n) :=
   by
-  refine' endomorphisms.mk_iso _ _
-  · refine' _ ≪≫ ((package.hH_endo₁ eg freeCond' n).app A).symm
-    refine' (homology_bd_eval eg A.X (-n)).symm ≪≫ _
-    exact (package.eval'_homology eg freeCond' n).app A.X
-  · dsimp only [iso.trans_hom, iso.symm_hom, package.endo_T_obj_obj_e, tensor_functor, HQ'Z]
-    simp only [category.assoc, ← homology_bd_eval_natural_assoc]
+  refine' Endomorphisms.mkIso _ _
+  · refine' _ ≪≫ ((Package.hHEndo₁ eg freeCond' n).app A).symm
+    refine' (Condensed.homologyBdEval eg A.X (-n)).symm ≪≫ _
+    exact (Package.eval'Homology eg freeCond' n).app A.X
+  · dsimp only [Iso.trans_hom, Iso.symm_hom, Package.endoT_obj_obj_e, tensor_functor, HQ'Z]
+    simp only [Category.assoc, ← Condensed.homologyBdEval_natural_assoc]
     refine' congr_arg₂ _ rfl _
-    dsimp only [iso.app_hom, iso.app_inv]
-    rw [← functor.comp_map, nat_trans.naturality_assoc]
+    dsimp only [Iso.app_hom, Iso.app_inv]
+    rw [← Functor.comp_map, NatTrans.naturality_assoc]
     refine' congr_arg₂ _ rfl _
-    dsimp only [← iso.app_inv]
-    rw [iso.comp_inv_eq, category.assoc, iso.eq_inv_comp]
-    exact (eg.hH_endo₁_natural freeCond' A n).symm
+    dsimp only [← Iso.app_inv]
+    rw [Iso.comp_inv_eq, Category.assoc, Iso.eq_inv_comp]
+    exact (eg.hHEndo₁_natural freeCond' A n).symm
 
 -- move this
 theorem isTensorUnit_of_iso (A B : Ab) (e : A ≅ B) (ha : AddCommGroupCat.IsTensorUnit A) :
@@ -395,7 +395,7 @@ theorem isTensorUnit_of_iso (A B : Ab) (e : A ≅ B) (ha : AddCommGroupCat.IsTen
   obtain ⟨a, ha⟩ := ha
   refine' ⟨e.hom a, _⟩
   intro C; specialize ha C
-  let φ := iso.AddCommGroup_iso_to_add_equiv ((preadditive_yoneda.obj C).mapIso e.op)
+  let φ := Iso.addCommGroupIsoToAddEquiv ((preadditive_yoneda.obj C).mapIso e.op)
   exact ha.comp φ.bijective
 
 theorem bd_lemma (A : Condensed.{u} Ab.{u + 1}) (B : Condensed.{u} Ab.{u + 1})
@@ -406,19 +406,19 @@ theorem bd_lemma (A : Condensed.{u} Ab.{u + 1}) (B : Condensed.{u} Ab.{u + 1})
           ((ext i).map ((BreenDeligne.eg.eval freeCond').map f).op).app ((single _ 0).obj B) -
             ((ext i).obj (op <| (BreenDeligne.eg.eval freeCond').obj A)).map ((single _ 0).map g) :=
   by
-  apply eg.main_lemma_general' _ A B f g tensor_functor tensor_punit fun n => HQ'Z (-n)
-  · apply tensor_tunit
-    apply is_tensor_unit_of_iso (AddCommGroup.free.obj PUnit) (HQ'Z 0)
+  apply eg.main_lemma_general' _ A B f g tensor_functor Condensed.tensorPunit fun n => HQ'Z (-n)
+  · apply Condensed.tensorTunit
+    apply Condensed.isTensorUnit_of_iso (AddCommGroup.free.obj PUnit) (HQ'Z 0)
     · let e := (eval_free_homology_zero.app (AddCommGroup.free.obj PUnit)).symm
       refine' e ≪≫ _; clear e
-      let e := (package.eval'_homology eg (forget AddCommGroupCat ⋙ AddCommGroupCat.free) 0).symm
+      let e := (Package.eval'Homology eg (forget AddCommGroupCat ⋙ AddCommGroupCat.free) 0).symm
       exact e.app (AddCommGroup.free.obj PUnit)
     · refine' ⟨FreeAbelianGroup.of PUnit.unit, _⟩
       intro B; constructor
       · intro f g h; ext ⟨⟩; exact h
       · intro b; refine' ⟨FreeAbelianGroup.lift fun _ => b, _⟩
         apply FreeAbelianGroup.lift.of
-  · apply exists_tensor_iso
+  · apply Condensed.existsTensorIso
 
 end Condensed
 

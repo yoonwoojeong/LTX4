@@ -20,7 +20,7 @@ namespace PolyhedralLatticeCat
 
 open SimplexCategory
 
-open PolyhedralLattice (conerve.L conerve.obj)
+open PolyhedralLattice (Conerve.l Conerve.Obj)
 
 variable (Λ : PolyhedralLatticeCat.{u}) (N : ℕ) [Fact (0 < N)]
 
@@ -30,7 +30,7 @@ variable (r' : ℝ≥0) (M : ProFiltPseuNormGrpWithTinv.{u} r')
 -- because the default has a lot of redundancy in the proof obligations
 theorem augmentation_eq_diagonal :
     cosimplicialAugmentationMap Λ N ≫ (CechConerve.objZeroIso _).hom = diagonalEmbedding Λ N := by
-  rw [← iso.eq_comp_inv]; rfl
+  rw [← Iso.eq_comp_inv]; rfl
 
 def homRescaleHom [Fact (0 < r')] :
     PolyhedralLattice.hom (Rescale N Λ) M ≃+
@@ -79,13 +79,13 @@ theorem homRescaleHom_ctu [Fact (0 < r')] (c : ℝ≥0) :
       (PseudoNormedGroup.level (homRescaleHom Λ N r' M)
         (fun c f => (hom_rescale_hom_strict Λ N r' M c f).1) c) :=
   by
-  refine' (add_monoid_hom.continuous_iff _ _ _ _ _).mpr _
+  refine' (AddMonoidHom.continuous_iff _ _ _ _ _).mpr _
   intro l
   haveI : Fact (c * (nnnorm l * N⁻¹) ≤ c * N⁻¹ * nnnorm l) :=
     ⟨by rw [mul_comm (nnnorm _), mul_assoc]⟩
-  have aux1 := add_monoid_hom.incl_continuous (Rescale N Λ) r' M c
+  have aux1 := AddMonoidHom.incl_continuous (Rescale N Λ) r' M c
   have aux2 := (continuous_apply (Rescale.of l)).comp aux1
-  exact (embedding_cast_le (c * (nnnorm l * N⁻¹)) (c * N⁻¹ * nnnorm l)).continuous_iff.mp aux2
+  exact (ComphausFilteredPseudoNormedGroup.embedding_castLe (c * (nnnorm l * N⁻¹)) (c * N⁻¹ * nnnorm l)).continuous_iff.mp aux2
 
 end
 
@@ -164,13 +164,13 @@ theorem homFinsuppEquiv_ctu [Fact (0 < r')] (c : ℝ≥0) :
   rw [continuous_pi_iff]
   intro i
   dsimp only [Function.comp]
-  rw [add_monoid_hom.continuous_iff]
+  rw [AddMonoidHom.continuous_iff]
   intro l
   haveI : Fact (c * ‖Finsupp.single i l‖₊ ≤ c * ‖l‖₊) :=
     ⟨mul_le_mul' le_rfl <| le_of_eq _⟩
-  · have aux1 := add_monoid_hom.incl_continuous (Fin N →₀ Λ) r' M c
+  · have aux1 := AddMonoidHom.incl_continuous (Fin N →₀ Λ) r' M c
     have aux2 := (continuous_apply (Finsupp.single i l)).comp aux1
-    rwa [(embedding_cast_le (c * ‖Finsupp.single i l‖₊)
+    rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖Finsupp.single i l‖₊)
           (c * ‖l‖₊)).continuous_iff] at
       aux2 
   · rw [Finsupp.nnnorm_def, Finsupp.sum_single_index]; exact nnnorm_zero
@@ -252,7 +252,7 @@ theorem finsupp_sum_diagonalEmbedding (f : (Λ →+ M) ^ N) (l : Λ) :
   simp only [AddMonoidHom.coe_mk, Hom_sum_apply]
   rw [Finsupp.sum_fintype, AddMonoidHom.finset_sum_apply, Fintype.sum_congr]
   · intro i
-    dsimp only [diagonal_embedding, PolyhedralLatticeHom.coe_mk, Finsupp.singleAddHom_apply,
+    dsimp only [PolyhedralLatticeCat.diagonalEmbedding, PolyhedralLatticeHom.coe_mk, Finsupp.singleAddHom_apply,
       Rescale.of, Equiv.coe_refl, id]
     simp only [Finset.sum_apply', Finsupp.single_apply, Finset.sum_ite_eq', Finset.mem_univ,
       if_true]

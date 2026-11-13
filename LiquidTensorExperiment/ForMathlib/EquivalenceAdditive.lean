@@ -12,13 +12,13 @@ variable {A : Type u} {B : Type u'} [Category.{v} A] [Category.{v} B] [Abelian A
 
 instance additive_equivalence_functor (E : A ≌ B) : E.functor.Additive :=
   by
-  apply (config := { instances := false }) functor.additive_of_preserves_binary_biproducts
+  apply (config := { instances := false }) Functor.additive_of_preservesBinaryBiproducts
   infer_instance
-  have : limits.preserves_colimits E.functor :=
+  have : limits.preservesColimits E.functor :=
     by
-    apply adjunction.left_adjoint_preserves_colimits
+    apply Adjunction.leftAdjointPreservesColimits
     exact E.to_adjunction
-  apply limits.preserves_binary_biproducts_of_preserves_binary_coproducts
+  apply Limits.preservesBinaryBiproductsOfPreservesBinaryCoproducts
   infer_instance
 
 instance additive_equivalence_inverse (E : A ≌ B) : E.inverse.Additive :=

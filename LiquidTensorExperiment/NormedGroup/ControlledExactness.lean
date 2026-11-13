@@ -35,7 +35,7 @@ theorem controlled_exactness {M M₁ M₂ : Type _} [SeminormedAddCommGroup M]
   have norm_j_comp_i : ∀ x, ‖to_compl.comp i x‖ = ‖x‖ :=
     by
     intro x
-    erw [norm_to_compl, norm_incl]
+    erw [NormedAddCommGroup.norm_toCompl, norm_incl]
   have hatm_in : hatm ∈ closure ((to_compl.comp i).range : Set <| completion M) := by
     rwa [← NormedAddGroupHom.ker_completion h']
   have :
@@ -45,7 +45,7 @@ theorem controlled_exactness {M M₁ M₂ : Type _} [SeminormedAddCommGroup M]
     rintro ⟨k, k_in⟩
     rcases h k k_in with ⟨m₁, hm₁, hm₁'⟩
     use m₁
-    erw [f.completion_coe, hm₁, norm_to_compl]
+    erw [f.completion_coe, hm₁, NormedAddCommGroup.norm_toCompl]
     exact ⟨rfl, hm₁'⟩
   exact controlled_closure_range_of_complete norm_j_comp_i hC ε_pos this _ hatm_in
 

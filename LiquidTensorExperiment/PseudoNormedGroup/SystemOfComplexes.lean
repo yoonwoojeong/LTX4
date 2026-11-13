@@ -78,8 +78,8 @@ def complexD (i j : ℕ) : BD.complexX κ r V r' c i ⟶ BD.complexX κ r V r' c
 
 theorem complexD_comp_d (i j k : ℕ) : BD.complexD κ r V r' c i j ≫ BD.complexD κ r V r' c j k = 0 :=
   by
-  simp only [complex_d, ← universal_map.eval_CLCFPTinv_comp, BD.d_comp_d,
-    universal_map.eval_CLCFPTinv_zero]
+  simp only [BreenDeligne.Data.complexD, ← UniversalMap.evalCLCFPTinv_comp, BD.d_comp_d,
+    UniversalMap.evalCLCFPTinv_zero]
 
 end
 
@@ -103,20 +103,20 @@ def complex₂ (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact 
     { pt := fun i => (BD.complex₂X r V r' a b i).obj M
       d := fun i j => (BD.complex₂D r V r' a b i j).app M
       d_comp_d' := fun i j k _ _ => by
-        rw [← nat_trans.comp_app]
-        simp only [complex₂_d, ← universal_map.eval_CLCFPTinv₂_comp, BD.d_comp_d,
-          universal_map.eval_CLCFPTinv₂_zero]
+        rw [← NatTrans.comp_app]
+        simp only [complex₂_d, ← UniversalMap.evalCLCFPTinv₂_comp, BD.d_comp_d,
+          UniversalMap.evalCLCFPTinv₂_zero]
         rfl
       shape' := fun i j hij =>
         by
-        simp only [complex₂_d, ← universal_map.eval_CLCFPTinv₂_comp, BD.shape _ _ hij,
-          universal_map.eval_CLCFPTinv₂_zero]
+        simp only [complex₂_d, ← UniversalMap.evalCLCFPTinv₂_comp, BD.shape _ _ hij,
+          UniversalMap.evalCLCFPTinv₂_zero]
         rfl }
   map M₁ M₂ f :=
     { f := fun i => ((cLCFPTinv₂ r V r' (a i) (b i) (BD.pt i)).map f : _)
       comm' := fun i j _ => NatTrans.naturality _ _ }
-  map_id' M := by ext i : 2; apply CategoryTheory.Functor.map_id
-  map_comp' M₁ M₂ M₃ f g := by ext i : 2; apply CategoryTheory.Functor.map_comp
+  map_id M := by ext i : 2; apply CategoryTheory.Functor.map_id
+  map_comp M₁ M₂ M₃ f g := by ext i : 2; apply CategoryTheory.Functor.map_comp
 
 /-- The complex of seminormed groups `V-hat(M_{≤c})^{T⁻¹} ⟶ V-hat(M_{≤c_1c}^2)^{T⁻¹} ⟶ …` -/
 def complex (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)] (r' : ℝ≥0)
@@ -140,7 +140,7 @@ theorem complex_obj_d (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V]
 theorem comm_sq_app {C D} [Category C] [Category D] {X₁ X₂ Y₁ Y₂ : C ⥤ D} {f₁ : X₁ ⟶ Y₁}
     {f₂ : X₂ ⟶ Y₂} {φ : X₁ ⟶ X₂} {ψ : Y₁ ⟶ Y₂} (hf : f₁ ≫ ψ = φ ≫ f₂) (c : C) :
     f₁.app c ≫ ψ.app c = φ.app c ≫ f₂.app c := by
-  rw [← nat_trans.comp_app, ← nat_trans.comp_app, hf]
+  rw [← NatTrans.comp_app, ← NatTrans.comp_app, hf]
 
 /-- The system of complexes
 `V-hat(M_{≤c}^{n₁})^{T⁻¹} ⟶ V-hat(M_{≤c_1c}^{n₂})^{T⁻¹} ⟶ ...`
@@ -158,21 +158,21 @@ def system (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 <
               { f := fun i => (cLCFPTinv₂.res r V r' _ _ _ _ (BD.X i)).app _
                 comm' := _ }
             · intro i j _; apply comm_sq_app
-              apply universal_map.res_comp_eval_CLCFPTinv₂
-          naturality' := fun M N f => by
+              apply UniversalMap.res_comp_evalCLCFPTinv₂
+          naturality := fun M N f => by
             ext i : 2
             erw [comp_f, comp_f]
-            apply nat_trans.naturality }
-      map_id' := by
+            apply NatTrans.naturality }
+      map_id := by
         intro c; ext M i : 4
-        refine' nat_trans.congr_app (cLCFPTinv₂.res_refl r V r' _ _ _) M
-      map_comp' := by
+        refine' NatTrans.congr_app (cLCFPTinv₂.res_refl r V r' _ _ _) M
+      map_comp := by
         intro c₃ c₂ c₁ h h'
         haveI H' : Fact ((unop c₁ : ℝ≥0) ≤ (unop c₂ : ℝ≥0)) := ⟨h'.unop.down.down⟩
         haveI H : Fact ((unop c₂ : ℝ≥0) ≤ (unop c₃ : ℝ≥0)) := ⟨h.unop.down.down⟩
         haveI : Fact ((unop c₁ : ℝ≥0) ≤ (unop c₃ : ℝ≥0)) := ⟨H'.out.trans H.out⟩
         ext M i : 4; symm
-        exact nat_trans.congr_app (cLCFPTinv₂.res_comp_res r V r' _ _ _ _ _ _ _) _ }
+        exact NatTrans.congr_app (cLCFPTinv₂.res_comp_res r V r' _ _ _ _ _ _ _) _ }
 
 -- move this
 instance fact_unop_op {c₁ c₂ : ℝ≥0} [Fact (c₂ ≤ c₁)] : Fact (unop (op c₂) ≤ unop (op c₁)) := by
@@ -193,8 +193,8 @@ theorem system_obj_d (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] 
 theorem system_mapIso_isometry {M₁ M₂ : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ} (f : M₁ ≅ M₂) (i : ℕ) :
     Isometry ((((BD.system κ r V r').mapIso f).hom.app (op c)).f i) :=
   by
-  simp only [← iso.app_hom, ← HomologicalComplex.Hom.isoApp_hom]
-  apply SemiNormedGroupCat.iso_isometry_of_normNoninc <;> apply complex.map_norm_noninc
+  simp only [← Iso.app_hom, ← HomologicalComplex.Hom.isoApp_hom]
+  apply SemiNormedGroupCat.iso_isometry_of_normNoninc <;> apply complex.map_normNoninc
 
 instance system.separatedSpace (c : ℝ≥0) (i : ℕ) (M) :
     SeparatedSpace (((BD.system κ r V r').obj M) c i) :=
@@ -220,9 +220,9 @@ variable {r V r' κ}
 
 theorem systemAdmissible {M} : ((BD.system κ r V r').obj M).Admissible :=
   { d_norm_noninc' := fun c i j hij =>
-      haveI : universal_map.very_suitable (BD.d j i) r r' (unop (op c) * κ j) (unop (op c) * κ i) :=
+      haveI : UniversalMap.VerySuitable (BD.d j i) r r' (unop (op c) * κ j) (unop (op c) * κ i) :=
         by dsimp only [unop_op]; infer_instance
-      universal_map.eval_CLCFPTinv_norm_noninc _ _ _ _ _ _ _
+      universal_map.evalCLCFPTinv_normNoninc _ _ _ _ _ _ _
     res_normNoninc := fun c₁ c₂ i h => cLCFPTinv.res_normNoninc _ _ _ _ _ _ _ }
 
 end

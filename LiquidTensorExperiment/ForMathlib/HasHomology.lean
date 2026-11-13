@@ -3,7 +3,7 @@ import Mathlib.CategoryTheory.Abelian.Homology
 import LiquidTensorExperiment.ForMathlib.Commsq
 import LiquidTensorExperiment.ForMathlib.ExactLiftDesc
 
-#align_import for_mathlib.has_homology
+#align_import for_mathlib.hasHomology
 
 /-!
 
@@ -58,7 +58,7 @@ def homology'.has (f : A ⟶ B) (g : B ⟶ C) (w : f ≫ g = 0) : HasHomology f 
     ex_π := by
       delta homology'.π'
       rw [exact_comp_iso]
-      exact abelian.exact_cokernel _
+      exact Abelian.exact_cokernel _
     ι_ex := by
       delta homology'.ι
       rw [exact_iso_comp]
@@ -93,7 +93,7 @@ theorem lift_π (hH : HasHomology f g H) : kernel.lift g f hH.w ≫ hH.π = 0 :=
 def ofIso {H₁ H₂ : 𝓐} (hH : HasHomology f g H₁) (i : H₁ ≅ H₂) : HasHomology f g H₂
     where
   w := hH.w
-  π := hH.π ≫ i.Hom
+  π := hH.π ≫ i.hom
   ι := i.inv ≫ hH.ι
   π_ι := by simp [hH.π_ι]
   ex_π := exact_comp_iso.2 hH.ex_π
@@ -143,7 +143,7 @@ def sndEqZero : HasHomology f (0 : B ⟶ C) (cokernel f)
   π_ι := by simp
   ex_π := by
     rw [exact_iso_comp_snd_iff_exact_comp_iso_fst_iff, kernel.lift_ι]
-    exact abelian.exact_cokernel f
+    exact Abelian.exact_cokernel f
   ι_ex := by
     rw [cokernel.desc_zero]
     exact exact_zero_right_of_epi
@@ -159,7 +159,7 @@ def sndEqZero' (hg : g = 0) : HasHomology f g (cokernel f)
   ex_π := by
     subst hg
     simp [exact_iso_comp_snd_iff_exact_comp_iso_fst_iff, kernel.lift_ι]
-    exact abelian.exact_cokernel f
+    exact Abelian.exact_cokernel f
   ι_ex := by
     subst hg
     rw [cokernel.desc_zero]
@@ -238,13 +238,13 @@ theorem lift_ι : hH.lift hH.ι hH.ι_desc = 𝟙 H :=
 theorem π_eq_lift :
     hH.π =
       hH.lift (kernel.ι _ ≫ cokernel.π _)
-        (by simp only [category.assoc, cokernel.π_desc, kernel.condition]) :=
+        (by simp only [Category.assoc, cokernel.π_desc, kernel.condition]) :=
   lift_unique _ _ _ _ hH.π_ι
 
 @[reassoc]
 theorem comp_lift {X Y : 𝓐} (φ : X ⟶ Y) (ψ : Y ⟶ cokernel f) (hψ : ψ ≫ cokernel.desc f g hH.w = 0) :
-    φ ≫ hH.lift ψ hψ = hH.lift (φ ≫ ψ) (by rw [category.assoc, hψ, comp_zero]) := by
-  apply lift_unique; rw [category.assoc, lift_comp_ι]
+    φ ≫ hH.lift ψ hψ = hH.lift (φ ≫ ψ) (by rw [Category.assoc, hψ, comp_zero]) := by
+  apply lift_unique; rw [Category.assoc, lift_comp_ι]
 
 theorem homology'_lift_eq {X Y Z W : 𝓐} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f ≫ g = 0) (φ : W ⟶ cokernel f)
     (hφ) : homology'.lift f g w φ hφ = (homology'.has f g w).lift φ hφ :=
@@ -252,7 +252,7 @@ theorem homology'_lift_eq {X Y Z W : 𝓐} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f �
   ext
   simp only [homology'.lift_ι]
   dsimp [HasHomology.lift]
-  erw [exact.mono_lift_comp]
+  erw [Exact.monoLift_comp]
 
 end lift
 
@@ -297,7 +297,7 @@ theorem homology'_desc_eq {X Y Z W : 𝓐} (f : X ⟶ Y) (g : Y ⟶ Z) (w) (φ :
   ext
   simp only [homology'.π'_desc']
   dsimp [HasHomology.desc]
-  simp only [exact.comp_epi_desc]
+  simp only [Exact.comp_epiDesc]
 
 end Desc
 
@@ -324,17 +324,17 @@ variable (sq1' : Commsq f₂ α' β' f₃) (sq2' : Commsq g₂ β' γ' g₃)
 def map : H₁ ⟶ H₂ :=
   h₁.desc
       (h₂.lift (kernel.ι _ ≫ β ≫ cokernel.π _) <| by
-        simp only [category.assoc, cokernel.π_desc, ← sq2.w, kernel.condition_assoc, zero_comp]) <|
+        simp only [Category.assoc, cokernel.π_desc, ← sq2.w, kernel.condition_assoc, zero_comp]) <|
     by
     apply h₂.ext_ι
-    simp only [category.assoc, zero_comp, h₂.lift_comp_ι, kernel.lift_ι_assoc, sq1.w_assoc,
+    simp only [Category.assoc, zero_comp, h₂.lift_comp_ι, kernel.lift_ι_assoc, sq1.w_assoc,
       cokernel.condition, comp_zero]
 
 @[simp, reassoc]
 theorem π_map :
     h₁.π ≫ h₁.map h₂ sq1 sq2 =
       (h₂.lift (kernel.ι _ ≫ β ≫ cokernel.π _) <| by
-        simp only [category.assoc, cokernel.π_desc, ← sq2.w, kernel.condition_assoc, zero_comp]) :=
+        simp only [Category.assoc, cokernel.π_desc, ← sq2.w, kernel.condition_assoc, zero_comp]) :=
   h₁.π_comp_desc _ _
 
 @[simp, reassoc]
@@ -347,8 +347,8 @@ theorem map_ι :
 theorem π_map_ι : h₁.π ≫ h₁.map h₂ sq1 sq2 ≫ h₂.ι = kernel.ι _ ≫ β ≫ cokernel.π _ := by simp
 
 theorem homology'_map_eq (w₁ : f₁ ≫ g₁ = 0) (w₂ : f₂ ≫ g₂ = 0)
-    (e₁ : α ≫ (Arrow.mk f₂).Hom = (Arrow.mk f₁).Hom ≫ β)
-    (e₂ : β ≫ (Arrow.mk g₂).Hom = (Arrow.mk g₁).Hom ≫ γ) :
+    (e₁ : α ≫ (Arrow.mk f₂).hom = (Arrow.mk f₁).hom ≫ β)
+    (e₂ : β ≫ (Arrow.mk g₂).hom = (Arrow.mk g₁).hom ≫ γ) :
     homology'.map w₁ w₂ (Arrow.homMk e₁) (Arrow.homMk e₂) rfl =
       (homology'.has f₁ g₁ w₁).map (homology'.has f₂ g₂ w₂) (Commsq.ofEq e₁.symm)
         (Commsq.ofEq e₂.symm) :=
@@ -357,7 +357,7 @@ theorem homology'_map_eq (w₁ : f₁ ≫ g₁ = 0) (w₂ : f₂ ≫ g₂ = 0)
   rw [homology'.map_eq_desc'_lift_left]
   apply (homology'.has _ _ w₁).ext_π
   apply (homology'.has _ _ w₂).ext_ι
-  simp [homology_lift_eq, homology_desc_eq]
+  simp [HasHomology.homology'_lift_eq, HasHomology.homology'_desc_eq]
 
 theorem homology'_map_eq' (w₁ : f₁ ≫ g₁ = 0) (w₂ : f₂ ≫ g₂ = 0) :
     homology'.map w₁ w₂ ⟨α, β, sq1.w.symm⟩ ⟨β, γ, sq2.w.symm⟩ rfl =
@@ -371,16 +371,16 @@ theorem eq_map_of_π_map_ι (φ : H₁ ⟶ H₂) (hφ : h₁.π ≫ φ ≫ h₂.
 theorem lift_map {X : 𝓐} (φ : X ⟶ cokernel f₁) (hφ : φ ≫ cokernel.desc f₁ g₁ h₁.w = 0) :
     h₁.lift φ hφ ≫ h₁.map h₂ sq1 sq2 =
       h₂.lift (φ ≫ cokernel.map f₁ f₂ α β sq1.w)
-        (by rw [category.assoc, cokernel.map_desc, reassoc_of hφ, zero_comp]; exact sq2.w) :=
+        (by rw [Category.assoc, cokernel.map_desc, reassoc_of hφ, zero_comp]; exact sq2.w) :=
   by
-  apply lift_unique; rw [category.assoc, map_ι]
-  conv_rhs => rw [← lift_comp_ι h₁ φ hφ, category.assoc]
+  apply lift_unique; rw [Category.assoc, map_ι]
+  conv_rhs => rw [← lift_comp_ι h₁ φ hφ, Category.assoc]
   congr 1
   apply h₁.ext_π
   rw [π_comp_desc, π_ι_assoc, cokernel.π_desc]
 
 -- move this
-attribute [reassoc] limits.kernel.lift_map
+attribute [reassoc] Limits.kernel.lift_map
 
 @[simp, reassoc]
 theorem map_desc {X : 𝓐} (φ : kernel g₂ ⟶ X) (hφ : kernel.lift g₂ f₂ h₂.w ≫ φ = 0) :
@@ -389,10 +389,10 @@ theorem map_desc {X : 𝓐} (φ : kernel g₂ ⟶ X) (hφ : kernel.lift g₂ f�
         (by rw [CategoryTheory.Limits.kernel.lift_map_assoc, hφ, comp_zero]; exact sq1.w) :=
   by
   apply desc_unique; rw [π_map_assoc]
-  conv_rhs => rw [← π_comp_desc h₂ φ hφ, ← category.assoc]
+  conv_rhs => rw [← π_comp_desc h₂ φ hφ, ← Category.assoc]
   congr 1
   apply h₂.ext_ι
-  rw [lift_comp_ι, category.assoc, π_ι, kernel.lift_ι_assoc, category.assoc]
+  rw [lift_comp_ι, Category.assoc, π_ι, kernel.lift_ι_assoc, Category.assoc]
 
 /-- Gluing two commutative squares "vertically" (the convention is that `f`s and `g`s are
 horizontal morphisms, and `α`s and `β`s are vertical morphisms). -/
@@ -404,63 +404,63 @@ def Commsq.vcomp : Commsq f₁ (α ≫ α') (β ≫ β') f₃ :=
       _ = (α ≫ α') ≫ f₃ := (Category.assoc _ _ _).symm
 
 /-- A commutative square with identity isomorphisms for the two vertical maps. -/
-def Commsq.vrefl (f : A ⟶ B) : Commsq f (Iso.refl _).Hom (Iso.refl _).Hom f :=
-  Commsq.ofEq <| by rw [iso.refl_hom, iso.refl_hom, category.id_comp, category.comp_id]
+def Commsq.vrefl (f : A ⟶ B) : Commsq f (Iso.refl _).hom (Iso.refl _).hom f :=
+  Commsq.ofEq <| by rw [Iso.refl_hom, Iso.refl_hom, Category.id_comp, Category.comp_id]
 
 /-- The reflection of a vertical square with isomorphisms for the vertical maps. -/
-def Commsq.vinv {α : A₁ ≅ A₂} {β : B₁ ≅ B₂} (sq1 : Commsq f₁ α.Hom β.Hom f₂) :
+def Commsq.vinv {α : A₁ ≅ A₂} {β : B₁ ≅ B₂} (sq1 : Commsq f₁ α.hom β.hom f₂) :
     Commsq f₂ α.inv β.inv f₁ :=
-  Commsq.ofEq <| by rw [iso.comp_inv_eq, category.assoc, iso.eq_inv_comp, sq1.w]
+  Commsq.ofEq <| by rw [Iso.comp_inv_eq, Category.assoc, Iso.eq_inv_comp, sq1.w]
 
 theorem map_comp_map :
     h₁.map h₂ sq1 sq2 ≫ h₂.map h₃ sq1' sq2' = h₁.map h₃ (sq1.vcomp sq1') (sq2.vcomp sq2') :=
   by
   apply h₁.ext_π; apply h₃.ext_ι
-  simp only [category.assoc, map_ι, map_desc, π_comp_desc, kernel.lift_ι_assoc]
+  simp only [Category.assoc, map_ι, map_desc, π_comp_desc, kernel.lift_ι_assoc]
 
 theorem map_id (h : HasHomology f g H) {α : A ⟶ A} {β : B ⟶ B} {γ : C ⟶ C} (sq1 : Commsq f α β f)
     (sq2 : Commsq g β γ g) (hβ : β = 𝟙 _) : h.map h sq1 sq2 = 𝟙 H :=
   by
   apply h.ext_π; apply h.ext_ι
-  rw [π_map, lift_comp_ι, category.comp_id, π_ι, hβ, category.id_comp]
+  rw [π_map, lift_comp_ι, Category.comp_id, π_ι, hβ, Category.id_comp]
 
 -- The isomorphism on `has_homology` induced by isomorphisms `f₁ ≅ f₂` and `g₁ ≅ g₂`.
 @[simps]
-def mapIso {α : A₁ ≅ A₂} {β : B₁ ≅ B₂} {γ : C₁ ≅ C₂} (sq1 : Commsq f₁ α.Hom β.Hom f₂)
-    (sq2 : Commsq g₁ β.Hom γ.Hom g₂) : H₁ ≅ H₂
+def mapIso {α : A₁ ≅ A₂} {β : B₁ ≅ B₂} {γ : C₁ ≅ C₂} (sq1 : Commsq f₁ α.hom β.hom f₂)
+    (sq2 : Commsq g₁ β.hom γ.hom g₂) : H₁ ≅ H₂
     where
-  Hom := h₁.map h₂ sq1 sq2
+  hom := h₁.map h₂ sq1 sq2
   inv := h₂.map h₁ sq1.vinv sq2.vinv
-  hom_inv_id' := by rw [map_comp_map, map_id]; exact β.hom_inv_id
-  inv_hom_id' := by rw [map_comp_map, map_id]; exact β.inv_hom_id
+  hom_inv_id := by rw [map_comp_map, map_id]; exact β.hom_inv_id
+  inv_hom_id := by rw [map_comp_map, map_id]; exact β.inv_hom_id
 
 -- The canonical isomorphism between H₁ and H₂ if both satisfy `has_homology f g Hᵢ`.
 abbrev iso (h₁ : HasHomology f g H₁) (h₂ : HasHomology f g H₂) : H₁ ≅ H₂ :=
   mapIso h₁ h₂ (Commsq.vrefl f) (Commsq.vrefl g)
 
 theorem iso_inv (h₁ : HasHomology f g H₁) (h₂ : HasHomology f g H₂) :
-    (iso h₁ h₂).inv = (iso h₂ h₁).Hom :=
+    (iso h₁ h₂).inv = (iso h₂ h₁).hom :=
   rfl
 
-theorem π_iso (h₁ : HasHomology f g H₁) (h₂ : HasHomology f g H₂) : h₁.π ≫ (h₁.Iso h₂).Hom = h₂.π :=
+theorem π_iso (h₁ : HasHomology f g H₁) (h₂ : HasHomology f g H₂) : h₁.π ≫ (h₁.Iso h₂).hom = h₂.π :=
   by
-  simp only [iso.refl_hom, category.id_comp, map_iso_hom, π_map]
+  simp only [Iso.refl_hom, Category.id_comp, map_iso_hom, π_map]
   exact (π_eq_lift h₂).symm
 
-theorem iso_ι (h₁ : HasHomology f g H₁) (h₂ : HasHomology f g H₂) : (h₁.Iso h₂).Hom ≫ h₂.ι = h₁.ι :=
+theorem iso_ι (h₁ : HasHomology f g H₁) (h₂ : HasHomology f g H₂) : (h₁.Iso h₂).hom ≫ h₂.ι = h₁.ι :=
   by
-  simp only [iso.refl_hom, category.id_comp, map_iso_hom, map_ι]
+  simp only [Iso.refl_hom, Category.id_comp, map_iso_hom, map_ι]
   exact (ι_eq_desc h₁).symm
 
 theorem map_iso_homology'_map :
     HasHomology.map h₁ h₂ sq1 sq2 =
-      (HasHomology.iso h₁ (homology'.has f₁ g₁ h₁.w)).Hom ≫
+      (HasHomology.iso h₁ (homology'.has f₁ g₁ h₁.w)).hom ≫
         homology'.map h₁.w h₂.w ⟨α, β, sq1.w.symm⟩ ⟨β, γ, sq2.w.symm⟩ rfl ≫
           (HasHomology.iso h₂ (homology'.has f₂ g₂ h₂.w)).inv :=
   by
   apply h₁.ext_π
   apply h₂.ext_ι
-  simp [homology_map_eq']
+  simp [HasHomology.homology'_map_eq']
 
 end Map
 
@@ -471,16 +471,16 @@ open Opposite
 def op (h : HasHomology f g H) : HasHomology g.op f.op (op H)
     where
   w := by rw [← op_comp, h.w, op_zero]
-  π := (kernelOpOp f).Hom ≫ h.ι.op
+  π := (kernelOpOp f).hom ≫ h.ι.op
   ι := h.π.op ≫ (cokernelOpOp g).inv
   π_ι :=
     by
-    simp only [kernel_op_op_hom, cokernel_op_op_inv, ← op_comp, category.assoc, h.π_ι_assoc,
+    simp only [CategoryTheory.kernelOpOp_hom, CategoryTheory.cokernelOpOp_inv, ← op_comp, Category.assoc, h.π_ι_assoc,
       kernel.lift_ι_assoc, cokernel.π_desc]
     rfl
   ex_π :=
     by
-    rw [← exact_comp_hom_inv_comp_iff (kernel_op_op f), iso.inv_hom_id_assoc, kernel_op_op_hom]
+    rw [← exact_comp_hom_inv_comp_iff (CategoryTheory.kernelOpOp f), Iso.inv_hom_id_assoc, CategoryTheory.kernelOpOp_hom]
     convert h.ι_ex.op using 1
     apply Quiver.Hom.unop_inj
     apply CategoryTheory.Limits.coequalizer.hom_ext
@@ -488,12 +488,12 @@ def op (h : HasHomology f g H) : HasHomology g.op f.op (op H)
     rw [← unop_comp, kernel.lift_ι, g.unop_op]
   ι_ex :=
     by
-    rw [← exact_comp_hom_inv_comp_iff (cokernel_op_op g), category.assoc, iso.inv_hom_id,
-      category.comp_id, cokernel_op_op_inv]
+    rw [← exact_comp_hom_inv_comp_iff (CategoryTheory.cokernelOpOp g), Category.assoc, Iso.inv_hom_id,
+      Category.comp_id, CategoryTheory.cokernelOpOp_inv]
     convert h.ex_π.op using 1
     apply Quiver.Hom.unop_inj
     apply CategoryTheory.Limits.equalizer.hom_ext
-    erw [unop_comp, equalizer.lift_ι, category.assoc, equalizer.lift_ι]
+    erw [unop_comp, equalizer.lift_ι, Category.assoc, equalizer.lift_ι]
     rw [← unop_comp, cokernel.π_desc, f.unop_op]
   epi_π := epi_comp _ _
   mono_ι := mono_comp _ _

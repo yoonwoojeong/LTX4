@@ -21,7 +21,7 @@ theorem homology'.lift_desc (X Y Z : 𝓐) (f : X ⟶ Y) (g : Y ⟶ Z) (w) (U : 
   have hs : s = kernel.lift _ t ht ≫ homology'.π' _ _ _ :=
     by
     apply homology'.hom_to_ext
-    simp only [homology'.lift_ι, category.assoc, homology'.π'_ι, kernel.lift_ι_assoc]
+    simp only [homology'.lift_ι, Category.assoc, homology'.π'_ι, kernel.lift_ι_assoc]
   simp [hs]
 
 theorem homology'.lift_desc' (X Y Z : 𝓐) (f : X ⟶ Y) (g : Y ⟶ Z) (w) (U : 𝓐) (e : Y ⟶ U)

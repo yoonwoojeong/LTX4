@@ -16,7 +16,7 @@ variable {A : Type u} [Category.{v} A] [Preadditive A] {X Y : A} (f : X ⟶ Y)
 @[simp]
 theorem isIso_neg_iff : IsIso (-f) ↔ IsIso f := by
   constructor <;> rintro ⟨g, hg⟩ <;> refine' ⟨⟨-g, _⟩⟩ <;>
-    simpa only [preadditive.comp_neg, preadditive.neg_comp, neg_neg] using hg
+    simpa only [Preadditive.comp_neg, Preadditive.neg_comp, neg_neg] using hg
 
 -- move me
 instance isIso_neg [IsIso f] : IsIso (-f) := by rwa [isIso_neg_iff]

@@ -25,15 +25,15 @@ theorem exact_colim_of_exact_of_isFiltered (F G H : J ⥤ AddCommGroupCat.{u}) (
   rw [AddCommGroupCat.exact_iff']; constructor
   · ext1 j; simp [reassoc_of (h j).1]
   · rintro x (hx : _ = _)
-    obtain ⟨j, y, rfl⟩ := limits.concrete.colimit_exists_rep _ x
-    erw [← comp_apply, limits.colimit.ι_desc] at hx ; dsimp at hx 
+    obtain ⟨j, y, rfl⟩ := Limits.Concrete.colimit_exists_rep _ x
+    erw [← comp_apply, Limits.colimit.ι_desc] at hx ; dsimp at hx 
     rw [comp_apply] at hx 
-    have : (0 : limits.colimit H) = limits.colimit.ι H j 0 := by simp; rw [this] at hx ; clear this
-    obtain ⟨k, e₁, e₂, hk⟩ := limits.concrete.colimit_exists_of_rep_eq _ _ _ hx
-    simp only [map_zero, ← comp_apply, ← nat_trans.naturality] at hk ; rw [comp_apply] at hk 
+    have : (0 : Limits.colimit H) = Limits.colimit.ι H j 0 := by simp; rw [this] at hx ; clear this
+    obtain ⟨k, e₁, e₂, hk⟩ := Limits.Concrete.colimit_exists_of_rep_eq _ _ _ hx
+    simp only [map_zero, ← comp_apply, ← NatTrans.naturality] at hk ; rw [comp_apply] at hk 
     obtain ⟨t, ht⟩ := ((AddCommGroupCat.exact_iff' _ _).1 (h k)).2 hk
-    use limits.colimit.ι F k t
-    erw [← comp_apply, limits.colimit.ι_map, comp_apply, ht, ← comp_apply]
+    use Limits.colimit.ι F k t
+    erw [← comp_apply, Limits.colimit.ι_map, comp_apply, ht, ← comp_apply]
     congr 1; simp
 
 instance aB5 : AB5 AddCommGroupCat.{u} := by

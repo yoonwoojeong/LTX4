@@ -175,7 +175,7 @@ theorem θ_natural [Fact (0 < p)] [Fact (p ≤ 1)] (S T : FintypeCat) (f : S ⟶
     norm_cast
     rw [← NNReal.rpow_int_cast, ← inv_rpow]
     rw [NNReal.rpow_int_cast]
-    set m := n.nat_abs with hm
+    set m := n.natAbs with hm
     have hmn : n = m := by rw [hm]; exact Int.eq_natAbs_of_zero_le hn
     rw [hmn]
     norm_cast
@@ -247,8 +247,8 @@ theorem θ_ϕ_complex (F : ℒ S) : (θ ∘ ϕ) F = 0 :=
     · rintro ⟨i, hi⟩
       simp [zpow_sub₀]
       ring
-  · rw [← (equiv.add_group_add (-1 : ℤ)).summable_iff]
-    simp only [Function.comp, one_div, inv_zpow', equiv.add_group_add_apply, neg_add_cancel_comm]
+  · rw [← (Equiv.addGroupAdd (-1 : ℤ)).summable_iff]
+    simp only [Function.comp, one_div, inv_zpow', Equiv.addGroupAdd_apply, neg_add_cancel_comm]
     convert Summable.mul_right 2 (F.summable_half s)
     ext x
     simp [zpow_add₀]; ring
@@ -288,7 +288,7 @@ theorem psi_def_summable {S : FintypeCat} (n : ℕ) (F : ℒ S) (s : S) :
   rw [← summable_norm_iff] at this 
   simp_rw [← _root_.coe_nnnorm] at this 
   rw [summable_coe] at this 
-  rw [nnreal.summable_iff_on_nat_less_shift F.d _ (F.d + n)] at this 
+  rw [Nnreal.summable_iff_on_nat_less_shift F.d _ (F.d + n)] at this 
   · convert this
     ext1 k
     rw [mul_comm]
@@ -328,7 +328,7 @@ theorem psi_def_summable2 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : �
     ring
   rw [summable_congr this]; clear this
   have := F.summable' s
-  rw [nnreal.summable_iff_on_nat_less_shift F.d _ (F.d + k)] at this 
+  rw [Nnreal.summable_iff_on_nat_less_shift F.d _ (F.d + k)] at this 
   · convert this
     ext n
     rw [mul_comm, add_right_comm]
@@ -360,7 +360,7 @@ theorem psi_def_summable3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : �
     · intros; apply zero_le'
     · intro; rfl
     · rw [←
-        @nnreal.summable_iff_on_nat_less_shift (fun z : ℤ => r ^ z * ‖F s z‖₊) F.d _
+        @Nnreal.summable_iff_on_nat_less_shift (fun z : ℤ => r ^ z * ‖F s z‖₊) F.d _
           (F.d + k)]
       · convert F.summable' s
         ext z

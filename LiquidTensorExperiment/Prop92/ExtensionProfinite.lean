@@ -50,10 +50,10 @@ theorem Embedding.preimage_clopen {f : X → Y} (hf : Embedding f) {U : Set X} (
   have hfU : IsCompact (f '' U) := hU'.is_compact.image hf.continuous
   obtain ⟨W, W_op, hfW⟩ : ∃ W : Set Y, IsOpen W ∧ f ⁻¹' W = U :=
     by
-    rw [hf.to_inducing.induced] at hU 
+    rw [hf.toInducing.induced] at hU 
     exact is_open_induced_iff.mp hU
   obtain ⟨ι, Z : ι → Set Y, hWZ : W = ⋃ i, Z i, hZ : ∀ i, IsClopen <| Z i⟩ :=
-    is_topological_basis_clopen.open_eq_Union W_op
+    is_topological_basis_clopen.open_eq_iUnion W_op
   have : f '' U ⊆ ⋃ i, Z i := by rw [image_subset_iff, ← hWZ, hfW]
   obtain ⟨I, hI⟩ : ∃ I : Finset ι, f '' U ⊆ ⋃ i ∈ I, Z i
   exact hfU.elim_finite_subcover _ (fun i => (hZ i).1) this
@@ -194,8 +194,8 @@ def Embedding.extend {e : X → Y} (he : Embedding e) (f : X → Z) : Y → Z :=
     by
     haveI := h.2
     let ff : LocallyConstant X Z := ⟨f, h.1⟩
-    let T := he.discrete_quotient_map ff.discrete_quotient
-    let ee : ff.discrete_quotient ≃ T := he.discrete_quotient_equiv ff.discrete_quotient
+    let T := he.discreteQuotientMap ff.discreteQuotient
+    let ee : ff.discreteQuotient ≃ T := he.discreteQuotientEquiv ff.discreteQuotient
     exact ff.lift ∘ ee.symm ∘ T.proj
   else fun y => default
 
@@ -208,15 +208,15 @@ theorem Embedding.extend_extends {e : X → Y} (he : Embedding e) {f : X → Z}
   intro x
   haveI : Nonempty X := ⟨x⟩
   let ff : LocallyConstant X Z := ⟨f, hf⟩
-  let S := ff.discrete_quotient
-  let S' := he.discrete_quotient_map S
+  let S := ff.discreteQuotient
+  let S' := he.discreteQuotientMap S
   let barf : S → Z := ff.lift
-  let g : S ≃ S' := he.discrete_quotient_equiv S
+  let g : S ≃ S' := he.discreteQuotientEquiv S
   unfold Embedding.extend
   have h : IsLocallyConstant f ∧ Nonempty X := ⟨hf, ⟨x⟩⟩
   rw [dif_pos h]
   change (barf ∘ g.symm ∘ S'.proj ∘ e) x = f x
-  suffices (barf ∘ S.proj) x = f x by simpa [he.discrete_quotient_spec]
+  suffices (barf ∘ S.proj) x = f x by simpa [he.discreteQuotient_spec]
   simpa
 
 theorem Embedding.isLocallyConstant_extend {e : X → Y} (he : Embedding e) {f : X → Z} :
@@ -236,13 +236,13 @@ theorem Embedding.range_extend {e : X → Y} (he : Embedding e) [Nonempty X] {Z 
   constructor
   · rintro ⟨y, rfl⟩
     let ff : LocallyConstant _ _ := ⟨f, hf⟩
-    let T := he.discrete_quotient_map ff.discrete_quotient
-    let ee : ff.discrete_quotient ≃ T := he.discrete_quotient_equiv ff.discrete_quotient
+    let T := he.discreteQuotientMap ff.discreteQuotient
+    let ee : ff.discreteQuotient ≃ T := he.discreteQuotientEquiv ff.discreteQuotient
     dsimp only [Embedding.extend]
     rw [dif_pos]
     swap; · exact ⟨hf, ‹_›⟩
     change ff.lift (ee.symm (T.proj y)) ∈ _
-    rcases ff.discrete_quotient.proj_surjective (ee.symm (T.proj y)) with ⟨w, hz⟩
+    rcases ff.discreteQuotient.proj_surjective (ee.symm (T.proj y)) with ⟨w, hz⟩
     use w
     rw [← hz]
     rfl
@@ -263,7 +263,7 @@ theorem Embedding.comap_locallyConstantExtend {e : X → Y} (he : Embedding e)
   by
   ext x
   rw [LocallyConstant.coe_comap _ _ he.continuous]
-  exact he.locally_constant_extend_extends f x
+  exact he.locallyConstantExtend_extends f x
 
 theorem Embedding.range_locallyConstantExtend {e : X → Y} (he : Embedding e) [Nonempty X]
     {Z : Type _} [Inhabited Z] (f : LocallyConstant X Z) :

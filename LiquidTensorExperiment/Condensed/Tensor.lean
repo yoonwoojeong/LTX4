@@ -4,7 +4,7 @@ import LiquidTensorExperiment.Condensed.ShortExact
 import LiquidTensorExperiment.Condensed.Acyclic
 import LiquidTensorExperiment.ForMathlib.AddCommGroup.Tensor
 
-#align_import condensed.tensor
+#align_import Condensed.tensor
 
 noncomputable section
 
@@ -26,21 +26,21 @@ def tensor (M : ExtrSheafProd.{u} Ab.{u + 1}) (A : Ab.{u + 1}) : ExtrSheafProd.{
     where
   val := tensorPresheaf M.val A
   cond := by
-    intro α _ X; dsimp [tensor_presheaf, AddCommGroupCat.tensorFunctor]
+    intro α _ X; dsimp [ExtrSheafProd.tensorPresheaf, AddCommGroupCat.tensorFunctor]
     let e := _; change is_iso e
     have hq := M.cond _ X; dsimp at hq ; let q := _; change is_iso q at hq 
     have he : e = AddCommGroupCat.mapTensor q (𝟙 _) ≫ AddCommGroupCat.tensorPiComparison _ _ :=
       by
       ext1 j
       dsimp [AddCommGroupCat.tensorPiComparison]
-      simp only [← AddCommGroupCat.mapTensor_comp_left, limits.limit.lift_π, limits.fan.mk_π_app,
-        category.assoc]
-    rw [he]; skip; apply (config := { instances := false }) is_iso.comp_is_iso
+      simp only [← AddCommGroupCat.mapTensor_comp_left, Limits.limit.lift_π, Limits.Fan.mk_π_app,
+        Category.assoc]
+    rw [he]; skip; apply (config := { instances := false }) IsIso.comp_isIso
     swap; infer_instance
     use AddCommGroupCat.mapTensor (inv q) (𝟙 _)
     constructor
-    · rw [← AddCommGroupCat.mapTensor_comp_left, is_iso.hom_inv_id, AddCommGroupCat.mapTensor_id]
-    · rw [← AddCommGroupCat.mapTensor_comp_left, is_iso.inv_hom_id, AddCommGroupCat.mapTensor_id]
+    · rw [← AddCommGroupCat.mapTensor_comp_left, IsIso.hom_inv_id, AddCommGroupCat.mapTensor_id]
+    · rw [← AddCommGroupCat.mapTensor_comp_left, IsIso.inv_hom_id, AddCommGroupCat.mapTensor_id]
 
 -- tensor products commutes with direct sums.
 @[simps val_app]
@@ -48,10 +48,10 @@ def mapTensor {M M' : ExtrSheafProd.{u} Ab.{u + 1}} {A A' : AddCommGroupCat.{u +
     (g : A ⟶ A') : M.tensor A ⟶ M'.tensor A' :=
   ExtrSheafProd.Hom.mk <|
     { app := fun S => AddCommGroupCat.mapTensor (f.val.app _) g
-      naturality' := by
+      naturality := by
         intro X Y i
-        dsimp [tensor, tensor_presheaf]
-        simp only [← AddCommGroupCat.mapTensor_comp_comp, category.id_comp, category.comp_id,
+        dsimp [tensor, ExtrSheafProd.tensorPresheaf]
+        simp only [← AddCommGroupCat.mapTensor_comp_comp, Category.id_comp, Category.comp_id,
           f.val.naturality] }
 
 @[simp]
@@ -70,23 +70,23 @@ def tensorFunctor : ExtrSheafProd.{u} Ab.{u + 1} ⥤ Ab.{u + 1} ⥤ ExtrSheafPro
   obj M :=
     { obj := fun A => M.tensor A
       map := fun A A' f => mapTensor (𝟙 _) f
-      map_id' := fun X => by simp
-      map_comp' := fun X Y Z f g =>
+      map_id := fun X => by simp
+      map_comp := fun X Y Z f g =>
         by
-        nth_rw 1 [← category.id_comp (𝟙 M)]
+        nth_rw 1 [← Category.id_comp (𝟙 M)]
         rw [map_tensor_comp] }
   map M N f :=
     { app := fun A => mapTensor f (𝟙 _)
-      naturality' := fun A B g => by
+      naturality := fun A B g => by
         dsimp
-        simp only [← map_tensor_comp, category.id_comp, category.comp_id] }
-  map_id' M := by
+        simp only [← map_tensor_comp, Category.id_comp, Category.comp_id] }
+  map_id M := by
     ext : 2
     simp
-  map_comp' M N L f g := by
+  map_comp M N L f g := by
     ext x : 2
     dsimp
-    nth_rw 1 [← category.comp_id (𝟙 x)]
+    nth_rw 1 [← Category.comp_id (𝟙 x)]
     rw [map_tensor_comp]
 
 @[simps]
@@ -140,10 +140,10 @@ def halfInternalHom (A : AddCommGroupCat.{u + 1}) (M : ExtrSheafProd.{u} Ab.{u +
   val :=
     { obj := fun S => AddCommGroupCat.of (A ⟶ M.val.obj S)
       map := fun X Y f => (preadditiveYoneda.flip.obj (Opposite.op A)).map <| M.val.map f
-      map_id' := by
+      map_id := by
         intro S
         dsimp; simpa
-      map_comp' := by
+      map_comp := by
         intro R S T f g
         dsimp
         simp }
@@ -154,18 +154,18 @@ def halfInternalHom (A : AddCommGroupCat.{u + 1}) (M : ExtrSheafProd.{u} Ab.{u +
     let q :
       AddCommGroupCat.of (A ⟶ M.val.obj (Opposite.op (ExtrDisc.sigma X))) ≅
         AddCommGroupCat.of (A ⟶ ∏ fun i => M.val.obj (Opposite.op (X i))) :=
-      (preadditive_yoneda.flip.obj (Opposite.op A)).mapIso (as_iso e)
+      (preadditive_yoneda.flip.obj (Opposite.op A)).mapIso (CategoryTheory.asIso e)
     let s :
       AddCommGroupCat.of (A ⟶ ∏ fun i => M.val.obj (Opposite.op (X i))) ⟶
         ∏ fun i => AddCommGroupCat.of (A ⟶ M.val.obj (Opposite.op (X i))) :=
-      limits.pi.lift fun i => (preadditive_yoneda.flip.obj (Opposite.op A)).map (limits.pi.π _ i)
+      Limits.Pi.lift fun i => (preadditive_yoneda.flip.obj (Opposite.op A)).map (limits.pi.π _ i)
     have ht : t = q.hom ≫ s := by
       dsimp [t, q, s, e]; ext1
-      simp only [limits.limit.lift_π, limits.fan.mk_π_app, category.assoc]
-      rw [← nat_trans.comp_app, ← functor.map_comp, limits.limit.lift_π]
+      simp only [Limits.limit.lift_π, Limits.Fan.mk_π_app, Category.assoc]
+      rw [← NatTrans.comp_app, ← Functor.map_comp, Limits.limit.lift_π]
       rfl
     rw [ht]; clear ht
-    suffices is_iso s by skip; apply is_iso.comp_is_iso
+    suffices is_iso s by skip; apply IsIso.comp_isIso
     -- Now we need to show that `Hom(A,(Π i, X i)) = Π i, Hom(A,X i)`.
     apply AddCommGroupCat.isIso_homProductComparison.{u, u + 1}
 
@@ -173,13 +173,13 @@ def tensorUncurry {A : AddCommGroupCat.{u + 1}} {M N : ExtrSheafProd.{u} Ab.{u +
     (e : M ⟶ halfInternalHom A N) : tensor M A ⟶ N :=
   ExtrSheafProd.Hom.mk <|
     { app := fun S => AddCommGroupCat.tensorUncurry <| e.val.app _
-      naturality' := by
+      naturality := by
         intro X Y f
         erw [← AddCommGroupCat.tensorUncurry_comp_curry]
-        apply (AddCommGroupCat.tensorCurryEquiv _ _ _).Injective
+        apply (AddCommGroupCat.tensorCurryEquiv _ _ _).injective
         erw [(AddCommGroupCat.tensorCurryEquiv _ _ _).apply_symm_apply]
         dsimp [AddCommGroupCat.tensorCurryEquiv]
-        erw [AddCommGroupCat.tensorCurry_uncurry_comp, ← nat_trans.naturality, ←
+        erw [AddCommGroupCat.tensorCurry_uncurry_comp, ← NatTrans.naturality, ←
           AddCommGroupCat.tensorCurryEquiv_apply, ← AddCommGroupCat.tensorCurryEquiv_symm_apply,
           (AddCommGroupCat.tensorCurryEquiv _ _ _).apply_symm_apply] }
 
@@ -187,17 +187,17 @@ def tensorCurry {A : AddCommGroupCat.{u + 1}} {M N : ExtrSheafProd.{u} Ab.{u + 1
     (e : M.tensor A ⟶ N) : M ⟶ halfInternalHom A N :=
   ExtrSheafProd.Hom.mk <|
     { app := fun S => AddCommGroupCat.tensorCurry <| e.val.app _
-      naturality' := by
+      naturality := by
         intro X Y f
         dsimp [half_internal_hom]
         erw [← AddCommGroupCat.tensorCurry_uncurry_comp]
-        apply (AddCommGroupCat.tensorCurryEquiv _ _ _).symm.Injective
+        apply (AddCommGroupCat.tensorCurryEquiv _ _ _).symm.injective
         simp_rw [← AddCommGroupCat.tensorCurryEquiv_apply]
         rw [(AddCommGroupCat.tensorCurryEquiv _ _ _).symm_apply_apply]
         rw [← AddCommGroupCat.tensorCurryEquiv_symm_apply]
         rw [(AddCommGroupCat.tensorCurryEquiv _ _ _).symm_apply_apply]
         dsimp
-        rw [AddCommGroupCat.tensorUncurry_comp_curry, ← nat_trans.naturality]
+        rw [AddCommGroupCat.tensorUncurry_comp_curry, ← NatTrans.naturality]
         rfl }
 
 theorem tensorCurry_uncurry {A : AddCommGroupCat.{u + 1}} {M N : ExtrSheafProd.{u} Ab.{u + 1}}
@@ -271,23 +271,23 @@ def tensorFunctor : ExtrSheaf.{u} Ab.{u + 1} ⥤ Ab.{u + 1} ⥤ ExtrSheaf.{u} Ab
   obj M :=
     { obj := fun A => M.tensor A
       map := fun A A' f => mapTensor (𝟙 _) f
-      map_id' := fun X => by simp
-      map_comp' := fun X Y Z f g =>
+      map_id := fun X => by simp
+      map_comp := fun X Y Z f g =>
         by
-        nth_rw 1 [← category.id_comp (𝟙 M)]
+        nth_rw 1 [← Category.id_comp (𝟙 M)]
         rw [map_tensor_comp] }
   map M N f :=
     { app := fun A => mapTensor f (𝟙 _)
-      naturality' := fun A B g => by
+      naturality := fun A B g => by
         dsimp
-        simp only [← map_tensor_comp, category.id_comp, category.comp_id] }
-  map_id' M := by
+        simp only [← map_tensor_comp, Category.id_comp, Category.comp_id] }
+  map_id M := by
     ext : 2
     simp
-  map_comp' M N L f g := by
+  map_comp M N L f g := by
     ext x : 2
     dsimp
-    nth_rw 1 [← category.comp_id (𝟙 x)]
+    nth_rw 1 [← Category.comp_id (𝟙 x)]
     rw [map_tensor_comp]
 
 instance createsColimits :
@@ -299,12 +299,12 @@ instance preservesColimitsTensorObj (M : ExtrSheaf.{u} Ab.{u + 1}) :
     Limits.PreservesColimits (tensorFunctor.obj M) :=
   by
   constructor; intro J _; constructor; intro F; constructor; intro S hS
-  let T := _; change limits.is_colimit T
-  apply limits.is_colimit_of_reflects (Sheaf_to_presheaf ExtrDisc.proetaleTopology.{u} Ab.{u + 1})
-  apply limits.evaluation_jointly_reflects_colimits
+  let T := _; change Limits.IsColimit T
+  apply Limits.isColimitOfReflects (Sheaf_to_presheaf ExtrDisc.proetaleTopology.{u} Ab.{u + 1})
+  apply Limits.evaluationJointlyReflectsColimits
   intro Q
-  change limits.is_colimit ((AddCommGroup.tensor_functor.obj (M.val.obj Q)).mapCocone S)
-  apply limits.is_colimit_of_preserves
+  change Limits.IsColimit ((AddCommGroup.tensor_functor.obj (M.val.obj Q)).mapCocone S)
+  apply Limits.isColimitOfPreserves
   exact hS
 
 example (α : Type (u + 1)) (N : ExtrSheaf.{u} Ab.{u + 1}) :
@@ -342,23 +342,23 @@ def tensorFunctor : Condensed.{u} Ab.{u + 1} ⥤ Ab.{u + 1} ⥤ Condensed.{u} Ab
   obj M :=
     { obj := fun A => M.tensor A
       map := fun A A' f => mapTensor (𝟙 _) f
-      map_id' := fun X => by simp
-      map_comp' := fun X Y Z f g =>
+      map_id := fun X => by simp
+      map_comp := fun X Y Z f g =>
         by
-        nth_rw 1 [← category.id_comp (𝟙 M)]
+        nth_rw 1 [← Category.id_comp (𝟙 M)]
         rw [map_tensor_comp] }
   map M N f :=
     { app := fun A => mapTensor f (𝟙 _)
-      naturality' := fun A B g => by
+      naturality := fun A B g => by
         dsimp
-        simp only [← map_tensor_comp, category.id_comp, category.comp_id] }
-  map_id' M := by
+        simp only [← map_tensor_comp, Category.id_comp, Category.comp_id] }
+  map_id M := by
     ext : 2
     simp
-  map_comp' M N L f g := by
+  map_comp M N L f g := by
     ext x : 2
     dsimp
-    nth_rw 1 [← category.comp_id (𝟙 x)]
+    nth_rw 1 [← Category.comp_id (𝟙 x)]
     rw [map_tensor_comp]
 
 /-
@@ -438,17 +438,17 @@ def tensorUncurry {A : AddCommGroupCat.{u + 1}} {M N : Condensed.{u} Ab.{u + 1}}
     (e : M ⟶ halfInternalHom A N) : tensor M A ⟶ N :=
   (condensedExtrSheafEquiv _).Functor.map
       (ExtrSheaf.tensorUncurry <|
-        (condensedExtrSheafEquiv Ab).inverse.map e ≫ (halfInternalHomIso _ _).Hom) ≫
-    ((condensedExtrSheafEquiv _).counitIso.app N).Hom
+        (condensedExtrSheafEquiv Ab).inverse.map e ≫ (halfInternalHomIso _ _).hom) ≫
+    ((condensedExtrSheafEquiv _).counitIso.app N).hom
 
 theorem tensorUncurry_eq {A : AddCommGroupCat.{u + 1}} {M N : Condensed.{u} Ab.{u + 1}}
     (e : M ⟶ halfInternalHom A N) :
     (condensedExtrSheafEquiv _).inverse.map (tensorUncurry e) =
-      (tensorIso _ _).Hom ≫
+      (tensorIso _ _).hom ≫
         ExtrSheaf.tensorUncurry
-          ((condensedExtrSheafEquiv _).inverse.map e ≫ (halfInternalHomIso _ _).Hom) :=
+          ((condensedExtrSheafEquiv _).inverse.map e ≫ (halfInternalHomIso _ _).hom) :=
   by
-  dsimp [tensor_uncurry, half_internal_hom_iso, tensor_iso]
+  dsimp [tensor_uncurry, Condensed.halfInternalHomIso, tensor_iso]
   simp
 
 def tensorCurry {A : AddCommGroupCat.{u + 1}} {M N : Condensed.{u} Ab.{u + 1}}
@@ -463,10 +463,10 @@ theorem tensorCurry_eq {A : AddCommGroupCat.{u + 1}} {M N : Condensed.{u} Ab.{u 
       ExtrSheaf.tensorCurry ((tensorIso _ _).inv ≫ (condensedExtrSheafEquiv Ab).inverse.map e) ≫
         (halfInternalHomIso _ _).inv :=
   by
-  rw [iso.eq_comp_inv]
-  dsimp [tensor_curry, half_internal_hom_iso, tensor_iso]
-  simp only [functor.map_comp, equivalence.fun_inv_map, equivalence.equivalence_mk'_counit,
-    category.assoc, iso.inv_hom_id_app]
+  rw [Iso.eq_comp_inv]
+  dsimp [tensor_curry, Condensed.halfInternalHomIso, tensor_iso]
+  simp only [Functor.map_comp, Equivalence.fun_inv_map, Equivalence.Equivalence_mk'_counit,
+    Category.assoc, Iso.inv_hom_id_app]
   simp; dsimp; simp
   --dsimp,
   --simp only [category.comp_id],
@@ -496,11 +496,11 @@ instance tensorFunctor_additive (A : Condensed.{u} Ab.{u + 1}) : (tensorFunctor.
     where map_add' := by
     intro A B f g
     dsimp [tensor_functor, map_tensor]
-    rw [← functor.map_add]; congr 1; ext S : 3
+    rw [← Functor.map_add]; congr 1; ext S : 3
     dsimp only [ExtrSheaf.mapTensor, ExtrSheafProd.mapTensor]
     simp only [CategoryTheory.Functor.map_id]
-    erw [nat_trans.id_app]
-    rw [← AddCommGroupCat.tensorFunctor_obj_map, functor.map_add]
+    erw [NatTrans.id_app]
+    rw [← AddCommGroupCat.tensorFunctor_obj_map, Functor.map_add]
     rfl
 
 end Condensed

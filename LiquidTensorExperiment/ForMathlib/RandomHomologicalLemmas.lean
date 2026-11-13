@@ -19,16 +19,16 @@ theorem Biprod.lift_desc_comm {X₁ X₂ Y₁ Y₂ : A} (f₁₁ : X₁ ⟶ Y₁
       biprod.desc (biprod.lift f₁₁ f₁₂) (biprod.lift f₂₁ f₂₂) :=
   by
   ext <;>
-    simp only [category.assoc, biprod.lift_fst, biprod.lift_snd, biprod.inl_desc, biprod.inr_desc]
+    simp only [Category.assoc, biprod.lift_fst, biprod.lift_snd, biprod.inl_desc, biprod.inr_desc]
 
 -- move me
 theorem Biprod.comp_lift {W X Y Z : A} (f : W ⟶ X) (g : X ⟶ Y) (h : X ⟶ Z) :
     f ≫ biprod.lift g h = biprod.lift (f ≫ g) (f ≫ h) := by
-  ext <;> simp only [category.assoc, biprod.lift_fst, biprod.lift_snd]
+  ext <;> simp only [Category.assoc, biprod.lift_fst, biprod.lift_snd]
 
 -- move me
 @[reassoc]
 theorem comp_factorThruImage_eq_zero {X Y Z : A} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f ≫ g = 0) :
     f ≫ factorThruImage g = 0 := by
-  rw [← cancel_mono (limits.image.ι g), category.assoc, limits.image.fac, w, zero_comp]
+  rw [← cancel_mono (Limits.image.ι g), Category.assoc, Limits.image.fac, w, zero_comp]
 

@@ -21,6 +21,6 @@ See <https://stacks.math.columbia.edu/tag/0104>. -/
 class AdditiveCategory (C : Type u) [Category.{v} C] extends Preadditive C,
   HasFiniteBiproducts C
 
-#align category_theory.additive_category CategoryTheory.AdditiveCategory
+#align CategoryTheory.additiveCategory CategoryTheory.AdditiveCategory
 
 end CategoryTheory

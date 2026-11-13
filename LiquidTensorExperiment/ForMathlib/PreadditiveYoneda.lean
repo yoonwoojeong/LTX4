@@ -3,7 +3,7 @@ import Mathlib.CategoryTheory.Preadditive.Yoneda.Injective
 import Mathlib.CategoryTheory.Preadditive.Yoneda.Limits
 import Mathlib.CategoryTheory.Preadditive.Yoneda.Projective
 
-#align_import for_mathlib.preadditive_yoneda
+#align_import for_mathlib.preadditiveYoneda
 
 open Opposite
 
@@ -24,14 +24,14 @@ theorem isIso_of_isIso_preadditiveYoneda_map_app {X Y : A} (f : X ⟶ Y)
     swap
     · intro i j h
       apply_fun inv g at h 
-      simpa only [← comp_apply, is_iso.hom_inv_id] using h
+      simpa only [← comp_apply, IsIso.hom_inv_id] using h
     dsimp [g]
-    simp only [category.id_comp, category.assoc]
+    simp only [Category.id_comp, Category.assoc]
     change f ≫ e _ = _
-    simp only [← comp_apply, is_iso.hom_inv_id]
+    simp only [← comp_apply, IsIso.hom_inv_id]
     simp
   · change e (inv e (𝟙 _)) = _
-    simp only [← comp_apply, is_iso.inv_hom_id]
+    simp only [← comp_apply, IsIso.inv_hom_id]
     simpa
 
 end CategoryTheory

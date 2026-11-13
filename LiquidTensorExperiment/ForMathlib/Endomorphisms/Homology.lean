@@ -32,25 +32,25 @@ theorem homology'Functor_obj_e (i : M) :
       ((homology'Functor (Endomorphisms 𝓐) c i).map Y.tautologicalEndomorphism).f :=
   by
   have h₁ :=
-    ((endomorphisms.forget 𝓐).homology'FunctorIso c i).Hom.naturality Y.tautological_endomorphism
-  rw [← cancel_mono (((endomorphisms.forget 𝓐).homology'FunctorIso c i).inv.app Y), assoc] at h₁ 
+    ((Endomorphisms.forget 𝓐).homology'FunctorIso c i).hom.naturality Y.tautological_endomorphism
+  rw [← cancel_mono (((Endomorphisms.forget 𝓐).homology'FunctorIso c i).inv.app Y), assoc] at h₁ 
   conv_lhs at h₁ =>
     congr
     skip
-    rw [← nat_trans.comp_app, iso.hom_inv_id, nat_trans.id_app]
+    rw [← NatTrans.comp_app, Iso.hom_inv_id, NatTrans.id_app]
   rw [comp_id] at h₁ 
-  conv_lhs at h₁ => dsimp only [Functor.Comp, endomorphisms.forget]
+  conv_lhs at h₁ => dsimp only [Functor.Comp, Endomorphisms.forget]
   rw [h₁]
   clear h₁
   have h₂ :=
-    nat_trans.congr_app (functor.naturality_homology_functor_iso (tautological_nat_trans 𝓐) c i) Y
-  dsimp [nat_trans.hcomp] at h₂ 
+    NatTrans.congr_app (Functor.naturality_homology'FunctorIso (CategoryTheory.Endomorphisms.tautologicalNatTrans 𝓐) c i) Y
+  dsimp [NatTrans.hcomp] at h₂ 
   rw [comp_id, id_comp, ←
-    cancel_mono (((endomorphisms.forget 𝓐).homology'FunctorIso c i).inv.app Y), assoc] at h₂ 
+    cancel_mono (((Endomorphisms.forget 𝓐).homology'FunctorIso c i).inv.app Y), assoc] at h₂ 
   conv_lhs at h₂ =>
     congr
     skip
-    rw [← nat_trans.comp_app, iso.hom_inv_id, nat_trans.id_app]
+    rw [← NatTrans.comp_app, Iso.hom_inv_id, NatTrans.id_app]
   erw [comp_id] at h₂ 
   exact h₂
 

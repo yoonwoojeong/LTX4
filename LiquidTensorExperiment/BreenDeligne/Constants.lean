@@ -48,7 +48,7 @@ instance cVerySuitable [hr : Fact (r < 1)] [hr' : Fact (0 < r')] :
       let c : ℝ≥0 := max 1 (BD.d (n + 1) n).factor
       refine' ⟨N, b, c * BD.κ r r' (n + 1), le_max_right _ _, _, _, _⟩
       · intro g hg i
-        exact mul_le_mul' ((universal_map.le_factor _ _ hg _).trans <| le_max_right _ _) le_rfl
+        exact mul_le_mul' ((UniversalMap.le_factor _ _ hg _).trans <| le_max_right _ _) le_rfl
       · rw [mul_comm, NNReal.mul_le_iff_le_inv, mul_one]
         convert Nat.find_spec (b_exists r (max 1 (BD.d (n + 1) n).bound))
         · simp only [Nat.cast_max, Nat.cast_one]
@@ -75,7 +75,7 @@ def κ' (BD : Package) (κ : ℕ → ℝ≥0) : ℕ → ℝ≥0
 instance κ'Adept (κ : ℕ → ℝ≥0) [∀ i, Fact (0 < κ i)] : Package.Adept BD κ (κ' BD κ)
     where htpy_suitable' := by
     intro n
-    apply universal_map.suitable_of_factor_le
+    apply UniversalMap.suitable_of_factor_le
     dsimp [κ']
     rw [inv_mul_cancel_right₀, mul_inv_cancel_right₀]
     · dsimp [rescaleConstants]; refine' mul_ne_zero (ne_of_gt <| Fact.out _) _; norm_num

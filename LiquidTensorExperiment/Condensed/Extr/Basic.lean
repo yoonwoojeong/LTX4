@@ -29,7 +29,7 @@ theorem of_val (X : Profinite) [Projective X] : (of X).val = X :=
 
 @[simps]
 instance : Category ExtrDisc where
-  Hom := Hom
+  hom := Hom
   id X := ⟨𝟙 _⟩
   comp X Y Z f g := ⟨f.val ≫ g.val⟩
 
@@ -66,7 +66,7 @@ example (X : ExtrDisc) : Projective (extrDiscToProfinite.obj X) := by dsimp; inf
 def lift {X Y : Profinite} {P : ExtrDisc} (f : X ⟶ Y) (hf : Function.Surjective f) (e : P.val ⟶ Y) :
     P.val ⟶ X := by
   haveI : epi f := by rwa [Profinite.epi_iff_surjective f]
-  choose g h using projective.factors e f
+  choose g h using Projective.factors e f
   exact g
 
 @[simp, reassoc]
@@ -74,7 +74,7 @@ theorem lift_lifts {X Y : Profinite} {P : ExtrDisc} (f : X ⟶ Y) (hf : Function
     (e : P.val ⟶ Y) : lift f hf e ≫ f = e :=
   by
   haveI : epi f := by rwa [Profinite.epi_iff_surjective f]
-  apply (projective.factors e f).choose_spec
+  apply (Projective.factors e f).choose_spec
 
 instance (X : ExtrDisc) : TopologicalSpace X :=
   show TopologicalSpace X.val by infer_instance
@@ -92,16 +92,16 @@ instance (X : ExtrDisc) : TotallyDisconnectedSpace X :=
 -- @[simps]
 def Profinite.sumIsoCoprod (X Y : Profinite.{u}) : Profinite.sum X Y ≅ X ⨿ Y
     where
-  Hom := Profinite.sum.desc _ _ Limits.coprod.inl Limits.coprod.inr
+  hom := Profinite.sum.desc _ _ Limits.coprod.inl Limits.coprod.inr
   inv := Limits.coprod.desc (Profinite.sum.inl _ _) (Profinite.sum.inr _ _)
-  hom_inv_id' := by
+  hom_inv_id := by
     apply Profinite.sum.hom_ext <;>
-      simp only [← category.assoc, category.comp_id, Profinite.sum.inl_desc, limits.coprod.inl_desc,
-        Profinite.sum.inr_desc, limits.coprod.inr_desc]
-  inv_hom_id' := by
-    apply limits.coprod.hom_ext <;>
-      simp only [← category.assoc, category.comp_id, Profinite.sum.inl_desc, limits.coprod.inl_desc,
-        Profinite.sum.inr_desc, limits.coprod.inr_desc]
+      simp only [← Category.assoc, Category.comp_id, Profinite.sum.inl_desc, Limits.coprod.inl_desc,
+        Profinite.sum.inr_desc, Limits.coprod.inr_desc]
+  inv_hom_id := by
+    apply Limits.coprod.hom_ext <;>
+      simp only [← Category.assoc, Category.comp_id, Profinite.sum.inl_desc, Limits.coprod.inl_desc,
+        Profinite.sum.inr_desc, Limits.coprod.inr_desc]
 
 @[simps]
 def sum (X Y : ExtrDisc.{u}) : ExtrDisc.{u}
@@ -109,7 +109,7 @@ def sum (X Y : ExtrDisc.{u}) : ExtrDisc.{u}
   val := Profinite.sum X.val Y.val
   cond := by
     let Z := Profinite.sum X.val Y.val
-    apply projective.of_iso (Profinite.sumIsoCoprod X.val Y.val).symm
+    apply Projective.of_iso (Profinite.sumIsoCoprod X.val Y.val).symm
     infer_instance
 
 @[simps]
@@ -152,12 +152,12 @@ def empty : ExtrDisc where
   cond :=
     by
     let e : Profinite.empty ≅ ⊥_ _ :=
-      Profinite.empty_is_initial.unique_up_to_iso limits.initial_is_initial
-    apply projective.of_iso e.symm
+      Profinite.empty_is_initial.uniqueUpToIso Limits.initialIsInitial
+    apply Projective.of_iso e.symm
     -- apply_instance, <-- missing instance : projective (⊥_ _)
     constructor
     intro A B f g _
-    refine' ⟨limits.initial.to A, by simp⟩
+    refine' ⟨Limits.initial.to A, by simp⟩
 
 @[simps]
 def empty.elim (X : ExtrDisc) : empty ⟶ X :=
@@ -172,8 +172,8 @@ def sigma {ι : Type u} [Fintype ι] (X : ι → ExtrDisc) : ExtrDisc
   cond :=
     by
     let e : (Profinite.sigma fun i => (X i).val) ≅ ∐ fun i => (X i).val :=
-      (Profinite.sigmaCofanIsColimit _).coconePointUniqueUpToIso (limits.colimit.is_colimit _)
-    apply projective.of_iso e.symm
+      (Profinite.sigmaCofanIsColimit _).coconePointUniqueUpToIso (Limits.colimit.isColimit _)
+    apply Projective.of_iso e.symm
     infer_instance
 
 def sigma.ι {ι : Type u} [Fintype ι] (X : ι → ExtrDisc) (i) : X i ⟶ sigma X :=
@@ -219,7 +219,7 @@ def FiniteProductCondition [Limits.HasFiniteProducts C] (F : ExtrDisc.{u}ᵒᵖ 
     -- Lean is being annoying here...
     skip
     let t : ∀ i, F.obj (op (Sigma X)) ⟶ F.obj (op (X i)) := fun i => F.map (sigma.ι X i).op
-    exact is_iso (limits.pi.lift t)
+    exact is_iso (Limits.Pi.lift t)
 
 def FiniteProductConditionForTypes (F : ExtrDisc.{u}ᵒᵖ ⥤ Type w) : Prop :=
   ∀ (ι : Type u) [Fintype ι] (X : ι → ExtrDisc),
@@ -272,17 +272,17 @@ theorem equalizerCondition_holds [Limits.HasEqualizers C] (F : ExtrDisc.{u}ᵒ�
   have h₁ : t ≫ e₁ = 𝟙 _ := by ext1; dsimp; simp
   have h₂ : t ≫ e₂ = f ≫ σ := by ext1; dsimp; simp
   have hh : σ ≫ f = 𝟙 _ := by ext1; dsimp; simp
-  use limits.equalizer.ι _ _ ≫ F.map σ.op
+  use Limits.equalizer.ι _ _ ≫ F.map σ.op
   constructor
-  · simp only [limits.equalizer.lift_ι_assoc]
+  · simp only [Limits.equalizer.lift_ι_assoc]
     simp only [← F.map_comp, ← op_comp, hh]
     simp
   · ext
-    simp only [limits.equalizer.lift_ι, category.id_comp, category.assoc]
+    simp only [Limits.equalizer.lift_ι, Category.id_comp, Category.assoc]
     simp only [← F.map_comp, ← op_comp]
     erw [← h₂, op_comp, F.map_comp]
     dsimp [e₂]
-    erw [← limits.equalizer.condition_assoc]
+    erw [← Limits.equalizer.condition_assoc]
     change _ ≫ F.map e₁.op ≫ F.map t.op = _
     rw [← F.map_comp, ← op_comp, h₁]
     simp
@@ -297,7 +297,7 @@ theorem equalizerConditionForTypes_holds (F : ExtrDisc.{u}ᵒᵖ ⥤ Type w) :
   have w : e₁ ≫ f = e₂ ≫ f := by
     dsimp [e₁, e₂]
     apply ExtrDisc.Hom.ext
-    simp [category.assoc, Profinite.pullback.condition]
+    simp [Category.assoc, Profinite.pullback.condition]
   have h : F.map f.op ≫ F.map e₁.op = F.map f.op ≫ F.map e₂.op := by
     simp only [← F.map_comp, ← op_comp, w]
   let E := { x : F.obj (op X) // F.map e₁.op x = F.map e₂.op x }
@@ -307,20 +307,20 @@ theorem equalizerConditionForTypes_holds (F : ExtrDisc.{u}ᵒᵖ ⥤ Type w) :
       change (F.map f.op ≫ F.map e₁.op) x = (F.map f.op ≫ F.map e₂.op) x
       rw [h]⟩
   change Function.Bijective t
-  let ee := limits.concrete.equalizer_equiv (F.map e₁.op) (F.map e₂.op)
+  let ee := Limits.Concrete.equalizerEquiv (F.map e₁.op) (F.map e₂.op)
   suffices Function.Bijective (ee.symm ∘ t) by
     exact (Equiv.comp_bijective t (Equiv.symm ee)).mp this
-  have : ee.symm ∘ t = limits.equalizer.lift _ h :=
+  have : ee.symm ∘ t = Limits.equalizer.lift _ h :=
     by
-    suffices t = ee ∘ limits.equalizer.lift _ h by rw [this]; ext; simp
+    suffices t = ee ∘ Limits.equalizer.lift _ h by rw [this]; ext; simp
     ext
     apply Subtype.ext
-    change _ = (limits.equalizer.lift _ h ≫ limits.equalizer.ι _ _) _
-    rw [limits.equalizer.lift_ι]
+    change _ = (Limits.equalizer.lift _ h ≫ Limits.equalizer.ι _ _) _
+    rw [Limits.equalizer.lift_ι]
     rfl
   rw [this]
-  rw [← is_iso_iff_bijective]
-  apply equalizer_condition_holds
+  rw [← CategoryTheory.isIso_iff_bijective]
+  apply ExtrDisc.equalizerCondition_holds
   assumption'
 
 end ExtrDisc
@@ -330,7 +330,7 @@ namespace Profinite
 theorem exists_projective_presentation (B : Profinite.{u}) :
     ∃ (X : ExtrDisc) (π : X.val ⟶ B), Function.Surjective π :=
   by
-  obtain ⟨⟨X, h, π, hπ⟩⟩ := enough_projectives.presentation B
+  obtain ⟨⟨X, h, π, hπ⟩⟩ := EnoughProjectives.presentation B
   skip
   use⟨X⟩, π
   rwa [← epi_iff_surjective]
@@ -670,7 +670,7 @@ theorem finiteProductCondition_iff_forall_yoneda [Limits.HasFiniteProducts C]
   constructor
   · intro h T ι _ X
     let t : F.obj (op (ExtrDisc.sigma X)) ⟶ ∏ fun i : ι => F.obj (op (X i)) :=
-      limits.pi.lift fun i : ι => F.map (ExtrDisc.sigma.ι X i).op
+      Limits.Pi.lift fun i : ι => F.map (ExtrDisc.sigma.ι X i).op
     specialize h ι X
     dsimp at h ⊢
     change is_iso t at h 
@@ -683,11 +683,11 @@ theorem finiteProductCondition_iff_forall_yoneda [Limits.HasFiniteProducts C]
       rw [Function.funext_iff] at hab 
       simp [hab]
     · intro a
-      use limits.pi.lift a ≫ inv t
+      use Limits.Pi.lift a ≫ inv t
       dsimp
       funext i
       have : inv t ≫ F.map (ExtrDisc.sigma.ι X i).op = limits.pi.π _ i := by
-        simp [is_iso.inv_comp_eq]
+        simp [IsIso.inv_comp_eq]
       simp [this]
   · intro h ι _ X
     dsimp

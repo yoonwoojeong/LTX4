@@ -16,7 +16,7 @@ namespace HomologicalComplex
 noncomputable def sigmaSingleComponent {α : Type v} (i : ℤ) (X : α → A) :
     (∐ fun a => (single A (ComplexShape.up ℤ) i).obj (X a)).pt i ≅ ∐ X
     where
-  Hom :=
+  hom :=
     (isColimitOfPreserves (eval _ _ i)
           (colimit.isColimit
             (Discrete.functor fun a => (single A (ComplexShape.up ℤ) i).obj (X a)))).desc
@@ -25,29 +25,29 @@ noncomputable def sigmaSingleComponent {α : Type v} (i : ℤ) (X : α → A) :
     Sigma.desc fun a =>
       eqToHom (if_pos rfl).symm ≫
         (Sigma.ι (fun a : α => (single A (ComplexShape.up ℤ) i).obj (X a)) a).f i
-  hom_inv_id' :=
+  hom_inv_id :=
     by
     apply
-      (is_colimit_of_preserves (eval A (ComplexShape.up ℤ) i)
-          (colimit.is_colimit
-            (discrete.functor fun a : α => (single A (ComplexShape.up ℤ) i).obj (X a)))).hom_ext
+      (CategoryTheory.Limits.isColimitOfPreserves (eval A (ComplexShape.up ℤ) i)
+          (colimit.isColimit
+            (Discrete.functor fun a : α => (single A (ComplexShape.up ℤ) i).obj (X a)))).hom_ext
     rintro ⟨j⟩
     dsimp
-    rw [category.comp_id]
+    rw [Category.comp_id]
     slice_lhs 1 2 =>
-      erw [(is_colimit_of_preserves (eval A (ComplexShape.up ℤ) i)
-            (colimit.is_colimit
-              (discrete.functor fun a : α => (single A (ComplexShape.up ℤ) i).obj (X a)))).fac]
+      erw [(CategoryTheory.Limits.isColimitOfPreserves (eval A (ComplexShape.up ℤ) i)
+            (colimit.isColimit
+              (Discrete.functor fun a : α => (single A (ComplexShape.up ℤ) i).obj (X a)))).fac]
     dsimp
-    rw [category.assoc, colimit.ι_desc]; dsimp
-    simp only [eq_to_hom_trans_assoc, eq_to_hom_refl, category.id_comp]
-  inv_hom_id' := by
+    rw [Category.assoc, colimit.ι_desc]; dsimp
+    simp only [CategoryTheory.eqToHom_trans_assoc, CategoryTheory.eqToHom_refl, Category.id_comp]
+  inv_hom_id := by
     ext ⟨j⟩
-    simp only [colimit.ι_desc_assoc, cofan.mk_ι_app, category.assoc, category.comp_id]
-    erw [(is_colimit_of_preserves (eval A (ComplexShape.up ℤ) i)
-          (colimit.is_colimit
-            (discrete.functor fun a : α => (single A (ComplexShape.up ℤ) i).obj (X a)))).fac]
-    dsimp; simp only [eq_to_hom_trans_assoc, eq_to_hom_refl, category.id_comp]
+    simp only [colimit.ι_desc_assoc, Cofan.mk_ι_app, Category.assoc, Category.comp_id]
+    erw [(CategoryTheory.Limits.isColimitOfPreserves (eval A (ComplexShape.up ℤ) i)
+          (colimit.isColimit
+            (Discrete.functor fun a : α => (single A (ComplexShape.up ℤ) i).obj (X a)))).fac]
+    dsimp; simp only [CategoryTheory.eqToHom_trans_assoc, CategoryTheory.eqToHom_refl, Category.id_comp]
 
 noncomputable def sigmaSingleComponentOfEq {α : Type v} (j i : ℤ) (X : α → A) (h : j = i) :
     (∐ fun a => (single A (ComplexShape.up ℤ) i).obj (X a)).pt j ≅ ∐ X :=
@@ -56,7 +56,7 @@ noncomputable def sigmaSingleComponentOfEq {α : Type v} (j i : ℤ) (X : α →
 noncomputable def singleSigmaIso {α : Type v} (i : ℤ) (X : α → A) :
     (single A (ComplexShape.up ℤ) i).obj (∐ X) ≅ ∐ fun a => (single A _ i).obj (X a)
     where
-  Hom :=
+  hom :=
     { f := fun j =>
         if h : j = i then
           eqToHom (if_pos h) ≫
@@ -66,9 +66,9 @@ noncomputable def singleSigmaIso {α : Type v} (i : ℤ) (X : α → A) :
         rintro j k (rfl : _ = _)
         rcases eq_or_ne j i with (rfl | hij)
         · rw [dif_pos rfl, dif_neg]; swap; · exact succ_ne_self j
-          simp only [category.assoc, single_obj_d, zero_comp, preadditive.is_iso.comp_left_eq_zero,
-            sigma_single_component_of_eq, iso.trans_inv, sigma_single_component, eq_to_hom_refl,
-            colimit.ι_desc_assoc, eq_to_iso, category.comp_id, cofan.mk_ι_app, colimit.ι_desc]
+          simp only [Category.assoc, single_obj_d, zero_comp, Preadditive.IsIso.comp_left_eq_zero,
+            HomologicalComplex.sigmaSingleComponentOfEq, Iso.trans_inv, HomologicalComplex.sigmaSingleComponent, CategoryTheory.eqToHom_refl,
+            colimit.ι_desc_assoc, eq_to_iso, Category.comp_id, Cofan.mk_ι_app, colimit.ι_desc]
           ext; simp
         · rw [dif_neg hij, zero_comp]
           split_ifs with hij'
@@ -82,38 +82,38 @@ noncomputable def singleSigmaIso {α : Type v} (i : ℤ) (X : α → A) :
           rintro j k (rfl : _ = _)
           rcases eq_or_ne j i with (rfl | hij)
           · rw [dif_pos rfl, dif_neg]; swap; · exact succ_ne_self j
-            simp only [category.assoc, single_obj_d, zero_comp, comp_zero]
+            simp only [Category.assoc, single_obj_d, zero_comp, comp_zero]
           · rw [dif_neg hij, zero_comp]
             split_ifs with hij'
             · subst i; simp only [single_obj_d, zero_comp]
             · rw [comp_zero] }
-  hom_inv_id' := by
+  hom_inv_id := by
     ext j; dsimp
     rcases eq_or_ne j i with (rfl | hij)
     · rw [dif_pos rfl]
-      simp only [category.assoc]
-      rw [← is_iso.eq_inv_comp (eq_to_hom _)]; swap; infer_instance
+      simp only [Category.assoc]
+      rw [← IsIso.eq_inv_comp (eq_to_hom _)]; swap; infer_instance
       ext ⟨a⟩;
-      simp only [colimit.ι_desc_assoc, cofan.mk_ι_app, category.assoc, inv_eq_to_hom,
-        category.comp_id]
-      dsimp [sigma_single_component_of_eq, sigma_single_component]
-      simp only [category.comp_id, colimit.ι_desc_assoc, cofan.mk_ι_app, category.assoc]
+      simp only [colimit.ι_desc_assoc, Cofan.mk_ι_app, Category.assoc, CategoryTheory.inv_eqToHom,
+        Category.comp_id]
+      dsimp [HomologicalComplex.sigmaSingleComponentOfEq, HomologicalComplex.sigmaSingleComponent]
+      simp only [Category.comp_id, colimit.ι_desc_assoc, Cofan.mk_ι_app, Category.assoc]
       rw [← HomologicalComplex.comp_f, colimit.ι_desc]; dsimp
-      rw [dif_pos rfl]; simp only [eq_to_hom_trans_assoc, eq_to_hom_refl, category.id_comp]
-    · rw [dif_neg hij, zero_comp, if_neg hij, eq_comm, ← is_zero_iff_id_eq_zero]
-      exact limits.is_zero_zero A
-  inv_hom_id' := by
+      rw [dif_pos rfl]; simp only [CategoryTheory.eqToHom_trans_assoc, CategoryTheory.eqToHom_refl, Category.id_comp]
+    · rw [dif_neg hij, zero_comp, if_neg hij, eq_comm, ← CategoryTheory.Limits.isZero_iff_id_eq_zero]
+      exact Limits.isZero_zero A
+  inv_hom_id := by
     apply colimit.hom_ext; rintro ⟨j⟩
-    rw [colimit.ι_desc_assoc, cofan.mk_ι_app, category.comp_id]
+    rw [colimit.ι_desc_assoc, Cofan.mk_ι_app, Category.comp_id]
     ext n
     simp only [comp_f]
     rcases eq_or_ne n i with (rfl | hin)
     · rw [dif_pos rfl, dif_pos rfl]
-      simp only [category.assoc, eq_to_hom_trans_assoc, eq_to_hom_refl, category.id_comp,
-        colimit.ι_desc, cofan.mk_ι_app, sigma_single_component_of_eq, iso.trans_inv,
-        sigma_single_component, colimit.ι_desc_assoc, eq_to_iso, category.comp_id]
-    · rw [dif_neg hin, zero_comp]; apply is_zero.eq_of_src
-      dsimp; rw [if_neg hin]; exact limits.is_zero_zero A
+      simp only [Category.assoc, CategoryTheory.eqToHom_trans_assoc, CategoryTheory.eqToHom_refl, Category.id_comp,
+        colimit.ι_desc, Cofan.mk_ι_app, HomologicalComplex.sigmaSingleComponentOfEq, Iso.trans_inv,
+        HomologicalComplex.sigmaSingleComponent, colimit.ι_desc_assoc, eq_to_iso, Category.comp_id]
+    · rw [dif_neg hin, zero_comp]; apply IsZero.eq_of_src
+      dsimp; rw [if_neg hin]; exact Limits.isZero_zero A
 
 noncomputable instance preservesCoproductsSingle {α : Type v} (i : ℤ) :
     PreservesColimitsOfShape (Discrete α) (single A (ComplexShape.up ℤ) i) :=
@@ -123,12 +123,12 @@ noncomputable instance preservesCoproductsSingle {α : Type v} (i : ℤ) :
     simp only [comp_f, single_map_f, single_sigma_iso]
     split_ifs with hj
     · subst j
-      simp only [category.assoc, eq_to_hom_trans_assoc, eq_to_hom_refl, eq_to_iso_refl,
-        iso.trans_inv, iso.refl_inv, category.comp_id, sigma_single_component, category.id_comp,
-        colimit.ι_desc, cofan.mk_ι_app, sigma_single_component_of_eq]
-    · apply is_zero.eq_of_tgt
-      apply is_zero.of_iso _ ((HomologicalComplex.eval _ _ j).mapIso <| single_sigma_iso _ _).symm
-      dsimp; rw [if_neg hj]; apply limits.is_zero_zero
+      simp only [Category.assoc, CategoryTheory.eqToHom_trans_assoc, CategoryTheory.eqToHom_refl, eq_to_iso_refl,
+        Iso.trans_inv, Iso.refl_inv, Category.comp_id, HomologicalComplex.sigmaSingleComponent, Category.id_comp,
+        colimit.ι_desc, Cofan.mk_ι_app, HomologicalComplex.sigmaSingleComponentOfEq]
+    · apply IsZero.eq_of_tgt
+      apply IsZero.of_iso _ ((HomologicalComplex.eval _ _ j).mapIso <| single_sigma_iso _ _).symm
+      dsimp; rw [if_neg hj]; apply Limits.isZero_zero
 
 end HomologicalComplex
 
@@ -147,7 +147,7 @@ instance uniformlyBoundedSingle {α : Type v} (i : ℤ) (X : α → A) :
     UniformlyBounded fun a : α => (single A i).obj (X a) :=
   by
   refine' ⟨⟨i + 1, fun a k hk => _⟩⟩
-  dsimp only [single, HomotopyCategory.single, functor.comp_obj, Function.comp_apply,
+  dsimp only [single, HomotopyCategory.single, Functor.comp_obj, Function.comp_apply,
     HomotopyCategory.quotient_obj_as, HomologicalComplex.single]
   rw [if_neg]
   · exact is_zero_zero _
@@ -174,14 +174,14 @@ noncomputable instance preservesCoproductsSingle {α : Type v} [HasCoproducts.{v
     (by
       intro X a
       let f : _ := _; show _ = f
-      apply (forget A).map_injective; rw [functor.map_comp]
-      dsimp only [single_sigma_iso, forget, mk_iso, iso.trans_hom, iso.symm_hom, _root_.id, single]
-      simp_rw [← category.assoc]; rw [iso.comp_inv_eq]
+      apply (forget A).map_injective; rw [Functor.map_comp]
+      dsimp only [single_sigma_iso, forget, mk_iso, Iso.trans_hom, Iso.symm_hom, _root_.id, single]
+      simp_rw [← Category.assoc]; rw [Iso.comp_inv_eq]
       change _ = (forget A).map f ≫ _
       erw [ι_preserves_colimits_iso_hom]
       erw [ι_preserves_colimits_iso_hom]
-      rw [has_colimit.iso_of_nat_iso_ι_hom]
-      simp only [discrete.nat_iso_hom_app, iso.refl_hom, category.id_comp]
+      rw [HasColimit.isoOfNatIso_ι_hom]
+      simp only [Discrete.natIso_hom_app, Iso.refl_hom, Category.id_comp]
       rfl)
 
 variable [EnoughProjectives A]
@@ -205,22 +205,22 @@ noncomputable instance preservesCoproductsExt' {α : Type v} (i : ℤ) (Y : A) [
             (∏ fun a : α =>
               ((Ext i).obj (Opposite.op ((single A 0).obj (X a)))).obj ((single A 0).obj Y)) ≅
           ∐ _ :=
-        op_product_iso _
+        CategoryTheory.Limits.opProductIso _
       refine' (e₃.symm ≪≫ e₂.symm).op ≪≫ e₄)
     (by
-      intro X a; dsimp only [iso.trans_hom, iso.symm_hom, iso.op_hom, ext', op_comp, ← iso.op_inv]
-      simp only [← category.assoc]
-      rw [← iso.eq_comp_inv, iso.comp_inv_eq]
-      dsimp only [op_product_iso]
+      intro X a; dsimp only [Iso.trans_hom, Iso.symm_hom, Iso.op_hom, ext', op_comp, ← Iso.op_inv]
+      simp only [← Category.assoc]
+      rw [← Iso.eq_comp_inv, Iso.comp_inv_eq]
+      dsimp only [CategoryTheory.Limits.opProductIso]
       erw [colimit.ι_desc]
       dsimp
       simp_rw [← op_comp]
       rw [ι_Ext_coproduct_iso']
-      rw [← nat_trans.comp_app, ← functor.map_comp, ← op_comp]
+      rw [← NatTrans.comp_app, ← Functor.map_comp, ← op_comp]
       congr 4
-      dsimp [single_sigma_iso]; simp only [category.assoc]
-      dsimp [preserves_colimit_iso, is_colimit.cocone_point_unique_up_to_iso]
-      erw [(preserves_colimit.preserves (colimit.is_colimit (discrete.functor X))).fac_assoc]
+      dsimp [single_sigma_iso]; simp only [Category.assoc]
+      dsimp [CategoryTheory.preservesColimitIso, IsColimit.coconePointUniqueUpToIso]
+      erw [(PreservesColimit.preserves (colimit.isColimit (Discrete.functor X))).fac_assoc]
       erw [colimit.ι_desc_assoc]
       dsimp; simpa)
 

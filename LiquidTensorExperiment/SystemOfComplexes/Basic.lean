@@ -203,11 +203,11 @@ theorem admissibleOfIsometry {f : M ⟶ M'} (hadm : M'.Admissible)
   · rw [← (AddMonoidHomClass.isometry_iff_norm _).1 (hiso c i) _, ←
       (AddMonoidHomClass.isometry_iff_norm _).1 (hiso c j) _, ← SystemOfComplexes.hom_apply f, ←
       d_apply]
-    exact hadm.d_norm_noninc _ _ _ _ _
+    exact hadm.d_normNoninc _ _ _ _ _
   · rw [← (AddMonoidHomClass.isometry_iff_norm _).1 (hiso c i) _, ←
       (AddMonoidHomClass.isometry_iff_norm _).1 (hiso c' i) _, ← SystemOfComplexes.hom_apply f, ←
       SystemOfComplexes.hom_apply f, ← res_apply]
-    exact hadm.res_norm_noninc _ _ _ _ _
+    exact hadm.res_normNoninc _ _ _ _ _
 
 variable (M M')
 
@@ -260,7 +260,7 @@ theorem ofLe (hC : C.IsWeakBoundedExact k K m c₀) (hC_adm : C.Admissible) (hk 
   rw [d_res]
   apply add_le_add_right
   exact
-    mul_le_mul hK.out (hC_adm.res_norm_noninc _ _ _ _ (C.d _ _ x)) (norm_nonneg _)
+    mul_le_mul hK.out (hC_adm.res_normNoninc _ _ _ _ (C.d _ _ x)) (norm_nonneg _)
       ((zero_le K).trans hK.out)
 
 theorem ofIso (h : C₁.IsWeakBoundedExact k K m c₀) (f : C₁ ≅ C₂)
@@ -296,7 +296,7 @@ theorem iff_of_iso (f : C₁ ≅ C₂)
   apply AddMonoidHomClass.isometry_of_norm
   intro v
   rw [← NormedAddGroupHom.norm_eq_of_isometry (hf c n)]
-  simp only [← apply_hom_eq_hom_apply, ← apply_inv_eq_inv_apply, iso.symm_hom, iso.inv_hom_id_apply]
+  simp only [← apply_hom_eq_hom_apply, ← apply_inv_eq_inv_apply, Iso.symm_hom, Iso.inv_hom_id_apply]
 
 end IsWeakBoundedExact
 
@@ -317,7 +317,7 @@ theorem ofLe (hC : C.IsBoundedExact k K m c₀) (hC_adm : C.Admissible) (hk : k 
   refine' le_trans hy _
   rw [d_res]
   exact
-    mul_le_mul hK (hC_adm.res_norm_noninc _ _ _ _ (C.d _ _ x)) (norm_nonneg _)
+    mul_le_mul hK (hC_adm.res_normNoninc _ _ _ _ (C.d _ _ x)) (norm_nonneg _)
       ((zero_le K).trans hK)
 
 theorem ofIso (h : C₁.IsBoundedExact k K m c₀) (f : C₁ ≅ C₂)
@@ -411,7 +411,7 @@ theorem admissibleOfQuotient {f : M ⟶ M'} (hquot : IsQuotient f) (hadm : M.Adm
     rw [← hm.1, d_apply]
     calc
       ‖(f (M.d _ _ m))‖ ≤ ‖M.d _ _ m‖ := hquot.norm_le _
-      _ ≤ ‖m‖ := (hadm.d_norm_noninc _ _ _ _ m)
+      _ ≤ ‖m‖ := (hadm.d_normNoninc _ _ _ _ m)
       _ ≤ ‖m'‖ + ε := (le_of_lt hm.2)
       _ = ‖f m‖ + ε := by rw [hm.1]
   · intro c' c i hc m'
@@ -422,7 +422,7 @@ theorem admissibleOfQuotient {f : M ⟶ M'} (hquot : IsQuotient f) (hadm : M.Adm
     rw [← hm.1, res_apply]
     calc
       ‖(f (res m))‖ ≤ ‖res m‖ := hquot.norm_le _
-      _ ≤ ‖m‖ := (hadm.res_norm_noninc c' c _ hc m)
+      _ ≤ ‖m‖ := (hadm.res_normNoninc c' c _ hc m)
       _ ≤ ‖m'‖ + ε := (le_of_lt hm.2)
       _ = ‖f m‖ + ε := by rw [hm.1]
 

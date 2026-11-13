@@ -18,9 +18,9 @@ theorem ExtrDisc.isCoverDense :
   CategoryTheory.Functor.IsCoverDense.mk fun U =>
     by
     change ∃ R, _
-    obtain ⟨⟨T, hT, π, hπ⟩⟩ := enough_projectives.presentation U
+    obtain ⟨⟨T, hT, π, hπ⟩⟩ := EnoughProjectives.presentation U
     dsimp at hT hπ 
-    let R : presieve U := presieve.of_arrows (fun i : PUnit => T) fun i => π
+    let R : presieve U := Presieve.ofArrows (fun i : PUnit => T) fun i => π
     use R
     constructor
     · refine' ⟨PUnit, inferInstance, fun i => T, fun i => π, fun x => ⟨PUnit.unit, _⟩, rfl⟩
@@ -29,7 +29,7 @@ theorem ExtrDisc.isCoverDense :
     intro Y f hf
     change Nonempty _
     rcases hf with ⟨a, b⟩
-    let t : presieve.cover_by_image_structure extrDiscToProfinite π := _
+    let t : Presieve.CoverByImageStructure extrDiscToProfinite π := _
     swap
     · skip
       refine' ⟨⟨T⟩, 𝟙 _, π, by simp⟩
@@ -73,10 +73,10 @@ theorem isExtrSheafOfTypes_of_isSheaf_extrDisc_proetaleTopology (F : ExtrDiscᵒ
     (H : Presieve.IsSheaf ExtrDisc.proetaleTopology F) : IsExtrSheafOfTypes F :=
   by
   intro B ι _ X f hf x hx
-  let S : presieve B := presieve.of_arrows X f
-  specialize H (sieve.generate S) _
+  let S : presieve B := Presieve.ofArrows X f
+  specialize H (Sieve.generate S) _
   · dsimp [ExtrDisc.proetaleTopology]
-    let R : presieve B.val := presieve.of_arrows (fun i => (X i).val) fun i => (f i).val
+    let R : presieve B.val := Presieve.ofArrows (fun i => (X i).val) fun i => (f i).val
     use R
     constructor
     · use ι, inferInstance, fun i => (X i).val, fun i => (f i).val, hf, rfl
@@ -84,27 +84,27 @@ theorem isExtrSheafOfTypes_of_isSheaf_extrDisc_proetaleTopology (F : ExtrDiscᵒ
       rcases hf with ⟨i⟩
       use X i, f i, 𝟙 _
       refine' ⟨_, by simp⟩
-      use X i, 𝟙 _, f i, presieve.of_arrows.mk i
+      use X i, 𝟙 _, f i, Presieve.ofArrows.mk i
       simp
-  rw [← presieve.is_sheaf_for_iff_generate] at H 
-  let t : S.family_of_elements F := presieve.mk_family_of_elements_of_arrows X f F x
-  have ht : t.compatible := presieve.mk_family_of_elements_of_arrows_compatible X f F x hx
+  rw [← Presieve.isSheafFor_iff_generate] at H 
+  let t : S.family_of_elements F := Presieve.mkFamilyOfElementsOfArrows X f F x
+  have ht : t.compatible := Presieve.mkFamilyOfElementsOfArrows_compatible X f F x hx
   specialize H t ht
   -- now use H.
   obtain ⟨tt, htt, htt'⟩ := H
   refine' ⟨tt, _, _⟩
   · dsimp
     intro i
-    specialize htt (f i) (presieve.of_arrows.mk i)
+    specialize htt (f i) (Presieve.ofArrows.mk i)
     rw [htt]
-    apply presieve.mk_family_of_elements_of_arrows_eval _ _ _ _ hx
+    apply Presieve.mkFamilyOfElementsOfArrows_eval _ _ _ _ hx
   · intro y hy
     apply htt'
     intro Z f hf
     rcases hf with ⟨i⟩
     rw [hy]
     symm
-    apply presieve.mk_family_of_elements_of_arrows_eval _ _ _ _ hx
+    apply Presieve.mkFamilyOfElementsOfArrows_eval _ _ _ _ hx
 
 theorem is_seprated_of_isExtrSheafOfTypes (F : ExtrDiscᵒᵖ ⥤ Type u') (H : IsExtrSheafOfTypes F) :
     Presieve.IsSeparated ExtrDisc.proetaleTopology F :=
@@ -127,9 +127,9 @@ theorem is_seprated_of_isExtrSheafOfTypes (F : ExtrDiscᵒᵖ ⥤ Type u') (H : 
   have hff : ∀ i, T (ff i).val := by
     intro i
     dsimp [ff]
-    apply sieve.downward_closed
+    apply Sieve.downward_closed
     apply hRT
-    exact presieve.of_arrows.mk i
+    exact Presieve.ofArrows.mk i
   let xx : ∀ i, F.obj (op (XX i)) := fun i => x _ _
   swap; · exact ff i
   swap; · exact hff i
@@ -137,9 +137,9 @@ theorem is_seprated_of_isExtrSheafOfTypes (F : ExtrDiscᵒᵖ ⥤ Type u') (H : 
   · intro i j Z g₁ g₂ h
     have hxcompat : x.compatible :=
       by
-      apply presieve.is_compatible_of_exists_amalgamation
+      apply Presieve.is_compatible_of_exists_amalgamation
       exact ⟨t₁, h₁⟩
-    dsimp [presieve.family_of_elements.compatible] at hxcompat 
+    dsimp [Presieve.FamilyOfElements.Compatible] at hxcompat 
     dsimp [xx]
     specialize hxcompat g₁ g₂
     apply hxcompat
@@ -158,12 +158,12 @@ theorem is_seprated_of_isExtrSheafOfTypes (F : ExtrDiscᵒᵖ ⥤ Type u') (H : 
 theorem isSheaf_extrDisc_proetaleTopology_of_isExtrSheafOfTypes (F : ExtrDiscᵒᵖ ⥤ Type u')
     (H : IsExtrSheafOfTypes F) : Presieve.IsSheaf ExtrDisc.proetaleTopology F :=
   by
-  have hF : presieve.is_separated ExtrDisc.proetaleTopology F :=
+  have hF : Presieve.IsSeparated ExtrDisc.proetaleTopology F :=
     by
     apply is_seprated_of_isExtrSheafOfTypes
     assumption
   intro B S hS
-  rw [← presieve.is_separated_for_and_exists_is_amalgamation_iff_sheaf_for]
+  rw [← Presieve.isSeparatedFor_and_exists_isAmalgamation_iff_isSheafFor]
   constructor; · apply hF _ hS
   intro x hx
   change proetaleTopology _ _ at hS 
@@ -183,15 +183,15 @@ theorem isSheaf_extrDisc_proetaleTopology_of_isExtrSheafOfTypes (F : ExtrDiscᵒ
   have hff : ∀ i, T (ff i).val := by
     intro i
     dsimp [ff]
-    apply sieve.downward_closed
+    apply Sieve.downward_closed
     apply hRT
-    exact presieve.of_arrows.mk i
+    exact Presieve.ofArrows.mk i
   let xx : ∀ i, F.obj (op (XX i)) := fun i => x _ _
   swap; · exact ff i
   swap; · exact hff i
   specialize H B ι XX ff surjff xx _
   · intro i j Z g₁ g₂ h
-    dsimp [presieve.family_of_elements.compatible] at hx 
+    dsimp [Presieve.FamilyOfElements.Compatible] at hx 
     dsimp [xx]
     specialize hx g₁ g₂
     apply hx
@@ -203,10 +203,10 @@ theorem isSheaf_extrDisc_proetaleTopology_of_isExtrSheafOfTypes (F : ExtrDiscᵒ
   let QQ : ι → ExtrDisc := fun i => (PP i).pres
   let ππ : ∀ i, QQ i ⟶ XX i := fun i => ⟨(PP i).presπ ≫ Profinite.pullback.snd _ _⟩
   let gg : ∀ i, QQ i ⟶ Y := fun i => ⟨(PP i).presπ ≫ Profinite.pullback.fst _ _⟩
-  let W : sieve Y := sieve.generate (presieve.of_arrows QQ gg)
+  let W : sieve Y := Sieve.generate (Presieve.ofArrows QQ gg)
   specialize hF W _
   · change ∃ _, _
-    use presieve.of_arrows (fun i => (QQ i).val) fun i => (gg i).val
+    use Presieve.ofArrows (fun i => (QQ i).val) fun i => (gg i).val
     constructor
     · use ι, inferInstance, fun i => (QQ i).val, fun i => (gg i).val
       refine' ⟨_, rfl⟩
@@ -223,10 +223,10 @@ theorem isSheaf_extrDisc_proetaleTopology_of_isExtrSheafOfTypes (F : ExtrDiscᵒ
       change ∃ _, _
       use QQ i, gg i, 𝟙 _
       constructor
-      · apply sieve.le_generate
-        apply presieve.of_arrows.mk
+      · apply Sieve.le_generate
+        apply Presieve.ofArrows.mk
       · ext1; simp
-  dsimp [presieve.is_separated_for] at hF 
+  dsimp [Presieve.IsSeparatedFor] at hF 
   have : ∀ (Z : ExtrDisc) (g : Z ⟶ Y) (hg : W g), ∃ (i : ι) (e : Z ⟶ QQ i), g = e ≫ gg i :=
     by
     intro Z g hg
@@ -234,7 +234,7 @@ theorem isSheaf_extrDisc_proetaleTopology_of_isExtrSheafOfTypes (F : ExtrDiscᵒ
     obtain ⟨i⟩ := h1
     use i, e₁, h2.symm
   choose ii ee hee using this
-  let y : presieve.family_of_elements F W := fun Z g hg =>
+  let y : Presieve.FamilyOfElements F W := fun Z g hg =>
     F.map (ee _ _ hg ≫ ππ _).op (xx (ii _ _ hg))
   have hy : y.compatible := by
     intro T₁ T₂ Z g₁ g₂ f₁ f₂ h₁ h₂ w
@@ -244,20 +244,20 @@ theorem isSheaf_extrDisc_proetaleTopology_of_isExtrSheafOfTypes (F : ExtrDiscᵒ
     simp only [← F.map_comp, ← op_comp]
     apply hx
     apply_fun fun e => e ≫ f at w 
-    simp only [category.assoc] at w ⊢
+    simp only [Category.assoc] at w ⊢
     convert w using 2
     · ext1
       dsimp [ππ, ff]
-      simp only [category.assoc]
-      rw [← Profinite.pullback.condition, ← category.assoc]
+      simp only [Category.assoc]
+      rw [← Profinite.pullback.condition, ← Category.assoc]
       change ((ee T₁ f₁ h₁ ≫ gg _) ≫ f).val = (f₁ ≫ f).val
       congr 2
       symm
       apply hee
     · ext1
       dsimp [ππ, ff]
-      simp only [category.assoc]
-      rw [← Profinite.pullback.condition, ← category.assoc]
+      simp only [Category.assoc]
+      rw [← Profinite.pullback.condition, ← Category.assoc]
       change ((ee T₂ f₂ h₂ ≫ gg _) ≫ f).val = (f₂ ≫ f).val
       congr 2
       symm
@@ -272,7 +272,7 @@ theorem isSheaf_extrDisc_proetaleTopology_of_isExtrSheafOfTypes (F : ExtrDiscᵒ
     change (F.map _ ≫ F.map _) _ = (F.map _ ≫ F.map _) _
     simp_rw [← F.map_comp, ← op_comp]
     congr 2
-    simp only [category.assoc]
+    simp only [Category.assoc]
     congr 1
     ext1
     dsimp
@@ -284,7 +284,7 @@ theorem isSheaf_extrDisc_proetaleTopology_of_isExtrSheafOfTypes (F : ExtrDiscᵒ
     dsimp only [xx]
     simp only [← F.map_comp, ← op_comp]
     apply hx
-    simp only [category.assoc]
+    simp only [Category.assoc]
     congr 1
     ext1
     dsimp
@@ -323,7 +323,7 @@ structure Hom (X Y : ExtrSheafProd C) where mk ::
 
 @[simps]
 instance : Category (ExtrSheafProd C) where
-  Hom := Hom C
+  hom := Hom C
   id X := ⟨𝟙 _⟩
   comp X Y Z f g := ⟨f.val ≫ g.val⟩
 
@@ -336,20 +336,20 @@ def extrSheafExtrSheafProdEquiv (C : Type u') [Category.{v'} C] [Limits.HasFinit
   Functor :=
     { obj := fun F => ⟨F.val, (isSheaf_extrDisc_proetale_iff_product_condition _ _).mp F.2⟩
       map := fun F G f => ⟨f.val⟩
-      map_id' := fun X => by ext1; rfl
-      map_comp' := fun X Y Z f g => by ext1; rfl }
+      map_id := fun X => by ext1; rfl
+      map_comp := fun X Y Z f g => by ext1; rfl }
   inverse :=
     { obj := fun F => ⟨F.val, (isSheaf_extrDisc_proetale_iff_product_condition _ _).mpr F.2⟩
       map := fun F G f => ⟨f.val⟩
-      map_id' := fun X => by ext1; rfl
-      map_comp' := fun X Y Z f g => by ext1; rfl }
+      map_id := fun X => by ext1; rfl
+      map_comp := fun X Y Z f g => by ext1; rfl }
   unitIso :=
     NatIso.ofComponents
       (fun X =>
-        { Hom := ⟨𝟙 _⟩
+        { hom := ⟨𝟙 _⟩
           inv := ⟨𝟙 _⟩
-          hom_inv_id' := by ext1; dsimp; simp
-          inv_hom_id' := by ext1; dsimp; simp })
+          hom_inv_id := by ext1; dsimp; simp
+          inv_hom_id := by ext1; dsimp; simp })
       (by
         intro X Y f
         ext1
@@ -358,10 +358,10 @@ def extrSheafExtrSheafProdEquiv (C : Type u') [Category.{v'} C] [Limits.HasFinit
   counitIso :=
     NatIso.ofComponents
       (fun X =>
-        { Hom := ⟨𝟙 _⟩
+        { hom := ⟨𝟙 _⟩
           inv := ⟨𝟙 _⟩
-          hom_inv_id' := by ext1; dsimp; simp
-          inv_hom_id' := by ext1; dsimp; simp })
+          hom_inv_id := by ext1; dsimp; simp
+          inv_hom_id := by ext1; dsimp; simp })
       (by
         intro X Y f
         ext1
@@ -389,8 +389,8 @@ def extrSheafProdToPresheaf (C : Type u') [Category.{v'} C] [Limits.HasFinitePro
     where
   obj F := F.val
   map F G f := f.val
-  map_id' X := rfl
-  map_comp' X Y Z f g := rfl
+  map_id X := rfl
+  map_comp X Y Z f g := rfl
 
 instance (C : Type u') [Category.{v'} C] [Limits.HasFiniteProducts C] :
     Full (extrSheafProdToPresheaf C)
@@ -432,17 +432,17 @@ def s : C :=
   ⨁ fun i : ι => KC.obj (op (X i))
 
 def prodIsoP : P₀ ≅ P where
-  Hom := Pi.lift fun i => Pi.π _ _
-  inv := Pi.lift fun i => Pi.π _ ⟨i⟩ ≫ (Iso.refl _).Hom
-  hom_inv_id' := by ext ⟨j⟩; simp
-  inv_hom_id' := by ext ⟨⟨j⟩⟩; simp
+  hom := Pi.lift fun i => Pi.π _ _
+  inv := Pi.lift fun i => Pi.π _ ⟨i⟩ ≫ (Iso.refl _).hom
+  hom_inv_id := by ext ⟨j⟩; simp
+  inv_hom_id := by ext ⟨⟨j⟩⟩; simp
 
 def biprodIsoP : P ≅ S
     where
-  Hom := biproduct.lift fun b => Pi.π (fun i : ULift.{u + 1} ι => KC.obj (op (X i.down))) ⟨b⟩
+  hom := biproduct.lift fun b => Pi.π (fun i : ULift.{u + 1} ι => KC.obj (op (X i.down))) ⟨b⟩
   inv := Pi.lift fun b => biproduct.π _ _
-  hom_inv_id' := by ext ⟨⟨j⟩⟩; simp
-  inv_hom_id' := by
+  hom_inv_id := by ext ⟨⟨j⟩⟩; simp
+  inv_hom_id := by
     apply biproduct.hom_ext
     -- we need to choose the correct extensionality lemma here...
     intro i
@@ -462,25 +462,25 @@ def t (j : J) : C :=
 
 def prodIsoQ (j : J) : Q₀ j ≅ Q j
     where
-  Hom := Pi.lift fun b => Pi.π _ _
-  inv := Pi.lift fun b => Pi.π _ ⟨b⟩ ≫ (Iso.refl _).Hom
-  hom_inv_id' := by ext ⟨j⟩; simp
-  inv_hom_id' := by ext ⟨⟨j⟩⟩; simp
+  hom := Pi.lift fun b => Pi.π _ _
+  inv := Pi.lift fun b => Pi.π _ ⟨b⟩ ≫ (Iso.refl _).hom
+  hom_inv_id := by ext ⟨j⟩; simp
+  inv_hom_id := by ext ⟨⟨j⟩⟩; simp
 
 def prodIsoQ' (j : J) : Q₀ j ≅ Q₁ j
     where
-  Hom := Pi.lift fun b => Pi.π _ _
+  hom := Pi.lift fun b => Pi.π _ _
   inv := Pi.lift fun b => Pi.π (fun i : ULift ι => (K.obj j).val.obj (op (X i.down))) ⟨b⟩
-  hom_inv_id' := by ext ⟨j⟩; simp
-  inv_hom_id' := by ext ⟨⟨j⟩⟩; simp
+  hom_inv_id := by ext ⟨j⟩; simp
+  inv_hom_id := by ext ⟨⟨j⟩⟩; simp
 
 def biprodIsoQ (j : J) : Q j ≅ T j
     where
-  Hom :=
+  hom :=
     biproduct.lift fun b => Pi.π (fun i : ULift.{u + 1} ι => (K.obj j).val.obj (op (X i.down))) ⟨b⟩
   inv := Pi.lift fun b => biproduct.π _ _
-  hom_inv_id' := by ext ⟨⟨j⟩⟩; simp
-  inv_hom_id' := by
+  hom_inv_id := by ext ⟨⟨j⟩⟩; simp
+  inv_hom_id := by
     apply biproduct.hom_ext
     -- we need to choose the correct extensionality lemma here...
     intro i
@@ -490,15 +490,15 @@ def kQ₀ (j) : (K.obj j).val.obj (op (ExtrDisc.sigma (X ∘ ULift.down))) ≅ Q
   by
   -- Lean is being annoying... again...
   let t : (K.obj j).val.obj (op (ExtrDisc.sigma (X ∘ ULift.down))) ⟶ Q₀ K X j :=
-    pi.lift fun i : ι => (K.obj j).val.map (ExtrDisc.sigma.ι (X ∘ ULift.down) ⟨i⟩).op
+    Pi.lift fun i : ι => (K.obj j).val.map (ExtrDisc.sigma.ι (X ∘ ULift.down) ⟨i⟩).op
   have := (K.obj j).cond (ULift ι) (X ∘ ULift.down); dsimp at this 
   let s := _; change is_iso s at this 
   have ht : t = s ≫ (prod_iso_Q' _ _ _).inv :=
     by
     dsimp [s, t, prod_iso_Q']; apply limit.hom_ext; rintro ⟨q⟩
     simp
-  haveI : is_iso t := by rw [ht]; skip; apply is_iso.comp_is_iso
-  exact as_iso t
+  haveI : is_iso t := by rw [ht]; skip; apply IsIso.comp_isIso
+  exact CategoryTheory.asIso t
 
 def mapQ₀ {i j : J} (f : i ⟶ j) : Q₀ i ⟶ Q₀ j :=
   Pi.lift fun a => Pi.π _ a ≫ (K.map f).val.app _
@@ -513,12 +513,12 @@ def mapT {i j : J} (f : i ⟶ j) : T i ⟶ T j :=
 def q₀Functor : J ⥤ C where
   obj := Q₀
   map i j f := map_Q₀ f
-  map_id' := by
+  map_id := by
     intro i
     dsimp [map_Q₀]
     ext1 ⟨j⟩
     simp
-  map_comp' := by
+  map_comp := by
     intro i j k f g
     dsimp [map_Q₀]
     ext1
@@ -527,16 +527,16 @@ def q₀Functor : J ⥤ C where
 def qFunctor : J ⥤ C where
   obj := Q
   map i j f := map_Q f
-  map_id' := by intro i; dsimp [map_Q]; ext1 ⟨j⟩; simp
-  map_comp' := by intro i j k f g; dsimp [map_Q]; ext1; simp
+  map_id := by intro i; dsimp [map_Q]; ext1 ⟨j⟩; simp
+  map_comp := by intro i j k f g; dsimp [map_Q]; ext1; simp
 
 def tFunctor : J ⥤ C where
   obj := T
   map i j f := map_T f
-  map_id' := by
+  map_id := by
     intro i; dsimp [map_T]
-    apply biproduct.hom_ext; intro a; simp; erw [category.id_comp]
-  map_comp' := by
+    apply biproduct.hom_ext; intro a; simp; erw [Category.id_comp]
+  map_comp := by
     intro i j k f g
     dsimp [map_T]
     apply biproduct.hom_ext
@@ -589,35 +589,35 @@ def ctIso (i : ι) :
   colimit_KQ₀_nat_iso.app _
 
 def cTIso : CT ≅ S where
-  Hom := biproduct.map fun b => (ct_iso _).inv
-  inv := biproduct.map fun b => (ct_iso _).Hom
-  hom_inv_id' := by
+  hom := biproduct.map fun b => (FiniteProductColimitSetup.ctIso _).inv
+  inv := biproduct.map fun b => (FiniteProductColimitSetup.ctIso _).hom
+  hom_inv_id := by
     ext1
     simp
-    erw [category.comp_id]
-  inv_hom_id' := by
+    erw [Category.comp_id]
+  inv_hom_id := by
     ext1
     simp
-    erw [category.comp_id]
+    erw [Category.comp_id]
 
 -- This is the main point where we prove that colimits commute with biproducts.
 -- The rest is glue.
 def colimitTIso : colimit T_functor ≅ CT
     where
-  Hom :=
+  hom :=
     colimit.desc T_functor
       ⟨CT,
         { app := fun j =>
             biproduct.map fun i =>
               colimit.ι (K ⋙ extrSheafProdToPresheaf C ⋙ (evaluation ExtrDiscᵒᵖ C).obj (op (X i))) j
-          naturality' := by
+          naturality := by
             intro a b f
             dsimp [T_functor, map_T]
             apply biproduct.hom_ext'
             intro i
             simp
             rw [← colimit.w _ f]
-            simp only [category.assoc]
+            simp only [Category.assoc]
             rfl }⟩
   inv :=
     biproduct.desc fun b =>
@@ -627,27 +627,27 @@ def colimitTIso : colimit T_functor ≅ CT
               by
                 dsimp [extrSheafProdToPresheaf, T_functor, T]
                 apply biproduct.ι _ b ≫ colimit.ι _ j
-            naturality' := by
+            naturality := by
               intro i j f
               dsimp [extrSheafProdToPresheaf]
               simp
               rw [← colimit.w _ f]
               dsimp only [T_functor, map_T]
               simp }⟩
-  hom_inv_id' := by
+  hom_inv_id := by
     ext1 j
     dsimp
     apply biproduct.hom_ext'
     intro b
     simp
-  inv_hom_id' := by
+  inv_hom_id := by
     apply biproduct.hom_ext'
     intro b
     simp
     apply colimit.hom_ext
     intro j
     simp
-    erw [category.comp_id]
+    erw [Category.comp_id]
 
 /- warning: finite_product_colimit_setup.t clashes with finite_product_colimit_setup.T -> FiniteProductColimitSetup.t
 Case conversion may be inaccurate. Consider using '#align finite_product_colimit_setup.t FiniteProductColimitSetup.tₓ'. -/
@@ -657,18 +657,18 @@ def t : KC.obj (op (ExtrDisc.sigma (X ∘ ULift.down))) ⟶ P₀ :=
 
 theorem key_lemma :
     t =
-      colimit_KQ₀_nat_iso_eval.Hom ≫
-        (HasColimit.isoOfNatIso KQ₀_nat_iso).Hom ≫
-          (HasColimit.isoOfNatIso Q₀Q_nat_iso).Hom ≫
-            (HasColimit.isoOfNatIso QT_nat_iso).Hom ≫
-              colimit_T_iso.Hom ≫ CT_iso.Hom ≫ biprod_iso_P.inv ≫ prod_iso_P.inv :=
+      colimit_KQ₀_nat_iso_eval.hom ≫
+        (HasColimit.isoOfNatIso KQ₀_nat_iso).hom ≫
+          (HasColimit.isoOfNatIso Q₀Q_nat_iso).hom ≫
+            (HasColimit.isoOfNatIso QT_nat_iso).hom ≫
+              colimit_T_iso.hom ≫ CT_iso.Hom ≫ biprod_iso_P.inv ≫ prod_iso_P.inv :=
   by
   dsimp [prod_iso_P, biprod_iso_P, CT_iso, colimit_T_iso, colimit_KQ₀_nat_iso_eval, t,
-    colimit_KQ₀_nat_iso, KC, ct_iso]
+    colimit_KQ₀_nat_iso, KC, FiniteProductColimitSetup.ctIso]
   ext : 2
   simp
   erw [colimit.ι_desc_assoc]
-  dsimp [cocones.precompose, KQ₀_nat_iso, Q₀Q_nat_iso, QT_nat_iso, KQ₀, prod_iso_Q, biprod_iso_Q]
+  dsimp [Cocones.precompose, KQ₀_nat_iso, Q₀Q_nat_iso, QT_nat_iso, KQ₀, prod_iso_Q, biprod_iso_Q]
   simp
   erw [colimit.ι_desc]
   dsimp
@@ -676,7 +676,7 @@ theorem key_lemma :
 
 theorem main : IsIso t := by
   rw [key_lemma]
-  apply is_iso.comp_is_iso
+  apply IsIso.comp_isIso
 
 -- ;-)
 end
@@ -705,7 +705,7 @@ theorem ExtrDisc.sigma.eqToHom_ι_eq_ι {α : Type u} [Fintype α] (X : α → E
 def ExtrDisc.sigmaIsoOfEquiv {α β : Type u} [Fintype α] [Fintype β] (X : α → ExtrDisc.{u})
     (e : β ≃ α) : ExtrDisc.sigma (X ∘ e) ≅ ExtrDisc.sigma X
     where
-  Hom := ExtrDisc.sigma.desc _ fun b => ExtrDisc.sigma.ι _ _
+  hom := ExtrDisc.sigma.desc _ fun b => ExtrDisc.sigma.ι _ _
   inv :=
     ExtrDisc.sigma.desc _ fun a =>
       eqToHom
@@ -714,12 +714,12 @@ def ExtrDisc.sigmaIsoOfEquiv {α β : Type u} [Fintype α] [Fintype β] (X : α 
             refine' congr_arg _ _
             exact (e.apply_symm_apply _).symm) ≫
         ExtrDisc.sigma.ι _ (e.symm a)
-  hom_inv_id' := by
+  hom_inv_id := by
     apply ExtrDisc.sigma.hom_ext; intro b
     simp [ExtrDisc.sigma.ι_desc_assoc, ExtrDisc.sigma.ι_desc]
     apply ExtrDisc.sigma.eqToHom_ι_eq_ι (X ∘ e)
     simp
-  inv_hom_id' := by
+  inv_hom_id := by
     apply ExtrDisc.sigma.hom_ext; intro b
     simp [ExtrDisc.sigma.ι_desc_assoc, ExtrDisc.sigma.ι_desc]
     apply ExtrDisc.sigma.eqToHom_ι_eq_ι X
@@ -739,11 +739,11 @@ theorem finiteProductCondition_holds_for_colimit {J : Type (u + 1)} [SmallCatego
   let eL :
     (colimit (K ⋙ extrSheafProdToPresheaf C)).obj (op (ExtrDisc.sigma X)) ≅
       (colimit (K ⋙ extrSheafProdToPresheaf C)).obj (op (ExtrDisc.sigma (X' ∘ ULift.down))) :=
-    functor.map_iso _ E.op
+    Functor.mapIso _ E.op
   let E' :
     FiniteProductColimitSetup.p₀ K X' ≅
       ∏ fun i : ι => (colimit (K ⋙ extrSheafProdToPresheaf C)).obj (op (X i)) :=
-    ⟨limits.pi.lift _, limits.pi.lift _, _, _⟩
+    ⟨Limits.Pi.lift _, Limits.Pi.lift _, _, _⟩
   rotate_left
   · intro i
     dsimp [FiniteProductColimitSetup.p₀]
@@ -755,14 +755,14 @@ theorem finiteProductCondition_holds_for_colimit {J : Type (u + 1)} [SmallCatego
     exact (e.symm_apply_apply _).symm
   · intro i
     refine' pi.π _ (e.symm i)
-  · apply limits.limit.hom_ext
+  · apply Limits.limit.hom_ext
     rintro ⟨j⟩; dsimp
-    simp only [eq_to_hom_op, category.assoc, limit.lift_π, fan.mk_π_app, category.id_comp]
+    simp only [CategoryTheory.eqToHom_op, Category.assoc, limit.lift_π, Fan.mk_π_app, Category.id_comp]
     rw [CategoryTheory.eqToHom_map]
     apply pi_π_comp_eqToHom; simp
-  · apply limits.limit.hom_ext
+  · apply Limits.limit.hom_ext
     rintro ⟨j⟩; dsimp
-    simp only [eq_to_hom_op, category.assoc, limit.lift_π, fan.mk_π_app, category.id_comp]
+    simp only [CategoryTheory.eqToHom_op, Category.assoc, limit.lift_π, Fan.mk_π_app, Category.id_comp]
     rw [CategoryTheory.eqToHom_map]
     rw [limit.lift_π_assoc]; dsimp
     change _ = pi.π _ _
@@ -772,14 +772,14 @@ theorem finiteProductCondition_holds_for_colimit {J : Type (u + 1)} [SmallCatego
   have ht : t = eL.hom ≫ s ≫ E'.hom := by
     dsimp [t, eL, s, E', E]
     apply limit.hom_ext; rintro ⟨j⟩
-    simp only [category.assoc, limit.lift_π]
+    simp only [Category.assoc, limit.lift_π]
     dsimp
     rw [CategoryTheory.eqToHom_op]
     rw [CategoryTheory.eqToHom_map]
     dsimp [FiniteProductColimitSetup.t]
     simp only [limit.lift_π_assoc]
     dsimp [FiniteProductColimitSetup.kC]
-    simp only [← category.assoc, ← functor.map_comp, ← op_comp]
+    simp only [← Category.assoc, ← Functor.map_comp, ← op_comp]
     erw [ExtrDisc.sigma.ι_desc]
     dsimp
     rw [← ExtrDisc.sigma.eqToHom_ι_eq_ι X (e.symm (e j)) j (by simp)]
@@ -798,17 +798,17 @@ instance extrSheafProdToPresheafCreatesColimitsOfShape {J : Type (u + 1)} [Small
   ⟨fun K =>
     { reflects := by
         intro c hc
-        haveI : has_colimit (K ⋙ extrSheafProdToPresheaf C) := has_colimit.mk ⟨_, hc⟩
-        apply is_colimit_of_reflects (extrSheafProdToPresheaf.{u} C)
+        haveI : has_colimit (K ⋙ extrSheafProdToPresheaf C) := HasColimit.mk ⟨_, hc⟩
+        apply CategoryTheory.Limits.isColimitOfReflects (extrSheafProdToPresheaf.{u} C)
         assumption
       lifts := fun c hc =>
         { liftedCocone :=
-            haveI : has_colimit (K ⋙ extrSheafProdToPresheaf C) := has_colimit.mk ⟨_, hc⟩
-            lift_colimit hc
+            haveI : has_colimit (K ⋙ extrSheafProdToPresheaf C) := HasColimit.mk ⟨_, hc⟩
+            CategoryTheory.liftColimit hc
           validLift :=
             by
-            haveI : has_colimit (K ⋙ extrSheafProdToPresheaf C) := has_colimit.mk ⟨_, hc⟩
-            apply lifted_colimit_maps_to_original } }⟩
+            haveI : has_colimit (K ⋙ extrSheafProdToPresheaf C) := HasColimit.mk ⟨_, hc⟩
+            apply CategoryTheory.liftedColimitMapsToOriginal } }⟩
 
 instance extrSheafProdToPresheafCreatesColimits [HasColimits C] :
     CreatesColimits (extrSheafProdToPresheaf.{u} C) := by constructor

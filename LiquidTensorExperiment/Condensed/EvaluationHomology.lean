@@ -33,7 +33,7 @@ theorem evaluationExact (S : ExtrDisc.{u}) :
 abbrev homologyEvaluationIso (S : ExtrDisc.{u}) :
     (homology' f g w).val.obj (op S.val) ≅
       homology' (f.val.app (op S.val)) (g.val.app (op S.val))
-        (by rw [← f.val.comp_app, ← Sheaf.hom.comp_val, w]; rfl) :=
+        (by rw [← f.val.comp_app, ← Sheaf.Hom.comp_val, w]; rfl) :=
   (Condensed.evaluation Ab.{u + 1} _).homology'Iso _ _ _ _
 
 abbrev homologyFunctorEvaluationIso {M : Type _} (c : ComplexShape M) (i : M) (S : ExtrDisc.{u}) :

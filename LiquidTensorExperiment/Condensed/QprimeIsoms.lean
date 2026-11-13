@@ -41,8 +41,8 @@ def componentZero (M : Condensed.{u} Ab.{u + 1}) :
         (Int.ofNat 0) :=
   presheafToCondensedAb.mapIso
     (by
-      refine' functor.associator _ _ _ ≪≫ _
-      refine' iso_whisker_right _ _
+      refine' Functor.associator _ _ _ ≪≫ _
+      refine' CategoryTheory.isoWhiskerRight _ _
       refine' Condensed_Ab_to_presheaf.map_biproduct _)
 
 def componentPos (M : Condensed.{u} Ab.{u + 1}) (i : ℕ) :
@@ -59,8 +59,8 @@ def componentNeg (M : Condensed.{u} Ab.{u + 1}) (i : ℕ) :
         -[i+1] :=
   presheafToCondensedAb.mapIso
     (by
-      refine' functor.associator _ _ _ ≪≫ _
-      refine' iso_whisker_right _ _
+      refine' Functor.associator _ _ _ ≪≫ _
+      refine' CategoryTheory.isoWhiskerRight _ _
       refine' Condensed_Ab_to_presheaf.map_biproduct _)
 
 end EvalFreeCond'Iso
@@ -77,32 +77,32 @@ theorem eval_freeCond'_iso_component_aux₀ (M : Condensed.{u} Ab.{u + 1}) :
       ((BD.eval' freeCond').obj M).d -[0+1] (Int.ofNat 0) ≫
         (EvalFreeCond'Iso.componentZero BD M).hom :=
   by
-  dsimp [eval_freeCond'_iso.component_neg, eval_freeCond'_iso.component_zero, package.eval',
+  dsimp [EvalFreeCond'Iso.componentNeg, EvalFreeCond'Iso.componentZero, Package.eval',
     HomologicalComplex.embed, HomologicalComplex.Embed.obj]
   erw [HomologicalComplex.Embed.d_some_some]
   erw [HomologicalComplex.Embed.d_some_some]
-  dsimp [data.eval_functor', universal_map.eval_Pow]
+  dsimp [Data.evalFunctor', UniversalMap.evalPow]
   simp_rw [FreeAbelianGroup.lift_eq_sum]
-  simp only [nat_trans.app_sum, nat_trans.app_zsmul]
+  simp only [NatTrans.app_sum, NatTrans.app_zsmul]
   --dsimp,
-  rw [functor.map_sum, sum_comp, comp_sum]
+  rw [Functor.map_sum, sum_comp, comp_sum]
   refine' Finset.sum_congr rfl _; rintro x -
-  rw [functor.map_zsmul, zsmul_comp, comp_zsmul]
+  rw [Functor.map_zsmul, zsmul_comp, comp_zsmul]
   refine' congr_arg₂ _ rfl _
   dsimp
   rw [← presheaf_to_Condensed_Ab.map_comp]
   erw [← presheaf_to_Condensed_Ab.map_comp]
   congr 1
-  ext t : 2; dsimp only [nat_trans.comp_app, whisker_right_app, functor.associator]
-  simp only [category.id_comp, category.comp_id]
-  simp only [← functor.map_comp]
-  congr 1; simp only [← nat_trans.comp_app]; congr 1
+  ext t : 2; dsimp only [NatTrans.comp_app, CategoryTheory.whiskerRight_app, Functor.associator]
+  simp only [Category.id_comp, Category.comp_id]
+  simp only [← Functor.map_comp]
+  congr 1; simp only [← NatTrans.comp_app]; congr 1
   apply biproduct.hom_ext; intro j
-  simp only [category.assoc, biproduct.matrix_π, biproduct.lift_π]
-  dsimp only [functor.map_bicone]
+  simp only [Category.assoc, biproduct.matrix_π, biproduct.lift_π]
+  dsimp only [Functor.mapBicone]
   rw [biproduct.lift_desc]
   erw [← Condensed_Ab_to_presheaf.map_comp, biproduct.matrix_π]
-  simp_rw [comp_zsmul, category.comp_id, ← functor.map_zsmul, ← functor.map_sum]
+  simp_rw [comp_zsmul, Category.comp_id, ← Functor.map_zsmul, ← Functor.map_sum]
   congr 1
   apply biproduct.hom_ext'; intro k
   rw [biproduct.ι_desc, comp_sum]
@@ -119,32 +119,32 @@ theorem eval_freeCond'_iso_component_aux_i (M : Condensed.{u} Ab.{u + 1}) (i : �
       ((BD.eval' freeCond').obj M).d -[i + 1+1] -[i+1] ≫
         (EvalFreeCond'Iso.componentNeg BD M i).hom :=
   by
-  dsimp [eval_freeCond'_iso.component_neg, eval_freeCond'_iso.component_zero, package.eval',
+  dsimp [EvalFreeCond'Iso.componentNeg, EvalFreeCond'Iso.componentZero, Package.eval',
     HomologicalComplex.embed, HomologicalComplex.Embed.obj]
   erw [HomologicalComplex.Embed.d_some_some]
   erw [HomologicalComplex.Embed.d_some_some]
-  dsimp [data.eval_functor', universal_map.eval_Pow]
+  dsimp [Data.evalFunctor', UniversalMap.evalPow]
   simp_rw [FreeAbelianGroup.lift_eq_sum]
-  simp only [nat_trans.app_sum, nat_trans.app_zsmul]
+  simp only [NatTrans.app_sum, NatTrans.app_zsmul]
   --dsimp,
-  rw [functor.map_sum, sum_comp, comp_sum]
+  rw [Functor.map_sum, sum_comp, comp_sum]
   refine' Finset.sum_congr rfl _; rintro x -
-  rw [functor.map_zsmul, zsmul_comp, comp_zsmul]
+  rw [Functor.map_zsmul, zsmul_comp, comp_zsmul]
   refine' congr_arg₂ _ rfl _
   dsimp
   rw [← presheaf_to_Condensed_Ab.map_comp]
   erw [← presheaf_to_Condensed_Ab.map_comp]
   congr 1
-  ext t : 2; dsimp only [nat_trans.comp_app, whisker_right_app, functor.associator]
-  simp only [category.id_comp, category.comp_id]
-  simp only [← functor.map_comp]
-  congr 1; simp only [← nat_trans.comp_app]; congr 1
+  ext t : 2; dsimp only [NatTrans.comp_app, CategoryTheory.whiskerRight_app, Functor.associator]
+  simp only [Category.id_comp, Category.comp_id]
+  simp only [← Functor.map_comp]
+  congr 1; simp only [← NatTrans.comp_app]; congr 1
   apply biproduct.hom_ext; intro j
-  simp only [category.assoc, biproduct.matrix_π, biproduct.lift_π]
-  dsimp only [functor.map_bicone]
+  simp only [Category.assoc, biproduct.matrix_π, biproduct.lift_π]
+  dsimp only [Functor.mapBicone]
   rw [biproduct.lift_desc]
   erw [← Condensed_Ab_to_presheaf.map_comp, biproduct.matrix_π]
-  simp_rw [comp_zsmul, category.comp_id, ← functor.map_zsmul, ← functor.map_sum]
+  simp_rw [comp_zsmul, Category.comp_id, ← Functor.map_zsmul, ← Functor.map_sum]
   congr 1
   apply biproduct.hom_ext'; intro k
   rw [biproduct.ι_desc, comp_sum]
@@ -165,11 +165,11 @@ def evalFreeCond'IsoComponent (M : Condensed.{u} Ab.{u + 1}) :
       | -[i+1] => EvalFreeCond'Iso.componentNeg _ _ _)
     (by
       rintro ((_ | i) | (_ | i)) ((_ | j) | (_ | j)) ⟨rfl⟩
-      · apply is_zero.eq_of_tgt
-        apply functor.map_is_zero
+      · apply IsZero.eq_of_tgt
+        apply Functor.map_isZero
         apply is_zero_zero
-      · apply is_zero.eq_of_tgt
-        apply functor.map_is_zero
+      · apply IsZero.eq_of_tgt
+        apply Functor.map_isZero
         apply is_zero_zero
       · apply eval_freeCond'_iso_component_aux₀
       · apply eval_freeCond'_iso_component_aux_i
@@ -179,7 +179,7 @@ theorem evalFreeCond'IsoComponent_hom_zero (M : Condensed.{u} Ab.{u + 1}) :
     (evalFreeCond'IsoComponent BD M).hom.f 0 =
       by
       refine' presheaf_to_Condensed_Ab.map _
-      refine' _ ≫ (functor.associator _ _ _).hom
+      refine' _ ≫ (Functor.associator _ _ _).hom
       refine' whisker_right _ _
       refine' whisker_right _ _
       refine' (Condensed_Ab_to_presheaf.map_biproduct _).hom :=
@@ -189,7 +189,7 @@ theorem evalFreeCond'IsoComponent_hom_neg (M : Condensed.{u} Ab.{u + 1}) (i : �
     (evalFreeCond'IsoComponent BD M).hom.f -[i+1] =
       by
       refine' presheaf_to_Condensed_Ab.map _
-      refine' _ ≫ (functor.associator _ _ _).hom
+      refine' _ ≫ (Functor.associator _ _ _).hom
       refine' whisker_right _ _
       refine' whisker_right _ _
       refine' (Condensed_Ab_to_presheaf.map_biproduct _).hom :=
@@ -245,25 +245,25 @@ theorem eval_freeAb_iso_component_aux₀ (M : Condensed.{u} Ab.{u + 1}) (S : Ext
           -[0+1] (Int.ofNat 0) ≫
         (EvalFreeAbIso.componentZero BD M S).hom :=
   by
-  dsimp only [eval_freeAb_iso.component_neg, eval_freeAb_iso.component_zero, functor.map_iso,
-    package.eval', data.eval_functor', functor.map_homological_complex, CategoryTheory.evaluation,
-    functor.comp_obj, HomologicalComplex.embed, HomologicalComplex.Embed.obj]
+  dsimp only [EvalFreeAbIso.componentNeg, EvalFreeAbIso.componentZero, Functor.mapIso,
+    Package.eval', Data.evalFunctor', Functor.mapHomologicalComplex, CategoryTheory.evaluation,
+    Functor.comp_obj, HomologicalComplex.embed, HomologicalComplex.Embed.obj]
   erw [HomologicalComplex.Embed.d_some_some]
   erw [HomologicalComplex.Embed.d_some_some]
-  dsimp only [data.eval_functor, data.eval_functor', functor.comp_obj, functor.flip,
+  dsimp only [Data.evalFunctor, Data.evalFunctor', Functor.comp_obj, Functor.flip,
     HomologicalComplex.functorEval, HomologicalComplex.FunctorEval.obj, CategoryTheory.evaluation,
-    functor.map_homological_complex, universal_map.eval_Pow_functor, universal_map.eval_Pow,
-    functor.map_biproduct]
-  simp only [FreeAbelianGroup.lift_eq_sum, sum_comp, comp_sum, nat_trans.app_sum]
+    Functor.mapHomologicalComplex, UniversalMap.evalPowFunctor, UniversalMap.evalPow,
+    Functor.mapBiproduct]
+  simp only [FreeAbelianGroup.lift_eq_sum, sum_comp, comp_sum, NatTrans.app_sum]
   apply Finset.sum_congr rfl; rintro x -
-  simp only [nat_trans.app_zsmul]
-  dsimp [functor.map_bicone]
-  simp only [zsmul_comp, comp_zsmul, ← functor.map_comp]; congr 3
+  simp only [NatTrans.app_zsmul]
+  dsimp [Functor.mapBicone]
+  simp only [zsmul_comp, comp_zsmul, ← Functor.map_comp]; congr 3
   apply biproduct.hom_ext; intro j
-  simp only [category.assoc, biproduct.lift_π, biproduct.matrix_π, biproduct.lift_desc]
+  simp only [Category.assoc, biproduct.lift_π, biproduct.matrix_π, biproduct.lift_desc]
   erw [biproduct.lift_π]
-  rw [← nat_trans.comp_app, biproduct.matrix_π]
-  simp_rw [← nat_trans.id_app, ← nat_trans.app_zsmul, ← nat_trans.comp_app, ← nat_trans.app_sum]
+  rw [← NatTrans.comp_app, biproduct.matrix_π]
+  simp_rw [← NatTrans.id_app, ← NatTrans.app_zsmul, ← NatTrans.comp_app, ← NatTrans.app_sum]
   congr 1
   apply biproduct.hom_ext'; intro k; simp only [comp_sum, biproduct.ι_desc]
   rw [Finset.sum_eq_single_of_mem k (Finset.mem_univ _), biproduct.ι_π_assoc, dif_pos rfl]
@@ -281,25 +281,25 @@ theorem eval_freeAb_iso_component_aux (M : Condensed.{u} Ab.{u + 1}) (S : ExtrDi
           -[i + 1+1] -[i+1] ≫
         (EvalFreeAbIso.componentNeg BD M S i).hom :=
   by
-  dsimp only [eval_freeAb_iso.component_neg, eval_freeAb_iso.component_zero, functor.map_iso,
-    package.eval', data.eval_functor', functor.map_homological_complex, CategoryTheory.evaluation,
-    functor.comp_obj, HomologicalComplex.embed, HomologicalComplex.Embed.obj]
+  dsimp only [EvalFreeAbIso.componentNeg, EvalFreeAbIso.componentZero, Functor.mapIso,
+    Package.eval', Data.evalFunctor', Functor.mapHomologicalComplex, CategoryTheory.evaluation,
+    Functor.comp_obj, HomologicalComplex.embed, HomologicalComplex.Embed.obj]
   erw [HomologicalComplex.Embed.d_some_some]
   erw [HomologicalComplex.Embed.d_some_some]
-  dsimp only [data.eval_functor, data.eval_functor', functor.comp_obj, functor.flip,
+  dsimp only [Data.evalFunctor, Data.evalFunctor', Functor.comp_obj, Functor.flip,
     HomologicalComplex.functorEval, HomologicalComplex.FunctorEval.obj, CategoryTheory.evaluation,
-    functor.map_homological_complex, universal_map.eval_Pow_functor, universal_map.eval_Pow,
-    functor.map_biproduct]
-  simp only [FreeAbelianGroup.lift_eq_sum, sum_comp, comp_sum, nat_trans.app_sum]
+    Functor.mapHomologicalComplex, UniversalMap.evalPowFunctor, UniversalMap.evalPow,
+    Functor.mapBiproduct]
+  simp only [FreeAbelianGroup.lift_eq_sum, sum_comp, comp_sum, NatTrans.app_sum]
   apply Finset.sum_congr rfl; rintro x -
-  simp only [nat_trans.app_zsmul]
-  dsimp [functor.map_bicone]
-  simp only [zsmul_comp, comp_zsmul, ← functor.map_comp]; congr 3
+  simp only [NatTrans.app_zsmul]
+  dsimp [Functor.mapBicone]
+  simp only [zsmul_comp, comp_zsmul, ← Functor.map_comp]; congr 3
   apply biproduct.hom_ext; intro j
-  simp only [category.assoc, biproduct.lift_π, biproduct.matrix_π, biproduct.lift_desc]
+  simp only [Category.assoc, biproduct.lift_π, biproduct.matrix_π, biproduct.lift_desc]
   erw [biproduct.lift_π]
-  rw [← nat_trans.comp_app, biproduct.matrix_π]
-  simp_rw [← nat_trans.id_app, ← nat_trans.app_zsmul, ← nat_trans.comp_app, ← nat_trans.app_sum]
+  rw [← NatTrans.comp_app, biproduct.matrix_π]
+  simp_rw [← NatTrans.id_app, ← NatTrans.app_zsmul, ← NatTrans.comp_app, ← NatTrans.app_sum]
   congr 1
   apply biproduct.hom_ext'; intro k; simp only [comp_sum, biproduct.ι_desc]
   rw [Finset.sum_eq_single_of_mem k (Finset.mem_univ _), biproduct.ι_π_assoc, dif_pos rfl]
@@ -319,9 +319,9 @@ def evalFreeAbIsoComponent (M : Condensed.{u} Ab.{u + 1}) (S : ExtrDisc.{u}) :
       | -[i+1] => EvalFreeAbIso.componentNeg _ _ _ _)
     (by
       rintro ((_ | i) | (_ | i)) ((_ | j) | (_ | j)) ⟨rfl⟩
-      · apply is_zero.eq_of_tgt
+      · apply IsZero.eq_of_tgt
         apply is_zero_zero
-      · apply is_zero.eq_of_tgt
+      · apply IsZero.eq_of_tgt
         apply is_zero_zero
       · apply eval_freeAb_iso_component_aux₀
       · apply eval_freeAb_iso_component_aux
@@ -346,11 +346,11 @@ theorem eval_freeCond'_iso_aux_zero (X Y : Condensed Ab) (f : X ⟶ Y) :
               f).f
         (Int.ofNat 0) :=
   by
-  dsimp only [HomologicalComplex.Hom.isoOfComponents, HomologicalComplex.comp_f, package.eval',
-    data.eval_functor', data.eval_functor, functor.comp_map, Int.ofNat_zero,
+  dsimp only [HomologicalComplex.Hom.isoOfComponents, HomologicalComplex.comp_f, Package.eval',
+    Data.evalFunctor', Data.evalFunctor, Functor.comp_map, Int.ofNat_zero,
     HomologicalComplex.embed_nat_obj_down_up_zero_f, HomologicalComplex.comp_f,
-    functor.map_homological_complex_map_f, functor.comp_obj, functor.flip,
-    HomologicalComplex.functorEval, universal_map.eval_Pow_functor, functor.map_homological_complex]
+    Functor.mapHomologicalComplex_map_f, Functor.comp_obj, Functor.flip,
+    HomologicalComplex.functorEval, UniversalMap.evalPowFunctor, Functor.mapHomologicalComplex]
   rw [eval_freeCond'_iso_component_hom_zero]
   rw [eval_freeCond'_iso_component_hom_zero]
   dsimp
@@ -360,12 +360,12 @@ theorem eval_freeCond'_iso_aux_zero (X Y : Condensed Ab) (f : X ⟶ Y) :
   -- we got rid of the sheafification :)
   ext t : 2
   dsimp
-  simp only [category.id_comp, category.comp_id, ← functor.map_comp]
+  simp only [Category.id_comp, Category.comp_id, ← Functor.map_comp]
   congr 2
-  simp_rw [← nat_trans.comp_app]; congr 1
-  dsimp [functor.map_bicone]
+  simp_rw [← NatTrans.comp_app]; congr 1
+  dsimp [Functor.mapBicone]
   apply biproduct.hom_ext; intro j
-  simp only [category.assoc, biproduct.map_π, biproduct.lift_π_assoc, biproduct.lift_π]
+  simp only [Category.assoc, biproduct.map_π, biproduct.lift_π_assoc, biproduct.lift_π]
   erw [← Condensed_Ab_to_presheaf.map_comp, ← Condensed_Ab_to_presheaf.map_comp, biproduct.map_π]
 
 theorem evalFreeAbIsoComponent_naturality (M : Condensed.{u} Ab.{u + 1}) (S T : ExtrDisc.{u})
@@ -384,30 +384,30 @@ theorem evalFreeAbIsoComponent_naturality (M : Condensed.{u} Ab.{u + 1}) (S T : 
           AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) =
         AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) ≫
           AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _)
-    simp only [← functor.map_comp]; congr 2
+    simp only [← Functor.map_comp]; congr 2
     apply biproduct.hom_ext; rintro ⟨j⟩
-    dsimp [functor.map_bicone]
-    simp only [category.assoc]
+    dsimp [Functor.mapBicone]
+    simp only [Category.assoc]
     erw [biproduct.lift_π]
     erw [biproduct.map_π]
     erw [biproduct.lift_π_assoc]
-    simp only [nat_trans.naturality]
+    simp only [NatTrans.naturality]
     rfl
-  · apply is_zero.eq_of_tgt
+  · apply IsZero.eq_of_tgt
     apply is_zero_zero
   · change
       AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) ≫
           AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) =
         AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) ≫
           AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _)
-    simp only [← functor.map_comp]; congr 2
+    simp only [← Functor.map_comp]; congr 2
     apply biproduct.hom_ext; rintro ⟨j⟩
-    dsimp [functor.map_bicone]
-    simp only [category.assoc]
+    dsimp [Functor.mapBicone]
+    simp only [Category.assoc]
     erw [biproduct.lift_π]
     erw [biproduct.map_π]
     erw [biproduct.lift_π_assoc]
-    simp only [nat_trans.naturality]
+    simp only [NatTrans.naturality]
     rfl
 
 theorem eval_freeCond'_iso_aux_neg (X Y : Condensed Ab) (f : X ⟶ Y) (i : ℕ) :
@@ -419,11 +419,11 @@ theorem eval_freeCond'_iso_aux_neg (X Y : Condensed Ab) (f : X ⟶ Y) (i : ℕ) 
               f).f
         -[i+1] :=
   by
-  dsimp only [HomologicalComplex.Hom.isoOfComponents, HomologicalComplex.comp_f, package.eval',
-    data.eval_functor', data.eval_functor, functor.comp_map, Int.ofNat_zero,
+  dsimp only [HomologicalComplex.Hom.isoOfComponents, HomologicalComplex.comp_f, Package.eval',
+    Data.evalFunctor', Data.evalFunctor, Functor.comp_map, Int.ofNat_zero,
     HomologicalComplex.embed_nat_obj_down_up_zero_f, HomologicalComplex.comp_f,
-    functor.map_homological_complex_map_f, functor.comp_obj, functor.flip,
-    HomologicalComplex.functorEval, universal_map.eval_Pow_functor, functor.map_homological_complex]
+    Functor.mapHomologicalComplex_map_f, Functor.comp_obj, Functor.flip,
+    HomologicalComplex.functorEval, UniversalMap.evalPowFunctor, Functor.mapHomologicalComplex]
   rw [eval_freeCond'_iso_component_hom_neg]
   rw [eval_freeCond'_iso_component_hom_neg]
   dsimp
@@ -433,12 +433,12 @@ theorem eval_freeCond'_iso_aux_neg (X Y : Condensed Ab) (f : X ⟶ Y) (i : ℕ) 
   -- we got rid of the sheafification :)
   ext t : 2
   dsimp
-  simp only [category.id_comp, category.comp_id, ← functor.map_comp]
+  simp only [Category.id_comp, Category.comp_id, ← Functor.map_comp]
   congr 2
-  simp_rw [← nat_trans.comp_app]; congr 1
-  dsimp [functor.map_bicone]
+  simp_rw [← NatTrans.comp_app]; congr 1
+  dsimp [Functor.mapBicone]
   apply biproduct.hom_ext; intro j
-  simp only [category.assoc, biproduct.map_π, biproduct.lift_π_assoc, biproduct.lift_π]
+  simp only [Category.assoc, biproduct.map_π, biproduct.lift_π_assoc, biproduct.lift_π]
   erw [← Condensed_Ab_to_presheaf.map_comp, ← Condensed_Ab_to_presheaf.map_comp, biproduct.map_π]
 
 def evalFreeCond'Iso :
@@ -449,7 +449,7 @@ def evalFreeCond'Iso :
       intro X Y f
       ext ((_ | i) | i) : 2
       · apply eval_freeCond'_iso_aux_zero
-      · apply is_zero.eq_of_src; apply is_zero_zero
+      · apply IsZero.eq_of_src; apply is_zero_zero
       · apply eval_freeCond'_iso_aux_neg)
 
 def evalFreeAbIso (S : ExtrDisc.{u}) :
@@ -466,27 +466,27 @@ def evalFreeAbIso (S : ExtrDisc.{u}) :
               AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) =
             AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) ≫
               AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _)
-        simp only [← functor.map_comp]; congr 2
+        simp only [← Functor.map_comp]; congr 2
         apply biproduct.hom_ext; intro j
-        dsimp [functor.map_bicone]
-        simp only [category.assoc, biproduct.map_π, biproduct.lift_π]
+        dsimp [Functor.mapBicone]
+        simp only [Category.assoc, biproduct.map_π, biproduct.lift_π]
         erw [biproduct.lift_π_assoc]
         erw [biproduct.lift_π]
-        simp_rw [← nat_trans.comp_app, biproduct.map_π]
+        simp_rw [← NatTrans.comp_app, biproduct.map_π]
         rfl
-      · apply is_zero.eq_of_tgt; apply is_zero_zero
+      · apply IsZero.eq_of_tgt; apply is_zero_zero
       · change
           AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) ≫
               AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) =
             AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _) ≫
               AddCommGroup.free.map ((CategoryTheory.forget Ab.{u + 1}).map _)
-        simp only [← functor.map_comp]; congr 2
+        simp only [← Functor.map_comp]; congr 2
         apply biproduct.hom_ext; intro j
-        dsimp [functor.map_bicone]
-        simp only [category.assoc, biproduct.map_π, biproduct.lift_π]
+        dsimp [Functor.mapBicone]
+        simp only [Category.assoc, biproduct.map_π, biproduct.lift_π]
         erw [biproduct.lift_π_assoc]
         erw [biproduct.lift_π]
-        simp_rw [← nat_trans.comp_app, biproduct.map_π]
+        simp_rw [← NatTrans.comp_app, biproduct.map_π]
         rfl)
 
 -- Move this.
@@ -522,14 +522,14 @@ def tensorToUnsheafifiedHomologyComponent (M : Condensed.{u} Ab.{u + 1}) (i : �
   AddMonoidHom.mk' (fun m => tensorToUnsheafifiedHomologyComponentApplied _ _ _ _ m)
     (by
       intro x y; rcases i with ((_ | i) | i)
-      · erw [← add_comp, ← functor.map_add, ← functor.map_add]; apply congr_arg₂ _ _ rfl; congr 2
-        dsimp only [AddCommGroupCat.adj, adjunction.mk_of_hom_equiv_hom_equiv]
+      · erw [← add_comp, ← Functor.map_add, ← Functor.map_add]; apply congr_arg₂ _ _ rfl; congr 2
+        dsimp only [AddCommGroupCat.adj, Adjunction.mkOfHomEquiv_homEquiv]
         ext ⟨⟩; simp only [Equiv.symm_symm, AddMonoidHom.add_apply, FreeAbelianGroup.lift.of]
         rfl
-      · apply is_zero.eq_of_src
-        apply is_zero.homology_is_zero; apply is_zero_zero
-      · erw [← add_comp, ← functor.map_add, ← functor.map_add]; apply congr_arg₂ _ _ rfl; congr 2
-        dsimp only [AddCommGroupCat.adj, adjunction.mk_of_hom_equiv_hom_equiv]
+      · apply IsZero.eq_of_src
+        apply IsZero.homology'_isZero; apply is_zero_zero
+      · erw [← add_comp, ← Functor.map_add, ← Functor.map_add]; apply congr_arg₂ _ _ rfl; congr 2
+        dsimp only [AddCommGroupCat.adj, Adjunction.mkOfHomEquiv_homEquiv]
         ext ⟨⟩; simp only [Equiv.symm_symm, AddMonoidHom.add_apply, FreeAbelianGroup.lift.of]
         rfl)
 
@@ -544,35 +544,35 @@ theorem tensor_to_unsheafified_homology'_natural (M : Condensed.{u} Ab.{u + 1}) 
         (HomologicalComplex.homology' ((BD.eval' freeFunc).obj (condensedAbToPresheaf.obj M)) i).map
           f.unop.val.op :=
   by
-  dsimp only [tensor_to_unsheafified_homology_component_applied]
-  rw [← nat_iso.app_inv, ← category.assoc, iso.comp_inv_eq]
-  simp only [category.assoc]
+  dsimp only [Condensed.tensorToUnsheafifiedHomologyComponentApplied]
+  rw [← NatIso.app_inv, ← Category.assoc, Iso.comp_inv_eq]
+  simp only [Category.assoc]
   have :=
-    functor.naturality_homology_functor_iso
+    Functor.naturality_homology'FunctorIso
       ((CategoryTheory.evaluation Profinite.{u}ᵒᵖ Ab.{u + 1}).map (ExtrDisc_to_Profinite.op.map f))
       (ComplexShape.up ℤ) i
   apply_fun fun e => e.app ((BD.eval' freeFunc).obj (Condensed_Ab_to_presheaf.obj M)) at this 
-  dsimp [-homology'Functor_map] at this ; simp only [category.id_comp, category.comp_id] at this 
-  erw [this]; rw [← nat_iso.app_inv, ← nat_iso.app_hom, iso.inv_hom_id_assoc]
+  dsimp [-homology'Functor_map] at this ; simp only [Category.id_comp, Category.comp_id] at this 
+  erw [this]; rw [← NatIso.app_inv, ← NatIso.app_hom, Iso.inv_hom_id_assoc]
   clear this
-  rw [← functor.map_iso_inv, ← category.assoc, iso.comp_inv_eq, category.assoc, category.assoc]
-  dsimp [-homology'Functor_map]; simp only [← functor.map_comp]
-  rw [← eval_freeAb_iso_component_naturality, iso.inv_hom_id_assoc]
+  rw [← Functor.mapIso_inv, ← Category.assoc, Iso.comp_inv_eq, Category.assoc, Category.assoc]
+  dsimp [-homology'Functor_map]; simp only [← Functor.map_comp]
+  rw [← eval_freeAb_iso_component_naturality, Iso.inv_hom_id_assoc]
   have :
-    (AddCommGroup.adj.hom_equiv PUnit (M.val.obj (op (unop T).val))).symm
+    (AddCommGroup.adj.homEquiv PUnit (M.val.obj (op (unop T).val))).symm
         (point ((M.val.map f.unop.val.op) x)) =
-      (AddCommGroup.adj.hom_equiv PUnit (M.val.obj (op (unop S).val))).symm (point x) ≫
+      (AddCommGroup.adj.homEquiv PUnit (M.val.obj (op (unop S).val))).symm (point x) ≫
         M.val.map (ExtrDisc_to_Profinite.map f.unop).op :=
     by
     ext ⟨⟩
-    dsimp only [AddCommGroupCat.adj, adjunction.mk_of_hom_equiv_hom_equiv, Equiv.symm,
+    dsimp only [AddCommGroupCat.adj, Adjunction.mkOfHomEquiv_homEquiv, Equiv.symm,
       Equiv.toFun_as_coe]
     simp only [comp_apply]
     erw [FreeAbelianGroup.lift.of]
     erw [FreeAbelianGroup.lift.of]
     rfl
-  rw [this, functor.map_comp]
-  erw [functor.map_comp]
+  rw [this, Functor.map_comp]
+  erw [Functor.map_comp]
   rfl
 
 def tensorToUnsheafifiedHomology (M : Condensed.{u} Ab.{u + 1}) (i : ℤ) :
@@ -584,17 +584,17 @@ def tensorToUnsheafifiedHomology (M : Condensed.{u} Ab.{u + 1}) (i : ℤ) :
         HomologicalComplex.homology' ((BD.eval' freeFunc).obj (condensedAbToPresheaf.obj M)) i
     where
   app S := AddCommGroupCat.tensorUncurry <| tensorToUnsheafifiedHomologyComponent _ _ _ _
-  naturality' S T f := by
+  naturality S T f := by
     apply AddCommGroupCat.tensor_ext; intro x y
     dsimp only [ExtrSheaf.tensor, ExtrSheafProd.tensor, extrSheafExtrSheafProdEquiv,
       ExtrSheafProd.tensorPresheaf_map, AddCommGroupCat.mapTensor, AddCommGroupCat.tensorUncurry]
     erw [comp_apply, comp_apply, TensorProduct.map_tmul, TensorProduct.lift.tmul,
       TensorProduct.lift.tmul]
     dsimp only [AddMonoidHom.coe_toIntLinearMap, LinearMap.comp_apply, AddMonoidHom.coe_mk,
-      functor.comp_map, condensedExtrSheafEquiv_inverse_val, extrDiscToProfinite_map,
-      functor.op_map, tensor_to_unsheafified_homology_component, AddMonoidHom.mk'_apply]
+      Functor.comp_map, condensedExtrSheafEquiv_inverse_val, extrDiscToProfinite_map,
+      Functor.op_map, Condensed.tensorToUnsheafifiedHomologyComponent, AddMonoidHom.mk'_apply]
     erw [id_apply, ← comp_apply]; congr 1
-    apply tensor_to_unsheafified_homology_natural
+    apply Condensed.tensor_to_unsheafified_homology'_natural
 
 def plainEvalComparisonComponent (i : ℤ) (A : AddCommGroupCat.{u + 1}) :
     A ⟶
@@ -609,8 +609,8 @@ def plainEvalComparisonComponent (i : ℤ) (A : AddCommGroupCat.{u + 1}) :
       (HomotopyCategory.homology'Functor _ _ _).map <|
         (BD.eval _).map <| (AddCommGroupCat.adj.homEquiv _ _).symm (point a))
     (by
-      intro x y; rw [← functor.map_add, ← functor.map_add]; congr 2
-      dsimp only [AddCommGroupCat.adj, adjunction.mk_of_hom_equiv_hom_equiv]
+      intro x y; rw [← Functor.map_add, ← Functor.map_add]; congr 2
+      dsimp only [AddCommGroupCat.adj, Adjunction.mkOfHomEquiv_homEquiv]
       ext ⟨⟩; simp only [Equiv.symm_symm, AddMonoidHom.add_apply, FreeAbelianGroup.lift.of]
       rfl)
 
@@ -620,10 +620,10 @@ theorem plain_eval_comparison_natural (i : ℤ) (A B : AddCommGroupCat.{u + 1}) 
         (HomotopyCategory.homology'Functor AddCommGroupCat (ComplexShape.up ℤ) i).map
           ((BD.eval (forget AddCommGroupCat ⋙ AddCommGroupCat.free)).map f) :=
   by
-  dsimp only [plain_eval_comparison_component, AddMonoidHom.mk'_apply, functor.comp_map]
-  rw [← functor.map_comp]; congr 1
+  dsimp only [Condensed.plainEvalComparisonComponent, AddMonoidHom.mk'_apply, Functor.comp_map]
+  rw [← Functor.map_comp]; congr 1
   erw [← (BD.eval (forget AddCommGroupCat ⋙ AddCommGroupCat.free)).map_comp]; congr 1
-  dsimp only [AddCommGroupCat.adj, adjunction.mk_of_hom_equiv_hom_equiv, Equiv.symm,
+  dsimp only [AddCommGroupCat.adj, Adjunction.mkOfHomEquiv_homEquiv, Equiv.symm,
     Equiv.coe_fn_mk, Equiv.toFun_as_coe]
   ext ⟨⟩
   simp only [FreeAbelianGroup.lift.of, comp_apply]
@@ -644,7 +644,7 @@ theorem plain_eval_comparison_natural' (i : ℤ) (A B : AddCommGroupCat.{u + 1})
   by
   apply AddCommGroupCat.tensor_ext; intro x y
   rw [comp_apply, comp_apply]
-  dsimp only [functor.flip_obj_map, AddCommGroupCat.tensorFunctor_map_app]
+  dsimp only [Functor.flip_obj_map, AddCommGroupCat.tensorFunctor_map_app]
   delta AddCommGroupCat.tensorUncurry AddCommGroupCat.mapTensor
   dsimp only [LinearMap.toAddMonoidHom_coe]
   rw [TensorProduct.map_tmul, TensorProduct.lift.tmul, TensorProduct.lift.tmul]
@@ -660,7 +660,7 @@ def plainEvalComparison (i : ℤ) :
       BD.eval' (forget AddCommGroupCat ⋙ AddCommGroupCat.free) ⋙ homology'Functor _ _ i
     where
   app A := AddCommGroupCat.tensorUncurry <| plainEvalComparisonComponent _ _ _
-  naturality' A B f := by apply plain_eval_comparison_natural'
+  naturality A B f := by apply plain_eval_comparison_natural'
 
 attribute [-simp] homology'Functor_map
 
@@ -674,27 +674,27 @@ theorem tensorToUnsheafifiedHomology_app_eq (M : Condensed.{u} Ab.{u + 1}) (i : 
                   _ _).inv.app
             _ :=
   by
-  rw [← nat_iso.app_inv, ← category.assoc, iso.eq_comp_inv, ← functor.map_iso_inv, iso.eq_comp_inv,
-    category.assoc, functor.map_iso_hom, nat_iso.app_hom]
+  rw [← NatIso.app_inv, ← Category.assoc, Iso.eq_comp_inv, ← Functor.mapIso_inv, Iso.eq_comp_inv,
+    Category.assoc, Functor.mapIso_hom, NatIso.app_hom]
   apply_fun AddCommGroupCat.tensorCurryEquiv _ _ _
   swap; apply AddEquiv.injective
-  dsimp [plain_eval_comparison, tensor_to_unsheafified_homology]
+  dsimp [Condensed.plainEvalComparison, Condensed.tensorToUnsheafifiedHomology]
   rw [AddCommGroupCat.tensorCurry_uncurry]
   rw [AddCommGroupCat.tensorCurry_uncurry_comp]
   ext x y
-  dsimp [plain_eval_comparison_component, tensor_to_unsheafified_homology_component]
+  dsimp [Condensed.plainEvalComparisonComponent, Condensed.tensorToUnsheafifiedHomologyComponent]
   simp only [comp_apply]
-  dsimp [preadditive_yoneda]
+  dsimp [CategoryTheory.preadditiveYoneda]
   simp only [comp_apply]
-  dsimp [tensor_to_unsheafified_homology_component_applied]
-  simp only [← comp_apply, category.assoc]
-  dsimp only [← nat_iso.app_inv, ← nat_iso.app_hom]
-  simp only [iso.inv_hom_id_assoc]
+  dsimp [Condensed.tensorToUnsheafifiedHomologyComponentApplied]
+  simp only [← comp_apply, Category.assoc]
+  dsimp only [← NatIso.app_inv, ← NatIso.app_hom]
+  simp only [Iso.inv_hom_id_assoc]
   congr 2
-  simp only [← category.assoc]
+  simp only [← Category.assoc]
   congr 1
-  simp only [category.assoc, iso.inv_hom_id, category.comp_id, ← functor.map_iso_hom, ←
-    functor.map_iso_inv]
+  simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id, ← Functor.mapIso_hom, ←
+    Functor.mapIso_inv]
 
 def tensorToHomologyAux (M : Condensed.{u} Ab.{u + 1}) (i : ℤ) :
     ((condensedExtrSheafEquiv Ab).inverse.obj M).tensor
@@ -763,7 +763,7 @@ instance preservesFilteredColimitsEval'ForgetFree :
   by
   apply (config := { instances := false })
     Limits.compPreservesFilteredColimits.{u + 1, u + 2, _, u + 2}
-  · apply (config := { instances := false }) data.eval_functor_preserves_filtered_colimits
+  · apply (config := { instances := false }) Data.evalFunctorPreservesFilteredColimits
     apply Limits.compPreservesFilteredColimits.{u + 1, u + 2, _, u + 2}
   · constructor
     intro J
@@ -804,7 +804,7 @@ instance additive_eval'_forget_free (i : ℤ) :
         HomotopyCategory.homology'Functor _ _ i)
   exact
     functor.comp.additive
-      (package.eval BD (forget AddCommGroupCat ⋙ AddCommGroupCat.free) ⋙ forget AddCommGroupCat)
+      (Package.eval BD (forget AddCommGroupCat ⋙ AddCommGroupCat.free) ⋙ forget AddCommGroupCat)
       (HomotopyCategory.homology'Functor AddCommGroupCat (ComplexShape.up ℤ) i)
 
 theorem coeff_unit_smul (x : FreeAbelianGroup.{u} PUnit) :
@@ -821,10 +821,10 @@ theorem AddCommGroup.adj_homEquiv_pUnit (a) :
         (point.{u + 1} a) =
       FreeAbelianGroup.coeff PUnit.unit a • 𝟙 _ :=
   by
-  dsimp only [AddCommGroupCat.adj, adjunction.mk_of_hom_equiv_hom_equiv, Equiv.symm,
+  dsimp only [AddCommGroupCat.adj, Adjunction.mkOfHomEquiv_homEquiv, Equiv.symm,
     Equiv.coe_fn_mk, Equiv.toFun_as_coe]
   ext ⟨⟩
-  rw [FreeAbelianGroup.lift.of, AddMonoidHom.smul_apply, id_apply, coeff_star_smul]
+  rw [FreeAbelianGroup.lift.of, AddMonoidHom.smul_apply, id_apply, Condensed.coeff_unit_smul]
   rfl
 
 theorem HomologyFunctor.map_id_bo_ho_ca {𝓐 : Type _} [Category 𝓐] [Abelian 𝓐] [EnoughProjectives 𝓐]
@@ -849,7 +849,7 @@ theorem plain_eval_comparison_isIso_aux (A : AddCommGroupCat) :
     rw [TensorProduct.lift.tmul]
     dsimp only [AddMonoidHom.coe_toIntLinearMap, LinearMap.comp_apply, AddMonoidHom.coe_mk,
       AddMonoidHom.mk'_apply, AddMonoidHom.smul_apply]
-    rw [← TensorProduct.smul_tmul, id_apply, coeff_star_smul]
+    rw [← TensorProduct.smul_tmul, id_apply, Condensed.coeff_unit_smul]
   · ext a; rw [id_apply, comp_apply]
     dsimp only [AddCommGroupCat.tensorUncurry, AddMonoidHom.mk'_apply, LinearMap.toAddMonoidHom_coe]
     rw [TensorProduct.lift.tmul]
@@ -860,10 +860,10 @@ theorem plain_eval_comparison_isIso_aux (A : AddCommGroupCat) :
 instance (i : ℤ) :
     IsIso ((plainEvalComparison BD i).app (AddCommGroupCat.free.obj (PUnit : Type (u + 1)))) :=
   by
-  dsimp only [plain_eval_comparison, plain_eval_comparison_component]
-  simp only [AddCommGroup.adj_hom_equiv_punit, functor.map_smul, CategoryTheory.Functor.map_id,
-    homology_functor.map_id_bo_ho_ca]
-  apply plain_eval_comparison_is_iso_aux
+  dsimp only [Condensed.plainEvalComparison, Condensed.plainEvalComparisonComponent]
+  simp only [AddCommGroup.adj_homEquiv_pUnit, Functor.map_smul, CategoryTheory.Functor.map_id,
+    HomologyFunctor.map_id_bo_ho_ca]
+  apply Condensed.plain_eval_comparison_isIso_aux
 
 theorem AddCommGroup.free_pUnit_isTensorUnit :
     (AddCommGroupCat.free.{u + 1}.obj PUnit.{u + 2}).IsTensorUnit :=
@@ -877,27 +877,27 @@ instance isIso_map_tensorToHomologyAux_comp (M : Condensed.{u} Ab.{u + 1}) (i : 
     [∀ S : ExtrDisc.{u}, NoZeroSMulDivisors ℤ (M.val.obj (op S.val))] :
     IsIso (tensorToHomologyAux BD M i) :=
   by
-  suffices ∀ X : ExtrDisc, is_iso ((tensor_to_unsheafified_homology BD M i).app (op X))
+  suffices ∀ X : ExtrDisc, is_iso ((Condensed.tensorToUnsheafifiedHomology BD M i).app (op X))
     by
     skip
     apply
-      Sheaf.is_iso_of_eval _ (tensor_to_homology_aux BD M i) (tensor_to_unsheafified_homology _ _ _)
+      Sheaf.isIso_of_eval _ (Condensed.tensorToHomologyAux BD M i) (Condensed.tensorToUnsheafifiedHomology _ _ _)
         rfl
   intro S
-  rw [tensor_to_unsheafified_homology_app_eq]
-  suffices is_iso ((plain_eval_comparison BD i).app (M.val.obj (op S.val))) by skip;
-    apply is_iso.comp_is_iso
+  rw [Condensed.tensorToUnsheafifiedHomology_app_eq]
+  suffices is_iso ((Condensed.plainEvalComparison BD i).app (M.val.obj (op S.val))) by skip;
+    apply IsIso.comp_isIso
   apply
     AddCommGroupCat.isIso_of_preserves_of_isTensorUnit.{u + 1, u + 2} _ _
-      (plain_eval_comparison BD i) (AddCommGroup.free.obj PUnit)
-  apply AddCommGroup.free_punit_is_tensor_unit
+      (Condensed.plainEvalComparison BD i) (AddCommGroup.free.obj PUnit)
+  apply AddCommGroup.free_pUnit_isTensorUnit
 
 instance isIso_tensorToHomology (M : Condensed.{u} Ab.{u + 1}) (i : ℤ)
     [∀ S : ExtrDisc.{u}, NoZeroSMulDivisors ℤ (M.val.obj (op S.val))] :
     IsIso (tensorToHomology BD M i) :=
   by
-  dsimp only [tensor_to_homology]
-  apply is_iso.comp_is_iso
+  dsimp only [Condensed.tensorToHomology]
+  apply IsIso.comp_isIso
 
 def homologyBdEval (M : Condensed.{u} Ab.{u + 1})
     [∀ S : ExtrDisc.{u}, NoZeroSMulDivisors ℤ (M.val.obj (op S.val))] (i : ℤ) :
@@ -933,23 +933,23 @@ theorem eval_freeCond'_iso_componentZero_natural :
           0 ≫
         (EvalFreeCond'Iso.componentZero BD N).inv :=
   by
-  dsimp only [eval_freeCond'_iso.component_zero, package.eval', functor.map_iso_trans,
-    iso.trans_inv, functor.map_iso_inv, iso_whisker_right_inv,
-    functor.map_homological_complex_map_f, functor.comp_map, functor.comp_obj, functor.flip_obj_map,
-    HomologicalComplex.functorEval, embed_f_0, data.eval_functor, data.eval_functor'_obj_X_map]
-  simp only [functor.map_biproduct, category.assoc]
-  simp only [biproduct.unique_up_to_iso_inv, functor.map_comp, condensedAbToCondensedSet_map,
-    condensedSetToCondensedAb_map, whisker_right_twice, category.assoc, whiskering_right_obj_map]
+  dsimp only [EvalFreeCond'Iso.componentZero, Package.eval', Functor.mapIso_trans,
+    Iso.trans_inv, Functor.mapIso_inv, CategoryTheory.isoWhiskerRight_inv,
+    Functor.mapHomologicalComplex_map_f, Functor.comp_map, Functor.comp_obj, Functor.flip_obj_map,
+    HomologicalComplex.functorEval, embed_f_0, Data.evalFunctor, Data.evalFunctor'_obj_x_map]
+  simp only [Functor.mapBiproduct, Category.assoc]
+  simp only [biproduct.uniqueUpToIso_inv, Functor.map_comp, condensedAbToCondensedSet_map,
+    condensedSetToCondensedAb_map, CategoryTheory.whiskerRight_twice, Category.assoc, CategoryTheory.whiskeringRight_obj_map]
   dsimp only [presheafToCondensedAb]
-  simp only [← functor.map_comp]; congr 1
-  ext t : 2; dsimp only [nat_trans.comp_app, whisker_right_app, functor.associator]
-  simp only [category.id_comp, category.comp_id]
-  simp only [← functor.map_comp]; congr 1
-  simp only [← nat_trans.comp_app]; congr 1
+  simp only [← Functor.map_comp]; congr 1
+  ext t : 2; dsimp only [NatTrans.comp_app, CategoryTheory.whiskerRight_app, Functor.associator]
+  simp only [Category.id_comp, Category.comp_id]
+  simp only [← Functor.map_comp]; congr 1
+  simp only [← NatTrans.comp_app]; congr 1
   apply biproduct.hom_ext'; intro j
-  simp only [category.assoc, biproduct.ι_desc_assoc, biproduct.ι_desc, biproduct.ι_map_assoc]
-  dsimp only [functor.map_bicone, condensedAbToPresheaf, ← Sheaf_to_presheaf_map]
-  simp only [← functor.map_comp]; congr 1
+  simp only [Category.assoc, biproduct.ι_desc_assoc, biproduct.ι_desc, biproduct.ι_map_assoc]
+  dsimp only [Functor.mapBicone, condensedAbToPresheaf, ← Sheaf_to_presheaf_map]
+  simp only [← Functor.map_comp]; congr 1
   erw [biproduct.ι_map]
 
 theorem eval_freeCond'_iso_componentNeg_natural (n : ℕ) :
@@ -959,23 +959,23 @@ theorem eval_freeCond'_iso_componentNeg_natural (n : ℕ) :
           -[n+1] ≫
         (EvalFreeCond'Iso.componentNeg BD N n).inv :=
   by
-  dsimp only [eval_freeCond'_iso.component_neg, package.eval', functor.map_iso_trans, iso.trans_inv,
-    functor.map_iso_inv, iso_whisker_right_inv, functor.map_homological_complex_map_f,
-    functor.comp_map, functor.comp_obj, functor.flip_obj_map, HomologicalComplex.functorEval,
-    embed_f_neg, data.eval_functor, data.eval_functor'_obj_X_map]
-  simp only [functor.map_biproduct, category.assoc]
-  simp only [biproduct.unique_up_to_iso_inv, functor.map_comp, condensedAbToCondensedSet_map,
-    condensedSetToCondensedAb_map, whisker_right_twice, category.assoc, whiskering_right_obj_map]
+  dsimp only [EvalFreeCond'Iso.componentNeg, Package.eval', Functor.mapIso_trans, Iso.trans_inv,
+    Functor.mapIso_inv, CategoryTheory.isoWhiskerRight_inv, Functor.mapHomologicalComplex_map_f,
+    Functor.comp_map, Functor.comp_obj, Functor.flip_obj_map, HomologicalComplex.functorEval,
+    embed_f_neg, Data.evalFunctor, Data.evalFunctor'_obj_x_map]
+  simp only [Functor.mapBiproduct, Category.assoc]
+  simp only [biproduct.uniqueUpToIso_inv, Functor.map_comp, condensedAbToCondensedSet_map,
+    condensedSetToCondensedAb_map, CategoryTheory.whiskerRight_twice, Category.assoc, CategoryTheory.whiskeringRight_obj_map]
   dsimp only [presheafToCondensedAb]
-  simp only [← functor.map_comp]; congr 1
-  ext t : 2; dsimp only [nat_trans.comp_app, whisker_right_app, functor.associator]
-  simp only [category.id_comp, category.comp_id]
-  simp only [← functor.map_comp]; congr 1
-  simp only [← nat_trans.comp_app]; congr 1
+  simp only [← Functor.map_comp]; congr 1
+  ext t : 2; dsimp only [NatTrans.comp_app, CategoryTheory.whiskerRight_app, Functor.associator]
+  simp only [Category.id_comp, Category.comp_id]
+  simp only [← Functor.map_comp]; congr 1
+  simp only [← NatTrans.comp_app]; congr 1
   apply biproduct.hom_ext'; intro j
-  simp only [category.assoc, biproduct.ι_desc_assoc, biproduct.ι_desc, biproduct.ι_map_assoc]
-  dsimp only [functor.map_bicone, condensedAbToPresheaf, ← Sheaf_to_presheaf_map]
-  simp only [← functor.map_comp]; congr 1
+  simp only [Category.assoc, biproduct.ι_desc_assoc, biproduct.ι_desc, biproduct.ι_map_assoc]
+  dsimp only [Functor.mapBicone, condensedAbToPresheaf, ← Sheaf_to_presheaf_map]
+  simp only [← Functor.map_comp]; congr 1
   erw [biproduct.ι_map]
 
 theorem evalFreeCond'IsoComponent_natural :
@@ -986,7 +986,7 @@ theorem evalFreeCond'IsoComponent_natural :
   by
   ext ((_ | n) | n) : 2
   · apply eval_freeCond'_iso_component_zero_natural
-  · apply is_zero.eq_of_tgt; exact is_zero_zero _
+  · apply IsZero.eq_of_tgt; exact is_zero_zero _
   · apply eval_freeCond'_iso_component_neg_natural
 
 end

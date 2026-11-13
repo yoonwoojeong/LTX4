@@ -1,6 +1,6 @@
 import Mathlib.CategoryTheory.Limits.Shapes.Kernels
 
-#align_import for_mathlib.kernel_comparison
+#align_import for_mathlib.kernelComparison
 
 open CategoryTheory
 

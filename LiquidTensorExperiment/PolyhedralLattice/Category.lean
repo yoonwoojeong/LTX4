@@ -74,8 +74,8 @@ def isoMk {Λ₁ Λ₂ : PolyhedralLatticeCat.{u}} (f : Λ₁ →+ Λ₂) (g : �
         calc
           ‖g l‖ ≤ ‖(f (g l))‖ := le_of_eq <| (hf _).symm
           _ = ‖l‖ := congr_arg norm <| congr_fun hgf l }
-  hom_inv_id' := by ext x; exact congr_fun hfg x
-  inv_hom_id' := by ext x; exact congr_fun hgf x
+  hom_inv_id := by ext x; exact congr_fun hfg x
+  inv_hom_id := by ext x; exact congr_fun hgf x
 
 end PolyhedralLatticeCat
 

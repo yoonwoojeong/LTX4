@@ -18,11 +18,11 @@ def presheafToSheafOfTypes : (Cᵒᵖ ⥤ Type max v u) ⥤ SheafOfTypes J
   obj P :=
     { val := J.sheafify P
       cond := by
-        rw [← is_sheaf_iff_is_sheaf_of_type]
-        exact grothendieck_topology.plus.is_sheaf_plus_plus J P }
+        rw [← CategoryTheory.isSheaf_iff_isSheaf_of_type]
+        exact GrothendieckTopology.Plus.isSheaf_plus_plus J P }
   map P Q η := ⟨J.sheafifyMap η⟩
-  map_id' P := SheafOfTypes.Hom.ext _ _ <| J.sheafifyMap_id _
-  map_comp' P Q R η γ := SheafOfTypes.Hom.ext _ _ <| J.sheafifyMap_comp _ _
+  map_id P := SheafOfTypes.Hom.ext _ _ <| J.sheafifyMap_id _
+  map_comp P Q R η γ := SheafOfTypes.Hom.ext _ _ <| J.sheafifyMap_comp _ _
 
 -- Sanity check
 def presheafToSheafOfTypesIso :
@@ -66,7 +66,7 @@ instance isIso_sheafification_types_adjunction_counit_app (X : SheafOfTypes J) :
   apply CategoryTheory.isIso_of_reflects_iso _ (Sheaf_equiv_SheafOfTypes J).inverse
   change
     is_iso
-      ((sheafification_adjunction J (Type max v u)).counit.app
+      ((CategoryTheory.sheafificationAdjunction J (Type max v u)).counit.app
         ((Sheaf_equiv_SheafOfTypes J).inverse.obj X))
   infer_instance
 

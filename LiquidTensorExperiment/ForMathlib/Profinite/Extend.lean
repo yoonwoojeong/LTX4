@@ -24,13 +24,13 @@ def changeCone {X Y : Profinite} (f : X ⟶ Y) (D : Cone (X.fintypeDiagram ⋙ F
     Cone (Y.fintypeDiagram ⋙ F) where
   pt := D.pt
   π :=
-    { app := fun S => D.π.app (S.comap f.Continuous) ≫ F.map (DiscreteQuotient.map <| le_refl _)
-      naturality' := by
+    { app := fun S => D.π.app (S.comap f.continuous) ≫ F.map (DiscreteQuotient.map <| le_refl _)
+      naturality := by
         rintro I J h
         dsimp
-        simp only [category.id_comp, category.assoc]
-        rw [← D.w (hom_of_le <| DiscreteQuotient.comap_mono _ <| le_of_hom h)]
-        simp only [category.assoc, ← F.map_comp, functor.comp_map]
+        simp only [Category.id_comp, Category.assoc]
+        rw [← D.w (hom_of_le <| DiscreteQuotient.comap_mono _ <| CategoryTheory.leOfHom h)]
+        simp only [Category.assoc, ← F.map_comp, Functor.comp_map]
         congr 2
         ext ⟨t⟩; rfl }
 
@@ -43,22 +43,22 @@ variable [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ F)]
 def extend : Profinite ⥤ C where
   obj X := limit (X.fintypeDiagram ⋙ F)
   map X Y f := limit.lift _ (changeCone _ f _)
-  map_id' := by
+  map_id := by
     intro X
     ext S
     dsimp
-    simp only [limit.lift_π, coe_id, change_cone_π_app, limit.cone_π, category.id_comp]
+    simp only [limit.lift_π, coe_id, change_cone_π_app, limit.cone_π, Category.id_comp]
     erw [DiscreteQuotient.map_id]
     change _ ≫ F.map (𝟙 _) = _
-    rw [F.map_id, category.comp_id]
+    rw [F.map_id, Category.comp_id]
     congr
     exact S.comap_id
-  map_comp' := by
+  map_comp := by
     intro X Y Z f g
     ext S
     dsimp
     simp only [limit.lift_π, change_cone_π_app, limit.cone_π, limit.lift_π_assoc, coe_comp,
-      category.assoc, ← F.map_comp]
+      Category.assoc, ← F.map_comp]
     congr
     exact DiscreteQuotient.map_comp _ _
 
@@ -71,10 +71,10 @@ def botInitial (X : FintypeCat) : IsInitial (⊥ : DiscreteQuotient (FintypeCat.
 @[simps]
 def extendExtends : FintypeCat.toProfinite ⋙ extend F ≅ F :=
   (NatIso.ofComponents fun X => by
-      dsimp only [extend, functor.comp_obj]
+      dsimp only [extend, Functor.comp_obj]
       let Y := Fintype.to_Profinite.obj X
-      let D := limit.is_limit (Y.fintype_diagram ⋙ F)
-      let E := limit_of_diagram_initial (bot_initial X) (Y.fintype_diagram ⋙ F)
+      let D := limit.isLimit (Y.fintype_diagram ⋙ F)
+      let E := CategoryTheory.Limits.limitOfDiagramInitial (Profinite.botInitial X) (Y.fintype_diagram ⋙ F)
       letI : TopologicalSpace X := ⊥
       let e : FintypeCat.of (⊥ : DiscreteQuotient X) ≅ X :=
         FintypeCat.isoOfEquiv (Equiv.ofBijective _ DiscreteQuotient.proj_bot_bijective).symm
@@ -87,15 +87,15 @@ def extendExtends : FintypeCat.toProfinite ⋙ extend F ≅ F :=
     have hf : Continuous f := continuous_bot
     let A := Fintype.to_Profinite.obj X
     let B := Fintype.to_Profinite.obj Y
-    dsimp [is_limit.cone_point_unique_up_to_iso, limit_of_diagram_initial]
-    simp only [change_cone_π_app, limit.cone_π, limit.lift_π_assoc, category.assoc]
+    dsimp [IsLimit.conePointUniqueUpToIso, CategoryTheory.Limits.limitOfDiagramInitial]
+    simp only [change_cone_π_app, limit.cone_π, limit.lift_π_assoc, Category.assoc]
     let e : (⊥ : DiscreteQuotient X) ⟶ (⊥ : DiscreteQuotient Y).comap hf := hom_of_le bot_le
     erw [← limit.w (A.fintype_diagram ⋙ F) e]
-    simp only [category.assoc, ← F.map_comp, functor.comp_map]
+    simp only [Category.assoc, ← F.map_comp, Functor.comp_map]
     congr 2
-    simp_rw [← iso.inv_comp_eq, ← category.assoc]
+    simp_rw [← Iso.inv_comp_eq, ← Category.assoc]
     symm
-    rw [← iso.comp_inv_eq]
+    rw [← Iso.comp_inv_eq]
     rfl
 
 /-
@@ -124,18 +124,18 @@ def extendUnique (G : Profinite ⥤ C) [∀ X : Profinite, PreservesLimit X.diag
       let E := G.mapCone D
       let hE : IsLimit E := PreservesLimit.preserves hD
       let f : X.diagram ⋙ G ≅ X.fintypeDiagram ⋙ F := isoWhiskerLeft _ w
-      let E' : Cone (X.fintypeDiagram ⋙ F) := (Cones.postcompose f.Hom).obj E
+      let E' : Cone (X.fintypeDiagram ⋙ F) := (Cones.postcompose f.hom).obj E
       let hE' : IsLimit E' := (IsLimit.postcomposeHomEquiv f _).symm hE
       hE'.conePointUniqueUpToIso (limit.isLimit _)) <|
     by
     intro A B f
-    dsimp [is_limit.postcompose_hom_equiv, is_limit.of_cone_equiv,
-      is_limit.cone_point_unique_up_to_iso]
+    dsimp [IsLimit.postcomposeHomEquiv, IsLimit.ofConeEquiv,
+      IsLimit.conePointUniqueUpToIso]
     ext S
-    simp only [← nat_trans.naturality w.hom, limit.lift_π, cones.postcompose_obj_π,
-      functor.comp_map, functor.map_cone_π_app, change_cone_π_app, limit.cone_π, limit.lift_π_assoc,
-      whisker_left_app, nat_trans.comp_app, category.assoc]
-    simp only [← category.assoc, ← G.map_comp]
+    simp only [← NatTrans.naturality w.hom, limit.lift_π, Cones.postcompose_obj_π,
+      Functor.comp_map, Functor.mapCone_π_app, change_cone_π_app, limit.cone_π, limit.lift_π_assoc,
+      CategoryTheory.whiskerLeft_app, NatTrans.comp_app, Category.assoc]
+    simp only [← Category.assoc, ← G.map_comp]
     rfl
 
 @[simps]
@@ -147,7 +147,7 @@ def extendCommutes (G : C ⥤ D) [∀ X : Profinite.{v}, PreservesLimitsOfShape 
     intro X Y f
     ext
     dsimp
-    simp only [category.assoc, limit.lift_π, change_cone_π_app, limit.cone_π, functor.comp_map]
+    simp only [Category.assoc, limit.lift_π, change_cone_π_app, limit.cone_π, Functor.comp_map]
     erw [limit.lift_π, limit.lift_π_assoc]
     dsimp
     rw [← G.map_comp, limit.lift_π, ← G.map_comp]
@@ -157,25 +157,25 @@ def extendCommutes (G : C ⥤ D) [∀ X : Profinite.{v}, PreservesLimitsOfShape 
 theorem extendCommutes_comp_extendExtends (G : C ⥤ D)
     [∀ X : Profinite.{v}, PreservesLimitsOfShape (DiscreteQuotient X) G]
     [∀ X : Profinite.{v}, HasLimit (X.fintypeDiagram ⋙ F ⋙ G)] :
-    whiskerLeft FintypeCat.toProfinite (extendCommutes F G).Hom ≫ (extendExtends _).Hom =
-      (Functor.associator _ _ _).inv ≫ whiskerRight (extendExtends _).Hom G :=
+    whiskerLeft FintypeCat.toProfinite (extendCommutes F G).hom ≫ (extendExtends _).hom =
+      (Functor.associator _ _ _).inv ≫ whiskerRight (extendExtends _).hom G :=
   by
   ext
-  simp only [nat_trans.comp_app, whisker_left_app, extend_extends_hom_app, functor.comp_map,
-    functor.associator_inv_app, whisker_right_app, functor.map_comp, category.id_comp,
-    extend_commutes_hom_app]
-  rw [← category.assoc]; congr 1
-  rw [← iso.eq_comp_inv]
+  simp only [NatTrans.comp_app, CategoryTheory.whiskerLeft_app, Profinite.extendExtends_hom_app, Functor.comp_map,
+    Functor.associator_inv_app, CategoryTheory.whiskerRight_app, Functor.map_comp, Category.id_comp,
+    Profinite.extendCommutes_hom_app]
+  rw [← Category.assoc]; congr 1
+  rw [← Iso.eq_comp_inv]
   ext
-  simp only [is_limit.cone_point_unique_up_to_iso, category.assoc, functor.map_iso_hom,
-    is_limit.unique_up_to_iso_hom, cones.forget_map, is_limit.lift_cone_morphism_hom,
-    limit.is_limit_lift]
+  simp only [IsLimit.conePointUniqueUpToIso, Category.assoc, Functor.mapIso_hom,
+    IsLimit.uniqueUpToIso_hom, Cones.forget_map, IsLimit.liftConeMorphism_hom,
+    limit.isLimit_lift]
   erw [limit.lift_π, limit.lift_π]
-  simp only [functor.map_cone_π_app, limit.cone_π, functor.map_iso_inv, cones.forget_map,
-    is_limit.unique_up_to_iso_inv, is_limit.lift_cone_morphism_hom, limit.is_limit_lift,
-    cone_of_diagram_initial_π_app, functor.comp_map, limit_of_diagram_initial]
-  rw [← functor.map_comp]; congr 1; symm
-  exact limit.w _ ((bot_initial x).to j)
+  simp only [Functor.mapCone_π_app, limit.cone_π, Functor.mapIso_inv, Cones.forget_map,
+    IsLimit.uniqueUpToIso_inv, IsLimit.liftConeMorphism_hom, limit.isLimit_lift,
+    cone_of_diagram_initial_π_app, Functor.comp_map, CategoryTheory.Limits.limitOfDiagramInitial]
+  rw [← Functor.map_comp]; congr 1; symm
+  exact limit.w _ ((Profinite.botInitial x).to j)
 
 /-- A natural transformation induces a natural transformation on extensions. -/
 @[simps]
@@ -206,12 +206,12 @@ theorem extend_π (F G : FintypeCat ⥤ C) [∀ X : Profinite, HasLimit (X.finty
     (T : DiscreteQuotient X) :
     α.app X ≫ limit.π _ T =
       (extend F).map (X.asLimitCone.π.app T) ≫
-        α.app (Profinite.of T) ≫ (extendExtends G).Hom.app _ :=
+        α.app (Profinite.of T) ≫ (extendExtends G).hom.app _ :=
   by
-  have : (extend_extends G).Hom.app (X.fintype_diagram.obj T) = limit.π _ ⊥ ≫ _ := rfl
+  have : (extend_extends G).hom.app (X.fintype_diagram.obj T) = limit.π _ ⊥ ≫ _ := rfl
   erw [this, α.naturality_assoc]; congr 1
   dsimp [extend]
-  simp only [limit.lift_π_assoc, change_cone_π_app, limit.cone_π, category.assoc, ← G.map_comp]
+  simp only [limit.lift_π_assoc, change_cone_π_app, limit.cone_π, Category.assoc, ← G.map_comp]
   convert (limit.w _ _).symm
   swap
   · apply hom_of_le; intro x y h; dsimp [DiscreteQuotient.comap] at h 
@@ -241,17 +241,17 @@ theorem extendNatTrans_whiskerLeft {F G : FintypeCat ⥤ C}
     [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ F)]
     [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ G)] (α : F ⟶ G) :
     whiskerLeft FintypeCat.toProfinite (extendNatTrans α) =
-      (extendExtends F).Hom ≫ α ≫ (extendExtends G).inv :=
+      (extendExtends F).hom ≫ α ≫ (extendExtends G).inv :=
   by
   ext S
-  simp only [lim_map, is_limit.map, whisker_left_app, extend_nat_trans_app, limit.is_limit_lift,
-    limit.lift_π, cones.postcompose_obj_π, nat_trans.comp_app, limit.cone_π, extend_extends_hom_app,
-    extend_extends_inv_app, category.assoc, nat_trans.naturality_assoc, ← G.map_iso_hom, ←
-    G.map_iso_inv, iso.hom_inv_id_assoc]
-  rw [← iso.inv_comp_eq]
-  erw [limit.cone_point_unique_up_to_iso_inv_comp, limit.cone_point_unique_up_to_iso_inv_comp_assoc]
-  simp only [cone_of_diagram_initial_π_app, functor.comp_map]
-  erw [nat_trans.naturality]
+  simp only [lim_map, IsLimit.map, CategoryTheory.whiskerLeft_app, Profinite.extendNatTrans_app, limit.isLimit_lift,
+    limit.lift_π, Cones.postcompose_obj_π, NatTrans.comp_app, limit.cone_π, Profinite.extendExtends_hom_app,
+    Profinite.extendExtends_inv_app, Category.assoc, NatTrans.naturality_assoc, ← G.map_iso_hom, ←
+    G.map_iso_inv, Iso.hom_inv_id_assoc]
+  rw [← Iso.inv_comp_eq]
+  erw [limit.conePointUniqueUpToIso_inv_comp, limit.conePointUniqueUpToIso_inv_comp_assoc]
+  simp only [cone_of_diagram_initial_π_app, Functor.comp_map]
+  erw [NatTrans.naturality]
 
 theorem extendNatTrans_whiskerRight {F G : FintypeCat ⥤ C}
     [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ F)]
@@ -260,20 +260,20 @@ theorem extendNatTrans_whiskerRight {F G : FintypeCat ⥤ C}
     [∀ X : Profinite.{v}, HasLimit (X.fintypeDiagram ⋙ F ⋙ E)]
     [∀ X : Profinite.{v}, HasLimit (X.fintypeDiagram ⋙ G ⋙ E)] :
     extendNatTrans (whiskerRight α E) =
-      (extendCommutes _ _).inv ≫ whiskerRight (extendNatTrans α) E ≫ (extendCommutes _ _).Hom :=
+      (extendCommutes _ _).inv ≫ whiskerRight (extendNatTrans α) E ≫ (extendCommutes _ _).hom :=
   by
   apply extend_nat_trans_ext
-  simp only [extend_nat_trans_whisker_left, ← whisker_right_left, category.assoc, whisker_left_comp,
+  simp only [Profinite.extendNatTrans_whiskerLeft, ← CategoryTheory.whiskerRight_left, Category.assoc, whisker_left_comp,
     whisker_right_comp]
-  rw [← iso_whisker_left_inv, iso.eq_inv_comp, iso_whisker_left_hom,
-    extend_commutes_comp_extend_extends_assoc]
-  simp only [← category.assoc, iso.comp_inv_eq]
-  simp only [category.assoc, extend_commutes_comp_extend_extends]
+  rw [← CategoryTheory.isoWhiskerLeft_inv, Iso.eq_inv_comp, CategoryTheory.isoWhiskerLeft_hom,
+    Profinite.extendCommutes_comp_extendExtends_assoc]
+  simp only [← Category.assoc, Iso.comp_inv_eq]
+  simp only [Category.assoc, Profinite.extendCommutes_comp_extendExtends]
   ext
-  simp only [nat_trans.comp_app, functor.associator_hom_app, functor.associator_inv_app]
-  erw [category.id_comp, category.id_comp]
-  simp only [← nat_trans.comp_app, ← iso_whisker_right_hom, ← iso_whisker_right_inv, iso.inv_hom_id]
-  erw [category.comp_id]
+  simp only [NatTrans.comp_app, Functor.associator_hom_app, Functor.associator_inv_app]
+  erw [Category.id_comp, Category.id_comp]
+  simp only [← NatTrans.comp_app, ← CategoryTheory.isoWhiskerRight_hom, ← CategoryTheory.isoWhiskerRight_inv, Iso.inv_hom_id]
+  erw [Category.comp_id]
 
 end Profinite
 

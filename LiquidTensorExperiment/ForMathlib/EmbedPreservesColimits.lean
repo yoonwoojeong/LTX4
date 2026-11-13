@@ -27,22 +27,22 @@ instance : PreservesColimitsOfShape J (HomologicalComplex.embed e : HomologicalC
       intro i₂
       haveI := this i₂
       change is_colimit ((HomologicalComplex.embed e ⋙ HomologicalComplex.eval C c₂ i₂).mapCocone s)
-      apply is_colimit_of_preserves
+      apply CategoryTheory.Limits.isColimitOfPreserves
       exact hs
     intro i₂
     by_cases hi₂ : ∃ i₁ : ι₁, i₂ = e.f i₁
     · let i₁ := hi₂.some
-      have hi₂' : i₂ = e.f i₁ := hi₂.some_spec
+      have hi₂' : i₂ = e.f i₁ := hi₂.choose_spec
       have α :=
-        iso_whisker_left _ (HomologicalComplex.congrEval _ _ _ _ hi₂') ≪≫
+        CategoryTheory.isoWhiskerLeft _ (HomologicalComplex.congrEval _ _ _ _ hi₂') ≪≫
           HomologicalComplex.embedCompEval C e i₁
-      exact preserves_colimit_of_nat_iso _ α.symm
+      exact CategoryTheory.Limits.preservesColimitOfNatIso _ α.symm
     · have α : HomologicalComplex.embed e ⋙ HomologicalComplex.eval C c₂ i₂ ≅ 0 :=
         by
-        refine' is_zero.iso _ (is_zero_zero _)
-        rw [is_zero.iff_id_eq_zero]
+        refine' IsZero.iso _ (is_zero_zero _)
+        rw [IsZero.iff_id_eq_zero]
         ext X
-        simp only [nat_trans.id_app, nat_trans.app_zero, ← is_zero.iff_id_eq_zero]
+        simp only [NatTrans.id_app, NatTrans.app_zero, ← IsZero.iff_id_eq_zero]
         dsimp [HomologicalComplex.embed, HomologicalComplex.Embed.obj]
         rw [e.r_none i₂ hi₂]
         apply is_zero_zero
@@ -53,10 +53,10 @@ instance : PreservesColimitsOfShape J (HomologicalComplex.embed e : HomologicalC
         exact
           { desc := fun s => 0
             fac := fun s j => by
-              apply is_zero.eq_of_src
-              exact (functor.is_zero_iff 0).mp (is_zero_zero _) _
+              apply IsZero.eq_of_src
+              exact (Functor.isZero_iff 0).mp (is_zero_zero _) _
             uniq := fun s m hm => by
-              apply is_zero.eq_of_src
-              exact (functor.is_zero_iff 0).mp (is_zero_zero _) _ }
-      exact preserves_colimit_of_nat_iso _ α.symm⟩
+              apply IsZero.eq_of_src
+              exact (Functor.isZero_iff 0).mp (is_zero_zero _) _ }
+      exact CategoryTheory.Limits.preservesColimitOfNatIso _ α.symm⟩
 

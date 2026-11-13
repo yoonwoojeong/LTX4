@@ -21,17 +21,17 @@ noncomputable def limitFlipCompLimIsoLimitCompLim' {J : Type _} [Category J] [Ha
             limit.lift (F.obj j)
               ⟨limit (F.flip ⋙ lim),
                 { app := fun k => limit.π _ k ≫ limit.π _ j
-                  naturality' := by
+                  naturality := by
                     intro k1 k2 f
-                    dsimp; simp only [category.id_comp, category.assoc]
+                    dsimp; simp only [Category.id_comp, Category.assoc]
                     rw [← limit.w _ f]
                     simp }⟩
-          naturality' := by
+          naturality := by
             intro j1 j2 f
             ext
             dsimp
-            simp only [category.id_comp, category.assoc, limit.lift_π, limit.lift_map,
-              cones.postcompose_obj_π, nat_trans.comp_app]
+            simp only [Category.id_comp, Category.assoc, limit.lift_π, limit.lift_map,
+              Cones.postcompose_obj_π, NatTrans.comp_app]
             rw [← limit.w _ f]
             rfl }⟩
   inv :=
@@ -41,21 +41,21 @@ noncomputable def limitFlipCompLimIsoLimitCompLim' {J : Type _} [Category J] [Ha
             limit.lift (F.flip.obj k)
               ⟨limit (F ⋙ lim),
                 { app := fun j => limit.π _ j ≫ limit.π _ k
-                  naturality' := by
+                  naturality := by
                     intro j1 j2 f
-                    dsimp; simp only [category.id_comp, category.assoc]
+                    dsimp; simp only [Category.id_comp, Category.assoc]
                     rw [← limit.w _ f]
                     simp }⟩
-          naturality' := by
+          naturality := by
             intro k1 k2 f
             ext
             dsimp
-            simp only [category.id_comp, category.assoc, limit.lift_π, limit.lift_map,
-              cones.postcompose_obj_π, nat_trans.comp_app]
+            simp only [Category.id_comp, Category.assoc, limit.lift_π, limit.lift_map,
+              Cones.postcompose_obj_π, NatTrans.comp_app]
             rw [← limit.w _ f]
             rfl }⟩
-  hom_inv_id' := by ext; dsimp; simp
-  inv_hom_id' := by ext; dsimp; simp
+  hom_inv_id := by ext; dsimp; simp
+  inv_hom_id := by ext; dsimp; simp
 
 @[simp, reassoc]
 theorem limitFlipCompLimIsoLimitCompLim'_hom_π_π {J : Type _} [Category J] [HasLimitsOfShape J C]

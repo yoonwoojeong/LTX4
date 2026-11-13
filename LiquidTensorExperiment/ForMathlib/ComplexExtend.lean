@@ -93,7 +93,7 @@ def natDownIntUp : Embedding (ComplexShape.down ℕ) (ComplexShape.up ℤ)
     any_goals constructor <;> · rintro ⟨rfl⟩; rfl
   c := by
     rintro i j (rfl : _ = _)
-    simp only [Pi.neg_apply, Int.ofNat_succ, neg_add_rev, up_rel, neg_add_cancel_comm]
+    simp only [Pi.neg_apply, Int.ofNat_succ, neg_add_rev, ComplexShape.up_Rel, neg_add_cancel_comm]
 
 theorem natDownIntUp_cIff : natDownIntUp.CIff :=
   by
@@ -102,7 +102,7 @@ theorem natDownIntUp_cIff : natDownIntUp.CIff :=
   · apply nat_down_int_up.c
   · intro hij
     change j + 1 = i
-    dsimp [nat_down_int_up] at hij 
+    dsimp [ComplexShape.Embedding.natDownIntUp] at hij 
     rw [← Int.ofNat_inj]
     simp only [Int.ofNat_succ]
     linarith
@@ -120,7 +120,7 @@ def natUpIntDown : Embedding (ComplexShape.up ℕ) (ComplexShape.down ℤ)
     any_goals constructor <;> · rintro ⟨rfl⟩; rfl
   c := by
     rintro i j (rfl : _ = _)
-    simp only [Pi.neg_apply, Int.ofNat_succ, neg_add_rev, down_rel, neg_add_cancel_comm]
+    simp only [Pi.neg_apply, Int.ofNat_succ, neg_add_rev, ComplexShape.down_Rel, neg_add_cancel_comm]
 
 end Embedding
 
@@ -183,7 +183,7 @@ def Embed.d_of_none_tgt {e₁ e₂ : Option ι} (he : e₂ = none) : Embed.d X e
   cases e₁ <;> rfl
 
 def Embed.d_of_some_of_some {e₁ e₂ : Option ι} {i j} (h₁ : e₁ = some i) (h₂ : e₂ = some j) :
-    Embed.d X e₁ e₂ = (Embed.xIsoOfSome X h₁).Hom ≫ X.d i j ≫ (Embed.xIsoOfSome X h₂).inv := by
+    Embed.d X e₁ e₂ = (Embed.xIsoOfSome X h₁).hom ≫ X.d i j ≫ (Embed.xIsoOfSome X h₂).inv := by
   subst h₁; subst h₂; change _ = 𝟙 _ ≫ _ ≫ 𝟙 _; simpa
 
 @[simp]
@@ -196,11 +196,11 @@ theorem Embed.d_ne_zero (e₁ e₂ : Option ι) (h : Embed.d X e₁ e₂ ≠ 0) 
   rcases h₁ : e₁ with (_ | ⟨i⟩)
   · exfalso
     apply h
-    exact embed.d_of_none_src X h₁
+    exact Embed.d_of_none_src X h₁
   · rcases h₂ : e₂ with (_ | ⟨j⟩)
     · exfalso
       apply h
-      exact embed.d_of_none_tgt X h₂
+      exact Embed.d_of_none_tgt X h₂
     · substs h₁ h₂
       refine' ⟨i, j, rfl, rfl, h⟩
 
@@ -294,7 +294,7 @@ theorem Embed.f_comp : ∀ i, Embed.f (f ≫ g) i = Embed.f f i ≫ Embed.f g i
   | none => HasZeroObject.from_zero_ext _ _
 
 theorem Embed.f_of_some {e : Option ι} {i} (he : e = some i) :
-    Embed.f f e = (Embed.xIsoOfSome _ he).Hom ≫ f.f i ≫ (Embed.xIsoOfSome _ he).inv := by subst he;
+    Embed.f f e = (Embed.xIsoOfSome _ he).hom ≫ f.f i ≫ (Embed.xIsoOfSome _ he).inv := by subst he;
   change _ = 𝟙 _ ≫ _ ≫ 𝟙 _; simp
 
 /-- Functor pushing forward, for a fixed abelian category `𝒞`, the category
@@ -304,16 +304,16 @@ def embed : HomologicalComplex 𝒞 cι ⥤ HomologicalComplex 𝒞 cι'
     where
   obj := Embed.obj e
   map X Y f := Embed.map e f
-  map_id' X := by ext i; exact embed.f_id _
-  map_comp' := by intros; ext i; exact embed.f_comp f g _
+  map_id X := by ext i; exact Embed.f_id _
+  map_comp := by intros; ext i; exact Embed.f_comp f g _
 
 instance embed_additive : (embed e : HomologicalComplex 𝒞 cι ⥤ HomologicalComplex 𝒞 cι').Additive
-    where map_add' X Y f g := by ext; exact embed.f_add _
+    where map_add' X Y f g := by ext; exact Embed.f_add _
 
 def embedIso (i : ι) : ((embed e).obj X).pt (e.f i) ≅ X.pt i :=
   eqToIso
     (by
-      delta embed embed.obj
+      delta embed Embed.obj
       dsimp
       rw [e.r_f]
       rfl)
@@ -321,18 +321,18 @@ def embedIso (i : ι) : ((embed e).obj X).pt (e.f i) ≅ X.pt i :=
 theorem embed_eval_isZero_of_none (i' : ι') (hi' : e.R i' = none) :
     IsZero (embed e ⋙ HomologicalComplex.eval 𝒞 _ i') :=
   by
-  rw [functor.is_zero_iff]
+  rw [Functor.isZero_iff]
   intro X
-  exact is_zero.of_iso (limits.is_zero_zero _) (embed.X_iso_of_none X hi')
+  exact IsZero.of_iso (Limits.isZero_zero _) (Embed.xIsoOfNone X hi')
 
 @[simps]
 def embedEvalIsoOfSome (i' : ι') (i : ι) (hi' : e.R i' = some i) :
     embed e ⋙ HomologicalComplex.eval 𝒞 cι' i' ≅ HomologicalComplex.eval 𝒞 cι i :=
   NatIso.ofComponents (fun X => Embed.xIsoOfSome X hi') fun X₁ X₂ f =>
     by
-    dsimp [embed, embed.map]
-    rw [embed.f_of_some f hi']
-    simp only [category.assoc, iso.inv_hom_id, category.comp_id]
+    dsimp [embed, Embed.map]
+    rw [Embed.f_of_some f hi']
+    simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id]
 
 @[simp]
 theorem embed_nat_obj_down_up_succ (C : ChainComplex 𝒞 ℕ) (i : ℕ) :
@@ -375,12 +375,12 @@ variable (f f' : X ⟶ Y) (h : Homotopy f f')
 /-- The morphism `hᵢⱼ: Xᵢ ⟶ Yⱼ` coming from a homotopy between two morphisms of type `X ⟶ Y`.
   Here `X` and `Y` are complexes of shape `ι` and the indices `i j` run over `option ι`. -/
 def embedHomotopyHom : ∀ i j : Option ι, Embed.x X i ⟶ Embed.x Y j
-  | some i, some j => h.Hom i j
+  | some i, some j => h.hom i j
   | some i, none => 0
   | none, j => 0
 
 @[simp]
-theorem embedHomotopyHom_some (i j : ι) : embedHomotopyHom f f' h (some i) (some j) = h.Hom i j :=
+theorem embedHomotopyHom_some (i j : ι) : embedHomotopyHom f f' h (some i) (some j) = h.hom i j :=
   rfl
 
 @[simp]
@@ -410,7 +410,7 @@ def embedHomotopy (e : cι.Embedding cι') : Homotopy ((embed e).map f) ((embed 
   comm i' := by
     by_cases hi : ∃ i : ι, i' = e.f i
     · rcases hi with ⟨i, rfl⟩
-      delta embed embed.map embed.obj embed.X embed.d embed.f embed_homotopy_hom dNext prevD id
+      delta embed Embed.map Embed.obj Embed.x Embed.d Embed.f HomologicalComplex.embedHomotopyHom dNext prevD id
       dsimp only [AddMonoidHom.mk'_apply]
       rw [e.r_f i]
       dsimp only
@@ -431,9 +431,9 @@ def embedHomotopy (e : cι.Embedding cι') : Homotopy ((embed e).map f) ((embed 
           induction' x : e.r (cι'.prev (e.f i)) with <;> simp only [Y.shape _ _ (aux _), comp_zero]
     · -- i' not in image
       have foo := e.r_none _ hi
-      suffices Subsingleton (embed.X X (e.r i') ⟶ embed.X Y (e.r i')) by
+      suffices Subsingleton (Embed.x X (e.r i') ⟶ Embed.x Y (e.r i')) by
         refine' @Subsingleton.elim _ this _ _
-      convert homological_complex.embed.subsingleton_of_none X _
+      convert HomologicalComplex.Embed.subsingleton_of_none X _
 
 end Homotopy
 
@@ -456,9 +456,9 @@ def embedCompEval (𝓐 : Type _) [Category 𝓐] [Preadditive 𝓐] [HasZeroObj
     embed e ⋙ eval 𝓐 c₂ (e.f i₁) ≅ eval 𝓐 c₁ i₁ :=
   NatIso.ofComponents (fun X => Embed.xIsoOfSome X (e.r_f i₁)) fun X Y f =>
     by
-    dsimp [embed, embed.map]
-    rw [embed.f_of_some f (e.r_f i₁)]
-    simp only [category.assoc, iso.inv_hom_id, category.comp_id]
+    dsimp [embed, Embed.map]
+    rw [Embed.f_of_some f (e.r_f i₁)]
+    simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id]
 
 /-
 def embed_comp_prev_functor (𝓐 : Type*) [category 𝓐] [abelian 𝓐]
@@ -656,7 +656,7 @@ def embedShortComplexπ₁ι :
       ShortComplex.functorHomologicalComplex 𝓐 c₁ i₁ ⋙ ShortComplex.π₁ :=
   by
   by_cases e.r (c₂.prev i₂) = some (c₁.prev i₁)
-  · exact (embed_eval_iso_of_some e _ _ h).Hom
+  · exact (HomologicalComplex.embedEvalIsoOfSome e _ _ h).hom
   · exact 0
 
 @[simp]
@@ -671,38 +671,38 @@ def embedShortComplexπ₃ι :
       ShortComplex.functorHomologicalComplex 𝓐 c₁ i₁ ⋙ ShortComplex.π₃ :=
   by
   by_cases e.r (c₂.next i₂) = some (c₁.next i₁)
-  · exact (embed_eval_iso_of_some e _ _ h).Hom
+  · exact (HomologicalComplex.embedEvalIsoOfSome e _ _ h).hom
   · exact 0
 
 -- @[simps]
 def embedShortComplexι (h₁₂ : e.f i₁ = i₂) :
     embed e ⋙ ShortComplex.functorHomologicalComplex 𝓐 c₂ i₂ ⟶
       ShortComplex.functorHomologicalComplex 𝓐 c₁ i₁ :=
-  ShortComplex.natTransHomMk (embedShortComplexπ₁ι 𝓐 e _ _) (embedShortComplexπ₂Iso 𝓐 e _ _ h₁₂).Hom
+  ShortComplex.natTransHomMk (embedShortComplexπ₁ι 𝓐 e _ _) (embedShortComplexπ₂Iso 𝓐 e _ _ h₁₂).hom
     (embedShortComplexπ₃ι 𝓐 e _ _)
     (by
       ext X
       subst h₁₂
       show
         (((embed e).obj X).dTo (e.f i₁) ≫ 𝟙 (((embed e).obj X).pt (e.f i₁))) ≫
-            (embed.X_iso_of_some X _).Hom =
+            (Embed.xIsoOfSome X _).hom =
           (embed_short_complex_π₁_ι 𝓐 e i₁ (e.f i₁)).app X ≫ X.d_to i₁ ≫ 𝟙 (X.X i₁)
-      simp only [embed_short_complex_π₁_ι, category.comp_id]
+      simp only [embed_short_complex_π₁_ι, Category.comp_id]
       split_ifs with h
       · show
-          embed.d X (e.r (c₂.prev (e.f i₁))) (e.r (e.f i₁)) ≫ (embed.X_iso_of_some X _).Hom =
-            (embed.X_iso_of_some X h).Hom ≫ X.d (c₁.prev i₁) i₁
-        simp only [embed.d_of_some_of_some X h (e.r_f i₁), category.assoc, iso.inv_hom_id,
-          category.comp_id]
+          Embed.d X (e.r (c₂.prev (e.f i₁))) (e.r (e.f i₁)) ≫ (Embed.xIsoOfSome X _).hom =
+            (Embed.xIsoOfSome X h).hom ≫ X.d (c₁.prev i₁) i₁
+        simp only [Embed.d_of_some_of_some X h (e.r_f i₁), Category.assoc, Iso.inv_hom_id,
+          Category.comp_id]
       · suffices ((embed e).obj X).dTo (e.f i₁) = 0 by
-          simp only [this, nat_trans.app_zero, zero_comp]
+          simp only [this, NatTrans.app_zero, zero_comp]
         rcases h₂ : e.r (c₂.prev (e.f i₁)) with (_ | j)
-        · apply is_zero.eq_of_src
-          apply embed.X_is_zero_of_none
+        · apply IsZero.eq_of_src
+          apply Embed.x_isZero_of_none
           exact h₂
-        · show embed.d X (e.r (c₂.prev (e.f i₁))) (e.r (e.f i₁)) = 0
+        · show Embed.d X (e.r (c₂.prev (e.f i₁))) (e.r (e.f i₁)) = 0
           by_contra h'
-          rcases embed.d_ne_zero _ _ _ h' with ⟨i, k, h₃, h₄, h₅⟩
+          rcases Embed.d_ne_zero _ _ _ h' with ⟨i, k, h₃, h₄, h₅⟩
           rw [e.r_f] at h₄ 
           rw [h₂] at h₃ 
           simp only at h₄ h₃ 
@@ -716,18 +716,18 @@ def embedShortComplexι (h₁₂ : e.f i₁ = i₂) :
       ext X
       show
         (((embed e).obj X).dFrom i₂ ≫ 𝟙 (((embed e).obj X).xNext i₂)) ≫ _ =
-          (embed.X_iso_of_some X _).Hom ≫ X.d_from i₁ ≫ 𝟙 (X.X_next i₁)
+          (Embed.xIsoOfSome X _).hom ≫ X.d_from i₁ ≫ 𝟙 (X.X_next i₁)
       dsimp only [embed_short_complex_π₃_ι]
       subst h₁₂
       split_ifs with h
-      · simp only [category.comp_id]
+      · simp only [Category.comp_id]
         show
-          embed.d X (e.r (e.f i₁)) (e.r (c₂.next (e.f i₁))) ≫ (embed.X_iso_of_some X h).Hom =
-            (embed.X_iso_of_some X _).Hom ≫ X.d_from i₁
-        simp only [embed.d_of_some_of_some X (e.r_f i₁) h, category.assoc, iso.inv_hom_id,
-          category.comp_id]
-      · suffices X.d i₁ (c₁.next i₁) = 0 by delta d_from;
-          simp only [this, zero_comp, comp_zero, nat_trans.app_zero]
+          Embed.d X (e.r (e.f i₁)) (e.r (c₂.next (e.f i₁))) ≫ (Embed.xIsoOfSome X h).hom =
+            (Embed.xIsoOfSome X _).hom ≫ X.d_from i₁
+        simp only [Embed.d_of_some_of_some X (e.r_f i₁) h, Category.assoc, Iso.inv_hom_id,
+          Category.comp_id]
+      · suffices X.d i₁ (c₁.next i₁) = 0 by delta HomologicalComplex.dFrom;
+          simp only [this, zero_comp, comp_zero, NatTrans.app_zero]
         apply X.shape
         rw [e.eq_some] at h 
         contrapose! h
@@ -739,7 +739,7 @@ def embedShortComplexπ₁π :
       embed e ⋙ ShortComplex.functorHomologicalComplex 𝓐 c₂ i₂ ⋙ ShortComplex.π₁ :=
   by
   by_cases e.r (c₂.prev i₂) = some (c₁.prev i₁)
-  · exact (embed_eval_iso_of_some e _ _ h).inv
+  · exact (HomologicalComplex.embedEvalIsoOfSome e _ _ h).inv
   · exact 0
 
 @[simp]
@@ -748,7 +748,7 @@ def embedShortComplexπ₃π :
       embed e ⋙ ShortComplex.functorHomologicalComplex 𝓐 c₂ i₂ ⋙ ShortComplex.π₃ :=
   by
   by_cases e.r (c₂.next i₂) = some (c₁.next i₁)
-  · exact (embed_eval_iso_of_some e _ _ h).inv
+  · exact (HomologicalComplex.embedEvalIsoOfSome e _ _ h).inv
   · exact 0
 
 @[simps]
@@ -760,18 +760,18 @@ def embedShortComplexπ (h₁₂ : e.f i₁ = i₂) :
     (by
       ext X
       show
-        (X.d_to i₁ ≫ 𝟙 (X.X i₁)) ≫ (embed.X_iso_of_some X _).inv =
+        (X.d_to i₁ ≫ 𝟙 (X.X i₁)) ≫ (Embed.xIsoOfSome X _).inv =
           _ ≫ ((embed e).obj X).dTo i₂ ≫ 𝟙 (((embed e).obj X).pt i₂)
       dsimp only [embed_short_complex_π₁_π]
       subst h₁₂
       split_ifs with h
-      · simp only [category.comp_id]
+      · simp only [Category.comp_id]
         show
-          X.d (c₁.prev i₁) i₁ ≫ (embed.X_iso_of_some X _).inv =
-            (embed.X_iso_of_some X h).inv ≫ embed.d X (e.r (c₂.prev (e.f i₁))) (e.r (e.f i₁))
-        simp only [embed.d_of_some_of_some X h (e.r_f i₁), category.assoc, iso.inv_hom_id_assoc]
-      · suffices X.d (c₁.prev i₁) i₁ = 0 by delta d_to;
-          simp only [this, zero_comp, nat_trans.app_zero]
+          X.d (c₁.prev i₁) i₁ ≫ (Embed.xIsoOfSome X _).inv =
+            (Embed.xIsoOfSome X h).inv ≫ Embed.d X (e.r (c₂.prev (e.f i₁))) (e.r (e.f i₁))
+        simp only [Embed.d_of_some_of_some X h (e.r_f i₁), Category.assoc, Iso.inv_hom_id_assoc]
+      · suffices X.d (c₁.prev i₁) i₁ = 0 by delta HomologicalComplex.dTo;
+          simp only [this, zero_comp, NatTrans.app_zero]
         apply X.shape
         rw [e.eq_some] at h 
         contrapose! h
@@ -780,25 +780,25 @@ def embedShortComplexπ (h₁₂ : e.f i₁ = i₂) :
       ext X
       show
         (X.d_from i₁ ≫ 𝟙 (X.X_next i₁)) ≫ _ =
-          (embed.X_iso_of_some X _).inv ≫
+          (Embed.xIsoOfSome X _).inv ≫
             ((embed e).obj X).dFrom i₂ ≫ 𝟙 (((embed e).obj X).xNext i₂)
       dsimp only [embed_short_complex_π₃_π]
       subst h₁₂
       split_ifs with h
-      · simp only [category.comp_id]
+      · simp only [Category.comp_id]
         show
-          X.d i₁ (c₁.next i₁) ≫ (embed.X_iso_of_some X h).inv =
-            (embed.X_iso_of_some X _).inv ≫ embed.d X (e.r (e.f i₁)) (e.r (c₂.next (e.f i₁)))
-        simp only [embed.d_of_some_of_some X (e.r_f i₁) h, category.assoc, iso.inv_hom_id_assoc]
+          X.d i₁ (c₁.next i₁) ≫ (Embed.xIsoOfSome X h).inv =
+            (Embed.xIsoOfSome X _).inv ≫ Embed.d X (e.r (e.f i₁)) (e.r (c₂.next (e.f i₁)))
+        simp only [Embed.d_of_some_of_some X (e.r_f i₁) h, Category.assoc, Iso.inv_hom_id_assoc]
       · suffices ((embed e).obj X).dFrom (e.f i₁) = 0 by
-          simp only [this, nat_trans.app_zero, zero_comp, comp_zero]
+          simp only [this, NatTrans.app_zero, zero_comp, comp_zero]
         rcases h₂ : e.r (c₂.next (e.f i₁)) with (_ | j)
-        · apply is_zero.eq_of_tgt
-          apply embed.X_is_zero_of_none
+        · apply IsZero.eq_of_tgt
+          apply Embed.x_isZero_of_none
           exact h₂
-        · show embed.d X (e.r (e.f i₁)) (e.r (c₂.next (e.f i₁))) = 0
+        · show Embed.d X (e.r (e.f i₁)) (e.r (c₂.next (e.f i₁))) = 0
           by_contra h'
-          rcases embed.d_ne_zero _ _ _ h' with ⟨i, k, h₃, h₄, h₅⟩
+          rcases Embed.d_ne_zero _ _ _ h' with ⟨i, k, h₃, h₄, h₅⟩
           rw [e.r_f] at h₃ 
           rw [h₂] at h₄ 
           simp only at h₄ h₃ 
@@ -812,22 +812,22 @@ def embedShortComplexπ (h₁₂ : e.f i₁ = i₂) :
 def homologyEmbedNatIso (h₁₂ : e.f i₁ = i₂) :
     embed e ⋙ homology'Functor 𝓐 c₂ i₂ ≅ homology'Functor 𝓐 c₁ i₁
     where
-  Hom := embedShortComplexι 𝓐 e i₁ i₂ h₁₂ ◫ 𝟙 ShortComplex.homologyFunctor
+  hom := embedShortComplexι 𝓐 e i₁ i₂ h₁₂ ◫ 𝟙 ShortComplex.homologyFunctor
   inv := embedShortComplexπ 𝓐 e i₁ i₂ h₁₂ ◫ 𝟙 ShortComplex.homologyFunctor
-  hom_inv_id' := by
+  hom_inv_id := by
     ext K : 2
-    simp only [nat_trans.comp_app, nat_trans.hcomp_id_app, nat_trans.id_app, ← functor.map_comp]
+    simp only [NatTrans.comp_app, NatTrans.hcomp_id_app, NatTrans.id_app, ← Functor.map_comp]
     apply ShortComplex.homologyFunctor_map_eq_id
     simp only [ShortComplex.comp_τ₂]
     dsimp only [embed_short_complex_ι, embed_short_complex_π]
-    simpa only [ShortComplex.natTransHomMk_app_τ₂_eq, iso.hom_inv_id_app]
-  inv_hom_id' := by
+    simpa only [ShortComplex.natTransHomMk_app_τ₂_eq, Iso.hom_inv_id_app]
+  inv_hom_id := by
     ext K : 2
-    simp only [nat_trans.comp_app, nat_trans.hcomp_id_app, nat_trans.id_app, ← functor.map_comp]
+    simp only [NatTrans.comp_app, NatTrans.hcomp_id_app, NatTrans.id_app, ← Functor.map_comp]
     apply ShortComplex.homologyFunctor_map_eq_id
     simp only [ShortComplex.comp_τ₂]
     dsimp only [embed_short_complex_ι, embed_short_complex_π]
-    simpa only [ShortComplex.natTransHomMk_app_τ₂_eq, iso.inv_hom_id_app]
+    simpa only [ShortComplex.natTransHomMk_app_τ₂_eq, Iso.inv_hom_id_app]
 
 end HomologyComparison
 
@@ -853,9 +853,9 @@ def single₀CompEmbedIsoSingle :
     (by
       intro X Y f
       ext ((_ | i) | i) <;>
-          refine' (category.comp_id _).trans (Eq.trans _ (category.id_comp _).symm) <;>
+          refine' (Category.comp_id _).trans (Eq.trans _ (Category.id_comp _).symm) <;>
         dsimp [HomologicalComplex.single]
-      · simp only [eq_self_iff_true, category.comp_id, category.id_comp, if_true, Nat.cast_zero];
+      · simp only [eq_self_iff_true, Category.comp_id, Category.id_comp, if_true, Nat.cast_zero];
         rfl
       · rw [dif_neg]; swap; decide; rfl
       · rw [dif_neg]; swap; decide)

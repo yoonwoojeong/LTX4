@@ -31,7 +31,7 @@ open UniformSpace
 
 theorem ContinuousMap.bddAbove_range_norm (f : C(S, V')) :
     BddAbove (Set.range fun s : ↥S => ‖f s‖) :=
-  (isCompact_range <| continuous_norm.comp f.Continuous).BddAbove
+  (isCompact_range <| continuous_norm.comp f.continuous).BddAbove
 
 def Condensed.ofTopAbMapNormedGroupHom {S T : Profinite.{u}ᵒᵖ} (f : S ⟶ T) :
     NormedAddGroupHom C(_, V') C(_, V')
@@ -50,7 +50,7 @@ def Condensed.ofTopAbMapNormedGroupHom {S T : Profinite.{u}ᵒᵖ} (f : S ⟶ T)
 
 theorem Condensed.of_top_ab_map_continuous {S T : Profinite.{u}ᵒᵖ} (f : S ⟶ T) :
     @Continuous C(_, V') C(_, V') _ _ ((Condensed.OfTopAb.presheaf.{u} V').map f) :=
-  (Condensed.ofTopAbMapNormedGroupHom V' f).Continuous
+  (Condensed.ofTopAbMapNormedGroupHom V' f).continuous
 
 theorem LocallyConstant.toContinuousMap_isometry :
     Isometry (LocallyConstant.toContinuousMap : LocallyConstant S V' → C(S, V')) :=
@@ -93,7 +93,7 @@ def lCCIsoCondOfTopAbAddEquiv : Completion (LocallyConstant S V') ≃+ C(S, V') 
     toFun := Completion.extension LocallyConstant.toContinuousMap
     map_add' := by
       intro f g
-      apply completion.induction_on₂ f g
+      apply Completion.induction_on₂ f g
       · apply isClosed_eq
         · exact completion.continuous_extension.comp continuous_add
         ·
@@ -101,8 +101,8 @@ def lCCIsoCondOfTopAbAddEquiv : Completion (LocallyConstant S V') ≃+ C(S, V') 
             (completion.continuous_extension.comp continuous_fst).add
               (completion.continuous_extension.comp continuous_snd)
       · clear f g; intro f g
-        rw [← completion.coe_add, completion.extension_coe, completion.extension_coe,
-          completion.extension_coe]
+        rw [← Completion.coe_add, Completion.extension_coe, Completion.extension_coe,
+          Completion.extension_coe]
         · rfl
         all_goals apply LocallyConstant.toContinuousMap_uniformContinuous }
 
@@ -111,13 +111,13 @@ theorem LCC_iso_Cond_of_top_ab_natural {S T : Profinite.{u}} (f : S ⟶ T) :
       (Condensed.OfTopAb.presheaf.{u} V').map f.op ∘ lCCIsoCondOfTopAbAddEquiv T V' :=
   by
   dsimp [lCCIsoCondOfTopAbAddEquiv]
-  apply completion.ext
-  · refine' completion.continuous_extension.comp completion.continuous_map
-  · refine' (Condensed.of_top_ab_map_continuous _ _).comp completion.continuous_extension
+  apply Completion.ext
+  · refine' completion.continuous_extension.comp Completion.continuous_map
+  · refine' (Condensed.of_top_ab_map_continuous _ _).comp Completion.continuous_extension
   intro g
   ext s
   simp only [Function.comp_apply]
-  rw [completion.map_coe, completion.extension_coe, completion.extension_coe,
+  rw [Completion.map_coe, Completion.extension_coe, Completion.extension_coe,
     LocallyConstant.toContinuousMap_eq_coe, LocallyConstant.coe_continuousMap,
     LocallyConstant.toContinuousMap_eq_coe, LocallyConstant.coe_comap]
   · rfl
@@ -137,10 +137,10 @@ def lCCIsoCondOfTopAb : lCC.{u} V ≅ Condensed.OfTopAb.presheaf.{u} V :=
       clear this
       delta lCC SemiNormedGroupCat.lCC
       simp only [AddEquiv.to_AddCommGroup_iso_hom, CategoryTheory.comp_apply,
-        AddEquiv.coe_toAddMonoidHom, AddEquiv.apply_eq_iff_eq, functor.comp_map, curry_obj_obj_map,
-        uncurry_obj_map, CategoryTheory.Functor.map_id, nat_trans.id_app,
+        AddEquiv.coe_toAddMonoidHom, AddEquiv.apply_eq_iff_eq, Functor.comp_map, curry_obj_obj_map,
+        uncurry_obj_map, CategoryTheory.Functor.map_id, NatTrans.id_app,
         SemiNormedGroupCat.locallyConstant_obj_map, SemiNormedGroupCat.completion_map]
-      erw [category.id_comp]
+      erw [Category.id_comp]
       rfl)
 
 def condensedLCC : Condensed.{u} Ab.{u + 1}
@@ -148,8 +148,8 @@ def condensedLCC : Condensed.{u} Ab.{u + 1}
   val := lCC.{u} V ⋙ Ab.ulift.{u + 1}
   cond := by
     let e := lCCIsoCondOfTopAb V
-    let e' := iso_whisker_right e Ab.ulift.{u + 1}
-    apply presheaf.is_sheaf_of_iso proetaleTopology.{u} e'
+    let e' := CategoryTheory.isoWhiskerRight e Ab.ulift.{u + 1}
+    apply presheaf.isSheaf_of_iso proetaleTopology.{u} e'
     exact (Condensed.ofTopAb _).2
 
 def condensedLCCIsoOfTopAb : condensedLCC V ≅ Condensed.ofTopAb V :=

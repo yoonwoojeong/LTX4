@@ -46,7 +46,7 @@ import Mathlib.Data.Matrix.Kronecker
 import LiquidTensorExperiment.HacksAndTricks.TypePow
 import LiquidTensorExperiment.HacksAndTricks.ByExactIHack
 
-#align_import breen_deligne.universal_map
+#align_import BreenDeligne.UniversalMap
 
 /-!
 # Breen-Deligne resolutions
@@ -140,7 +140,7 @@ def comp : BasicUniversalMap m n →+ BasicUniversalMap l m →+ BasicUniversalM
 theorem eval_comp : (comp g f).eval A = (g.eval A).comp (f.eval A) :=
   by
   ext1 x
-  simp only [AddMonoidHom.coe_comp, Function.comp_apply, eval_of, pre_eval, comp, Finset.smul_sum,
+  simp only [AddMonoidHom.coe_comp, Function.comp_apply, eval_of, BreenDeligne.BasicUniversalMap.preEval, comp, Finset.smul_sum,
     Matrix.mul_apply, Finset.sum_smul, mul_smul, AddMonoidHom.mk'_apply]
   congr 1
   ext1 i
@@ -181,7 +181,7 @@ theorem hMul_injective (N : ℕ) (hN : 0 < N) : Function.Injective (@mul m n N) 
   specialize H (finProdFinEquiv (⟨0, hN⟩, i))
   rw [Function.funext_iff] at H 
   specialize H (finProdFinEquiv (⟨0, hN⟩, j))
-  dsimp only [basic_universal_map.mul, Matrix.kroneckerMap, AddMonoidHom.mk'_apply,
+  dsimp only [BasicUniversalMap.mul, Matrix.kroneckerMap, AddMonoidHom.mk'_apply,
     Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply, Matrix.submatrix_apply] at H 
   simpa only [one_mul, Equiv.symm_apply_apply, Matrix.one_apply_eq] using H
 
@@ -203,12 +203,12 @@ def oneMulInv (n) : BasicUniversalMap n (1 * n) :=
 
 theorem oneMulHom_inv : comp (oneMulHom n) (oneMulInv n) = id n :=
   by
-  dsimp only [comp, one_mul_hom, one_mul_inv, AddMonoidHom.mk'_apply, id]
+  dsimp only [comp, one_mul_hom, BreenDeligne.BasicUniversalMap.oneMulInv, AddMonoidHom.mk'_apply, id]
   rw [Matrix.reindexLinearEquiv_mul, Matrix.one_mul, Matrix.reindexLinearEquiv_one]
 
 theorem oneMulInv_hom : comp (oneMulInv n) (oneMulHom n) = id _ :=
   by
-  dsimp only [comp, one_mul_hom, one_mul_inv, AddMonoidHom.mk'_apply, id]
+  dsimp only [comp, one_mul_hom, BreenDeligne.BasicUniversalMap.oneMulInv, AddMonoidHom.mk'_apply, id]
   rw [Matrix.reindexLinearEquiv_mul, Matrix.one_mul, Matrix.reindexLinearEquiv_one]
 
 def mulMulHom (m n i : ℕ) : BasicUniversalMap (m * (n * i)) (m * n * i) :=
@@ -227,12 +227,12 @@ def mulMulInv (m n i : ℕ) : BasicUniversalMap (m * n * i) (m * (n * i)) :=
 
 theorem mulMulHom_inv {m n i : ℕ} : comp (mulMulHom m n i) (mulMulInv m n i) = id _ :=
   by
-  dsimp only [comp, mulMulHom, mul_mul_inv, AddMonoidHom.mk'_apply, id]
+  dsimp only [comp, mulMulHom, BreenDeligne.BasicUniversalMap.mulMulInv, AddMonoidHom.mk'_apply, id]
   rw [Matrix.reindexLinearEquiv_mul, Matrix.one_mul, Matrix.reindexLinearEquiv_one]
 
 theorem mulMulInv_hom {m n i : ℕ} : comp (mulMulInv m n i) (mulMulHom m n i) = id _ :=
   by
-  dsimp only [comp, mulMulHom, mul_mul_inv, AddMonoidHom.mk'_apply, id]
+  dsimp only [comp, mulMulHom, BreenDeligne.BasicUniversalMap.mulMulInv, AddMonoidHom.mk'_apply, id]
   rw [Matrix.reindexLinearEquiv_mul, Matrix.one_mul, Matrix.reindexLinearEquiv_one]
 
 def projAux {N : ℕ} (k : Fin N) : Matrix PUnit.{1} (Fin N) ℤ := fun i j => if j = k then 1 else 0
@@ -259,14 +259,14 @@ theorem proj_comp_hMul {N : ℕ} (k : Fin N) (f : BasicUniversalMap m n) :
 
 theorem oneMulHom_eq_proj : BasicUniversalMap.oneMulHom n = BasicUniversalMap.proj n 0 :=
   by
-  dsimp only [basic_universal_map.one_mul_hom, basic_universal_map.proj]
+  dsimp only [BasicUniversalMap.oneMulHom, BasicUniversalMap.proj]
   rw [← LinearEquiv.symm_apply_eq, Matrix.reindexLinearEquiv_symm,
     Matrix.reindexLinearEquiv_comp_apply, Equiv.self_trans_symm, Equiv.trans_assoc,
     Equiv.self_trans_symm, Equiv.trans_refl]
   ext ⟨i, i'⟩ ⟨j, j'⟩ : 2
   change Fin 1 at j 
   dsimp only [Matrix.reindexLinearEquiv_apply, Matrix.kronecker]
-  dsimp [finOneEquiv, Equiv.prodCongrLeft, basic_universal_map.proj_aux]
+  dsimp [finOneEquiv, Equiv.prodCongrLeft, BasicUniversalMap.projAux]
   simp only [Matrix.one_apply, Prod.mk.inj_iff, @eq_comm _ _ j]
   simp only [true_and_iff, mul_boole, if_true, Prod.mk.inj_iff, eq_self_iff_true,
     eq_iff_true_of_subsingleton]
@@ -277,7 +277,7 @@ theorem projAux_kronecker_projAux (a : Fin m) (b : Fin n) :
         (projAux (finProdFinEquiv (a, b))) :=
   by
   ext ⟨i, i'⟩ ⟨j, j'⟩ : 2
-  dsimp [Matrix.reindexLinearEquiv_apply, Matrix.kronecker, proj_aux]
+  dsimp [Matrix.reindexLinearEquiv_apply, Matrix.kronecker, BreenDeligne.BasicUniversalMap.projAux]
   simp only [Equiv.apply_eq_iff_eq, boole_mul, Prod.mk.inj_iff, ← ite_and]
 
 theorem projAux_apply (a : Fin m) (b : Fin m) : projAux a PUnit.unit b = ite (a = b) 1 0 :=
@@ -285,7 +285,7 @@ theorem projAux_apply (a : Fin m) (b : Fin m) : projAux a PUnit.unit b = ite (a 
   by_cases h : a = b
   rw [if_pos]
   assumption'
-  all_goals simp only [proj_aux, zero_ne_one, ite_eq_left_iff]; finish
+  all_goals simp only [BreenDeligne.BasicUniversalMap.projAux, zero_ne_one, ite_eq_left_iff]; finish
 
 theorem comp_proj_hMul_proj (n N : ℕ) (j : Fin (2 * 2 ^ N)) :
     (comp (proj n (finProdFinEquiv.symm j).fst)) (mul 2 (proj n (finProdFinEquiv.symm j).snd)) =
@@ -301,7 +301,7 @@ theorem comp_proj_hMul_proj (n N : ℕ) (j : Fin (2 * 2 ^ N)) :
   rw [Matrix.one_apply, Matrix.one_apply]
   simp only [mul_boole, mul_ite, MulZeroClass.mul_zero, Equiv.symm_apply_apply, mul_one]
   congr 2
-  simp only [proj_aux_apply, boole_mul]
+  simp only [BreenDeligne.BasicUniversalMap.projAux_apply, boole_mul]
   rw [← ite_and]
   congr 1
   rw [← Prod.mk.inj_iff, Prod.mk.eta, Equiv.symm_apply_eq]
@@ -355,7 +355,7 @@ theorem eval_comp : eval A (comp g f) = (eval A g).comp (eval A f) :=
     by
     congr 2; clear f g; ext g f : 2
     show eval A (comp (of g) (of f)) = (eval A (of g)).comp (eval A (of f))
-    simp only [basic_universal_map.eval_comp, comp_of, eval_of]
+    simp only [BasicUniversalMap.eval_comp, comp_of, eval_of]
 
 theorem comp_assoc (h : UniversalMap m n) (g : UniversalMap l m) (f : UniversalMap k l) :
     comp (comp h g) f = comp h (comp g f) :=
@@ -365,7 +365,7 @@ theorem comp_assoc (h : UniversalMap m n) (g : UniversalMap l m) (f : UniversalM
     by
     congr 3; clear h g f; ext h g f : 3
     show comp (comp (of h) (of g)) (of f) = comp (of h) (comp (of g) (of f))
-    simp only [basic_universal_map.comp_assoc, comp_of]
+    simp only [BasicUniversalMap.comp_assoc, comp_of]
 
 /-- The identity `universal_map`. -/
 def id (n : ℕ) : UniversalMap n n :=
@@ -375,7 +375,7 @@ def id (n : ℕ) : UniversalMap n n :=
 theorem id_comp : comp (id _) f = f :=
   show comp (id _) f = AddMonoidHom.id _ f by
     congr 1; clear f; ext1 f
-    simp only [id, comp_of, id_apply, basic_universal_map.id_comp]
+    simp only [id, comp_of, id_apply, BasicUniversalMap.id_comp]
 
 @[simp]
 theorem comp_id : comp g (id _) = g :=
@@ -383,7 +383,7 @@ theorem comp_id : comp g (id _) = g :=
     by
     congr 1; clear g; ext1 g
     show comp (of g) (id _) = of g
-    simp only [id, comp_of, id_apply, basic_universal_map.comp_id]
+    simp only [id, comp_of, id_apply, BasicUniversalMap.comp_id]
 
 def bound : ℕ :=
   ∑ g in f.support, (FreeAbelianGroup.coeff g f).natAbs
@@ -428,7 +428,7 @@ theorem BoundBy.add {f₁ f₂ : UniversalMap m n} {N₁ N₂ : ℕ} (h₁ : f�
   by
   calc
     (f₁ + f₂).bound ≤
-        ∑ g : basic_universal_map m n in support (f₁ + f₂),
+        ∑ g : BreenDeligne.BasicUniversalMap m n in support (f₁ + f₂),
           ((coeff g f₁).natAbs + (coeff g f₂).natAbs) :=
       Finset.sum_le_sum _
     _ ≤ N₁ + N₂ := _
@@ -477,13 +477,13 @@ theorem hMul_comp (N : ℕ) (g : UniversalMap m n) (f : UniversalMap l m) :
   rw [← AddMonoidHom.compHom_apply_apply, ← AddMonoidHom.compHom_apply_apply]
   congr 2; clear f g; ext g f
   show (mul N) ((comp (of g)) (of f)) = (comp ((mul N) (of g))) ((mul N) (of f))
-  simp only [comp_of, mul_of, basic_universal_map.mul_comp]
+  simp only [comp_of, mul_of, BasicUniversalMap.hMul_comp]
 
 theorem mem_support_hMul (N : ℕ) (hN : 0 < N) (f : UniversalMap m n) (g) :
     g ∈ (mul N f).support ↔ ∃ g', g' ∈ f.support ∧ g = BasicUniversalMap.mul N g' :=
   by
   apply FreeAbelianGroup.mem_support_map
-  exact basic_universal_map.mul_injective N hN
+  exact BasicUniversalMap.hMul_injective N hN
 
 @[simp]
 theorem coeff_hMul (N : ℕ) (hN : 0 < N) (f : UniversalMap m n) (g : BasicUniversalMap m n) :
@@ -492,9 +492,9 @@ theorem coeff_hMul (N : ℕ) (hN : 0 < N) (f : UniversalMap m n) (g : BasicUnive
   simp only [← AddMonoidHom.comp_apply]
   rw [← AddMonoidHom.compHom_apply_apply]
   congr 1; clear f; ext f
-  simp only [comp_hom_apply_apply, Function.comp_apply, coe_comp, mul, coeff, to_finsupp_of,
+  simp only [comp_hom_apply_apply, Function.comp_apply, coe_comp, mul, coeff, FreeAbelianGroup.toFinsupp_of,
     map_of_apply, Finsupp.applyAddHom_apply, Finsupp.single_apply,
-    (basic_universal_map.mul_injective N hN).eq_iff]
+    (BasicUniversalMap.hMul_injective N hN).eq_iff]
 
 end Mul
 
@@ -516,7 +516,7 @@ theorem sum_comp_hMul (N : ℕ) (f : UniversalMap m n) :
   congr 1; clear f; ext f
   show (comp (Sum n N)) ((mul N) (of f)) = (comp (of f)) (Sum m N)
   simp only [Sum, mul_of, comp_of, AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply,
-    basic_universal_map.proj_comp_mul]
+    BasicUniversalMap.proj_comp_hMul]
 
 theorem proj_comp_hMul (N : ℕ) (f : UniversalMap m n) :
     comp (proj n N) (mul N f) = comp f (proj m N) :=
@@ -527,7 +527,7 @@ theorem proj_comp_hMul (N : ℕ) (f : UniversalMap m n) :
   congr 1; clear f; ext f
   show (comp (proj n N)) ((mul N) (of f)) = (comp (of f)) (proj m N)
   simp only [proj, mul_of, comp_of, AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply,
-    basic_universal_map.proj_comp_mul]
+    BasicUniversalMap.proj_comp_hMul]
 
 theorem proj_boundBy (n N : ℕ) : (proj n N).BoundBy N :=
   le_trans (boundBy_sum _ _ _ fun i _ => of_boundBy _) <| by

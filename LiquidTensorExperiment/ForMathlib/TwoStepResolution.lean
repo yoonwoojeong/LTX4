@@ -240,17 +240,17 @@ theorem AddCommGroupCat.projective_of_Z_moduleCat_projective (M : ModuleCat.{v} 
     (forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat).obj (ModuleCat.of ℤ E) ⟶
       (forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat).obj (ModuleCat.of ℤ X) :=
     e
-  let eM := full.preimage e'
+  let eM := Full.preimage e'
   let f' :
     (forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat).obj (ModuleCat.of ℤ M) ⟶
       (forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat).obj (ModuleCat.of ℤ X) :=
     f
-  let fM := full.preimage f'
+  let fM := Full.preimage f'
   have : epi eM :=
     by
-    apply functor.epi_of_epi_map (forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat.{v}) _
-    rw [full.witness]
-    apply epi.mk
+    apply Functor.epi_of_epi_map (forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat.{v}) _
+    rw [Full.witness]
+    apply Epi.mk
     intro Z g h H
     let g' : X ⟶ Z := g
     let h' : X ⟶ Z := h
@@ -259,15 +259,15 @@ theorem AddCommGroupCat.projective_of_Z_moduleCat_projective (M : ModuleCat.{v} 
     rw [@cancel_epi _ _ _ _ _ _ _inst_2 _ _] at H 
     exact H
   haveI : projective (of ℤ M) := by rw [ModuleCat.coe_of'' ℤ M] <;> infer_instance
-  let pM := projective.factor_thru fM eM
+  let pM := Projective.factorThru fM eM
   use(forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat).map pM
-  have hpM := projective.factor_thru_comp fM eM
+  have hpM := Projective.factorThru_comp fM eM
   have h :
-    (forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat).map (projective.factor_thru fM eM ≫ eM) =
+    (forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat).map (Projective.factorThru fM eM ≫ eM) =
       (forget₂ (ModuleCat.{v} ℤ) AddCommGroupCat).map fM :=
     by simp only [hpM]
-  rw [functor.map_comp] at h 
-  simp only [full.witness] at h 
+  rw [Functor.map_comp] at h 
+  simp only [Full.witness] at h 
   exact h
 
 /-- The two step resolution of an Abelian group is a projective resolution. -/

@@ -35,11 +35,11 @@ def deltaToKernel_ι (C : HomologicalComplex 𝓐 c) (i j k : ι) :
     deltaToKernel C i j k ≫ kernel.ι (C.d j k) = C.d i j :=
   by
   delta deltaToKernel imageToKernel'
-  rw [category.assoc, kernel.lift_ι, image.fac]
+  rw [Category.assoc, kernel.lift_ι, image.fac]
 
 def d_deltaToKernel (C : HomologicalComplex 𝓐 c) (h i j k : ι) :
     C.d h i ≫ deltaToKernel C i j k = 0 := by
-  rw [← cancel_mono (kernel.ι (C.d j k)), category.assoc, deltaToKernel_ι, C.d_comp_d, zero_comp]
+  rw [← cancel_mono (kernel.ι (C.d j k)), Category.assoc, deltaToKernel_ι, C.d_comp_d, zero_comp]
 
 -- move me
 theorem shortExact_comp_iso {A B C D : 𝓐} (f : A ⟶ B) (g : B ⟶ C) (h : C ⟶ D) (hh : IsIso h) :
@@ -48,7 +48,7 @@ theorem shortExact_comp_iso {A B C D : 𝓐} (f : A ⟶ B) (g : B ⟶ C) (h : C 
   constructor <;> intro H
   · haveI : mono f := H.mono
     have : epi g := by haveI := H.epi; have := epi_comp (g ≫ h) (inv h);
-      simpa only [category.assoc, is_iso.hom_inv_id, category.comp_id]
+      simpa only [Category.assoc, IsIso.hom_inv_id, Category.comp_id]
     refine' ⟨_⟩; have := H.exact; rwa [exact_comp_iso] at this 
   · haveI : mono f := H.mono
     haveI : epi g := H.epi
@@ -58,8 +58,8 @@ theorem shortExact_comp_iso {A B C D : 𝓐} (f : A ⟶ B) (g : B ⟶ C) (h : C 
 theorem isAcyclic_def (C : HomotopyCategory 𝓐 c) : IsAcyclic C ↔ ∀ i, IsZero (C.as.homology' i) :=
   by
   constructor
-  · apply is_acyclic.cond
-  · apply is_acyclic.mk
+  · apply IsAcyclic.cond
+  · apply IsAcyclic.mk
 
 theorem isAcyclic_iff_shortExact_to_cycles (C : HomotopyCategory 𝓐 (ComplexShape.up ℤ)) :
     IsAcyclic C ↔
@@ -71,7 +71,7 @@ theorem isAcyclic_iff_shortExact_to_cycles (C : HomotopyCategory 𝓐 (ComplexSh
   intro i
   let e := homology_iso C.as i (i + 1) (i + 1 + 1) rfl rfl
   dsimp [deltaToKernel] at e ⊢
-  rw [e.is_zero_iff, homology'_isZero_iff_imageToKernel'_isIso]
+  rw [e.isZero_iff, homology'_isZero_iff_imageToKernel'_isIso]
   constructor
   · apply iso_of_shortExact_comp_right _ _ _; apply shortExact_kernel_factorThruImage
   · intro h; rw [shortExact_comp_iso _ _ _ h]; apply shortExact_kernel_factorThruImage
@@ -86,7 +86,7 @@ theorem is_acyclic_iff_shortExact_to_cycles' (C : HomologicalComplex 𝓐 (Compl
   intro i
   let e := homology_iso C (i + 1 + 1) (i + 1) i rfl rfl
   dsimp [deltaToKernel] at e ⊢
-  rw [e.is_zero_iff, homology'_isZero_iff_imageToKernel'_isIso]
+  rw [e.isZero_iff, homology'_isZero_iff_imageToKernel'_isIso]
   constructor
   · apply iso_of_shortExact_comp_right _ _ _; apply shortExact_kernel_factorThruImage
   · intro h; rw [shortExact_comp_iso _ _ _ h]; apply shortExact_kernel_factorThruImage
@@ -107,7 +107,7 @@ def CategoryTheory.Functor.single (F : BoundedHomotopyCategory 𝓐 ⥤ 𝓑) (i
 theorem CategoryTheory.Limits.IsZero.biprod {𝓐 : Type _} [Category 𝓐] [Abelian 𝓐] {X Y : 𝓐}
     (hX : IsZero X) (hY : IsZero Y) : IsZero (X ⊞ Y) :=
   by
-  rw [is_zero_iff_id_eq_zero] at hX hY ⊢
+  rw [CategoryTheory.Limits.isZero_iff_id_eq_zero] at hX hY ⊢
   ext <;> simp [hX, hY]
 
 instance CategoryTheory.Limits.preservesBinaryBiproductOfAdditive {𝓐 𝓑 : Type _} [Category.{v} 𝓐]
@@ -121,7 +121,7 @@ theorem acyclic_left_of_shortExact (B : 𝓐) {X Y Z : 𝓐} (f : X ⟶ Y) (g : 
     ∀ i > 0, IsZero (((ext' i).obj (op <| X)).obj B) :=
   by
   intro i hi
-  have := hfg.Ext'_five_term_exact_seq B i
+  have := hfg.ext'_five_term_exactSeq B i
   refine' (this.drop 1).pair.isZero_of_isZero_isZero (hY _ hi) (hZ _ _)
   trans i; · exact lt_add_one i; · exact hi
 
@@ -137,30 +137,30 @@ theorem map_is_acyclic_of_acyclic_aux {A B C D X Y Z W : 𝓐} (f : A ⟶ B) (g 
   have hε : mono ε := hεζ.mono
   skip
   have hιδ : kernel.ι g ≫ δ = 0 := by
-    rw [← cancel_mono ε, category.assoc, hδε, kernel.condition, zero_comp]
-  let e1 : Y ⟶ kernel g := hαβ.exact.epi_desc π hαπ
+    rw [← cancel_mono ε, Category.assoc, hδε, kernel.condition, zero_comp]
+  let e1 : Y ⟶ kernel g := hαβ.exact.epiDesc π hαπ
   let e2 : Y ⟶ kernel g := kernel.lift g γ hγg
-  let e3 : kernel g ⟶ Y := hγδ.exact.mono_lift (kernel.ι g) hιδ
+  let e3 : kernel g ⟶ Y := hγδ.exact.monoLift (kernel.ι g) hιδ
   have he12 : e1 = e2 := by
     rw [← cancel_epi β, ← cancel_mono (kernel.ι g)]
-    simp only [hπι, category.assoc, kernel.lift_ι, exact.comp_epi_desc_assoc]
+    simp only [hπι, Category.assoc, kernel.lift_ι, Exact.comp_epiDesc_assoc]
   have he13 : e1 ≫ e3 = 𝟙 _ := by
-    rw [he12, ← cancel_mono γ, category.assoc, exact.mono_lift_comp, kernel.lift_ι,
-      category.id_comp]
+    rw [he12, ← cancel_mono γ, Category.assoc, Exact.monoLift_comp, kernel.lift_ι,
+      Category.id_comp]
   have he31 : e3 ≫ e1 = 𝟙 _ := by
-    rw [he12, ← cancel_mono (kernel.ι g), category.assoc, kernel.lift_ι, exact.mono_lift_comp,
-      category.id_comp]
+    rw [he12, ← cancel_mono (kernel.ι g), Category.assoc, kernel.lift_ι, Exact.monoLift_comp,
+      Category.id_comp]
   let e : Y ≅ kernel g := ⟨e1, e3, he13, he31⟩
-  have hπ : β ≫ e.hom = π := exact.comp_epi_desc _ _ _
+  have hπ : β ≫ e.hom = π := Exact.comp_epiDesc _ _ _
   rw [← hπ]; exact epi_comp _ _
 
 theorem shortExact_Ext_of_shortExact_of_acyclic {A B C : 𝓐} (Z : 𝓐) {f : A ⟶ B} {g : B ⟶ C}
     (hfg : ShortExact f g) (hC : ∀ i > 0, IsZero (((ext' i).obj (op <| C)).obj Z)) :
     ShortExact (((ext' 0).flip.obj Z).map g.op) (((ext' 0).flip.obj Z).map f.op) :=
   by
-  have H0 := hfg.Ext'_five_term_exact_seq Z 0
-  apply (config := { instances := false }) short_exact.mk
-  · have H := ((hfg.Ext'_five_term_exact_seq Z (-1)).drop 2).pair
+  have H0 := hfg.ext'_five_term_exactSeq Z 0
+  apply (config := { instances := false }) ShortExact.mk
+  · have H := ((hfg.ext'_five_term_exactSeq Z (-1)).drop 2).pair
     apply H.mono_of_is_zero
     apply ext'_isZero_of_neg; decide
   · apply (H0.drop 1).pair.epi_of_isZero
@@ -172,7 +172,7 @@ theorem map_isAcyclic_of_acyclic'' [IsAcyclic ((HomotopyCategory.quotient _ _).o
     ∀ i, IsZero (((((ext' 0).flip.obj B).mapHomologicalComplex _).obj C.op).homology' i) :=
   by
   rw [is_acyclic_iff_shortExact_to_cycles']
-  obtain ⟨a, ha⟩ := is_bounded_above.cond ((Quotient 𝓐 (ComplexShape.up ℤ)).obj C)
+  obtain ⟨a, ha⟩ := IsBoundedAbove.cond ((Quotient 𝓐 (ComplexShape.up ℤ)).obj C)
   have aux : ((Quotient 𝓐 (ComplexShape.up ℤ)).obj C).IsAcyclic := ‹_›
   rw [isAcyclic_iff_shortExact_to_cycles] at aux 
   intro i
@@ -185,24 +185,24 @@ theorem map_isAcyclic_of_acyclic'' [IsAcyclic ((HomotopyCategory.quotient _ _).o
       clear SES1 SES2 SES3 aux
     · delta deltaToKernel imageToKernel'
       apply exact_comp_mono; rw [exact_factorThruImage_iff]; exact exact_kernel_ι
-    · rw [← cancel_mono (kernel.ι _), zero_comp, category.assoc, deltaToKernel_ι]
+    · rw [← cancel_mono (kernel.ι _), zero_comp, Category.assoc, deltaToKernel_ι]
       swap; infer_instance
-      erw [functor.map_homological_complex_obj_d, ← functor.map_comp]
+      erw [Functor.mapHomologicalComplex_obj_d, ← Functor.map_comp]
       dsimp only [HomologicalComplex.op_d, quotient_obj_as]
-      rw [← op_comp, d_deltaToKernel, op_zero, functor.map_zero]
-    · erw [functor.map_homological_complex_obj_d, ← functor.map_comp]
+      rw [← op_comp, d_deltaToKernel, op_zero, Functor.map_zero]
+    · erw [Functor.mapHomologicalComplex_obj_d, ← Functor.map_comp]
       dsimp only [HomologicalComplex.op_d, quotient_obj_as]
-      rw [← op_comp, d_deltaToKernel, op_zero, functor.map_zero]
-    · rw [← functor.map_comp, ← op_comp, deltaToKernel_ι]; rfl
-    · rw [deltaToKernel_ι, ← functor.map_comp, ← op_comp, deltaToKernel_ι]; rfl
+      rw [← op_comp, d_deltaToKernel, op_zero, Functor.map_zero]
+    · rw [← Functor.map_comp, ← op_comp, deltaToKernel_ι]; rfl
+    · rw [deltaToKernel_ι, ← Functor.map_comp, ← op_comp, deltaToKernel_ι]; rfl
     · infer_instance
   clear i; intro j
   have : ∀ j ≥ a, ∀ i > 0, is_zero (((ext' i).obj (op <| K j)).obj B) :=
     by
     intro j hj i hi
     apply BoundedDerivedCategory.ext'_zero_left_isZero
-    apply is_zero.op
-    refine' is_zero.of_mono (kernel.ι _) _
+    apply IsZero.op
+    refine' IsZero.of_mono (kernel.ι _) _
     exact ha j hj
   apply Int.inductionOn' j a
   · exact this _ le_rfl
@@ -222,22 +222,22 @@ theorem mapIsAcyclicOfAcyclic' [IsAcyclic ((HomotopyCategory.quotient _ _).obj C
   rw [isAcyclic_def]
   intro i
   have h1 : (ComplexShape.up ℤ).Rel (i - 1) i := by dsimp; apply sub_add_cancel
-  refine' is_zero.of_iso _ (homology_iso' _ (i - 1) i (i + 1) h1 rfl)
-  dsimp only [functor.map_homotopy_category_obj, quotient_obj_as, functor.right_op_map,
-    functor.map_homological_complex_obj_d]
-  apply exact.homology_is_zero
+  refine' IsZero.of_iso _ (CategoryTheory.homologyIso' _ (i - 1) i (i + 1) h1 rfl)
+  dsimp only [Functor.mapHomotopyCategory_obj, quotient_obj_as, Functor.rightOp_map,
+    Functor.mapHomologicalComplex_obj_d]
+  apply Exact.homology'_isZero
   apply exact.op
-  refine' exact_of_homology_is_zero _
+  refine' CategoryTheory.exact_of_homology'_isZero _
   ·
     rw [← CategoryTheory.Functor.map_comp, ← op_comp, HomologicalComplex.d_comp_d, op_zero,
-      functor.map_zero]
+      Functor.map_zero]
   have := map_isAcyclic_of_acyclic'' C B hC i
   apply this.of_iso _; clear this
   let C' :=
     (((ext' 0).flip.obj B).mapHomologicalComplex (ComplexShape.up ℤ).symm).obj
       (HomologicalComplex.op C)
   have h1 : (ComplexShape.down ℤ).Rel i (i - 1) := by dsimp; apply sub_add_cancel
-  exact (homology_iso' C' (i + 1) i (i - 1) rfl h1).symm
+  exact (CategoryTheory.homologyIso' C' (i + 1) i (i - 1) rfl h1).symm
 
 theorem mapIsAcyclicOfAcyclic [IsAcyclic ((HomotopyCategory.quotient _ _).obj C)] (B : 𝓐)
     (hC : ∀ k, ∀ i > 0, IsZero (((ext' i).obj (op <| C.pt k)).obj B)) :
@@ -251,17 +251,17 @@ theorem mapIsAcyclicOfAcyclic [IsAcyclic ((HomotopyCategory.quotient _ _).obj C)
   apply this.of_iso _; clear this
   have h1 : (ComplexShape.up ℤ).Rel (i - 1) i := by dsimp; apply sub_add_cancel
   refine'
-    homology_iso' _ (i - 1) i (i + 1) h1 rfl ≪≫ _ ≪≫ (homology_iso' _ (i - 1) i (i + 1) h1 rfl).symm
-  dsimp only [functor.map_homotopy_category_obj, quotient_obj_as, functor.right_op_map,
-    functor.map_homological_complex_obj_d]
+    CategoryTheory.homologyIso' _ (i - 1) i (i + 1) h1 rfl ≪≫ _ ≪≫ (CategoryTheory.homologyIso' _ (i - 1) i (i + 1) h1 rfl).symm
+  dsimp only [Functor.mapHomotopyCategory_obj, quotient_obj_as, Functor.rightOp_map,
+    Functor.mapHomologicalComplex_obj_d]
   let e i := ((BoundedDerivedCategory.ext'ZeroFlipIso _ B).app (op <| C.X i)).op
-  refine' homology'.mapIso _ _ (arrow.iso_mk (e _) (e _) _) (arrow.iso_mk (e _) (e _) _) rfl
+  refine' homology'.mapIso _ _ (Arrow.isoMk (e _) (e _) _) (Arrow.isoMk (e _) (e _) _) rfl
   ·
-    simp only [iso.op_hom, iso.app_hom, arrow.mk_hom, functor.flip_obj_map, ← op_comp, ←
-      nat_trans.naturality]
+    simp only [Iso.op_hom, Iso.app_hom, Arrow.mk_hom, Functor.flip_obj_map, ← op_comp, ←
+      NatTrans.naturality]
   ·
-    simp only [iso.op_hom, iso.app_hom, arrow.mk_hom, functor.flip_obj_map, ← op_comp, ←
-      nat_trans.naturality]
+    simp only [Iso.op_hom, Iso.app_hom, Arrow.mk_hom, Functor.flip_obj_map, ← op_comp, ←
+      NatTrans.naturality]
 
 theorem acyclic_of_projective (P B : 𝓐) [Projective P] (i : ℤ) (hi : 0 < i) :
     IsZero (((ext' i).obj (op P)).obj B) :=
@@ -270,10 +270,10 @@ theorem acyclic_of_projective (P B : 𝓐) [Projective P] (i : ℤ) (hi : 0 < i)
   · rcases i with ((_ | i) | i)
     · exfalso; revert hi; decide
     swap; · exfalso; revert hi; decide
-    refine' is_zero.homology_is_zero _ _ _ _
+    refine' IsZero.homology'_isZero _ _ _ _
     apply AddCommGroupCat.isZero_of_eq
     intros
-    apply is_zero.eq_of_src
+    apply IsZero.eq_of_src
     apply is_zero_zero
   · refine' ⟨_, _, _⟩
     · rintro (_ | n); · assumption; · dsimp; infer_instance
@@ -293,8 +293,8 @@ abbrev of'Hom {C₁ C₂ : CochainComplex 𝓐 ℤ}
 theorem extComputeWithAcyclicAux₁_naturality (C₁ C₂ : CochainComplex 𝓐 ℤ)
     [((Quotient 𝓐 (ComplexShape.up ℤ)).obj C₁).IsBoundedAbove]
     [((Quotient 𝓐 (ComplexShape.up ℤ)).obj C₂).IsBoundedAbove] (B : 𝓐) (f : C₁ ⟶ C₂) (i : ℤ) :
-    ((ext i).map <| Quiver.Hom.op <| of'Hom f).app _ ≫ (extComputeWithAcyclicAux₁ C₁ B i).Hom =
-      (extComputeWithAcyclicAux₁ C₂ B i).Hom ≫
+    ((ext i).map <| Quiver.Hom.op <| of'Hom f).app _ ≫ (extComputeWithAcyclicAux₁ C₁ B i).hom =
+      (extComputeWithAcyclicAux₁ C₂ B i).hom ≫
         (preadditiveYoneda.obj _).map
           (Quiver.Hom.op <| BoundedHomotopyCategory.lift ((of' C₁).π ≫ of'Hom f) (of' C₂).π) :=
   by
@@ -316,8 +316,8 @@ theorem extComputeWithAcyclicAux₂_naturality (C₁ C₂ : CochainComplex 𝓐 
     [((Quotient 𝓐 (ComplexShape.up ℤ)).obj C₂).IsBoundedAbove] (B : 𝓐) (f : C₁ ⟶ C₂) (i : ℤ) :
     (preadditiveYoneda.obj _).map
           (Quiver.Hom.op <| BoundedHomotopyCategory.lift ((of' C₁).π ≫ of'Hom f) (of' C₂).π) ≫
-        (extComputeWithAcyclicAux₂ C₁ B i).Hom =
-      (extComputeWithAcyclicAux₂ C₂ B i).Hom ≫
+        (extComputeWithAcyclicAux₂ C₁ B i).hom =
+      (extComputeWithAcyclicAux₂ C₂ B i).hom ≫
         (((preadditiveYoneda.obj B).rightOp.mapHomologicalComplex _ ⋙
                 HomologicalComplex.unopFunctor.rightOp ⋙ (homology'Functor _ _ (-i)).op).map
             (BoundedHomotopyCategory.lift ((of' C₁).π ≫ of'Hom f) (of' C₂).π).out).unop :=
@@ -337,23 +337,23 @@ theorem extComputeWithAcyclicIsQuasiIsoAux (B : 𝓐)
   let π : P ⟶ of' C := (of' C).π
   let HomB :=
     (preadditive_yoneda.obj B).rightOp.mapHomologicalComplex (ComplexShape.up ℤ) ⋙
-      homological_complex.unop_functor.right_op
+      homological_complex.unop_functor.rightOp
   let fq := (HomotopyCategory.quotient _ _).map (HomB.map π.out).unop
   apply isQuasiIsoOfOp
   let f := homological_complex.op_functor.map (HomB.map (Quot.out π))
   have := cone_triangleₕ_mem_distinguished_triangles _ _ f
-  replace := is_quasi_iso_iff_is_acyclic _ this
+  replace := HomotopyCategory.isQuasiIso_iff_isAcyclic _ this
   dsimp [HomologicalComplex.cone.triangleₕ] at this 
   erw [this]; clear this i
   constructor
   intro i; obtain ⟨i, rfl⟩ : ∃ j, j + 1 = i := ⟨i - 1, sub_add_cancel _ _⟩
-  refine' is_zero.of_iso _ (homology_iso _ i (i + 1) (i + 1 + 1) _ _)
+  refine' IsZero.of_iso _ (homology_iso _ i (i + 1) (i + 1 + 1) _ _)
   rotate_left; · dsimp; rfl; · dsimp; rfl
-  apply exact.homology_is_zero _
+  apply Exact.homology'_isZero _
   dsimp only [HomotopyCategory.quotient, quotient.functor_obj_as, HomologicalComplex.cone_d]
   have hπ : is_quasi_iso π := by dsimp [π]; infer_instance
   have := cone_triangleₕ_mem_distinguished_triangles _ _ π.out
-  replace := is_quasi_iso_iff_is_acyclic _ this
+  replace := HomotopyCategory.isQuasiIso_iff_isAcyclic _ this
   dsimp [HomologicalComplex.cone.triangleₕ] at this 
   simp only [quotient_map_out] at this 
   replace := this.mp _
@@ -362,8 +362,8 @@ theorem extComputeWithAcyclicIsQuasiIsoAux (B : 𝓐)
     ((Quotient 𝓐 (ComplexShape.up ℤ)).obj (HomologicalComplex.cone (Quot.out π))).IsBoundedAbove :=
     by
     constructor
-    obtain ⟨a, ha⟩ := is_bounded_above.cond ((Quotient 𝓐 (ComplexShape.up ℤ)).obj C)
-    obtain ⟨b, hb⟩ := is_bounded_above.cond P.val
+    obtain ⟨a, ha⟩ := IsBoundedAbove.cond ((Quotient 𝓐 (ComplexShape.up ℤ)).obj C)
+    obtain ⟨b, hb⟩ := IsBoundedAbove.cond P.val
     refine' ⟨max a b, _⟩
     intro k hk
     refine' CategoryTheory.Limits.IsZero.biprod _ _
@@ -371,43 +371,43 @@ theorem extComputeWithAcyclicIsQuasiIsoAux (B : 𝓐)
     · apply ha; exact (le_max_left _ _).trans hk
   have aux := @mapIsAcyclicOfAcyclic _ _ _ _ _ _ this B _
   · replace :=
-      (@is_acyclic.cond _ _ _ _ _ _ aux (i + 1)).of_iso
+      (@IsAcyclic.cond _ _ _ _ _ _ aux (i + 1)).of_iso
         (homology_iso _ i (i + 1) (i + 1 + 1) _ _).symm
     rotate_left; · dsimp; rfl; · dsimp; rfl
     dsimp only [HomotopyCategory.quotient, quotient.functor_obj_as, HomologicalComplex.cone_d,
-      functor.map_homotopy_category_obj, functor.map_homological_complex_obj_d] at this 
-    replace := exact_of_homology_is_zero this
-    let e := functor.map_biprod (preadditive_yoneda.obj B).rightOp
+      Functor.mapHomotopyCategory_obj, Functor.mapHomologicalComplex_obj_d] at this 
+    replace := CategoryTheory.exact_of_homology'_isZero this
+    let e := Functor.mapBiprod (preadditive_yoneda.obj B).rightOp
     refine' Preadditive.exact_of_iso_of_exact' _ _ _ _ (e _ _) (e _ _) (e _ _) _ _ this <;>
-      dsimp only [e, functor.map_biprod_hom]
+      dsimp only [e, Functor.mapBiprod_hom]
     all_goals
       ext
-      · simp only [category.assoc, functor.right_op_map, HomologicalComplex.Cone.d, biprod.lift_fst,
-          eq_self_iff_true, functor.map_homological_complex_obj_d, functor.right_op_map,
-          HomologicalComplex.xEqToIso_refl, category.comp_id, dite_eq_ite, if_true, biprod.lift_fst,
-          biprod.lift_desc, preadditive.comp_neg, comp_zero, add_zero]
-        simp only [functor.map_homological_complex_obj_d, functor.right_op_map, functor.comp_map,
-          biprod.lift_desc, preadditive.comp_neg, comp_zero, add_zero, ← op_comp, ←
+      · simp only [Category.assoc, Functor.rightOp_map, HomologicalComplex.Cone.d, biprod.lift_fst,
+          eq_self_iff_true, Functor.mapHomologicalComplex_obj_d, Functor.rightOp_map,
+          HomologicalComplex.xEqToIso_refl, Category.comp_id, dite_eq_ite, if_true, biprod.lift_fst,
+          biprod.lift_desc, Preadditive.comp_neg, comp_zero, add_zero]
+        simp only [Functor.mapHomologicalComplex_obj_d, Functor.rightOp_map, Functor.comp_map,
+          biprod.lift_desc, Preadditive.comp_neg, comp_zero, add_zero, ← op_comp, ←
           CategoryTheory.Functor.map_comp, biprod.lift_fst]
-        simp only [biprod.desc_eq, comp_zero, add_zero, preadditive.comp_neg, CategoryTheory.op_neg,
-          functor.map_neg, op_comp, CategoryTheory.Functor.map_comp]
+        simp only [biprod.desc_eq, comp_zero, add_zero, Preadditive.comp_neg, CategoryTheory.op_neg,
+          Functor.map_neg, op_comp, CategoryTheory.Functor.map_comp]
         rfl
-      · simp only [category.assoc, functor.right_op_map, HomologicalComplex.Cone.d, biprod.lift_snd,
-          eq_self_iff_true, functor.map_homological_complex_obj_d, functor.right_op_map,
-          functor.map_homological_complex_map_f, HomologicalComplex.xEqToIso_refl, category.comp_id,
+      · simp only [Category.assoc, Functor.rightOp_map, HomologicalComplex.Cone.d, biprod.lift_snd,
+          eq_self_iff_true, Functor.mapHomologicalComplex_obj_d, Functor.rightOp_map,
+          Functor.mapHomologicalComplex_map_f, HomologicalComplex.xEqToIso_refl, Category.comp_id,
           dite_eq_ite, if_true, biprod.lift_snd, biprod.lift_desc]
-        simp only [functor.map_homological_complex_obj_d, functor.right_op_map, functor.comp_map,
-          biprod.lift_desc, preadditive.comp_neg, comp_zero, add_zero, ← op_comp, ←
+        simp only [Functor.mapHomologicalComplex_obj_d, Functor.rightOp_map, Functor.comp_map,
+          biprod.lift_desc, Preadditive.comp_neg, comp_zero, add_zero, ← op_comp, ←
           CategoryTheory.Functor.map_comp, biprod.lift_snd]
-        simp only [biprod.desc_eq, op_add, functor.map_neg, functor.map_add, op_comp,
+        simp only [biprod.desc_eq, op_add, Functor.map_neg, Functor.map_add, op_comp,
           CategoryTheory.Functor.map_comp]
         rfl
   · clear i; intro k i hi
     let e :=
-      functor.map_biprod ((ext' i).flip.obj B).rightOp (P.val.as.X (k + 1)) ((of' C).val.as.pt k)
-    refine' is_zero.of_iso (is_zero.unop _) e.symm.unop
+      Functor.mapBiprod ((ext' i).flip.obj B).rightOp (P.val.as.X (k + 1)) ((of' C).val.as.pt k)
+    refine' IsZero.of_iso (IsZero.unop _) e.symm.unop
     refine' CategoryTheory.Limits.IsZero.biprod _ _
-    · simp only [functor.right_op_obj, functor.flip_obj_obj, is_zero_op]
+    · simp only [Functor.rightOp_obj, Functor.flip_obj_obj, CategoryTheory.Limits.isZero_op]
       exact acyclic_of_projective (P.val.as.X (k + 1)) B i hi
     · exact (hC k _ hi).op
 
@@ -471,10 +471,10 @@ theorem helper₁ (h1 h2) :
         h2 =
       kernel.lift _ (kernel.ι _ ≫ (preadditiveYoneda.obj B).map (f.f (-i)).op)
           (by
-            rw [category.assoc]
+            rw [Category.assoc]
             have aux :=
               (((preadditive_yoneda.obj B).rightOp.mapHomologicalComplex _ ⋙
-                          homological_complex.unop_functor.right_op).map
+                          homological_complex.unop_functor.rightOp).map
                       f).unop.comm_from
                 (-i)
             dsimp at aux 
@@ -482,7 +482,7 @@ theorem helper₁ (h1 h2) :
         homology'.π' _ _ _ :=
   by
   apply homology'.hom_to_ext
-  rw [category.assoc, homology'.π'_ι, kernel.lift_ι_assoc, homology'.lift_ι]
+  rw [Category.assoc, homology'.π'_ι, kernel.lift_ι_assoc, homology'.lift_ι]
   rfl
 
 theorem helper₂ (h1 h2) :
@@ -498,20 +498,20 @@ theorem helper₂ (h1 h2) :
             apply HomologicalComplex.Hom.f
             exact
               (((preadditive_yoneda.obj B).rightOp.mapHomologicalComplex _ ⋙
-                      homological_complex.unop_functor.right_op).map
+                      homological_complex.unop_functor.rightOp).map
                   (of' C₂).π.out).unop)
           (by
-            rw [category.assoc]
+            rw [Category.assoc]
             have :=
               (((preadditive_yoneda.obj B).rightOp.mapHomologicalComplex _ ⋙
-                          homological_complex.unop_functor.right_op).map
+                          homological_complex.unop_functor.rightOp).map
                       (of' C₂).π.out).unop.comm_from
                 (-i)
             erw [this, kernel.condition_assoc, zero_comp]) ≫
         homology'.π' _ _ _ :=
   by
   apply homology'.hom_to_ext
-  simp only [homology'.lift_ι, category.assoc, homology'.π'_ι, kernel.lift_ι_assoc]
+  simp only [homology'.lift_ι, Category.assoc, homology'.π'_ι, kernel.lift_ι_assoc]
   rfl
 
 end ExtComputeWithAcyclicAux₃NaturalityHelpers
@@ -528,18 +528,18 @@ theorem extComputeWithAcyclicAux₃_naturality (C₁ C₂ : CochainComplex 𝓐 
                 HomologicalComplex.unopFunctor.rightOp ⋙ (homology'Functor _ _ (-i)).op).map
             (BoundedHomotopyCategory.lift ((of' C₁).π ≫ of'Hom f) (of' C₂).π).out).unop :=
   by
-  dsimp only [extComputeWithAcyclicAux₃, functor.comp_map, _root_.homology_functor, functor.op,
+  dsimp only [extComputeWithAcyclicAux₃, Functor.comp_map, _root_.homology_functor, Functor.op,
     HomologicalComplex.Hom.sqFrom, HomologicalComplex.Hom.sqTo, HomotopyCategory.quotient,
-    HomotopyCategory.homology'Functor, quotient.functor, CategoryTheory.Quotient.lift, Quot.liftOn,
+    HomotopyCategory.homology'Functor, Quotient.functor, CategoryTheory.Quotient.lift, Quot.liftOn,
     Quiver.Hom.unop_op]
   simp_rw [homology'.map_eq_desc'_lift_left]
   apply homology'.hom_from_ext
-  simp only [category.assoc, homology'.π'_desc'_assoc]
+  simp only [Category.assoc, homology'.π'_desc'_assoc]
   slice_rhs 1 2 => erw [homology'.π'_desc']
-  dsimp only [arrow.hom_mk_left]
+  dsimp only [Arrow.homMk_left]
   rw [ExtComputeWithAcyclicAux₃NaturalityHelpers.helper₁]
   conv_rhs => rw [ExtComputeWithAcyclicAux₃NaturalityHelpers.helper₂]
-  simp only [category.assoc]
+  simp only [Category.assoc]
   slice_lhs 2 3 => erw [homology'.π'_desc']
   slice_rhs 2 3 => erw [homology'.π'_desc']
   apply homology'.hom_to_ext
@@ -547,29 +547,29 @@ theorem extComputeWithAcyclicAux₃_naturality (C₁ C₂ : CochainComplex 𝓐 
   slice_rhs 2 3 => erw [homology'.lift_ι]
   slice_lhs 1 2 => erw [kernel.lift_ι]
   slice_rhs 1 2 => erw [kernel.lift_ι]
-  simp only [category.assoc]
-  dsimp only [extComputeWithAcyclicHomB, functor.comp_map]
+  simp only [Category.assoc]
+  dsimp only [extComputeWithAcyclicHomB, Functor.comp_map]
   change
     _ ≫
         (((preadditive_yoneda.obj B).rightOp.mapHomologicalComplex _ ⋙
-                      homological_complex.unop_functor.right_op).map
+                      homological_complex.unop_functor.rightOp).map
                   f).unop.f
             _ ≫
           _ =
       _
   slice_lhs 2 3 =>
     simp only [← HomologicalComplex.comp_f, ← unop_comp]
-    simp only [functor.comp_map, ← functor.map_comp]
-  slice_rhs 2 3 => simp only [← HomologicalComplex.comp_f, ← unop_comp, ← functor.map_comp]
+    simp only [Functor.comp_map, ← Functor.map_comp]
+  slice_rhs 2 3 => simp only [← HomologicalComplex.comp_f, ← unop_comp, ← Functor.map_comp]
   apply Homotopy.kernel_ι_comp_comp_cokernel_π_of_homotopy
   apply Homotopy.homotopyUnopFunctorRightOpMapUnopOfHomotopy
-  apply functor.map_homotopy
+  apply Functor.mapHomotopy
   suffices lift ((of' C₁).π ≫ of'Hom f) (of' C₂).π ≫ (of' C₂).π = (of' C₁).π ≫ of'Hom f
     by
     apply HomotopyCategory.homotopyOfEq
     convert this.symm
-    · simpa only [functor.map_comp, quotient_map_out]
-    · simpa only [functor.map_comp, quotient_map_out]
+    · simpa only [Functor.map_comp, quotient_map_out]
+    · simpa only [Functor.map_comp, quotient_map_out]
   simp
 
 theorem extComputeWithAcyclicAux₃_isIso (B : 𝓐)
@@ -577,7 +577,7 @@ theorem extComputeWithAcyclicAux₃_isIso (B : 𝓐)
     IsIso (extComputeWithAcyclicAux₃ C B i) :=
   by
   haveI := extComputeWithAcyclicIsQuasiIsoAux C B hC i
-  apply is_quasi_iso.cond
+  apply IsQuasiIso.cond
 
 def extComputeWithAcyclic (B : 𝓐) (hC : ∀ k, ∀ i > 0, IsZero (((ext' i).obj (op <| C.pt k)).obj B))
     (i : ℤ) :
@@ -586,7 +586,7 @@ def extComputeWithAcyclic (B : 𝓐) (hC : ∀ k, ∀ i > 0, IsZero (((ext' i).o
   extComputeWithAcyclicAux₁ C B i ≪≫
     extComputeWithAcyclicAux₂ _ _ _ ≪≫
       haveI := extComputeWithAcyclicAux₃_isIso C B hC i
-      (as_iso (extComputeWithAcyclicAux₃ C B i)).symm
+      (CategoryTheory.asIso (extComputeWithAcyclicAux₃ C B i)).symm
 
 /-
 def homological_complex.single_iso (B : 𝓐) {i j : ℤ} (h : j = i) :
@@ -693,19 +693,19 @@ theorem extComputeWithAcyclic_naturality (C₁ C₂ : CochainComplex 𝓐 ℤ)
     (hC₁ : ∀ k, ∀ i > 0, IsZero (((ext' i).obj (op <| C₁.pt k)).obj B))
     (hC₂ : ∀ k, ∀ i > 0, IsZero (((ext' i).obj (op <| C₂.pt k)).obj B)) (f : C₁ ⟶ C₂) (i : ℤ) :
     ((ext i).flip.obj ((single _ 0).obj B)).map (Quiver.Hom.op <| of'Hom f) ≫
-        (extComputeWithAcyclic C₁ B hC₁ i).Hom =
-      (extComputeWithAcyclic C₂ B hC₂ i).Hom ≫
+        (extComputeWithAcyclic C₁ B hC₁ i).hom =
+      (extComputeWithAcyclic C₂ B hC₂ i).hom ≫
         (((preadditiveYoneda.obj B).rightOp.mapHomologicalComplex _ ⋙
                 HomologicalComplex.unopFunctor.rightOp ⋙ (homology'Functor _ _ (-i)).op).map
             f).unop :=
   by
-  dsimp only [extComputeWithAcyclic, iso.trans_hom]
+  dsimp only [extComputeWithAcyclic, Iso.trans_hom]
   slice_lhs 1 2 => erw [extComputeWithAcyclicAux₁_naturality]
   slice_lhs 2 3 => rw [extComputeWithAcyclicAux₂_naturality]
-  simp only [category.assoc]
+  simp only [Category.assoc]
   congr 2
-  dsimp only [iso.symm_hom, as_iso_inv]
-  rw [is_iso.eq_inv_comp, ← category.assoc, is_iso.comp_inv_eq]
+  dsimp only [Iso.symm_hom, CategoryTheory.asIso_inv]
+  rw [IsIso.eq_inv_comp, ← Category.assoc, IsIso.comp_inv_eq]
   symm
   apply extComputeWithAcyclicAux₃_naturality
 

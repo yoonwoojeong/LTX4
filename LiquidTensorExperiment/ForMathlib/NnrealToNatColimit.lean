@@ -45,27 +45,27 @@ def isColimitRestrictCocone {F : AsSmall.{v} ℝ≥0 ⥤ C} (S : Cocone F) (hS :
         { app := fun r =>
             F.map (AsSmall.up.map <| homOfLE <| findNat_spec ι hι (ULift.down r)) ≫
               T.ι.app (ULift.up (findNat ι hι (ULift.down r)))
-          naturality' := by
+          naturality := by
             intro r s f
             dsimp
-            let m := find_nat ι hι (ULift.down r) ⊔ find_nat ι hι (ULift.down s)
-            let r' := as_small.up.obj (find_nat ι hι (ULift.down r))
-            let s' := as_small.up.obj (find_nat ι hι (ULift.down s))
+            let m := CategoryTheory.Limits.findNat ι hι (ULift.down r) ⊔ CategoryTheory.Limits.findNat ι hι (ULift.down s)
+            let r' := as_small.up.obj (CategoryTheory.Limits.findNat ι hι (ULift.down r))
+            let s' := as_small.up.obj (CategoryTheory.Limits.findNat ι hι (ULift.down s))
             let m' := as_small.up.obj m
             let ιr : r' ⟶ m' := as_small.up.map (hom_of_le <| le_sup_left)
             let ιs : s' ⟶ m' := as_small.up.map (hom_of_le <| le_sup_right)
             erw [← T.w ιr]
             erw [← T.w ιs]
-            dsimp [restrict_diagram]
-            simp only [category.comp_id, ← category.assoc, ← F.map_comp]
+            dsimp [CategoryTheory.Limits.restrictDiagram]
+            simp only [Category.comp_id, ← Category.assoc, ← F.map_comp]
             rfl }⟩
   fac := by
     intro W j
-    dsimp [restrict_cocone]
+    dsimp [CategoryTheory.Limits.restrictCocone]
     rw [hS.fac]
     dsimp
-    let r := (nat_to_nnreal ι).obj (ULift.down j)
-    let k := find_nat ι hι r
+    let r := (CategoryTheory.Limits.natToNnreal ι).obj (ULift.down j)
+    let k := CategoryTheory.Limits.findNat ι hι r
     let l := ULift.down j ⊔ k
     let k' : AsSmall.{v} ℕ := as_small.up.obj k
     let l' : AsSmall.{v} ℕ := as_small.up.obj l
@@ -73,17 +73,17 @@ def isColimitRestrictCocone {F : AsSmall.{v} ℝ≥0 ⥤ C} (S : Cocone F) (hS :
     let ιj : j ⟶ l' := as_small.up.map (hom_of_le <| le_sup_left)
     erw [← W.w ιk]
     erw [← W.w ιj]
-    dsimp [restrict_diagram]
-    simp only [← category.assoc, ← F.map_comp]
+    dsimp [CategoryTheory.Limits.restrictDiagram]
+    simp only [← Category.assoc, ← F.map_comp]
     rfl
   uniq := by
     intro W m hm
     apply hS.hom_ext; intro j
-    specialize hm (as_small.up.obj (find_nat ι hι (ULift.down j)))
-    dsimp [restrict_cocone] at hm 
+    specialize hm (as_small.up.obj (CategoryTheory.Limits.findNat ι hι (ULift.down j)))
+    dsimp [CategoryTheory.Limits.restrictCocone] at hm 
     rw [hS.fac]
     dsimp
-    erw [← hm, ← category.assoc, S.w]
+    erw [← hm, ← Category.assoc, S.w]
 
 end CategoryTheory.Limits
 

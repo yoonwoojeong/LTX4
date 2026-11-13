@@ -34,14 +34,14 @@ theorem evalFP_rescale [ϕ.Suitable c₁ c₂] (N : ℝ≥0) (M)
       (evalFP r' (c₁ * N⁻¹) (c₂ * N⁻¹) ϕ).app (of r' M) :=
   by
   ext x i; dsimp only [eval_FP, ContinuousMap.coe_mk, eval_png₀, Subtype.coe_mk]
-  simp only [eval_png_apply]
+  simp only [BreenDeligne.BasicUniversalMap.evalPng_apply]
 
 theorem evalLCFP_rescale [ϕ.Suitable c₂ c₁] (N : ℝ≥0) (M)
     [ProfinitelyFilteredPseudoNormedGroupWithTinv r' M] :
     (evalLCFP V r' ϕ c₁ c₂).app (op (of r' (Rescale N M))) = by
       clean @_root_.id _ ((eval_LCFP V r' ϕ (c₁ * N⁻¹) (c₂ * N⁻¹)).app (op (of r' M))) :=
   by
-  dsimp only [eval_LCFP, whisker_right_app, nat_trans.op_app, unop_op]
+  dsimp only [eval_LCFP, CategoryTheory.whiskerRight_app, NatTrans.op_app, unop_op]
   rw [eval_FP_rescale]
 
 end BasicUniversalMap
@@ -55,8 +55,8 @@ theorem evalLCFP_rescale [ϕ.Suitable c₂ c₁] (N : ℝ≥0) (M)
     (evalLCFP V r' c₁ c₂ ϕ).app (op (of r' (Rescale N M))) = by
       clean @_root_.id _ ((eval_LCFP V r' (c₁ * N⁻¹) (c₂ * N⁻¹) ϕ).app (op (of r' M))) :=
   by
-  simp only [eval_LCFP, ← nat_trans.app_hom_apply, AddMonoidHom.map_sum, AddMonoidHom.map_zsmul]
-  simp only [nat_trans.app_hom_apply, basic_universal_map.eval_LCFP_rescale]
+  simp only [eval_LCFP, ← NatTrans.appHom_apply, AddMonoidHom.map_sum, AddMonoidHom.map_zsmul]
+  simp only [NatTrans.appHom_apply, BasicUniversalMap.evalLCFP_rescale]
 
 end UniversalMap
 

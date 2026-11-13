@@ -85,8 +85,8 @@ instance Arrow.addCommGroup (P Q : Arrow A) : AddCommGroup (P ⟶ Q) :=
     add_comm := fun f g => by ext <;> apply add_comm }
 
 instance Arrow.preadditive : Preadditive (Arrow A) :=
-  ⟨inferInstance, by introv P; ext <;> apply preadditive.add_comp, by introv P;
-    ext <;> apply preadditive.comp_add⟩
+  ⟨inferInstance, by introv P; ext <;> apply Preadditive.add_comp, by introv P;
+    ext <;> apply Preadditive.comp_add⟩
 
 end CategoryTheory
 

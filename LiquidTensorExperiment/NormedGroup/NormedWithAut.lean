@@ -1,6 +1,6 @@
 import Mathlib.Analysis.Normed.Group.SemiNormedGroupCat.Kernels
 
-#align_import normed_group.normed_with_aut
+#align_import normed_group.normedWithAut
 
 /-!
 

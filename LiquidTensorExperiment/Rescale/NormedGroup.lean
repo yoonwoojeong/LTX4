@@ -3,7 +3,7 @@ import LiquidTensorExperiment.LocallyConstant.Vhat
 import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
 import LiquidTensorExperiment.Facts.Nnreal
 
-#align_import rescale.normed_group
+#align_import rescale.normedGroup
 
 noncomputable section
 
@@ -19,7 +19,7 @@ theorem norm_def [Norm V] (v : Rescale N V) : ‖v‖ = ‖of.symm v‖ / N :=
   rfl
 
 instance [hN : Fact (0 < N)] [SeminormedAddCommGroup V] : SeminormedAddCommGroup (Rescale N V) :=
-  seminormed_add_comm_group.of_core (Rescale N V)
+  seminormed_add_comm_group.ofCore (Rescale N V)
     { norm_zero := show ‖0 : V‖ / N = 0 by rw [norm_zero, zero_div]
       triangle := fun v w => by
         simp only [norm_def, ← add_div]
@@ -29,7 +29,7 @@ instance [hN : Fact (0 < N)] [SeminormedAddCommGroup V] : SeminormedAddCommGroup
 
 -- defeq abuse
 instance [hN : Fact (0 < N)] [NormedAddCommGroup V] : NormedAddCommGroup (Rescale N V) :=
-  normed_add_comm_group.of_core (Rescale N V)
+  normed_add_comm_group.ofCore (Rescale N V)
     { norm_eq_zero_iff := fun v =>
         by
         have aux : (N : ℝ) ≠ 0 := ne_of_gt hN.out
@@ -68,9 +68,9 @@ def rescale (r : ℝ≥0) [hr : Fact (0 < r)] : SemiNormedGroupCat ⥤ SemiNorme
         have := hC ((@Rescale.of r V₁).symm v)
         rw [← div_le_div_right (show 0 < (r : ℝ) from hr.1), mul_div_assoc] at this 
         exact this }
-  map_id' V := rfl
+  map_id V := rfl
   -- defeq abuse
-  map_comp' V₁ V₂ V₃ f g := rfl
+  map_comp V₁ V₂ V₃ f g := rfl
 
 -- defeq abuse
 instance rescale.additive [Fact (0 < r)] : (rescale r).Additive where map_add' V W f g := rfl
@@ -122,7 +122,7 @@ def toRescale [Fact (0 < r)] : 𝟭 _ ⟶ rescale r
   app V :=
     AddMonoidHom.mkNormedAddGroupHom' (AddMonoidHom.mk' (@Rescale.of r V) fun _ _ => rfl) r⁻¹
       fun v => nnnorm_to_rescale _ v
-  naturality' V W f := rfl
+  naturality V W f := rfl
 
 -- defeq abuse
 def ofRescale [hr : Fact (0 < r)] : rescale r ⟶ 𝟭 _
@@ -133,7 +133,7 @@ def ofRescale [hr : Fact (0 < r)] : rescale r ⟶ 𝟭 _
         intro v
         erw [Rescale.nnnorm_def, mul_div_cancel' _ hr.1.ne']
         exact le_rfl)
-  naturality' V W f := rfl
+  naturality V W f := rfl
 
 -- defeq abuse
 @[simps]
@@ -147,7 +147,7 @@ open _Root_.CategoryTheory
 theorem isoRescale_isometry [Fact (0 < r)] (h : r = 1) (V : SemiNormedGroupCat) :
     Isometry ((isoRescale r).app V).hom := by
   cases h
-  dsimp only [nat_iso.app_hom, iso_rescale_hom]
+  dsimp only [NatIso.app_hom, SemiNormedGroupCat.isoRescale_hom]
   apply AddMonoidHomClass.isometry_of_norm
   intro v
   erw [Rescale.norm_def]
@@ -174,7 +174,7 @@ def scale : rescale r₁ ⟶ rescale r₂
     AddMonoidHom.mkNormedAddGroupHom'
       (AddMonoidHom.mk' (fun v => @Rescale.of r₂ V <| (@Rescale.of r₁ V).symm v) fun _ _ => rfl)
       (r₁ / r₂) fun v => nnnorm_rescale_rescale_symm r₁ r₂ v
-  naturality' V W f := rfl
+  naturality V W f := rfl
 
 -- defeq abuse
 theorem norm_scale_le (V : SemiNormedGroupCat) : ‖((scale r₁ r₂).app V)‖ ≤ r₁ / r₂ :=
@@ -187,8 +187,8 @@ theorem scale_comm {V₁ V₂ W₁ W₂ : SemiNormedGroupCat} (f₁ : V₁ ⟶ W
     (rescale r₁).map f₁ ≫ (rescale r₁).map ψ ≫ (scale r₁ r₂).app W₂ =
       ((rescale r₁).map φ ≫ (scale r₁ r₂).app V₂) ≫ (rescale r₂).map f₂ :=
   by
-  rw [← category.assoc, ← CategoryTheory.Functor.map_comp, nat_trans.naturality,
-    nat_trans.naturality, category.assoc, ← CategoryTheory.Functor.map_comp, h]
+  rw [← Category.assoc, ← CategoryTheory.Functor.map_comp, NatTrans.naturality,
+    NatTrans.naturality, Category.assoc, ← CategoryTheory.Functor.map_comp, h]
 
 end SemiNormedGroupCat
 

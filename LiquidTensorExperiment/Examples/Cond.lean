@@ -45,7 +45,7 @@ A term `f` of `C(X,Y)` is continuous, when considered as a function `X → Y`.
 
 
 example (f : C(X, Y)) : Continuous f :=
-  f.Continuous
+  f.continuous
 
 /-!
 Conversely, any continuous function `X → Y` yields an element of `C(X,Y)`.
@@ -161,8 +161,8 @@ example
           F (op B),-- which restricts to `x i` over `X i` for all `i`.
           ∀ i, F.map (π i).op s = x i :=
   by
-  rw [presheaf.is_sheaf_iff_is_sheaf_forget proetaleTopology F (forget _)]
-  rw [is_sheaf_iff_is_sheaf_of_type, (F ⋙ forget Ab).isProetaleSheafOfTypes_tFAE.out 0 2]
+  rw [Presheaf.isSheaf_iff_isSheaf_forget proetaleTopology F (forget _)]
+  rw [CategoryTheory.isSheaf_iff_isSheaf_of_type, (F ⋙ forget Ab).isProetaleSheafOfTypes_tFAE.out 0 2]
   constructor
   · intro H α; exact H _
   · intro H α _; exact H ⟨α⟩

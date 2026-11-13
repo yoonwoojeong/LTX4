@@ -29,22 +29,22 @@ def modBoundaries (A : HomologicalComplex C c) (j : ι) : C :=
 
 def modBoundariesMap {A B : HomologicalComplex C c} (f : A ⟶ B) (j : ι) :
     A.modBoundaries j ⟶ B.modBoundaries j :=
-  cokernel.map _ _ (boundariesMap f j) (f.f j) <| by rw [image_subobject_map_arrow]; rfl
+  cokernel.map _ _ (boundariesMap f j) (f.f j) <| by rw [CategoryTheory.Limits.imageSubobjectMap_arrow]; rfl
 
 @[simps]
 def modBoundariesFunctor (j : ι) : HomologicalComplex C c ⥤ C
     where
   obj A := A.modBoundaries j
   map A B f := modBoundariesMap f j
-  map_id' A := by
-    delta mod_boundaries mod_boundaries_map cokernel.map; ext
+  map_id A := by
+    delta HomologicalComplex.modBoundaries HomologicalComplex.modBoundariesMap cokernel.map; ext
     show cokernel.π (A.boundaries j).arrow ≫ _ = cokernel.π (A.boundaries j).arrow ≫ _
-    simp only [cokernel.π_desc, category.id_comp, id_f, category.comp_id]
-  map_comp' X Y Z f g :=
+    simp only [cokernel.π_desc, Category.id_comp, id_f, Category.comp_id]
+  map_comp X Y Z f g :=
     by
-    delta mod_boundaries mod_boundaries_map cokernel.map; ext
+    delta HomologicalComplex.modBoundaries HomologicalComplex.modBoundariesMap cokernel.map; ext
     show cokernel.π (X.boundaries j).arrow ≫ _ = cokernel.π (X.boundaries j).arrow ≫ _
-    simp only [cokernel.π_desc, cokernel.π_desc_assoc, comp_f, category.assoc]
+    simp only [cokernel.π_desc, cokernel.π_desc_assoc, comp_f, Category.assoc]
 
 -- generalize to chain complexes over other shapes
 @[simps]
@@ -52,13 +52,13 @@ def homologyToModBoundaries (i : ι) : homology'Functor C c i ⟶ modBoundariesF
     where
   app A :=
     cokernel.map _ _ (𝟙 _) (A.cycles' i).arrow
-      (by simp only [category.id_comp, imageToKernel_arrow])
-  naturality' A B f := by
+      (by simp only [Category.id_comp, imageToKernel_arrow])
+  naturality A B f := by
     ext
-    simp only [homology'Functor_map, mod_boundaries_functor_map, homology'.π_map_assoc]
-    delta mod_boundaries_map homology'.π cokernel.map cycles
-    simp only [cokernel.π_desc, cokernel.π_desc_assoc, comp_f, category.assoc,
-      kernel_subobject_map_arrow_assoc, hom.sq_from_left]
+    simp only [homology'Functor_map, HomologicalComplex.modBoundariesFunctor_map, homology'.π_map_assoc]
+    delta HomologicalComplex.modBoundariesMap homology'.π cokernel.map cycles
+    simp only [cokernel.π_desc, cokernel.π_desc_assoc, comp_f, Category.assoc,
+      CategoryTheory.Limits.kernelSubobjectMap_arrow_assoc, Hom.sqFrom_left]
 
 variable (A : HomologicalComplex C c) (i j : ι) (hij : c.Rel i j)
 
@@ -71,49 +71,49 @@ instance deltaToBoundaries_epi : Epi (deltaToBoundaries A i j hij) :=
 @[ext]
 theorem boundaries.ext' {X : C} (f g : (boundaries A j : C) ⟶ X)
     (h : factorThruImageSubobject _ ≫ f = factorThruImageSubobject _ ≫ g) : f = g := by
-  rwa [cancel_epi (factor_thru_image_subobject (A.d_to j))] at h 
+  rwa [cancel_epi (CategoryTheory.Limits.factorThruImageSubobject (A.d_to j))] at h 
 
 @[simp, reassoc]
 theorem deltaToBoundaries_comp_arrow :
     deltaToBoundaries A i j hij ≫ (boundaries A j).arrow = A.d i j := by
-  rw [delta_to_boundaries, category.assoc, image_subobject_arrow_comp, X_prev_iso_comp_d_to]
+  rw [HomologicalComplex.deltaToBoundaries, Category.assoc, CategoryTheory.Limits.imageSubobject_arrow_comp, X_prev_iso_comp_d_to]
 
 @[simp, reassoc]
 theorem boundaries_arrow_comp_deltaToBoundaries :
     (boundaries _ i).arrow ≫ deltaToBoundaries A i j hij = 0 :=
   by
   ext
-  simp only [image_subobject_arrow_comp_assoc, category.assoc, delta_to_boundaries_comp_arrow,
-    comp_zero, zero_comp, ← d_from_comp_X_next_iso A hij, reassoc_of (d_to_comp_d_from A)]
+  simp only [CategoryTheory.Limits.imageSubobject_arrow_comp_assoc, Category.assoc, HomologicalComplex.deltaToBoundaries_comp_arrow,
+    comp_zero, zero_comp, ← d_from_comp_X_next_iso A hij, reassoc_of (HomologicalComplex.dTo_comp_dFrom A)]
 
 def deltaToCycles : A.pt i ⟶ A.cycles' j :=
   deltaToBoundaries _ i j hij ≫ boundariesToCycles' _ _
 
 @[simp, reassoc]
 theorem deltaToCycles_comp_arrow : deltaToCycles A i j hij ≫ (cycles' A j).arrow = A.d i j := by
-  rw [delta_to_cycles, category.assoc, imageToKernel_arrow, delta_to_boundaries_comp_arrow]
+  rw [HomologicalComplex.deltaToCycles, Category.assoc, imageToKernel_arrow, HomologicalComplex.deltaToBoundaries_comp_arrow]
 
 @[simp, reassoc]
 theorem boundaries_arrow_comp_deltaToCycles :
     (boundaries _ _).arrow ≫ deltaToCycles A i j hij = 0 := by
-  rw [delta_to_cycles, ← category.assoc, boundaries_arrow_comp_delta_to_boundaries, zero_comp]
+  rw [HomologicalComplex.deltaToCycles, ← Category.assoc, HomologicalComplex.boundaries_arrow_comp_deltaToBoundaries, zero_comp]
 
 @[simps]
 def modBoundariesToCycles : modBoundariesFunctor i ⟶ cycles'Functor C c j
     where
   app A := cokernel.desc _ (deltaToCycles _ i j hij) (boundaries_arrow_comp_deltaToCycles _ i j hij)
-  naturality' A B f := by
+  naturality A B f := by
     ext; show cokernel.π _ ≫ _ = cokernel.π _ ≫ _
-    simp only [homology'Functor_map, mod_boundaries_functor_map, homology'.π_map_assoc]
-    delta mod_boundaries_map homology'.π cokernel.map
-    simp only [category.assoc, cycles'Functor_map, cycles'Map_arrow, hom.comm,
-      cokernel.π_desc_assoc, delta_to_cycles_comp_arrow_assoc, delta_to_cycles_comp_arrow]
+    simp only [homology'Functor_map, HomologicalComplex.modBoundariesFunctor_map, homology'.π_map_assoc]
+    delta HomologicalComplex.modBoundariesMap homology'.π cokernel.map
+    simp only [Category.assoc, cycles'Functor_map, cycles'Map_arrow, hom.comm,
+      cokernel.π_desc_assoc, HomologicalComplex.deltaToCycles_comp_arrow_assoc, HomologicalComplex.deltaToCycles_comp_arrow]
 
 @[simps]
 def cyclesToHomology : cycles'Functor C c i ⟶ homology'Functor C c i
     where
   app A := cokernel.π _
-  naturality' A B f := by
+  naturality A B f := by
     simp only [cycles'Functor_map, homology'Functor_map]
     delta homology'.map
     rw [cokernel.π_desc]; rfl
@@ -129,7 +129,7 @@ theorem exact_next {A₁ A₂ A₃ : HomologicalComplex C c} (f : A₁ ⟶ A₂)
   refine'
       Preadditive.exact_of_iso_of_exact' (f.f j) (g.f j) _ _ (X_next_iso A₁ hij).symm
         (X_next_iso A₂ hij).symm (X_next_iso A₃ hij).symm _ _ h <;>
-    simp only [hom.next_eq _ hij, iso.symm_hom, iso.inv_hom_id_assoc]
+    simp only [Hom.next_eq _ hij, Iso.symm_hom, Iso.inv_hom_id_assoc]
 
 theorem exact_next' {A₁ A₂ A₃ : HomologicalComplex C c} (f : A₁ ⟶ A₂) (g : A₂ ⟶ A₃) (i : ι)
     (h : ∀ n, Exact (f.f n) (g.f n)) : Exact (f.next i) (g.next i) :=
@@ -140,7 +140,7 @@ theorem exact_prev {A₁ A₂ A₃ : HomologicalComplex C c} (f : A₁ ⟶ A₂)
   refine'
       Preadditive.exact_of_iso_of_exact' (f.f i) (g.f i) _ _ (X_prev_iso A₁ hij).symm
         (X_prev_iso A₂ hij).symm (X_prev_iso A₃ hij).symm _ _ h <;>
-    simp only [hom.prev_eq _ hij, iso.symm_hom, iso.inv_hom_id_assoc]
+    simp only [Hom.prev_eq _ hij, Iso.symm_hom, Iso.inv_hom_id_assoc]
 
 theorem exact_prev' {A₁ A₂ A₃ : HomologicalComplex C c} (f : A₁ ⟶ A₂) (g : A₂ ⟶ A₃) (j : ι)
     (h : ∀ n, Exact (f.f n) (g.f n)) : Exact (f.prev j) (g.prev j) :=
@@ -149,7 +149,7 @@ theorem exact_prev' {A₁ A₂ A₃ : HomologicalComplex C c} (f : A₁ ⟶ A₂
 theorem mono_next {A₁ A₂ : HomologicalComplex C c} (f : A₁ ⟶ A₂) (i j : ι) (hij : c.Rel i j)
     [Mono (f.f j)] : Mono (f.next i) :=
   by
-  rw [hom.next_eq _ hij]
+  rw [Hom.next_eq _ hij]
   apply (config := { instances := false }) mono_comp
   · infer_instance
   · apply mono_comp
@@ -159,7 +159,7 @@ instance mono_next' {A₁ A₂ : HomologicalComplex C c} (f : A₁ ⟶ A₂) (i 
 
 theorem epi_prev {A₁ A₂ : HomologicalComplex C c} (f : A₁ ⟶ A₂) (i j : ι) (hij : c.Rel i j)
     [Epi (f.f i)] : Epi (f.prev j) := by
-  rw [hom.prev_eq _ hij]
+  rw [Hom.prev_eq _ hij]
   apply (config := { instances := false }) epi_comp
   · infer_instance
   · apply epi_comp
@@ -169,19 +169,19 @@ instance epi_prev' {A₁ A₂ : HomologicalComplex C c} (f : A₁ ⟶ A₂) (j :
 
 instance {A B : HomologicalComplex C c} (f : A ⟶ B) [∀ n, Epi (f.f n)] (i : ι) :
     Epi (boundariesMap f i) := by
-  let sq := hom.sq_to f i
+  let sq := Hom.sqTo f i
   haveI : epi sq.left := by dsimp; infer_instance
-  apply (config := { instances := false }) epi_of_epi (factor_thru_image_subobject _)
+  apply (config := { instances := false }) epi_of_epi (CategoryTheory.Limits.factorThruImageSubobject _)
   suffices
-    factor_thru_image_subobject (A.d_to i) ≫ boundariesMap f i =
-      sq.left ≫ factor_thru_image_subobject (B.d_to i)
+    CategoryTheory.Limits.factorThruImageSubobject (A.d_to i) ≫ boundariesMap f i =
+      sq.left ≫ CategoryTheory.Limits.factorThruImageSubobject (B.d_to i)
     by rw [this]; apply epi_comp
   ext
-  simp only [category.assoc, image_subobject_map_arrow, hom.sq_to_right,
-    image_subobject_arrow_comp_assoc, hom.sq_to_left, image_subobject_arrow_comp, hom.comm_to]
+  simp only [Category.assoc, CategoryTheory.Limits.imageSubobjectMap_arrow, Hom.sqTo_right,
+    CategoryTheory.Limits.imageSubobject_arrow_comp_assoc, Hom.sqTo_left, CategoryTheory.Limits.imageSubobject_arrow_comp, Hom.comm_to]
 
 theorem exact_kernelSubobject_arrow (A B : C) (f : A ⟶ B) : Exact (kernelSubobject f).arrow f := by
-  rw [← kernel_subobject_arrow, exact_iso_comp]; exact exact_kernel_ι
+  rw [← CategoryTheory.Limits.kernelSubobject_arrow, exact_iso_comp]; exact exact_kernel_ι
 
 theorem exact_cycles'_arrow (A : HomologicalComplex C c) (i : ι) :
     Exact (cycles' A i).arrow (dFrom A i) :=
@@ -190,8 +190,8 @@ theorem exact_cycles'_arrow (A : HomologicalComplex C c) (i : ι) :
 theorem exact_cycles'Map {A₁ A₂ A₃ : HomologicalComplex C c} (f : A₁ ⟶ A₂) (g : A₂ ⟶ A₃)
     (hfg : ∀ n, ShortExact (f.f n) (g.f n)) (j : ι) : Exact (cycles'Map f j) (cycles'Map g j) :=
   by
-  have sq₁ : d_from A₁ j ≫ f.next j = f.f j ≫ d_from A₂ j := (hom.comm_from _ _).symm
-  have sq₂ : d_from A₂ j ≫ g.next j = g.f j ≫ d_from A₃ j := (hom.comm_from _ _).symm
+  have sq₁ : HomologicalComplex.dFrom A₁ j ≫ f.next j = f.f j ≫ HomologicalComplex.dFrom A₂ j := (Hom.comm_from _ _).symm
+  have sq₂ : HomologicalComplex.dFrom A₂ j ≫ g.next j = g.f j ≫ HomologicalComplex.dFrom A₃ j := (Hom.comm_from _ _).symm
   suffices S :
     snake (↑(cycles A₁ j)) (↑(cycles A₂ j)) (↑(cycles A₃ j)) (A₁.X j) (A₂.X j) (A₃.X j) _ _ _ _ _ _
       (cycles'Map f j) (cycles'Map g j) (cycles _ j).arrow (cycles _ j).arrow (cycles _ j).arrow
@@ -205,9 +205,9 @@ theorem exact_cycles'Map {A₁ A₂ A₃ : HomologicalComplex C c} (f : A₁ ⟶
   fconstructor
   · exact (hfg j).exact
   · exact exact_next' _ _ _ fun i => (hfg i).exact
-  · refine' (exact_cycles_arrow _ _).cons (abelian.exact_cokernel _).ExactSeq
-  · refine' (exact_cycles_arrow _ _).cons (abelian.exact_cokernel _).ExactSeq
-  · refine' (exact_cycles_arrow _ _).cons (abelian.exact_cokernel _).ExactSeq
+  · refine' (HomologicalComplex.exact_cycles'_arrow _ _).cons (Abelian.exact_cokernel _).ExactSeq
+  · refine' (HomologicalComplex.exact_cycles'_arrow _ _).cons (Abelian.exact_cokernel _).ExactSeq
+  · refine' (HomologicalComplex.exact_cycles'_arrow _ _).cons (Abelian.exact_cokernel _).ExactSeq
   · rw [cycles'Map_arrow]
   · rw [cycles'Map_arrow]
   · exact sq₁
@@ -221,7 +221,7 @@ variable (hfg : ∀ n, ShortExact (f.f n) (g.f n))
 
 theorem mono_cycles'Map (hfg : ∀ n, ShortExact (f.f n) (g.f n)) (i : ι) : Mono (cycles'Map f i) :=
   by
-  apply (config := { instances := false }) mono_of_mono _ (subobject.arrow _)
+  apply (config := { instances := false }) mono_of_mono _ (Subobject.arrow _)
   rw [cycles'Map_arrow]
   haveI : mono (f.f i) := (hfg i).mono
   apply mono_comp
@@ -229,26 +229,26 @@ theorem mono_cycles'Map (hfg : ∀ n, ShortExact (f.f n) (g.f n)) (i : ι) : Mon
 @[simp]
 theorem imageSubobject_arrow {X : C} (S : Subobject X) : imageSubobject S.arrow = S :=
   by
-  delta image_subobject
+  delta CategoryTheory.Limits.imageSubobject
   ext
   swap
-  · exact limits.image_mono_iso_source _
+  · exact Limits.imageMonoIsoSource _
   · simp
 
 @[simp]
 theorem KernelSubobjectCokernel.π {X : C} (S : Subobject X) :
     kernelSubobject (cokernel.π S.arrow) = S :=
   by
-  delta kernel_subobject
+  delta CategoryTheory.Limits.kernelSubobject
   ext
   swap
-  · exact (abelian.image_iso_image _).trans (limits.image_mono_iso_source _)
+  · exact (Abelian.imageIsoImage _).trans (Limits.imageMonoIsoSource _)
   · simp
 
 theorem Exact.congr {X₁ X₂ Y Z₁ Z₂ : C} (f₁ : X₁ ⟶ Y) (g₁ : Y ⟶ Z₁) (f₂ : X₂ ⟶ Y) (g₂ : Y ⟶ Z₂)
     (h : Exact f₁ g₁) (him : imageSubobject f₁ = imageSubobject f₂)
     (hker : kernelSubobject g₁ = kernelSubobject g₂) : Exact f₂ g₂ := by
-  rwa [abelian.exact_iff_image_eq_kernel, ← him, ← hker, ← abelian.exact_iff_image_eq_kernel]
+  rwa [Abelian.exact_iff_image_eq_kernel, ← him, ← hker, ← Abelian.exact_iff_image_eq_kernel]
 
 theorem exact_column :
     ExactSeq C [kernel.ι (A.dTo j), A.dTo j, cokernel.π (A.boundaries j).arrow] :=
@@ -267,14 +267,14 @@ theorem exact_modBoundariesMap (hfg : ∀ n, ShortExact (f.f n) (g.f n)) (j : ι
         kernel
         _)
       (kernel _) (kernel _) (A₁.X_prev j) (A₂.X_prev j) (A₃.X_prev j) (A₁.X j) (A₂.X j) (A₃.X j)
-      (mod_boundaries _ j) (mod_boundaries _ j) (mod_boundaries _ j)
+      (HomologicalComplex.modBoundaries _ j) (HomologicalComplex.modBoundaries _ j) (HomologicalComplex.modBoundaries _ j)
       (-- the morphisms
         kernel.map
         _ _ _ _ sq1)
       (kernel.map _ _ _ _ sq2) (kernel.ι <| A₁.d_to j) (kernel.ι <| A₂.d_to j)
       (kernel.ι <| A₃.d_to j) (f.prev j) (g.prev j) (A₁.d_to j) (A₂.d_to j) (A₃.d_to j) (f.f j)
-      (g.f j) (cokernel.π _) (cokernel.π _) (cokernel.π _) (mod_boundaries_map f j)
-      (mod_boundaries_map g j)
+      (g.f j) (cokernel.π _) (cokernel.π _) (cokernel.π _) (HomologicalComplex.modBoundariesMap f j)
+      (HomologicalComplex.modBoundariesMap g j)
   · exact (S.six_term_exact_seq.drop 3).pair
   have hfg_epi := fun n => (hfg n).Epi
   have hfg_mono := fun n => (hfg n).mono
@@ -289,15 +289,15 @@ theorem exact_modBoundariesMap (hfg : ∀ n, ShortExact (f.f n) (g.f n)) (j : ι
   · simp
   · exact sq1
   · exact sq2
-  · simp [mod_boundaries_map]
-  · simp [mod_boundaries_map]
+  · simp [HomologicalComplex.modBoundariesMap]
+  · simp [HomologicalComplex.modBoundariesMap]
 
 theorem epi_modBoundariesMap (hfg : ∀ n, ShortExact (f.f n) (g.f n)) (i : ι) :
     Epi (modBoundariesMap g i) :=
   by
   apply (config := { instances := false }) epi_of_epi (cokernel.π _)
   haveI : epi (g.f i) := (hfg i).Epi
-  have : cokernel.π _ ≫ mod_boundaries_map g i = g.f i ≫ cokernel.π _ := cokernel.π_desc _ _ _
+  have : cokernel.π _ ≫ HomologicalComplex.modBoundariesMap g i = g.f i ≫ cokernel.π _ := cokernel.π_desc _ _ _
   rw [this]
   apply epi_comp
 
@@ -311,69 +311,69 @@ variable {C}
 theorem imageSubobject_comp_eq_of_epi {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) [Epi f] :
     imageSubobject (f ≫ g) = imageSubobject g :=
   by
-  delta image_subobject
-  haveI : is_iso (image.pre_comp f g) := is_iso_of_mono_of_epi _
+  delta CategoryTheory.Limits.imageSubobject
+  haveI : is_iso (image.preComp f g) := is_iso_of_mono_of_epi _
   ext; swap
-  · exact as_iso (image.pre_comp f g)
-  · simp only [as_iso_hom, image.pre_comp_ι]
+  · exact CategoryTheory.asIso (image.preComp f g)
+  · simp only [CategoryTheory.asIso_hom, image.preComp_ι]
 
 @[simp]
 theorem kernelSubobject_comp_eq_of_mono {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) [Mono g] :
     kernelSubobject (f ≫ g) = kernelSubobject f :=
   by
-  delta kernel_subobject
+  delta CategoryTheory.Limits.kernelSubobject
   ext; swap
-  · exact kernel_comp_mono f g
-  · simp only [kernel_comp_mono_hom, kernel.lift_ι]
+  · exact CategoryTheory.Limits.kernelCompMono f g
+  · simp only [CategoryTheory.Limits.kernelCompMono_hom, kernel.lift_ι]
 
 theorem exact_cycles'_arrow_deltaToCycles : Exact (A.cycles' i).arrow (deltaToCycles A i j hij) :=
   by
   rw [CategoryTheory.Abelian.exact_iff_image_eq_kernel]
-  dsimp [delta_to_cycles, delta_to_boundaries]
-  simp only [image_subobject_arrow, kernel_subobject_comp_eq_of_mono]
+  dsimp [HomologicalComplex.deltaToCycles, HomologicalComplex.deltaToBoundaries]
+  simp only [image_subobject_arrow, HomologicalComplex.kernelSubobject_comp_eq_of_mono]
   delta cycles
   let g : ↑(A.boundaries j) ⟶ X_next A i := (A.boundaries j).arrow ≫ (X_next_iso _ hij).inv
   haveI : mono g := mono_comp _ _
-  suffices aux : delta_to_boundaries _ i j hij ≫ g = d_from A i
-  · simp_rw [← aux, kernel_subobject_comp_eq_of_mono]; rfl
-  simp only [delta_to_boundaries_comp_arrow_assoc, iso.comp_inv_eq, d_from_comp_X_next_iso]
+  suffices aux : HomologicalComplex.deltaToBoundaries _ i j hij ≫ g = HomologicalComplex.dFrom A i
+  · simp_rw [← aux, HomologicalComplex.kernelSubobject_comp_eq_of_mono]; rfl
+  simp only [HomologicalComplex.deltaToBoundaries_comp_arrow_assoc, Iso.comp_inv_eq, d_from_comp_X_next_iso]
 
 theorem exact_homologyToModBoundaries_to_cycles :
     Exact ((homologyToModBoundaries i).app A) ((modBoundariesToCycles i j hij).app A) :=
   by
-  let φ : homology' A i ⟶ mod_boundaries A i :=
-    limits.cokernel.desc _ ((kernel_subobject _).arrow ≫ cokernel.π _) (by simp)
+  let φ : homology' A i ⟶ HomologicalComplex.modBoundaries A i :=
+    Limits.cokernel.desc _ ((CategoryTheory.Limits.kernelSubobject _).arrow ≫ cokernel.π _) (by simp)
   suffices S :
     snake (0 : C) 0 0 (A.boundaries i) (boundaries A i) 0 (A.cycles i) (A.X i) (A.cycles j)
-      (homology' A i) (mod_boundaries A i) (A.cycles j) 0 0 0 0 0 (𝟙 _) 0 (boundaries_to_cycles _ _)
-      (A.boundaries i).arrow 0 (A.cycles i).arrow (delta_to_cycles _ i j hij) (homology'.π _ _ _)
-      (cokernel.π _) (𝟙 _) φ ((mod_boundaries_to_cycles i j hij).app A)
+      (homology' A i) (HomologicalComplex.modBoundaries A i) (A.cycles j) 0 0 0 0 0 (𝟙 _) 0 (HomologicalComplex.boundariesToCycles' _ _)
+      (A.boundaries i).arrow 0 (A.cycles i).arrow (HomologicalComplex.deltaToCycles _ i j hij) (homology'.π _ _ _)
+      (cokernel.π _) (𝟙 _) φ ((HomologicalComplex.modBoundariesToCycles i j hij).app A)
   · exact (S.six_term_exact_seq.drop 3).pair
-  letI : exact (cycles A i).arrow (delta_to_cycles A i j hij) :=
-    exact_cycles_arrow_delta_to_cycles _ i j hij
-  letI : epi (homology'.π (d_to A i) (d_from A i) (A.d_to_comp_d_from i)) := coequalizer.π_epi
+  letI : exact (cycles A i).arrow (HomologicalComplex.deltaToCycles A i j hij) :=
+    HomologicalComplex.exact_cycles'_arrow_deltaToCycles _ i j hij
+  letI : epi (homology'.π (HomologicalComplex.dTo A i) (HomologicalComplex.dFrom A i) (A.d_to_comp_d_from i)) := coequalizer.π_epi
   fconstructor
   · rw [← epi_iff_exact_zero_right]; infer_instance
-  · apply exact_cycles_arrow_delta_to_cycles
-  · exact (CategoryTheory.exact_zero_mono _).cons (abelian.exact_cokernel _).ExactSeq
-  · exact (CategoryTheory.exact_zero_mono _).cons (abelian.exact_cokernel _).ExactSeq
+  · apply HomologicalComplex.exact_cycles'_arrow_deltaToCycles
+  · exact (CategoryTheory.exact_zero_mono _).cons (Abelian.exact_cokernel _).ExactSeq
+  · exact (CategoryTheory.exact_zero_mono _).cons (Abelian.exact_cokernel _).ExactSeq
   · exact (CategoryTheory.exact_zero_mono _).cons (exact_zero_left_of_mono _).ExactSeq
   · simp only [zero_comp]
   · simp only [zero_comp]
-  · simp only [imageToKernel_arrow, category.id_comp]
-  · simp only [boundaries_arrow_comp_delta_to_cycles, zero_comp]
+  · simp only [imageToKernel_arrow, Category.id_comp]
+  · simp only [HomologicalComplex.boundaries_arrow_comp_deltaToCycles, zero_comp]
   · dsimp [homology'.π]; simp only [cokernel.π_desc]
-  · simp only [mod_boundaries_to_cycles_app, cokernel.π_desc, category.comp_id]
+  · simp only [HomologicalComplex.modBoundariesToCycles_app, cokernel.π_desc, Category.comp_id]
 
 theorem exact_modBoundariesToCycles_to_homology :
     Exact ((modBoundariesToCycles i j hij).app A) ((cyclesToHomology j).app A) :=
   by
-  refine' exact.congr (boundaries_to_cycles _ _) _ _ _ _ _ rfl
-  · exact abelian.exact_cokernel _
-  · simp only [mod_boundaries_to_cycles_app]
-    delta delta_to_cycles
-    rw [← image_subobject_comp_eq_of_epi (cokernel.π _)]
-    simp only [cokernel.π_desc, image_subobject_comp_eq_of_epi]
+  refine' Exact.congr (HomologicalComplex.boundariesToCycles' _ _) _ _ _ _ _ rfl
+  · exact Abelian.exact_cokernel _
+  · simp only [HomologicalComplex.modBoundariesToCycles_app]
+    delta HomologicalComplex.deltaToCycles
+    rw [← HomologicalComplex.imageSubobject_comp_eq_of_epi (cokernel.π _)]
+    simp only [cokernel.π_desc, HomologicalComplex.imageSubobject_comp_eq_of_epi]
 
 theorem epi_cyclesToHomology : Epi ((cyclesToHomology j).app A) :=
   coequalizer.π_epi

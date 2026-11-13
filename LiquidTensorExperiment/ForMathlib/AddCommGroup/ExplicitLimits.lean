@@ -22,7 +22,7 @@ instance : AddCommGroup (K ⋙ CategoryTheory.forget _).sections
     ⟨u + v, fun i j f => by
       have u2 := u.2 f
       have v2 := v.2 f
-      dsimp only [functor.comp_map, Pi.add_apply, forget_map_eq_coe, Subtype.val_eq_coe] at u2 v2 ⊢
+      dsimp only [Functor.comp_map, Pi.add_apply, forget_map_eq_coe, Subtype.val_eq_coe] at u2 v2 ⊢
       simp only [u2, v2, map_add]⟩
   add_assoc a b c := by ext; simp only [add_assoc, Subtype.coe_mk]
   zero :=
@@ -49,7 +49,7 @@ def explicitLimitCone : Cone K
         { toFun := fun t => t.1 j
           map_zero' := rfl
           map_add' := fun x y => rfl }
-      naturality' := by
+      naturality := by
         intro i j f
         ext
         simpa using (x.2 f).symm }

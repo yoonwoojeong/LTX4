@@ -15,8 +15,8 @@ def unflip {C D E : Type _} [Category C] [Category D] [Category E] {F G : C ⥤ 
     where
   app c :=
     { app := fun d => (φ.app d).app c
-      naturality' := fun d₁ d₂ g => NatTrans.congr_app (φ.naturality g) c }
-  naturality' c₁ c₂ f := by
+      naturality := fun d₁ d₂ g => NatTrans.congr_app (φ.naturality g) c }
+  naturality c₁ c₂ f := by
     ext d
     exact (φ.app d).naturality f
 
@@ -36,10 +36,10 @@ namespace NatIso
 def unflip {C D E : Type _} [Category C] [Category D] [Category E] {F G : C ⥤ D ⥤ E}
     (e : F.flip ≅ G.flip) : F ≅ G
     where
-  Hom := NatTrans.unflip e.Hom
+  hom := NatTrans.unflip e.hom
   inv := NatTrans.unflip e.inv
-  hom_inv_id' := by rw [← nat_trans.unflip_comp, e.hom_inv_id, nat_trans.unflip_id]
-  inv_hom_id' := by rw [← nat_trans.unflip_comp, e.inv_hom_id, nat_trans.unflip_id]
+  hom_inv_id := by rw [← NatTrans.unflip_comp, e.hom_inv_id, NatTrans.unflip_id]
+  inv_hom_id := by rw [← NatTrans.unflip_comp, e.inv_hom_id, NatTrans.unflip_id]
 
 end NatIso
 

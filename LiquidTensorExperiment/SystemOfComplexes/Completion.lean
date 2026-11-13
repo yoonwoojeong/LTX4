@@ -2,7 +2,7 @@ import Mathlib.Analysis.SpecificLimits.Basic
 import LiquidTensorExperiment.SystemOfComplexes.Basic
 import LiquidTensorExperiment.LocallyConstant.Vhat
 
-#align_import system_of_complexes.completion
+#align_import SystemOfComplexes.completion
 
 /-!
 
@@ -177,18 +177,18 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
       _ = ‖(res (res x : C (k * c) (i + 1)) - res (C.d _ _ <| w j) : C c _)‖ := by
         rw [C.res_res]
       _ = ‖(res (res x - (C.d _ _ <| w j)))‖ := by simp only [_root_.map_sub]
-      _ ≤ ‖(res x - C.d _ _ (w j))‖ := by apply hC'.res_norm_noninc
+      _ ≤ ‖(res x - C.d _ _ (w j))‖ := by apply hC'.res_normNoninc
       _ ≤ ε j := hw _
   rcases cauchySeq_tendsto_of_complete cau_y with ⟨y₀, hy₀⟩
   refine' ⟨_, rfl, y₀, _⟩
   refine' sub_eq_zero.1 (norm_le_zero_iff'.1 _)
   have lim_norm :
-    tendsto (fun j => ‖(res x - C.d _ _ (y j))‖) at_top
+    tendsto (fun j => ‖(res x - C.d _ _ (y j))‖) Filter.atTop
       (𝓝 (‖res x - C.d _ _ y₀‖)) :=
     haveI cont : Continuous fun y : C c i => ‖res x - C.d _ _ y‖ :=
       continuous_norm.comp (continuous_const.sub <| NormedAddGroupHom.continuous _)
     (cont.tendsto y₀).comp hy₀
-  have lim_ε : tendsto ε at_top (𝓝 0) :=
+  have lim_ε : tendsto ε Filter.atTop (𝓝 0) :=
     by
     rw [show (0 : ℝ) = 2⁻¹ * 0 / K' / 2 by norm_num]
     refine' (tendsto.const_mul 2⁻¹ (tendsto_pow_atTop_nhds_0_of_lt_1 _ _)).div_const.div_const <;>

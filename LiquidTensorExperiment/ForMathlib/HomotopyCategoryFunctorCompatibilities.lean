@@ -19,13 +19,13 @@ def quotientOpMapHomologyNatIso {A B : Type _} [Category A] [Category B] [Abelia
   by
   refine'
     _ ≪≫
-      iso_whisker_left (HomologicalComplex.opFunctor ⋙ F.map_homological_complex c.symm)
+      CategoryTheory.isoWhiskerLeft (HomologicalComplex.opFunctor ⋙ F.map_homological_complex c.symm)
           (HomotopyCategory.homology'Factors B c.symm i) ≪≫
-        functor.associator _ _ _
-  refine' functor.associator _ _ _ ≪≫ _ ≪≫ (functor.associator _ _ _).symm
-  refine' iso_whisker_left _ _
-  refine' (functor.associator _ _ _).symm ≪≫ _ ≪≫ functor.associator _ _ _
-  refine' iso_whisker_right _ _
+        Functor.associator _ _ _
+  refine' Functor.associator _ _ _ ≪≫ _ ≪≫ (Functor.associator _ _ _).symm
+  refine' CategoryTheory.isoWhiskerLeft _ _
+  refine' (Functor.associator _ _ _).symm ≪≫ _ ≪≫ Functor.associator _ _ _
+  refine' CategoryTheory.isoWhiskerRight _ _
   exact (F.map_homotopy_category_comp c.symm).symm
 
 def quotientOpMapHomologyIso {A B : Type _} [Category A] [Category B] [Abelian A] [Abelian B]
@@ -39,7 +39,7 @@ def quotientOpMapHomologyIso {A B : Type _} [Category A] [Category B] [Abelian A
   have e : op X ≅ (HomotopyCategory.quotient A c).op.obj (op X.as) :=
     by
     dsimp
-    apply iso.op
+    apply Iso.op
     apply eq_to_iso
     cases X
     rfl
@@ -47,7 +47,7 @@ def quotientOpMapHomologyIso {A B : Type _} [Category A] [Category B] [Abelian A
   ·
     exact
       (HomotopyCategory.opFunctor ⋙
-            functor.map_homotopy_category c.symm F ⋙
+            Functor.mapHomotopyCategory c.symm F ⋙
               HomotopyCategory.homology'Functor B c.symm i).mapIso
         e
   · rfl

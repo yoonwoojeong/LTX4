@@ -95,11 +95,11 @@ theorem res_app' [Fact (c₂ ≤ c₁)] (M : (ProFiltPseuNormGrpWithTinv r')ᵒ�
 
 @[simp]
 theorem res_refl : res V r' c c n = 𝟙 _ := by
-  rw [res, filtrationPow.castLe_refl, nat_trans.op_id, whisker_right_id']; rfl
+  rw [res, filtrationPow.castLe_refl, NatTrans.op_id, whisker_right_id']; rfl
 
 theorem res_comp_res [Fact (c₂ ≤ c₁)] [Fact (c₃ ≤ c₂)] [Fact (c₃ ≤ c₁)] :
     res V r' c₁ c₂ n ≫ res V r' c₂ c₃ n = res V r' c₁ c₃ n := by
-  simp only [res, ← whisker_right_comp, filtrationPow.castLe_comp, ← nat_trans.op_comp]
+  simp only [res, ← whisker_right_comp, filtrationPow.castLe_comp, ← NatTrans.op_comp]
 
 theorem res_normNoninc [Fact (c₂ ≤ c₁)] (M) : ((res V r' c₁ c₂ n).app M).NormNoninc :=
   completion.map_normNoninc <| lCFP.res_normNoninc _ _ _ _ _ _
@@ -127,7 +127,7 @@ theorem res_comp_tinv [Fact (c₂ ≤ c₁)] [Fact (c₃ ≤ c₂)] [Fact (c₃ 
     res V r' c₁ c₂ n ≫ tinv V r' c₂ c₃ n = tinv V r' c₁ c₂ n ≫ res V r' c₂ c₃ n :=
   by
   dsimp only [Tinv, res, cLC, lC]
-  simp only [← whisker_right_comp, ← nat_trans.op_comp]
+  simp only [← whisker_right_comp, ← NatTrans.op_comp]
   rfl
 
 end Tinv
@@ -158,7 +158,7 @@ theorem res_comp_tInv [Fact (c₂ ≤ c₁)] :
     res V r' c₁ c₂ n ≫ tInv r V r' c₂ n = tInv r V r' c₁ n ≫ res V r' c₁ c₂ n :=
   by
   ext M : 2
-  simp only [nat_trans.comp_app, res_app', T_inv_app]
+  simp only [NatTrans.comp_app, res_app', T_inv_app]
   exact (cLC.tInv r V).naturality _
 
 end TInv
@@ -181,14 +181,14 @@ def evalCLCFP [ϕ.Suitable c₂ c₁] : cLCFP V r' c₁ n ⟶ cLCFP V r' c₂ m 
 theorem evalCLCFP_of (f : BasicUniversalMap m n) [f.Suitable c₂ c₁] :
     evalCLCFP V r' c₁ c₂ (FreeAbelianGroup.of f) =
       whiskerRight (NatTrans.op <| f.evalFP r' c₂ c₁) (cLC V) :=
-  by rw [eval_CLCFP, eval_LCFP_of, basic_universal_map.eval_LCFP, whisker_right_twice]; rfl
+  by rw [eval_CLCFP, eval_LCFP_of, BasicUniversalMap.evalLCFP, CategoryTheory.whiskerRight_twice]; rfl
 
 @[simp]
 theorem evalCLCFP_zero : (0 : UniversalMap m n).evalCLCFP V r' c₁ c₂ = 0 :=
   by
   simp only [eval_CLCFP, eval_LCFP_zero]
   ext x : 2
-  exact Completion.map_zero _ _
+  exact completion.map_zero _ _
 
 @[simp]
 theorem evalCLCFP_add [ϕ.Suitable c₂ c₁] [ψ.Suitable c₂ c₁] :
@@ -219,7 +219,7 @@ theorem evalCLCFP_comp (g : UniversalMap m n) (f : UniversalMap l m) [hg : g.Sui
 theorem res_comp_evalCLCFP [Fact (c₂ ≤ c₁)] [ϕ.Suitable c₄ c₂] [ϕ.Suitable c₃ c₁] [Fact (c₄ ≤ c₃)] :
     res V r' c₁ c₂ n ≫ ϕ.evalCLCFP V r' c₂ c₄ = ϕ.evalCLCFP V r' c₁ c₃ ≫ res V r' c₃ c₄ m :=
   by
-  dsimp only [cLC, res]; simp only [eval_CLCFP, ← whisker_right_comp, ← whisker_right_twice]
+  dsimp only [cLC, res]; simp only [eval_CLCFP, ← whisker_right_comp, ← CategoryTheory.whiskerRight_twice]
   congr 1; apply res_comp_eval_LCFP
 
 theorem tinv_comp_evalCLCFP [Fact (0 < r')] [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)]

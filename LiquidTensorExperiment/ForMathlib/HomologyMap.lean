@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.ForMathlib.HomologicalComplexOp
 import LiquidTensorExperiment.ForMathlib.HasHomology
 
-#align_import for_mathlib.homology_map
+#align_import for_mathlib.homologyMap
 
 noncomputable section
 
@@ -14,7 +14,7 @@ variable {ι : Type _} {c : ComplexShape ι}
 theorem isIso_of_square {A B C D : 𝓐} (a : A ⟶ B) (b : B ⟶ D) (a' : A ⟶ C) (c : C ⟶ D)
     (w : a ≫ b = a' ≫ c) (ha : IsIso a) (hb : IsIso b) (ha' : IsIso a') : IsIso c :=
   by
-  have hc : c = inv a' ≫ a ≫ b := by rw [is_iso.eq_inv_comp, w]
+  have hc : c = inv a' ≫ a ≫ b := by rw [IsIso.eq_inv_comp, w]
   rw [hc]; infer_instance
 
 def homology'.map' {A₁ B₁ C₁ A₂ B₂ C₂ : 𝓐} {f₁ : A₁ ⟶ B₁} {g₁ : B₁ ⟶ C₁} (w₁ : f₁ ≫ g₁ = 0)
@@ -32,6 +32,6 @@ theorem homology'.map_eq {A₁ B₁ C₁ A₂ B₂ C₂ : 𝓐} {f₁ : A₁ ⟶
   apply (homology'.has f₂ g₂ w₂).ext_ι
   erw [HasHomology.map_ι]
   apply (homology'.has f₁ g₁ w₁).ext_π
-  erw [← category.assoc, homology'.π'_map, category.assoc, homology'.π'_ι, HasHomology.π_comp_desc,
-    limits.kernel.lift_ι_assoc, category.assoc]
+  erw [← Category.assoc, homology'.π'_map, Category.assoc, homology'.π'_ι, HasHomology.π_comp_desc,
+    Limits.kernel.lift_ι_assoc, Category.assoc]
 

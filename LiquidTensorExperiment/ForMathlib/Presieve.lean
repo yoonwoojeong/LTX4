@@ -18,7 +18,7 @@ theorem mem_ofArrows_iff {ι} {B Y} (X : ι → C) (f : ∀ i, X i ⟶ B) (g : Y
     use i, rfl
     simp
   · rintro ⟨i, rfl, rfl⟩
-    simp [of_arrows.mk i]
+    simp [ofArrows.mk i]
 
 noncomputable section
 
@@ -46,10 +46,10 @@ theorem mkFamilyOfElementsOfArrows_compatible {ι} {B} (X : ι → C) (f : ∀ i
     (mkFamilyOfElementsOfArrows X f F x).Compatible :=
   by
   intro X Y Z g₁ g₂ f₁ f₂ h₁ h₂ h
-  dsimp [mk_family_of_elements_of_arrows]
+  dsimp [CategoryTheory.Presieve.mkFamilyOfElementsOfArrows]
   specialize
-    hx (index_of_arrows h₁) (index_of_arrows h₂) Z (g₁ ≫ eq_to_hom (eq_obj_of_arrows h₁))
-      (g₂ ≫ eq_to_hom (eq_obj_of_arrows h₂)) (by simpa)
+    hx (CategoryTheory.Presieve.indexOfArrows h₁) (CategoryTheory.Presieve.indexOfArrows h₂) Z (g₁ ≫ eq_to_hom (CategoryTheory.Presieve.eq_obj_ofArrows h₁))
+      (g₂ ≫ eq_to_hom (CategoryTheory.Presieve.eq_obj_ofArrows h₂)) (by simpa)
   convert hx using 1 <;> simp
 
 theorem mkFamilyOfElementsOfArrows_eval {ι} {B} (X : ι → C) (f : ∀ i, X i ⟶ B) (F : Cᵒᵖ ⥤ Type w)
@@ -59,10 +59,10 @@ theorem mkFamilyOfElementsOfArrows_eval {ι} {B} (X : ι → C) (f : ∀ i, X i 
         g₁ ≫ f _ = g₂ ≫ f _ → F.map g₁.op (x _) = F.map g₂.op (x _))
     (i : ι) : (mkFamilyOfElementsOfArrows X f F x) (f i) (Presieve.ofArrows.mk i) = x i :=
   by
-  have : X i = X (index_of_arrows (presieve.of_arrows.mk i)) := by fapply eq_obj_of_arrows
+  have : X i = X (CategoryTheory.Presieve.indexOfArrows (Presieve.ofArrows.mk i)) := by fapply CategoryTheory.Presieve.eq_obj_ofArrows
   rotate_left 2; exact f
-  dsimp [mk_family_of_elements_of_arrows]
-  specialize hx i (index_of_arrows (presieve.of_arrows.mk i))
+  dsimp [CategoryTheory.Presieve.mkFamilyOfElementsOfArrows]
+  specialize hx i (CategoryTheory.Presieve.indexOfArrows (Presieve.ofArrows.mk i))
   rotate_left 3; exact X; exact f
   specialize hx (X i) (𝟙 _) (eq_to_hom this) (by simp)
   simp at hx 

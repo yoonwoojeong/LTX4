@@ -22,7 +22,7 @@ def rangeEquivIcc {n d : ℤ} (m : ℕ) (hm : n - d = m) : range m.succ ≃ Icc 
   refine' ⟨fun a => ⟨a + d, mem_Icc.mpr ⟨_, _⟩⟩, _, _, _⟩
   · exact (le_add_iff_nonneg_left _).mpr (Int.ofNat_nonneg _)
   · refine' add_le_of_le_sub_right _
-    exact (int.coe_nat_le.mpr (Nat.le_of_lt_succ <| (@mem_range m.succ a).mp a.2)).trans hm.ge
+    exact (int.ofNat_le.mpr (Nat.le_of_lt_succ <| (@mem_range m.succ a).mp a.2)).trans hm.ge
   · rintro ⟨a, hha⟩
     refine' ⟨(a - d).natAbs, mem_range_succ_iff.mpr _⟩
     lift a - d to ℕ using sub_nonneg.mpr (mem_Icc.mp hha).1 with ad had
@@ -225,7 +225,7 @@ theorem int_tsum_shift (f : ℤ → ℝ) (N : ℤ) : ∑' x : ℕ, f (x + N) = �
   by
   apply tsum_eq_tsum_of_hasSum_iff_hasSum
   intro
-  apply @Equiv.hasSum_iff ℝ _ ℕ _ _ (f ∘ coe) _ (equiv_bdd_integer_nat N)
+  apply @Equiv.hasSum_iff ℝ _ ℕ _ _ (f ∘ coe) _ (AuxThm69.equivBddIntegerNat N)
 
 theorem summable_of_eventually_zero (f : ℤ → ℝ) (d : ℤ) (hd : ∀ n : ℤ, n < d → f n = 0) :
     Summable fun n : ℕ => f (-↑n - 1) :=

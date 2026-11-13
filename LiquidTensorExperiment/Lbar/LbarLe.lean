@@ -198,7 +198,7 @@ theorem mkSeq_sum_range_eq (T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M)
   congr
   ext ⟨i, hi⟩
   congr
-  exact mk_seq_eq_of_compat compat _
+  exact LbarLe.mkSeq_eq_of_compat compat _
 
 theorem mkSeq_summable {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) (s : S) :
@@ -207,7 +207,7 @@ theorem mkSeq_summable {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
   apply @NNReal.summable_of_sum_range_le _ c
   rintro (_ | n)
   · simp only [Finset.sum_empty, Finset.range_zero, zero_le']
-  · rw [mk_seq_sum_range_eq T compat s n]
+  · rw [LbarLe.mkSeq_sum_range_eq T compat s n]
     refine' le_trans _ (T n).sum_le
     refine' Finset.single_le_sum (fun _ _ => _) (Finset.mem_univ s)
     apply zero_le'
@@ -225,12 +225,12 @@ theorem mkSeq_sum_le {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) :
     ∑ s, ∑' n : ℕ, ↑(mkSeq T s n).natAbs * r' ^ n ≤ c :=
   by
-  refine' le_of_tendsto (mk_seq_tendsto compat) (eventually_of_forall _)
+  refine' le_of_tendsto (LbarLe.mkSeq_tendsto compat) (eventually_of_forall _)
   rintro (_ | n)
   · simp only [Finset.sum_empty, Finset.range_zero, Finset.sum_const_zero, zero_le']
   · convert (T n).sum_le
     funext
-    rw [mk_seq_sum_range_eq T compat s n]
+    rw [LbarLe.mkSeq_sum_range_eq T compat s n]
     rfl
 
 theorem truncate_mkSeq {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
@@ -238,7 +238,7 @@ theorem truncate_mkSeq {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
     truncate M ⟨⟨mkSeq T, mkSeq_zero, mkSeq_summable compat⟩, mkSeq_sum_le compat⟩ = T M :=
   by
   ext s ⟨i, hi⟩
-  exact mk_seq_eq_of_compat compat _
+  exact LbarLe.mkSeq_eq_of_compat compat _
 
 /-- `of_compat hT` is the limit of a compatible family `T M : Lbar_bdd r' ⟨S⟩ c M`.
 This realizes `Lbar_le` as the profinite limit of the spaces `Lbar_bdd`,
@@ -252,7 +252,7 @@ theorem truncate_ofCompat {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) (M : ℕ) :
     truncate M (ofCompat compat) = T M := by
   ext s ⟨i, hi⟩
-  exact mk_seq_eq_of_compat compat _
+  exact LbarLe.mkSeq_eq_of_compat compat _
 
 /-- The equivalence (as types) between `Lbar_le r' S c`
 and the profinite limit of the spaces `Lbar_bdd r' ⟨S⟩ c M`. -/
@@ -261,7 +261,7 @@ def eqv : LbarLe r' S c ≃ LbarBdd.Limit r' ⟨S⟩ c
   toFun F := ⟨fun N => truncate _ F, by intros; rfl⟩
   invFun F := ofCompat F.2
   left_inv x := by ext; rfl
-  right_inv := by rintro ⟨x, hx⟩; simp only [truncate_of_compat]
+  right_inv := by rintro ⟨x, hx⟩; simp only [LbarLe.truncate_ofCompat]
 
 section TopologicalStructure
 
@@ -298,12 +298,12 @@ theorem truncate_eq (M : ℕ) :
   rfl
 
 instance : T2Space (LbarLe r' S c) :=
-  ⟨fun x y h => separated_by_continuous homeo.Continuous fun c => h <| homeo.Injective c⟩
+  ⟨fun x y h => separated_by_continuous homeo.continuous fun c => h <| homeo.injective c⟩
 
 instance [Fact (0 < r')] : CompactSpace (LbarLe r' S c) :=
   by
   constructor
-  rw [homeo.embedding.is_compact_iff_is_compact_image]
+  rw [homeo.embedding.isCompact_iff]
   simp only [Set.image_univ, Homeomorph.range_coe]
   obtain ⟨h⟩ := (by infer_instance : CompactSpace (LbarBdd.Limit r' ⟨S⟩ c))
   exact h
@@ -314,7 +314,7 @@ instance : TotallyDisconnectedSpace (LbarLe r' S c)
     suffices subsing : (homeo '' A).Subsingleton
     · intro x hx y hy; apply_rules [homeo.injective, subsing, Set.mem_image_of_mem]
     obtain ⟨h⟩ := (by infer_instance : TotallyDisconnectedSpace (LbarBdd.Limit r' ⟨S⟩ c))
-    exact h _ (by tauto) (IsPreconnected.image hA _ homeo.continuous.continuous_on)
+    exact h _ (by tauto) (IsPreconnected.image hA _ homeo.continuous.continuousOn)
 
 theorem continuous_iff {α : Type _} [TopologicalSpace α] (f : α → LbarLe r' S c) :
     Continuous f ↔ ∀ M, Continuous (truncate M ∘ f) :=
@@ -369,7 +369,7 @@ theorem continuous_castLe (r' : ℝ≥0) (S : Type u) [Fintype S] (c₁ c₂ : �
   by
   rw [continuous_iff]
   intro M
-  simp only [Function.comp, truncate_cast_le]
+  simp only [Function.comp, LbarLe.truncate_castLe]
   exact continuous_bot.comp continuous_truncate
 
 /-! We now prove some scaffolding lemmas

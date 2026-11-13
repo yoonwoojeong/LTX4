@@ -21,12 +21,12 @@ variable (C : ChainComplex A ℤ)
 theorem CategoryTheory.isZero_homology'_iff_exact {X Y Z : A} (f : X ⟶ Y) (g : Y ⟶ Z)
     (w : f ≫ g = 0) : IsZero (homology' f g w) ↔ Exact f g :=
   by
-  rw [preadditive.exact_iff_homology_zero]
+  rw [Preadditive.exact_iff_homology'_zero]
   constructor
   · intro h
-    use w, h.iso_zero
+    use w, h.isoZero
   · rintro ⟨w, ⟨h⟩⟩
-    apply is_zero.of_iso _ h
+    apply IsZero.of_iso _ h
     exact is_zero_zero _
 
 theorem exact_of_isZero_homology' (h : ∀ i : ℤ, IsZero (C.homology' i)) :
@@ -36,7 +36,7 @@ theorem exact_of_isZero_homology' (h : ∀ i : ℤ, IsZero (C.homology' i)) :
   rintro i j k ⟨rfl⟩ ⟨rfl⟩
   dsimp
   specialize h (k + 1)
-  erw [_root_.category_theory.is_zero_homology_iff_exact] at h 
+  erw [_root_.category_theory.isZero_homology'_iff_exact] at h 
   let e : C.X_prev (k + 1) ≅ C.X (k + 1 + 1) := C.X_prev_iso rfl
   let q : C.X_next (k + 1) ≅ C.X k := C.X_next_iso rfl
   suffices exact (e.hom ≫ C.d (k + 1 + 1) (k + 1)) (C.d (k + 1) k ≫ q.inv) by simpa using this
@@ -50,7 +50,7 @@ theorem isZero_homology'_of_exact
     ∀ i : ℤ, IsZero (C.homology' i) := by
   intro i
   specialize h (i + 1) i (i - 1) rfl (sub_add_cancel i 1)
-  rw [_root_.category_theory.is_zero_homology_iff_exact]
+  rw [_root_.category_theory.isZero_homology'_iff_exact]
   rw [← HomologicalComplex.xPrevIso_comp_dTo] at h ; swap; simp
   rw [← HomologicalComplex.dFrom_comp_xNextIso] at h ; swap; simp
   simpa only [exact_comp_iso, exact_iso_comp] using h
@@ -141,7 +141,7 @@ theorem epi_and_exact_of_isZero_homology'
     rw [CategoryTheory.isZero_homology'_iff_exact,
       HomologicalComplex.dFrom_eq _ (show (ComplexShape.down ℤ).Rel 0 (-1) by simp), exact_comp_iso,
       HomologicalComplex.dTo_eq _ (show (ComplexShape.down ℤ).Rel 1 0 by simp), exact_iso_comp] at h 
-    rw [is_zero.eq_zero_of_tgt (is_zero_zero _)
+    rw [IsZero.eq_zero_of_tgt (is_zero_zero _)
         (((HomologicalComplex.embed ComplexShape.Embedding.natDownIntDown).obj D).d 0 (-1))] at
       h 
     rw [epi_iff_exact_zero_right]
@@ -161,16 +161,16 @@ theorem epi_and_exact_of_isZero_homology'
 theorem exact_of_epi {𝒞 : Type _} [Category 𝒞] [Abelian 𝒞] {A B C : 𝒞} {f : A ⟶ B} {g : B ⟶ C}
     (hfg : f ≫ g = 0) [Epi f] : Exact f g :=
   by
-  rw [abelian.exact_iff]
+  rw [Abelian.exact_iff]
   refine' ⟨hfg, _⟩
-  rw [(abelian.epi_iff_cokernel_π_eq_zero _).1 (show epi f from inferInstance), comp_zero]
+  rw [(Abelian.epi_iff_cokernel_π_eq_zero _).1 (show epi f from inferInstance), comp_zero]
 
 theorem exact_zero_snd_iff_epi {𝒞 : Type _} [Category 𝒞] [Abelian 𝒞] {A B C : 𝒞} {f : A ⟶ B} :
     Exact f (0 : B ⟶ C) ↔ Epi f := by
   constructor
   · intro h
-    apply preadditive.epi_of_cokernel_zero
-    rcases(abelian.exact_iff _ _).1 h with ⟨-, h2⟩
+    apply Preadditive.epi_of_cokernel_zero
+    rcases(Abelian.exact_iff _ _).1 h with ⟨-, h2⟩
     simpa using h2
   · intro
     exact exact_of_epi comp_zero
@@ -178,16 +178,16 @@ theorem exact_zero_snd_iff_epi {𝒞 : Type _} [Category 𝒞] [Abelian 𝒞] {A
 theorem exact_of_mono {𝒞 : Type _} [Category 𝒞] [Abelian 𝒞] {A B C : 𝒞} {f : A ⟶ B} {g : B ⟶ C}
     (hfg : f ≫ g = 0) [Mono g] : Exact f g :=
   by
-  rw [abelian.exact_iff]
+  rw [Abelian.exact_iff]
   refine' ⟨hfg, _⟩
-  rw [(abelian.mono_iff_kernel_ι_eq_zero g).1 inferInstance, zero_comp]
+  rw [(Abelian.mono_iff_kernel_ι_eq_zero g).1 inferInstance, zero_comp]
 
 theorem exact_zero_fst_iff_mono {𝒞 : Type _} [Category 𝒞] [Abelian 𝒞] {A B C : 𝒞} {g : B ⟶ C} :
     Exact (0 : A ⟶ B) g ↔ Mono g := by
   constructor
   · intro h
-    apply preadditive.mono_of_kernel_zero
-    rcases(abelian.exact_iff _ _).1 h with ⟨-, h2⟩
+    apply Preadditive.mono_of_kernel_zero
+    rcases(Abelian.exact_iff _ _).1 h with ⟨-, h2⟩
     simpa using h2
   · intro
     exact exact_of_mono zero_comp
@@ -260,7 +260,7 @@ theorem homology'_zero_iff_homology'_zero :
             i)) ↔
       ∀ i : ℕ, IsZero (D.homology' i) :=
   by
-  rw [← epi_and_exact_iff_is_zero_homology]
+  rw [← ChainComplex.epi_and_exact_iff_isZero_homology']
   simp_rw [CategoryTheory.isZero_homology'_iff_exact, nat_epi_iff_exact,
     nat_exact_iff_to_from_exact]
   constructor
@@ -274,8 +274,8 @@ theorem epi_and_exact_iff_zero_homology' :
     (Epi (D.d 1 0) ∧ ∀ i : ℕ, Exact (D.d (i + 2) (i + 1)) (D.d (i + 1) i)) ↔
       ∀ i : ℕ, IsZero (D.homology' i) :=
   by
-  rw [← homology_zero_iff_homology_zero]
-  apply epi_and_exact_iff_is_zero_homology
+  rw [← ChainComplex.homology'_zero_iff_homology'_zero]
+  apply ChainComplex.epi_and_exact_iff_isZero_homology'
 
 universe v' u'
 
@@ -288,20 +288,20 @@ theorem exact_iff_map_exact {α : Type _} {c : ComplexShape α} (D : Homological
     (f : D.pt i ⟶ D.pt j) (g : D.pt j ⟶ D.pt k) :
     Exact f g ↔ Exact (E.Functor.map f) (E.Functor.map g) :=
   by
-  rw [abelian.exact_iff]
-  rw [abelian.exact_iff]
+  rw [Abelian.exact_iff]
+  rw [Abelian.exact_iff]
   apply and_congr
-  · rw [← functor.map_comp]
-    exact (functor.map_eq_zero_iff _).symm
-  · rw [← functor.map_eq_zero_iff E.functor, functor.map_comp]
+  · rw [← Functor.map_comp]
+    exact (Functor.map_eq_zero_iff _).symm
+  · rw [← Functor.map_eq_zero_iff E.functor, Functor.map_comp]
     rw [← kernel_comparison_comp_ι]
     rw [← π_comp_cokernel_comparison]
-    rw [← preserves_kernel.iso_hom]
-    rw [← preserves_cokernel.iso_inv]
-    rw [category.assoc]
-    rw [preadditive.is_iso.comp_left_eq_zero]
-    rw [← category.assoc]
-    rw [preadditive.is_iso.comp_right_eq_zero]
+    rw [← PreservesKernel.iso_hom]
+    rw [← PreservesCokernel.iso_inv]
+    rw [Category.assoc]
+    rw [Preadditive.IsIso.comp_left_eq_zero]
+    rw [← Category.assoc]
+    rw [Preadditive.IsIso.comp_right_eq_zero]
 
 -- morphisms of B in same universe as morphisms of A because of `exact_iff_map_exact`
 theorem homology'_zero_iff_map_homology'_zero {α : Type _} {c : ComplexShape α}
@@ -314,7 +314,7 @@ theorem homology'_zero_iff_map_homology'_zero {α : Type _} {c : ComplexShape α
   intro i
   rw [CategoryTheory.isZero_homology'_iff_exact]
   rw [CategoryTheory.isZero_homology'_iff_exact]
-  rw [functor.map_homological_complex]
+  rw [Functor.mapHomologicalComplex]
   apply exact_iff_map_exact
 
 end ChainComplex

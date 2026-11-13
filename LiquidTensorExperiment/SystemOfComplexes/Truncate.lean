@@ -1,7 +1,7 @@
 import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
 import LiquidTensorExperiment.SystemOfComplexes.Basic
 
-#align_import system_of_complexes.truncate
+#align_import SystemOfComplexes.truncate
 
 /-!
 
@@ -90,14 +90,14 @@ def truncate : CochainComplex SemiNormedGroupCat.{u} ℕ ⥤ CochainComplex Semi
     where
   obj C := Truncate.obj C
   map C₁ C₂ f := Truncate.map f
-  map_id' C := by ext (n | n) ⟨x⟩ <;> rfl
-  map_comp' C₁ C₂ C₃ f g := by ext (n | n) ⟨x⟩ <;> rfl
+  map_id C := by ext (n | n) ⟨x⟩ <;> rfl
+  map_comp C₁ C₂ C₃ f g := by ext (n | n) ⟨x⟩ <;> rfl
 
 instance truncate.additive : truncate.Additive
     where map_add' := by intros;
     ext (_ | n) ⟨⟩ <;>
-      simp only [truncate_map, truncate.map_f_2, HomologicalComplex.add_f_apply,
-        preadditive.comp_add, truncate.map_f, explicit_cokernel.map, preadditive.add_comp,
+      simp only [truncate_map, Truncate.mapF_2, HomologicalComplex.add_f_apply,
+        Preadditive.comp_add, Truncate.mapF, explicitCokernel.map, Preadditive.add_comp,
         explicit_cokernel_π_desc]
 
 end SemiNormedGroupCat
@@ -114,30 +114,30 @@ def truncate : SystemOfComplexes ⥤ SystemOfComplexes :=
 
 @[simp]
 theorem truncate_obj_d_zero_one (c : ℝ≥0) (y : C c 1) :
-    (truncate.obj C).d 0 1 (SemiNormedGroupCat.explicitCokernelπ _ y) = C.d 1 2 y :=
+    (Truncate.obj C).d 0 1 (SemiNormedGroupCat.explicitCokernelπ _ y) = C.d 1 2 y :=
   rfl
 
 @[simp]
-theorem truncate_obj_d_succ_succ (c : ℝ≥0) (i j : ℕ) (x : truncate.obj C c (i + 1)) :
-    (truncate.obj C).d (i + 1) (j + 1) x = C.d (i + 2) (j + 2) x :=
+theorem truncate_obj_d_succ_succ (c : ℝ≥0) (i j : ℕ) (x : Truncate.obj C c (i + 1)) :
+    (Truncate.obj C).d (i + 1) (j + 1) x = C.d (i + 2) (j + 2) x :=
   rfl
 
-theorem truncateAdmissible (hC : C.Admissible) : (truncate.obj C).Admissible :=
+theorem truncateAdmissible (hC : C.Admissible) : (Truncate.obj C).Admissible :=
   { d_norm_noninc' := by
       rintro c (i | i) j rfl
       · apply SemiNormedGroupCat.explicitCokernelDesc_normNoninc
-        exact hC.d_norm_noninc _ _ 1 2
-      · exact hC.d_norm_noninc _ _ (i + 2) (i + 3)
+        exact hC.d_normNoninc _ _ 1 2
+      · exact hC.d_normNoninc _ _ (i + 2) (i + 3)
     res_normNoninc := by
       rintro c₁ c₂ (i | i) h x
       · apply SemiNormedGroupCat.explicitCokernelDesc_normNoninc _
-        exact (SemiNormedGroupCat.normNoninc_explicitCokernelπ _).comp (hC.res_norm_noninc _ _ _ _)
-      · exact hC.res_norm_noninc _ _ _ _ x }
+        exact (SemiNormedGroupCat.normNoninc_explicitCokernelπ _).comp (hC.res_normNoninc _ _ _ _)
+      · exact hC.res_normNoninc _ _ _ _ x }
 
 variable {k K : ℝ≥0} (m' m : ℕ) [hk : Fact (1 ≤ k)] (c₀ : ℝ≥0)
 
 theorem truncateIsWeakBoundedExact (hC : C.IsWeakBoundedExact k K (m + 1) c₀) :
-    (truncate.obj C).IsWeakBoundedExact k K m c₀
+    (Truncate.obj C).IsWeakBoundedExact k K m c₀
   | c, hc, 0, hi, x, ε, hε =>
     by
     let π c := SemiNormedGroupCat.explicitCokernelπ (@d C c 0 1)
@@ -160,7 +160,7 @@ theorem truncateIsWeakBoundedExact (hC : C.IsWeakBoundedExact k K (m + 1) c₀) 
     cases i <;> [exact ⟨SemiNormedGroupCat.explicitCokernelπ _ y, hy⟩; exact ⟨y, hy⟩]
 
 theorem isWeakBoundedExactOfTruncate (IH : C.IsWeakBoundedExact k K m c₀)
-    (hC : (truncate.obj C).IsWeakBoundedExact k K m c₀) : C.IsWeakBoundedExact k K (m + 1) c₀
+    (hC : (Truncate.obj C).IsWeakBoundedExact k K m c₀) : C.IsWeakBoundedExact k K (m + 1) c₀
   | c, hc, 0, hi, x, ε, hε => IH c hc 0 (Nat.zero_le _) x ε hε
   | c, hc, 1, hi, x, ε, hε =>
     by
@@ -194,7 +194,7 @@ theorem isWeakBoundedExactOfTruncate (IH : C.IsWeakBoundedExact k K m c₀)
     · exact ⟨y, hy⟩
 
 theorem truncate_isWeakBoundedExact_iff (hC : C.IsWeakBoundedExact k K m c₀) :
-    (truncate.obj C).IsWeakBoundedExact k K m c₀ ↔ C.IsWeakBoundedExact k K (m + 1) c₀ :=
+    (Truncate.obj C).IsWeakBoundedExact k K m c₀ ↔ C.IsWeakBoundedExact k K (m + 1) c₀ :=
   ⟨isWeakBoundedExactOfTruncate C m c₀ hC, truncateIsWeakBoundedExact C m c₀⟩
 
 end SystemOfComplexes

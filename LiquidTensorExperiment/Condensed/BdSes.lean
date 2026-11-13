@@ -32,7 +32,7 @@ def asNatDiagram : AsSmall.{u + 1} ℕ ⥤ CondensedSet.{u} :=
 
 @[simp, reassoc]
 theorem ι_colimitIsoCondensedObj (i) :
-    colimit.ι _ i ≫ A.colimitIsoCondensedObj.Hom = A.levelCondensedDiagramCocone.ι.app _ :=
+    colimit.ι _ i ≫ A.colimitIsoCondensedObj.hom = A.levelCondensedDiagramCocone.ι.app _ :=
   by
   dsimp [CompHausFiltPseuNormGrp.colimitIsoCondensedObj]
   erw [colimit.ι_desc_assoc]
@@ -52,13 +52,13 @@ def isColimitLevelCondensedDiagramCocone : IsColimit A.levelCondensedDiagramCoco
     where
   desc S := A.colimitIsoCondensedObj.inv ≫ colimit.desc _ S
   fac := by
-    intro S j; rw [← category.assoc]
+    intro S j; rw [← Category.assoc]
     let t := _; change t ≫ _ = _
-    have ht : t = colimit.ι _ _ := by dsimp [t]; rw [iso.comp_inv_eq, ι_colimit_iso_Condensed_obj]
+    have ht : t = colimit.ι _ _ := by dsimp [t]; rw [Iso.comp_inv_eq, ι_colimit_iso_Condensed_obj]
     simp [ht]
   uniq := by
     intro S m hm
-    rw [iso.eq_inv_comp]
+    rw [Iso.eq_inv_comp]
     apply colimit.hom_ext; intro j
     specialize hm j
     simpa
@@ -80,30 +80,30 @@ def presentationPointIsomorphism : F.obj (asNatCocone A ι).pt ≅ colimit (asNa
     (colimit.isColimit _)
 
 theorem coproductPresentation_eq :
-    coproductPresentation F A ι ≫ (presentationPointIsomorphism F A ι hι).Hom =
+    coproductPresentation F A ι ≫ (presentationPointIsomorphism F A ι hι).hom =
       coproductToColimit (asNatDiagram A ι ⋙ F) :=
   by
   apply colimit.hom_ext; intro j
   erw [colimit.ι_desc]
   erw [colimit.ι_desc_assoc]
   dsimp
-  erw [(is_colimit_of_preserves F (is_colimit_as_nat_cocone A ι hι)).fac]
+  erw [(CategoryTheory.Limits.isColimitOfPreserves F (Condensed.isColimitAsNatCocone A ι hι)).fac]
   rfl
 
 theorem coproduct_to_colimit_shortExact_sequence (hι : ∀ r : ℝ≥0, ∃ n, r ≤ ι n) :
     ShortExact (coproductToCoproduct (asNatDiagram A ι ⋙ F) - 𝟙 _) (coproductPresentation F A ι) :=
   { Mono := inferInstance
     Epi := by
-      have := coproduct_presentation_eq F A ι hι
-      rw [← iso.eq_comp_inv] at this ; rw [this]
+      have := Condensed.coproductPresentation_eq F A ι hι
+      rw [← Iso.eq_comp_inv] at this ; rw [this]
       apply (config := { instances := false }) epi_comp
       infer_instance
       infer_instance
     exact := by
-      have := coproduct_presentation_eq F A ι hι
-      rw [← iso.eq_comp_inv] at this ; rw [this]
+      have := Condensed.coproductPresentation_eq F A ι hι
+      rw [← Iso.eq_comp_inv] at this ; rw [this]
       rw [exact_comp_iso]
-      exact (short_exact_sequence_aux (as_nat_diagram A ι ⋙ F)).exact }
+      exact (Condensed.shortExact_sequence_aux (Condensed.asNatDiagram A ι ⋙ F)).exact }
 
 variable (n : ℕ)
 
@@ -149,13 +149,13 @@ theorem shortExact_sequence_with_pow (hι : ∀ r : ℝ≥0, ∃ n, r ≤ ι n) 
       (coproductPresentationWithPow F A ι n) :=
   { Mono := inferInstance
     Epi := by
-      rw [coproduct_presentation_with_pow_eq]
+      rw [Condensed.coproductPresentationWithPow_eq]
       apply epi_comp
       apply hι
     exact := by
-      rw [coproduct_presentation_with_pow_eq]
+      rw [Condensed.coproductPresentationWithPow_eq]
       rw [exact_comp_iso]
-      exact (short_exact_sequence_aux _).exact
+      exact (Condensed.shortExact_sequence_aux _).exact
       apply hι }
 
 end Condensed

@@ -49,14 +49,14 @@ theorem Functor.leftDerived_map_eq' (F : C ⥤ D) [F.Additive] (n : ℕ) (X Y : 
     (πY : PY ⟶ (ChainComplex.single₀ C).obj Y) (g : PX ⟶ PY) (hX : PX.IsProjectiveResolution X πX)
     (hY : PY.IsProjectiveResolution Y πY) (w : g ≫ πY = πX ≫ (ChainComplex.single₀ C).map f) :
     (F.leftDerived n).map f =
-      (Functor.leftDerivedObjIso' F n X PX πX hX).Hom ≫
+      (Functor.leftDerivedObjIso' F n X PX πX hX).hom ≫
         (homology'Functor D _ n).map ((F.mapHomologicalComplex _).map g) ≫
           (Functor.leftDerivedObjIso' F n Y PY πY hY).inv :=
   by
-  let PXr := hX.mk_ProjectiveResolution PX X πX
-  let PYr := hY.mk_ProjectiveResolution PY Y πY
+  let PXr := hX.mkProjectiveResolution PX X πX
+  let PYr := hY.mkProjectiveResolution PY Y πY
   let gr : PXr.complex ⟶ PYr.complex := g
-  simpa using functor.left_derived_map_eq F n f gr w
+  simpa using Functor.leftDerived_map_eq F n f gr w
 
 abbrev α [F.Additive] :
     (ShortExactSequence.fst C ⋙ F).mapHomologicalComplex (ComplexShape.down ℕ) ⟶
@@ -71,16 +71,16 @@ abbrev β [F.Additive] :
 theorem exact_α_β_horseshoe [F.Additive] (A : ShortExactSequence C) (n : ℕ) :
     ShortExact (((α F).app (horseshoe A)).f n) (((β F).app (horseshoe A)).f n) :=
   by
-  apply split.short_exact
-  apply split.map
+  apply Split.shortExact
+  apply Split.map
   obtain ⟨φ, χ, h1, h2, h3, h4⟩ := horseshoe_split A n
-  exact ⟨⟨φ, χ, h1, h2, short_exact_sequence.f_comp_g _, h3, h4⟩⟩
+  exact ⟨⟨φ, χ, h1, h2, ShortExactSequence.f_comp_g _, h3, h4⟩⟩
 
 def δ [F.Additive] (n : ℕ) (A : ShortExactSequence C) :
     (F.leftDerived (n + 1)).obj A.3 ⟶ (F.leftDerived n).obj A.1 :=
   by
-  let f₃ := functor.left_derived_obj_iso' F (n + 1) _ _ _ (horseshoe_is_projective_resolution₃ A)
-  let f₁ := functor.left_derived_obj_iso' F n _ _ _ (horseshoe_is_projective_resolution₁ A)
+  let f₃ := Functor.leftDerivedObjIso' F (n + 1) _ _ _ (horseshoe_is_projective_resolution₃ A)
+  let f₁ := Functor.leftDerivedObjIso' F n _ _ _ (horseshoe_is_projective_resolution₁ A)
   exact f₃.hom ≫ HomologicalComplex.δ _ _ (exact_α_β_horseshoe F A) _ _ rfl ≫ f₁.symm.hom
 
 theorem exact_of_short_exact [F.Additive] (n : ℕ) (A : ShortExactSequence C) :
@@ -88,31 +88,31 @@ theorem exact_of_short_exact [F.Additive] (n : ℕ) (A : ShortExactSequence C) :
   by
   have := ((HomologicalComplex.six_term_exactSeq _ _ (exact_α_β_horseshoe F A) _ n rfl).drop 3).pair
   have H₁₂ :=
-    functor.left_derived_map_eq' F n A.1 A.2 A.f ((HomologicalComplex.fst C).obj (horseshoe A))
+    Functor.leftDerived_map_eq' F n A.1 A.2 A.f ((HomologicalComplex.fst C).obj (horseshoe A))
       (horseshoe_to_single₁ A) ((HomologicalComplex.snd C).obj (horseshoe A))
       (horseshoe_to_single₂ A) ((HomologicalComplex.fstSnd C).app (horseshoe A))
       (horseshoe_is_projective_resolution₁ A) (horseshoe_is_projective_resolution₂ A) _
   have H₂₃ :=
-    functor.left_derived_map_eq' F n A.2 A.3 A.g ((HomologicalComplex.snd C).obj (horseshoe A))
+    Functor.leftDerived_map_eq' F n A.2 A.3 A.g ((HomologicalComplex.snd C).obj (horseshoe A))
       (horseshoe_to_single₂ A) ((HomologicalComplex.trd C).obj (horseshoe A))
       (horseshoe_to_single₃ A) ((HomologicalComplex.sndTrd C).app (horseshoe A))
       (horseshoe_is_projective_resolution₂ A) (horseshoe_is_projective_resolution₃ A) _
   refine' Preadditive.exact_of_iso_of_exact' _ _ _ _ _ _ _ _ _ this
   · let this.1 :=
-      functor.left_derived_obj_iso' F n A.1 ((HomologicalComplex.fst C).obj (horseshoe A))
+      Functor.leftDerivedObjIso' F n A.1 ((HomologicalComplex.fst C).obj (horseshoe A))
         (horseshoe_to_single₁ A) (horseshoe_is_projective_resolution₁ A)
     exact this.symm
   · let this.1 :=
-      functor.left_derived_obj_iso' F n A.2 ((HomologicalComplex.snd C).obj (horseshoe A))
+      Functor.leftDerivedObjIso' F n A.2 ((HomologicalComplex.snd C).obj (horseshoe A))
         (horseshoe_to_single₂ A) (horseshoe_is_projective_resolution₂ A)
     exact this.symm
   · let this.1 :=
-      functor.left_derived_obj_iso' F n A.3 ((HomologicalComplex.trd C).obj (horseshoe A))
+      Functor.leftDerivedObjIso' F n A.3 ((HomologicalComplex.trd C).obj (horseshoe A))
         (horseshoe_to_single₃ A) (horseshoe_is_projective_resolution₃ A)
     exact this.symm
-  · rw [H₁₂, ← category.assoc, iso.symm_hom, iso.inv_hom_id, category.id_comp]
+  · rw [H₁₂, ← Category.assoc, Iso.symm_hom, Iso.inv_hom_id, Category.id_comp]
     simpa
-  · rw [H₂₃, ← category.assoc, iso.symm_hom, iso.inv_hom_id, category.id_comp]
+  · rw [H₂₃, ← Category.assoc, Iso.symm_hom, Iso.inv_hom_id, Category.id_comp]
     simpa
   · ext i
     apply horseshoe_g_comp_to_single₃_f
@@ -124,29 +124,29 @@ theorem exact_of_short_exact.δ_right [F.Additive] (n : ℕ) (A : ShortExactSequ
   by
   have := ((HomologicalComplex.six_term_exactSeq _ _ (exact_α_β_horseshoe F A) _ n rfl).drop 1).pair
   have H₂₃ :=
-    functor.left_derived_map_eq' F (n + 1) A.2 A.3 A.g
+    Functor.leftDerived_map_eq' F (n + 1) A.2 A.3 A.g
       ((HomologicalComplex.snd C).obj (horseshoe A)) (horseshoe_to_single₂ A)
       ((HomologicalComplex.trd C).obj (horseshoe A)) (horseshoe_to_single₃ A)
       ((HomologicalComplex.sndTrd C).app (horseshoe A)) (horseshoe_is_projective_resolution₂ A)
       (horseshoe_is_projective_resolution₃ A) _
   refine' Preadditive.exact_of_iso_of_exact' _ _ _ _ _ _ _ _ _ this
   · let this.1 :=
-      functor.left_derived_obj_iso' F (n + 1) A.2 ((HomologicalComplex.snd C).obj (horseshoe A))
+      Functor.leftDerivedObjIso' F (n + 1) A.2 ((HomologicalComplex.snd C).obj (horseshoe A))
         (horseshoe_to_single₂ A) (horseshoe_is_projective_resolution₂ A)
     exact this.symm
   · let this.1 :=
-      functor.left_derived_obj_iso' F (n + 1) A.3 ((HomologicalComplex.trd C).obj (horseshoe A))
+      Functor.leftDerivedObjIso' F (n + 1) A.3 ((HomologicalComplex.trd C).obj (horseshoe A))
         (horseshoe_to_single₃ A) (horseshoe_is_projective_resolution₃ A)
     exact this.symm
   · let this.1 :=
-      functor.left_derived_obj_iso' F n A.1 ((HomologicalComplex.fst C).obj (horseshoe A))
+      Functor.leftDerivedObjIso' F n A.1 ((HomologicalComplex.fst C).obj (horseshoe A))
         (horseshoe_to_single₁ A) (horseshoe_is_projective_resolution₁ A)
     exact this.symm
-  · rw [H₂₃, ← category.assoc, iso.symm_hom, iso.inv_hom_id, category.id_comp]
+  · rw [H₂₃, ← Category.assoc, Iso.symm_hom, Iso.inv_hom_id, Category.id_comp]
     simpa
   · unfold δ
     dsimp
-    simp only [category.assoc, iso.inv_hom_id_assoc]
+    simp only [Category.assoc, Iso.inv_hom_id_assoc]
   · ext i
     apply horseshoe_g_comp_to_single₃_f
 
@@ -155,27 +155,27 @@ theorem exact_of_short_exact.δ_left [F.Additive] (n : ℕ) (A : ShortExactSeque
   by
   have := ((HomologicalComplex.six_term_exactSeq _ _ (exact_α_β_horseshoe F A) _ n rfl).drop 2).pair
   have H₁₂ :=
-    functor.left_derived_map_eq' F n A.1 A.2 A.f ((HomologicalComplex.fst C).obj (horseshoe A))
+    Functor.leftDerived_map_eq' F n A.1 A.2 A.f ((HomologicalComplex.fst C).obj (horseshoe A))
       (horseshoe_to_single₁ A) ((HomologicalComplex.snd C).obj (horseshoe A))
       (horseshoe_to_single₂ A) ((HomologicalComplex.fstSnd C).app (horseshoe A))
       (horseshoe_is_projective_resolution₁ A) (horseshoe_is_projective_resolution₂ A) _
   refine' Preadditive.exact_of_iso_of_exact' _ _ _ _ _ _ _ _ _ this
   · let this.1 :=
-      functor.left_derived_obj_iso' F (n + 1) A.3 ((HomologicalComplex.trd C).obj (horseshoe A))
+      Functor.leftDerivedObjIso' F (n + 1) A.3 ((HomologicalComplex.trd C).obj (horseshoe A))
         (horseshoe_to_single₃ A) (horseshoe_is_projective_resolution₃ A)
     exact this.symm
   · let this.1 :=
-      functor.left_derived_obj_iso' F n A.1 ((HomologicalComplex.fst C).obj (horseshoe A))
+      Functor.leftDerivedObjIso' F n A.1 ((HomologicalComplex.fst C).obj (horseshoe A))
         (horseshoe_to_single₁ A) (horseshoe_is_projective_resolution₁ A)
     exact this.symm
   · let this.1 :=
-      functor.left_derived_obj_iso' F n A.2 ((HomologicalComplex.snd C).obj (horseshoe A))
+      Functor.leftDerivedObjIso' F n A.2 ((HomologicalComplex.snd C).obj (horseshoe A))
         (horseshoe_to_single₂ A) (horseshoe_is_projective_resolution₂ A)
     exact this.symm
   · unfold δ
     dsimp
-    simp only [category.assoc, iso.inv_hom_id_assoc]
-  · rw [H₁₂, ← category.assoc, iso.symm_hom, iso.inv_hom_id, category.id_comp]
+    simp only [Category.assoc, Iso.inv_hom_id_assoc]
+  · rw [H₁₂, ← Category.assoc, Iso.symm_hom, Iso.inv_hom_id, Category.id_comp]
     simpa
   · ext i
     apply horseshoe_f_comp_to_single₂_f

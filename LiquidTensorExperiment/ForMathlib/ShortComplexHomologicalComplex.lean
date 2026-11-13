@@ -15,11 +15,11 @@ variable {C₁ C₂ C₃ : Type _} [Category C₁] [Category C₂] [Category C�
 
 theorem isZero_of_comp (F : C₁ ⥤ C₂) (G : C₂ ⥤ C₃) (h : Limits.IsZero G) : Limits.IsZero (F ⋙ G) :=
   by
-  rw [limits.is_zero.iff_id_eq_zero]
+  rw [Limits.IsZero.iff_id_eq_zero]
   ext
-  apply limits.is_zero.eq_zero_of_src
+  apply Limits.IsZero.eq_zero_of_src
   dsimp
-  apply limits.is_zero.obj
+  apply Limits.IsZero.obj
   exact h
 
 end Functor
@@ -41,12 +41,12 @@ def nextFunctor (i : M) : HomologicalComplex C c ⥤ C :=
 def prevFunctorIsoEval (i j : M) (hij : c.Rel j i) :
     prevFunctor C c i ≅ HomologicalComplex.eval C c j :=
   NatIso.ofComponents (fun X => X.xPrevIso hij) fun X Y f => by dsimp;
-    rw [← iso.eq_comp_inv, assoc, ← hom.prev_eq f hij]
+    rw [← Iso.eq_comp_inv, assoc, ← Hom.prev_eq f hij]
 
 def nextFunctorIsoEval (i j : M) (hij : c.Rel i j) :
     nextFunctor C c i ≅ HomologicalComplex.eval C c j :=
   NatIso.ofComponents (fun X => X.xNextIso hij) fun X Y f => by dsimp;
-    rw [← iso.eq_comp_inv, assoc, ← hom.next_eq f hij]
+    rw [← Iso.eq_comp_inv, assoc, ← Hom.next_eq f hij]
 
 end HomologicalComplex
 

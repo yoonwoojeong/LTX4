@@ -32,8 +32,8 @@ def Ab.ulift : Ab.{u} ⥤ Ab.{max v u}
     { toFun := fun x => ⟨f x.down⟩
       map_zero' := by ext1; apply f.map_zero
       map_add' := fun x y => by ext1; apply f.map_add }
-  map_id' := by intros; ext; rfl
-  map_comp' := by intros; ext; rfl
+  map_id := by intros; ext; rfl
+  map_comp := by intros; ext; rfl
 
 @[simp]
 theorem Ab.exact_ulift_map {A B C : Ab} (f : A ⟶ B) (g : B ⟶ C) :
@@ -99,7 +99,7 @@ def forgetToCondensedType : Condensed Ab.{u + 1} ⥤ CondensedSet
   obj F :=
     ⟨F.val ⋙ forget _, by
       cases' F with F hF
-      rwa [presheaf.is_sheaf_iff_is_sheaf_forget _ _ (forget Ab)] at hF 
+      rwa [Presheaf.isSheaf_iff_isSheaf_forget _ _ (forget Ab)] at hF 
       infer_instance⟩
   map A B f := ⟨whiskerRight f.val _⟩
 
@@ -116,8 +116,8 @@ def OfTopAb.presheaf : Profinite.{u}ᵒᵖ ⥤ Ab.{u}
     where
   obj S := ⟨C(S.unop, A)⟩
   map S₁ S₂ f := AddMonoidHom.mk' (fun g => g.comp f.unop) fun g₁ g₂ => rfl
-  map_id' := by intros; ext; rfl
-  map_comp' := by intros; ext; rfl
+  map_id := by intros; ext; rfl
+  map_comp := by intros; ext; rfl
 
 /-- The condensed abelian group associated with a topological abelian group -/
 def ofTopAb : Condensed.{u} Ab.{u + 1}
@@ -127,7 +127,7 @@ def ofTopAb : Condensed.{u} Ab.{u + 1}
     rw [CategoryTheory.Presheaf.isSheaf_iff_isSheaf_forget _ _ (forget Ab)]
     swap; infer_instance
     let B := TopCat.of A
-    change presheaf.is_sheaf _ B.to_Condensed.val
+    change presheaf.isSheaf _ B.to_Condensed.val
     exact B.to_Condensed.cond
 
 variable {A} {B : Type u} [AddCommGroup B] [TopologicalSpace B] [TopologicalAddGroup B]
@@ -141,7 +141,7 @@ def ofTopAbMap (f : A →+ B) (hf : Continuous f) : ofTopAb A ⟶ ofTopAb B
             AddMonoidHom.mk' (fun g => ⟨f ∘ show C(↥(Opposite.unop S), A) from g, hf.comp _⟩) _
           · exact g.continuous
           · intros; ext; exact f.map_add _ _
-        naturality' := fun S T g => rfl } Ab.ulift.{u + 1}
+        naturality := fun S T g => rfl } Ab.ulift.{u + 1}
 
 end
 
@@ -205,7 +205,7 @@ protected def nsmul (n : ℕ) (f : Presheaf A S) : Presheaf A S :=
 protected def zsmul (n : ℤ) (f : Presheaf A S) : Presheaf A S :=
   ⟨n • f.1, by
     obtain ⟨_, c, f, hf, rfl⟩ := f
-    refine' ⟨n.nat_abs * c, fun s => ⟨n • f s, int_smul_mem_filtration _ _ _ (f s).2⟩, _, rfl⟩
+    refine' ⟨n.natAbs * c, fun s => ⟨n • f s, int_smul_mem_filtration _ _ _ (f s).2⟩, _, rfl⟩
     exact continuous_zsmul _ _ _ hf⟩
 
 variable (A S)
@@ -268,14 +268,14 @@ def presheaf (A : CompHausFiltPseuNormGrp.{u}) : Profinite.{u}ᵒᵖ ⥤ Ab
     where
   obj S := ⟨Presheaf A (unop S)⟩
   map S T φ := Presheaf.comap A φ.unop
-  map_id' := by intros; ext; rfl
-  map_comp' := by intros; ext; rfl
+  map_id := by intros; ext; rfl
+  map_comp := by intros; ext; rfl
 
 @[simps (config := { fullyApplied := false }) app]
 def presheaf.map {A B : CompHausFiltPseuNormGrp} (φ : A ⟶ B) : presheaf A ⟶ presheaf B
     where
   app S := Presheaf.map φ (unop S)
-  naturality' := by intros; rfl
+  naturality := by intros; rfl
 
 @[simp]
 theorem presheaf.map_id (A : CompHausFiltPseuNormGrp) : presheaf.map (𝟙 A) = 𝟙 _ := by ext; rfl
@@ -316,7 +316,7 @@ theorem presheaf_comp_ulift_is_sheaf_aux_equalizer (A : CompHausFiltPseuNormGrp.
     dsimp
     rw [ht]
     ext i
-    dsimp [CompHausFiltPseuNormGrp.presheaf, Ab.ulift, functor.map_to_equalizer]
+    dsimp [CompHausFiltPseuNormGrp.presheaf, Ab.ulift, Functor.mapToEqualizer]
     have := Profinite.π_descendToTop π t'' hh hw
     apply_fun fun e => (e i).val at this ; exact this
 
@@ -325,10 +325,10 @@ theorem presheaf_comp_ulift_isSheaf (A : CompHausFiltPseuNormGrp.{u}) :
   by
   rw [CategoryTheory.Presheaf.isSheaf_iff_isSheaf_forget _ _ (forget Ab)]
   swap; infer_instance
-  rw [is_sheaf_iff_is_sheaf_of_type]
-  erw [(functor.is_proetale_sheaf_of_types_tfae (A.Presheaf ⋙ Ab.ulift.{u + 1} ⋙ forget _)).out 0 5]
+  rw [CategoryTheory.isSheaf_iff_isSheaf_of_type]
+  erw [(Functor.isProetaleSheafOfTypes_tFAE (A.Presheaf ⋙ Ab.ulift.{u + 1} ⋙ forget _)).out 0 5]
   refine' ⟨_, _, _⟩
-  · dsimp [functor.empty_condition]
+  · dsimp [Functor.EmptyCondition]
     constructor
     · intro a b h; ext ⟨⟩
     · intro x; dsimp
@@ -378,8 +378,8 @@ def toCondensed : CompHausFiltPseuNormGrp.{u} ⥤ Condensed.{u} Ab.{u + 1}
     { val := presheaf A ⋙ Ab.ulift.{u + 1}
       cond := presheaf_comp_ulift_isSheaf _ }
   map A B f := ⟨whiskerRight (presheaf.map f) _⟩
-  map_id' X := by ext : 2; dsimp; simp
-  map_comp' X Y Z f g := by ext : 2; dsimp; simp
+  map_id X := by ext : 2; dsimp; simp
+  map_comp X Y Z f g := by ext : 2; dsimp; simp
 
 section
 
@@ -395,8 +395,8 @@ def level : ℝ≥0 ⥤ CompHaus.{u}
       continuous_toFun :=
         letI : Fact (r ≤ s) := ⟨h.le⟩
         continuous_cast_le _ _ }
-  map_id' r := by ext; rfl
-  map_comp' r s t h1 h2 := by ext; rfl
+  map_id r := by ext; rfl
+  map_comp r s t h1 h2 := by ext; rfl
 
 @[simps]
 def levelCondensedDiagram : ℝ≥0 ⥤ CondensedSet.{u} :=
@@ -413,8 +413,8 @@ def levelCondensedDiagramCocone : Cocone A.levelCondensedDiagram'
     { app := fun r =>
         Sheaf.Hom.mk <|
           { app := fun S f => ULift.up <| ⟨_, ULift.down r, f.down.1, f.down.2, rfl⟩
-            naturality' := fun S T f => by ext; rfl }
-      naturality' := fun r s h => by ext; rfl }
+            naturality := fun S T f => by ext; rfl }
+      naturality := fun r s h => by ext; rfl }
 
 def colimitIsoCondensedObjAuxFun (X) :
     let E := A.levelCondensedDiagram' ⋙ sheafToPresheaf _ _ ⋙ (evaluation _ _).obj (op X)
@@ -485,25 +485,25 @@ def colimitIsoCondensedObjAuxNatIso :
         (colimit.isColimit _).coconePointUniqueUpToIso (types.filteredColimitCoconeIsColimit _) ≪≫
           Equiv.toIso ((A.colimitIsoCondensedObjAux X.unop).trans Equiv.ulift.symm))
     (by
-      intro X Y f; dsimp [is_colimit.cocone_point_unique_up_to_iso]
+      intro X Y f; dsimp [IsColimit.coconePointUniqueUpToIso]
       apply
-        (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ (Type (u + 1))).obj X)
-            (colimit.is_colimit
+        (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ (Type (u + 1))).obj X)
+            (colimit.isColimit
               (A.level_Condensed_diagram' ⋙
                 Sheaf_to_presheaf proetaleTopology (Type (u + 1))))).hom_ext
-      intro j; simp only [category.assoc]
+      intro j; simp only [Category.assoc]
       slice_lhs 0 1 =>
         dsimp
-        rw [← nat_trans.naturality]
+        rw [← NatTrans.naturality]
       slice_lhs 2 3 =>
-        erw [(is_colimit_of_preserves ((evaluation Profiniteᵒᵖ (Type (u + 1))).obj Y)
-              (colimit.is_colimit
+        erw [(CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ (Type (u + 1))).obj Y)
+              (colimit.isColimit
                 (A.level_Condensed_diagram' ⋙
                   Sheaf_to_presheaf proetaleTopology (Type (u + 1))))).fac]
       slice_lhs 2 3 => erw [colimit.ι_desc]
       slice_rhs 1 2 =>
-        erw [(is_colimit_of_preserves ((evaluation Profiniteᵒᵖ (Type (u + 1))).obj X)
-              (colimit.is_colimit
+        erw [(CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ (Type (u + 1))).obj X)
+              (colimit.isColimit
                 (A.level_Condensed_diagram' ⋙
                   Sheaf_to_presheaf proetaleTopology (Type (u + 1))))).fac]
       slice_rhs 1 2 => erw [colimit.ι_desc]
@@ -524,15 +524,15 @@ instance isIso_colimitToCondensedObj : IsIso A.colimitToCondensedObj :=
   suffices A.colimit_to_Condensed_obj = A.colimit_iso_Condensed_obj.hom by rw [this]; infer_instance
   dsimp [colimit_iso_Condensed_obj, colimit_to_Condensed_obj]
   apply colimit.hom_ext; intro i
-  dsimp [is_colimit.cocone_point_unique_up_to_iso]
+  dsimp [IsColimit.coconePointUniqueUpToIso]
   rw [colimit.ι_desc, colimit.ι_desc_assoc]
-  dsimp [Sheaf.iso.mk]
+  dsimp [Sheaf.Iso.mk]
   ext T : 3; dsimp
-  rw [← nat_trans.comp_app]
-  dsimp [colimit_iso_Condensed_obj_aux_nat_iso, nat_iso.of_components]
+  rw [← NatTrans.comp_app]
+  dsimp [colimit_iso_Condensed_obj_aux_nat_iso, NatIso.ofComponents]
   slice_rhs 1 2 =>
-    erw [(is_colimit_of_preserves ((evaluation Profiniteᵒᵖ (Type (u + 1))).obj T)
-          (colimit.is_colimit
+    erw [(CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ (Type (u + 1))).obj T)
+          (colimit.isColimit
             (A.level_Condensed_diagram' ⋙ Sheaf_to_presheaf proetaleTopology (Type (u + 1))))).fac]
   slice_rhs 1 2 => erw [colimit.ι_desc]
   ext; rfl

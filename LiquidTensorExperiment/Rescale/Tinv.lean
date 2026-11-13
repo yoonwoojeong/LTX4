@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.PseudoNormedGroup.Tinv
 import LiquidTensorExperiment.Rescale.CLC
 
-#align_import rescale.Tinv
+#align_import Rescale.tinv
 
 open scoped Classical NNReal
 
@@ -37,9 +37,9 @@ theorem evalCLCFPTinv₂_rescale [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' 
     Arrow.mk ((evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ ϕ).app (op (of r' (Rescale N M)))) =
       Arrow.mk ((evalCLCFPTinv₂ r V r' (c₁ * N⁻¹) (c₂ * N⁻¹) (c₃ * N⁻¹) (c₄ * N⁻¹) ϕ).app (op M)) :=
   by
-  dsimp only [universal_map.eval_CLCFPTinv₂, _root_.id, SemiNormedGroupCat.equalizer.mapNat_app]
+  dsimp only [UniversalMap.evalCLCFPTinv₂, _root_.id, SemiNormedGroupCat.equalizer.mapNat_app]
   refine' SemiNormedGroupCat.equalizer.map_congr _ _ rfl rfl rfl rfl <;>
-    · exact universal_map.eval_CLCFP_rescale V r' _ _ _ _ _ N M
+    · exact UniversalMap.evalCLCFP_rescale V r' _ _ _ _ _ N M
 
 end UniversalMap
 

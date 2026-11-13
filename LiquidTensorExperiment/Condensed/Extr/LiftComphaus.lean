@@ -21,11 +21,11 @@ theorem lift_exists' {X Y : CompHaus} {P : ExtrDisc} (f : X ⟶ Y) (hf : Functio
     have := @ultrafilter_extend_extends P.val _ _ _ id
     exact congr_fun this x
   skip
-  choose s hs using projective.factors (𝟙 _) π
-  let φ : CompHaus.of (Ultrafilter P.val.to_CompHaus) ⟶ Y := π ≫ e
-  choose g h using projective.factors φ f
+  choose s hs using Projective.factors (𝟙 _) π
+  let φ : CompHaus.of (Ultrafilter P.val.toCompHaus) ⟶ Y := π ≫ e
+  choose g h using Projective.factors φ f
   refine' ⟨s ≫ g, _⟩
-  erw [category.assoc, h, ← category.assoc, hs, category.id_comp]
+  erw [Category.assoc, h, ← Category.assoc, hs, Category.id_comp]
 
 def lift' {X Y : CompHaus} {P : ExtrDisc} (f : X ⟶ Y) (hf : Function.Surjective f)
     (e : P.val.toCompHaus ⟶ Y) : P.val.toCompHaus ⟶ X :=

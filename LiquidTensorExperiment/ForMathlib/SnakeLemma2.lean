@@ -98,12 +98,12 @@ theorem isSnakeInput : IsSnakeInput S.SnakeDiagram :=
     col_exact₁ := by
       intro j
       dsimp only [snake_diagram]
-      fin_cases j with [0, 1, 2] <;> simp <;> rw [exact_iff_exact_seq]
+      fin_cases j with [0, 1, 2] <;> simp <;> rw [CategoryTheory.exact_iff_exactSeq]
       exacts [S.col_exact_a.extract 0 2, S.col_exact_b.extract 0 2, S.col_exact_c.extract 0 2]
     col_exact₂ := by
       intro j
       dsimp only [snake_diagram]
-      fin_cases j with [0, 1, 2] <;> simp <;> rw [exact_iff_exact_seq]
+      fin_cases j with [0, 1, 2] <;> simp <;> rw [CategoryTheory.exact_iff_exactSeq]
       exacts [S.col_exact_a.extract 1 2, S.col_exact_b.extract 1 2, S.col_exact_c.extract 1 2]
     col_mono := by
       intro j
@@ -126,27 +126,27 @@ def δ : C₀ ⟶ A₃ :=
 
 theorem six_term_exactSeq : ExactSeq 𝒜 [f₀, g₀, S.δ, f₃, g₃] :=
   by
-  have := S.is_snake_input.six_term_exact_seq
+  have := S.is_snake_input.six_term_exactSeq
   dsimp only [snake_diagram] at this 
-  simpa only [snake_diagram.mk_functor_map_f0, snake_diagram.mk_functor_map_g0,
-    snake_diagram.mk_functor_map_f3, snake_diagram.mk_functor_map_g3]
+  simpa only [SnakeDiagram.mkFunctor_map_f0, SnakeDiagram.mkFunctor_map_g0,
+    SnakeDiagram.mkFunctor_map_f3, SnakeDiagram.mkFunctor_map_g3]
 
 end Snake
 
 theorem mono_of_exact_of_eq_zero (hfg : Exact f₁ g₁) (h : f₁ = 0) : Mono g₁ := by
-  rwa [(abelian.tfae_mono A₁ g₁).out 0 2, ← h]
+  rwa [(Abelian.tfae_mono A₁ g₁).out 0 2, ← h]
 
 theorem Cokernel.map_mono_of_epi_of_mono (sq : f₁ ≫ b₁ = a₁ ≫ f₂) [Epi a₁] [Mono b₁] [Mono f₂] :
     Mono (cokernel.map f₁ f₂ a₁ b₁ sq) :=
   by
   have S :=
-    snake.mk_of_sequence_hom A₁ B₁ (cokernel f₁) A₂ B₂ (cokernel f₂) f₁ (cokernel.π _) a₁ b₁
-      (cokernel.map f₁ f₂ a₁ b₁ sq) f₂ (cokernel.π _) sq.symm (by simp) (abelian.exact_cokernel _)
-      (abelian.exact_cokernel _)
+    Snake.mk_of_sequence_hom A₁ B₁ (cokernel f₁) A₂ B₂ (cokernel f₂) f₁ (cokernel.π _) a₁ b₁
+      (cokernel.map f₁ f₂ a₁ b₁ sq) f₂ (cokernel.π _) sq.symm (by simp) (Abelian.exact_cokernel _)
+      (Abelian.exact_cokernel _)
   apply S.col_exact_c.pair.mono_of_isZero
   exact
-    (S.six_term_exact_seq.drop 1).pair.isZero_of_isZero_isZero (is_zero_kernel_of_mono _)
-      (is_zero_cokernel_of_epi _)
+    (S.six_term_exact_seq.drop 1).pair.isZero_of_isZero_isZero (CategoryTheory.Limits.isZero_kernel_of_mono _)
+      (CategoryTheory.Limits.isZero_cokernel_of_epi _)
 
 end CategoryTheory
 

@@ -37,10 +37,10 @@ theorem image_eq (hC : IsLimit C) (i : J) :
     let P := ∀ j : J, F.obj j
     let Us : Js → Set P := fun e => {p | F.map (hom_of_le e.2.2) (p e.1) = p e.2.1 ∧ p i = x}
     have hP : _root_.is_compact (Set.univ : Set P) := compact_univ
-    have hh := hP.inter_Inter_nonempty Us _ _
+    have hh := hP.inter_iInter_nonempty Us _ _
     · rcases hh with ⟨z, hz⟩
       let IC : limit_cone F ≅ C := (limit_cone_is_limit F).uniqueUpToIso hC
-      let ICX : (limit_cone F).pt ≅ C.X := (cones.forget _).mapIso IC
+      let ICX : (limit_cone F).pt ≅ C.X := (Cones.forget _).mapIso IC
       let z : (limit_cone F).pt := ⟨z, _⟩
       swap
       · intro a b h

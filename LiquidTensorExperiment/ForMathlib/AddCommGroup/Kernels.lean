@@ -29,8 +29,8 @@ def kernelIsLimit : IsLimit (kernelCone f) :=
       AddMonoidHom.codRestrict (Fork.ι s) f.ker fun c =>
         (AddMonoidHom.mem_ker _).2 <|
           by
-          rw [← @Function.comp_apply _ _ _ f s.ι c, ← coe_comp, fork.condition,
-            has_zero_morphisms.comp_zero (fork.ι s) N]
+          rw [← @Function.comp_apply _ _ _ f s.ι c, ← coe_comp, Fork.condition,
+            HasZeroMorphisms.comp_zero (fork.ι s) N]
           rfl)
     (fun s => by ext; simp only [comp_apply, AddMonoidHom.codRestrict_apply]; rfl) fun s m h =>
     AddMonoidHom.ext fun x =>
@@ -87,12 +87,12 @@ noncomputable def cokernelIsoRangeQuotient : cokernel f ≅ of (N ⧸ f.range) :
 @[simp, elementwise]
 theorem cokernel_π_cokernelIsoRangeQuotient_hom :
     cokernel.π f ≫ (cokernelIsoRangeQuotient f).hom = QuotientAddGroup.mk' f.range := by
-  convert colimit.iso_colimit_cocone_ι_hom _ _ <;> rfl
+  convert colimit.isoColimitCocone_ι_hom _ _ <;> rfl
 
 @[simp, elementwise]
 theorem range_mkq_cokernelIsoRangeQuotient_inv :
     (QuotientAddGroup.mk' f.range : _) ≫ (cokernelIsoRangeQuotient f).inv = cokernel.π f := by
-  convert colimit.iso_colimit_cocone_ι_inv ⟨_, cokernel_is_colimit f⟩ _ <;> rfl
+  convert colimit.isoColimitCocone_ι_inv ⟨_, cokernel_is_colimit f⟩ _ <;> rfl
 
 end AddCommGroupCat
 

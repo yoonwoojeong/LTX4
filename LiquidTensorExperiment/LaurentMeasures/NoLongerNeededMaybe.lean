@@ -25,11 +25,11 @@ def equivIcoNatNeg {d : ℤ} (hd : d < 0) : { y : { x : ℤ // d ≤ x } // y �
     apply (not_congr mem_Ico).mpr
     simp only [Subtype.mk_lt_mk, not_and, not_lt, Int.coe_nat_nonneg, imp_true_iff]
   · rintro ⟨⟨x, dx⟩, hx⟩
-    simp [Int.toNat_of_nonneg (T.zero_le hd hx)]
+    simp [Int.toNat_of_nonneg (t.zero_le hd hx)]
   · exact fun n => by simp only [Int.toNat_coe_nat]
 
 theorem equivIcoNatNeg_apply {d : ℤ} (hd : d < 0) {y : { x : ℤ // d ≤ x }} (h : y ∉ t hd) :
-    y.1 = (equivIcoNatNeg hd) ⟨y, h⟩ := by cases y; simp [equivIcoNatNeg, T.zero_le hd h]
+    y.1 = (equivIcoNatNeg hd) ⟨y, h⟩ := by cases y; simp [equivIcoNatNeg, t.zero_le hd h]
 
 --  This lemma seems to not be used anywhere.
 theorem summable_iff_on_nat {f : ℤ → ℝ} {ρ : ℝ≥0} (d : ℤ) (h : ∀ n : ℤ, n < d → f n = 0) :
@@ -56,6 +56,6 @@ theorem aux_summable_iff_on_nat {f : ℤ → ℝ} {ρ : ℝ≥0} (d : ℤ) (h : 
     @hasSum_subtype_iff_of_support_subset ℝ ℤ _ _ (fun n : ℤ => ‖f n‖ * ρ ^ n) _ _ hf
   have h2 := fun a : ℝ =>
     @Equiv.hasSum_iff ℝ { b : ℤ // d ≤ b } ℕ _ _ ((fun n => ‖f n‖ * ρ ^ n) ∘ coe) _
-      (equiv_bdd_integer_nat d)
+      (AuxThm69.equivBddIntegerNat d)
   exact exists_congr fun a => ((h2 a).trans (h1 a)).symm
 

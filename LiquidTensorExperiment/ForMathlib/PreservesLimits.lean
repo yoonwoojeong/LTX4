@@ -3,7 +3,7 @@ import Mathlib.CategoryTheory.Limits.Preserves.Finite
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Kernels
 import LiquidTensorExperiment.ForMathlib.Homology
 
-#align_import for_mathlib.preserves_limits
+#align_import for_mathlib.preservesLimits
 
 open CategoryTheory CategoryTheory.Limits
 
@@ -22,40 +22,40 @@ noncomputable def CategoryTheory.Limits.cokernel.mapArrowIso {C : Type u₁} [Ca
     [HasZeroMorphisms C] {X₁ Y₁ X₂ Y₂ : C} (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) [HasCokernel f₁]
     [HasCokernel f₂] (e : Arrow.mk f₁ ≅ Arrow.mk f₂) : cokernel f₁ ≅ cokernel f₂
     where
-  Hom := cokernel.map _ _ e.Hom.left e.Hom.right e.Hom.w.symm
+  hom := cokernel.map _ _ e.hom.left e.hom.right e.hom.w.symm
   inv := cokernel.map _ _ e.inv.left e.inv.right e.inv.w.symm
-  hom_inv_id' := by
+  hom_inv_id := by
     ext
-    simp only [category.comp_id, cokernel.π_desc, cokernel.π_desc_assoc, category.assoc,
+    simp only [Category.comp_id, cokernel.π_desc, cokernel.π_desc_assoc, Category.assoc,
       coequalizer_as_cokernel]
-    rw [← category.assoc, ← comma.comp_right, e.hom_inv_id, arrow.id_right]
-    exact category.id_comp _
-  inv_hom_id' := by
+    rw [← Category.assoc, ← Comma.comp_right, e.hom_inv_id, Arrow.id_right]
+    exact Category.id_comp _
+  inv_hom_id := by
     ext
-    simp only [category.comp_id, cokernel.π_desc, cokernel.π_desc_assoc, category.assoc,
+    simp only [Category.comp_id, cokernel.π_desc, cokernel.π_desc_assoc, Category.assoc,
       coequalizer_as_cokernel]
-    rw [← category.assoc, ← comma.comp_right, e.inv_hom_id, arrow.id_right]
-    exact category.id_comp _
+    rw [← Category.assoc, ← Comma.comp_right, e.inv_hom_id, Arrow.id_right]
+    exact Category.id_comp _
 
 @[simps]
 noncomputable def CategoryTheory.Limits.kernel.mapArrowIso {C : Type u₁} [Category.{v} C]
     [HasZeroMorphisms C] {X₁ Y₁ X₂ Y₂ : C} (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) [HasKernel f₁]
     [HasKernel f₂] (e : Arrow.mk f₁ ≅ Arrow.mk f₂) : kernel f₁ ≅ kernel f₂
     where
-  Hom := kernel.map _ _ e.Hom.left e.Hom.right e.Hom.w.symm
+  hom := kernel.map _ _ e.hom.left e.hom.right e.hom.w.symm
   inv := kernel.map _ _ e.inv.left e.inv.right e.inv.w.symm
-  hom_inv_id' := by
+  hom_inv_id := by
     ext
-    simp only [category.id_comp, kernel.lift_ι, kernel.lift_ι_assoc, category.assoc,
+    simp only [Category.id_comp, kernel.lift_ι, kernel.lift_ι_assoc, Category.assoc,
       equalizer_as_kernel]
-    rw [← comma.comp_left, e.hom_inv_id, arrow.id_left]
-    exact category.comp_id _
-  inv_hom_id' := by
+    rw [← Comma.comp_left, e.hom_inv_id, Arrow.id_left]
+    exact Category.comp_id _
+  inv_hom_id := by
     ext
-    simp only [category.id_comp, kernel.lift_ι, kernel.lift_ι_assoc, category.assoc,
+    simp only [Category.id_comp, kernel.lift_ι, kernel.lift_ι_assoc, Category.assoc,
       equalizer_as_kernel]
-    rw [← comma.comp_left, e.inv_hom_id, arrow.id_left]
-    exact category.comp_id _
+    rw [← Comma.comp_left, e.inv_hom_id, Arrow.id_left]
+    exact Category.comp_id _
 
 noncomputable def CategoryTheory.Functor.mapHomologicalComplexXPrev (F : C ⥤ D) [F.Additive]
     (X : HomologicalComplex C c) (i : ι) :
@@ -93,7 +93,7 @@ theorem CategoryTheory.Limits.preserves_kernel_iso_inv_map (F : C ⥤ D) [F.Addi
       kernel.map _ _ (F.map iX) (F.map iY) (by simp_rw [← F.map_comp, e]) ≫
         (PreservesKernel.iso F f₂).inv :=
   by
-  rw [iso.eq_comp_inv, category.assoc, eq_comm, iso.eq_inv_comp]
+  rw [Iso.eq_comp_inv, Category.assoc, eq_comm, Iso.eq_inv_comp]
   ext
   simp
 
@@ -102,7 +102,7 @@ open CategoryTheory CategoryTheory.Limits
 
 @[simp, reassoc]
 theorem homology'.π'_iso_cokernel_lift_hom {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f ≫ g = 0) :
-    homology'.π' f g w ≫ (homology'IsoCokernelLift f g w).Hom = cokernel.π _ := by
+    homology'.π' f g w ≫ (homology'IsoCokernelLift f g w).hom = cokernel.π _ := by
   delta homology'.π'; simp
 
 @[reassoc]
@@ -113,18 +113,18 @@ theorem homology'.π'_iso_cokernel_lift_inv {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶
 noncomputable def preservesHomologyOfExact (i : ι) :
     F.mapHomologicalComplex c ⋙ homology'Functor _ c i ≅ homology'Functor _ c i ⋙ F :=
   by
-  fapply nat_iso.of_components
+  fapply NatIso.ofComponents
   · intro X
     refine'
       homology'IsoCokernelLift _ _ _ ≪≫
-        cokernel.map_arrow_iso _ _ (arrow.iso_mk _ _ _) ≪≫
-          (preserves_cokernel.iso _ _).symm ≪≫ F.map_iso (homology'IsoCokernelLift _ _ _).symm
+        cokernel.mapArrowIso _ _ (Arrow.isoMk _ _ _) ≪≫
+          (PreservesCokernel.iso _ _).symm ≪≫ F.map_iso (homology'IsoCokernelLift _ _ _).symm
     · exact iso.refl _
-    · refine' kernel.map_arrow_iso _ _ (arrow.iso_mk _ _ _) ≪≫ (preserves_kernel.iso _ _).symm
+    · refine' kernel.mapArrowIso _ _ (Arrow.isoMk _ _ _) ≪≫ (PreservesKernel.iso _ _).symm
       · exact iso.refl _
       · exact iso.refl _
-      · dsimp; rw [category.id_comp, F.map_homological_complex_d_from, category.comp_id]
-    · dsimp; rw [← category.assoc, iso.eq_comp_inv]; ext; simp [F.map_homological_complex_d_to]
+      · dsimp; rw [Category.id_comp, F.map_homological_complex_d_from, Category.comp_id]
+    · dsimp; rw [← Category.assoc, Iso.eq_comp_inv]; ext; simp [F.map_homological_complex_d_to]
   · intro X Y f; apply homology'.hom_from_ext
     simp only [CategoryTheory.Limits.kernel.mapArrowIso_hom, CategoryTheory.Functor.mapIso_inv,
       CategoryTheory.Functor.mapHomologicalComplex_map_f, HomologicalComplex.Hom.sqFrom_right,
@@ -136,17 +136,17 @@ noncomputable def preservesHomologyOfExact (i : ι) :
       CategoryTheory.Functor.mapIso_symm, CategoryTheory.Category.assoc,
       CategoryTheory.Iso.trans_hom, HomologicalComplex.Hom.sqTo_right,
       CategoryTheory.Limits.π_comp_cokernelComparison_assoc, homology'.π'_map_assoc]
-    simp only [← functor.map_comp]
+    simp only [← Functor.map_comp]
     rw [homology'.π'_iso_cokernel_lift_inv_assoc, homology'.π'_iso_cokernel_lift_inv,
       homology'.π'_map, F.map_comp, preserves_kernel_iso_inv_map_assoc]
-    simp only [← category.assoc]
+    simp only [← Category.assoc]
     congr 2
     ext
     simp only [CategoryTheory.Limits.equalizer_as_kernel, HomologicalComplex.Hom.sqFrom_right,
       CategoryTheory.Category.assoc, CategoryTheory.Limits.kernel.lift_ι,
       HomologicalComplex.Hom.sqTo_right, CategoryTheory.Limits.kernel.lift_ι_assoc]
     dsimp
-    rw [category.id_comp, category.comp_id]
+    rw [Category.id_comp, Category.comp_id]
 
 -- def preserves_limit_of_lim_commute (J : Type*) [category J] [has_limits_of_shape J C]
 --   [has_limits_of_shape J D]  (F : C ⥤ D) (e : lim ⋙ F ≅ (whiskering_right J C D).obj F ⋙ lim):

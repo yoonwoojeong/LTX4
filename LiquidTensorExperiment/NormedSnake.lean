@@ -41,13 +41,13 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
     rw [res_res, d_res] at hy 
     refine' ⟨i₀, _, hi₀, rfl, _⟩
     refine' ⟨y, hy.trans (add_le_add_right (mul_le_mul_of_nonneg_left _ _) ε)⟩
-    · apply (admissible_of_quotient hgquot hM'_adm).res_normNoninc
+    · apply (SystemOfComplexes.admissibleOfQuotient hgquot hM'_adm).res_normNoninc
     · exact (NNReal.zero_le_coe : 0 ≤ K' * (K * K'' + 1))
   intro n ε hε
   let ε₁ := ε / (K' * (K * K'' + 2) + 1)
   have hε₁ : 0 < ε₁ :=
     div_pos hε (lt_of_lt_of_le zero_lt_one (nnreal.one_le_add'.out : 1 ≤ K' * (K * K'' + 2) + 1))
-  obtain ⟨m' : M' c₁ i, rfl : g m' = n⟩ := (hgquot _ _).Surjective _
+  obtain ⟨m' : M' c₁ i, rfl : g m' = n⟩ := (hgquot _ _).surjective _
   let m₁' := M'.d i (i + 1) m'
   have hm₁' : g m₁' = N.d i (i + 1) (g m') := (d_apply _ _ g m').symm
   obtain
@@ -73,7 +73,7 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
         Hf _ _ him _
       _ = K'' * ‖(M'.d (i + 1) (i + 2) m₁'')‖ := by rw [hm₂, norm_neg]
       _ ≤ K'' * ‖m₁''‖ :=
-        mul_le_mul_of_nonneg_left (hM'_adm.d_norm_noninc _ _ _ _ m₁'') <| NNReal.coe_nonneg K''
+        mul_le_mul_of_nonneg_left (hM'_adm.d_normNoninc _ _ _ _ m₁'') <| NNReal.coe_nonneg K''
   obtain ⟨i', j, hi', rfl, m₀, hm₀⟩ :=
     hM _ ⟨hc.out.trans <| le_mul_of_one_le_left' hk'.out⟩ _ (Nat.succ_le_succ hi) (res m₁) ε₁ hε₁
   rw [← Nat.pred_eq_sub_one, i.pred_succ] at hi' ; subst i'
@@ -109,7 +109,7 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
       ‖mnew₁'‖ = ‖(res m₁'' + f (res m₁ - M.d i (i + 1) m₀))‖ := by rw [hmnew']
       _ ≤ ‖res m₁''‖ + ‖(f (res m₁ - M.d i (i + 1) m₀))‖ := (norm_add_le _ _)
       _ ≤ ‖m₁''‖ + ‖(f (res m₁ - M.d i (i + 1) m₀))‖ :=
-        (add_le_add_right (hM'_adm.res_norm_noninc _ _ _ _ m₁'') _)
+        (add_le_add_right (hM'_adm.res_normNoninc _ _ _ _ m₁'') _)
       _ ≤ ‖m₁''‖ + ‖(res m₁ - M.d i (i + 1) m₀)‖ := (add_le_add_left (hf _ _ _) _)
       _ ≤ ‖(N.d i (i + 1) (g m'))‖ + ε₁ + ‖(res m₁ - M.d i (i + 1) m₀)‖ :=
         (add_le_add_right (le_of_lt hnorm_m₁'') _)

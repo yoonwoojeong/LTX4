@@ -37,7 +37,7 @@ end ExactSeq
 namespace Exact
 
 theorem mono_of_eq_zero (h : Exact f g) (hf : f = 0) : Mono g := by
-  rwa [(abelian.tfae_mono A g).out 0 2, ← hf]
+  rwa [(Abelian.tfae_mono A g).out 0 2, ← hf]
 
 theorem eq_zero_of_mono (h : Exact f g) (hg : Mono g) : f = 0 := by
   rw [← cancel_mono g, h.w, zero_comp]
@@ -46,7 +46,7 @@ theorem mono_iff_eq_zero (h : Exact f g) : Mono g ↔ f = 0 :=
   ⟨h.eq_zero_of_mono, h.mono_of_eq_zero⟩
 
 theorem epi_of_eq_zero (h : Exact f g) (hg : g = 0) : CategoryTheory.Epi f := by
-  rwa [(abelian.tfae_epi C f).out 0 2, ← hg]
+  rwa [(Abelian.tfae_epi C f).out 0 2, ← hg]
 
 theorem eq_zero_of_epi (h : Exact f g) (hf : CategoryTheory.Epi f) : g = 0 := by
   rw [← cancel_epi f, h.w, comp_zero]

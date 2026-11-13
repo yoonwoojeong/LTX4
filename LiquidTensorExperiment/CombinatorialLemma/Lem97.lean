@@ -84,7 +84,7 @@ theorem aux_2 {N : ℕ} (hN : 0 < N) {l : ι → Λ} {S₀ : Finset (Λ →+ ℤ
   rw [sub_smul]
   rw [← Int.coe_nat_mod, sub_le_iff_le_add, zero_add]
   simp only [SMul.smul, zsmul_int_int]
-  exact mul_le_mul_of_nonneg_right (int.coe_nat_le.mpr (Nat.mod_le (f z) N)) hz
+  exact mul_le_mul_of_nonneg_right (int.ofNat_le.mpr (Nat.mod_le (f z) N)) hz
 
 /-- A technical auxiliary lemma used in the proof of `lem97_pos`. -/
 theorem aux_3 {N : ℕ} (hN : 0 < N) {l : ι → Λ} {S₀ : Finset (Λ →+ ℤ)}
@@ -223,7 +223,7 @@ theorem lem97 [Fintype ι] [Module.Finite ℤ Λ] [Module.Free ℤ Λ] (N : ℕ)
   have hx : x ∈ explicitDualSet (posVector l x • l) := smul_to_explicitDualSet l x
   obtain ⟨x', y, mem_x', hy, hx'⟩ := exists_good_pair N hN l (posVector l x) x hx
   refine' ⟨x', _, _⟩
-  · refine' finset.mem_bUnion.mpr ⟨posVector l x, _, mem_x'⟩
+  · refine' finset.mem_biUnion.mpr ⟨posVector l x, _, mem_x'⟩
     simp only [Finset.mem_univ]
   · refine' ⟨y, hy, fun i => _⟩
     have h_pos' : x' ∈ explicitDualSet (posVector l x • l) :=
@@ -260,7 +260,7 @@ theorem Nat.injective_pow {k : ℕ} (k0 : 0 < k) : Function.Injective fun n : �
   injective_of_increasing (· < ·) (· < ·) _ (Nat.strictMono_pow k0)
 
 theorem Int.natAbs_eq_self (a : ℤ) : (a.natAbs : ℤ) = a ↔ 0 ≤ a :=
-  ⟨fun h => by rw [← h]; exact Int.ofNat_zero_le a.nat_abs, fun h => Int.natAbs_of_nonneg h⟩
+  ⟨fun h => by rw [← h]; exact Int.ofNat_zero_le a.natAbs, fun h => Int.natAbs_of_nonneg h⟩
 
 theorem abs_add_eq_iff_abs_hMul_eq {R : Type _} [LinearOrderedCommRing R] {a b : R} :
     abs (a + b) = abs a + abs b ↔ abs (a * b) = a * b :=

@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.BreenDeligne.Eval1half
 import LiquidTensorExperiment.ForMathlib.NatIsoMapHomologicalComplex
 
-#align_import breen_deligne.apply_Pow
+#align_import breen_deligne.applyPow
 
 noncomputable section
 
@@ -23,21 +23,21 @@ def applyPow : pow n ⋙ F ≅ F ⋙ pow n :=
     (fun A =>
       { hom := biproduct.lift fun i => F.map (biproduct.π _ i)
         inv := biproduct.desc fun i => F.map (biproduct.ι _ i)
-        hom_inv_id' := by
+        hom_inv_id := by
           simpa only [biproduct.lift_desc, ← F.map_comp, ← F.map_sum, biproduct.total] using
             F.map_id _
-        inv_hom_id' := by
+        inv_hom_id := by
           ext i j
           by_cases i = j
           · subst h
             dsimp
-            simp only [biproduct.ι_desc_assoc, category.assoc, biproduct.lift_π, category.comp_id,
+            simp only [biproduct.ι_desc_assoc, Category.assoc, biproduct.lift_π, Category.comp_id,
               biproduct.ι_π_self, ← F.map_comp, F.map_id]
           · dsimp
-            simp only [biproduct.ι_desc_assoc, category.assoc, biproduct.lift_π, category.comp_id, ←
-              F.map_comp, limits.biproduct.ι_π_ne _ h, functor.map_zero] })
+            simp only [biproduct.ι_desc_assoc, Category.assoc, biproduct.lift_π, Category.comp_id, ←
+              F.map_comp, Limits.biproduct.ι_π_ne _ h, Functor.map_zero] })
     fun X Y f => by ext;
-    simp only [category.assoc, biproduct.lift_π, functor.comp_map, Pow_map, biproduct.lift_map, ←
+    simp only [Category.assoc, biproduct.lift_π, Functor.comp_map, Pow_map, biproduct.lift_map, ←
       F.map_comp, biproduct.map_π]
 
 theorem applyPow_naturality (M : C) :
@@ -45,18 +45,18 @@ theorem applyPow_naturality (M : C) :
       (applyPow F n).hom.app M ≫ (pow n).map (τ.app M) :=
   by
   rw [← cancel_epi ((apply_Pow F n).inv.app M)]
-  slice_rhs 1 2 => rw [← nat_trans.comp_app, iso.inv_hom_id]
-  erw [category.id_comp]
-  apply limits.biproduct.hom_ext
+  slice_rhs 1 2 => rw [← NatTrans.comp_app, Iso.inv_hom_id]
+  erw [Category.id_comp]
+  apply Limits.biproduct.hom_ext
   intro j
-  apply limits.biproduct.hom_ext'
+  apply Limits.biproduct.hom_ext'
   intro i
-  simp only [apply_Pow_inv_app, apply_Pow_hom_app, category.assoc, biproduct.lift_π,
+  simp only [apply_Pow_inv_app, apply_Pow_hom_app, Category.assoc, biproduct.lift_π,
     biproduct.ι_desc_assoc, Pow_map, biproduct.map_π]
   erw [τ.naturality_assoc, ← F'.map_comp]
   by_cases i = j
   · subst h
-    erw [biproduct.ι_π_self_assoc, biproduct.ι_π_self, F'.map_id, category.comp_id]
+    erw [biproduct.ι_π_self_assoc, biproduct.ι_π_self, F'.map_id, Category.comp_id]
   · erw [biproduct.ι_π_ne_assoc _ h, biproduct.ι_π_ne _ h, F'.map_zero, comp_zero, zero_comp]
 
 open BreenDeligne BreenDeligne.UniversalMap
@@ -71,46 +71,46 @@ def evalPowFunctorComp (e : F₁ ⋙ G ≅ G ⋙ F₂) :
   NatIso.ofComponents
     (fun n => by
       apply iso.symm
-      refine' functor.associator _ _ _ ≪≫ iso_whisker_left _ e ≪≫ _
-      refine' (functor.associator _ _ _).symm ≪≫ _ ≪≫ functor.associator _ _ _
-      refine' iso_whisker_right (apply_Pow G n) _)
+      refine' Functor.associator _ _ _ ≪≫ CategoryTheory.isoWhiskerLeft _ e ≪≫ _
+      refine' (Functor.associator _ _ _).symm ≪≫ _ ≪≫ Functor.associator _ _ _
+      refine' CategoryTheory.isoWhiskerRight (apply_Pow G n) _)
     fun n m f => by
     ext M
-    dsimp only [whiskering_right, whiskering_left, functor.associator, iso.symm, iso_whisker_left,
-      iso_whisker_right, iso.trans, nat_trans.comp_app, functor.map_iso, eval_Pow_functor,
-      functor.comp_map, whisker_right, whisker_left]
-    repeat' erw [category.id_comp]
-    repeat' erw [category.comp_id]
-    rw [map_eval_Pow f F₁ G M, category.assoc, ← congr_eval_Pow' f e.inv]
-    simp only [← category.assoc]
+    dsimp only [whiskering_right, CategoryTheory.whiskeringLeft, Functor.associator, iso.symm, CategoryTheory.isoWhiskerLeft,
+      CategoryTheory.isoWhiskerRight, Iso.trans, NatTrans.comp_app, Functor.mapIso, eval_Pow_functor,
+      Functor.comp_map, whisker_right, whisker_left]
+    repeat' erw [Category.id_comp]
+    repeat' erw [Category.comp_id]
+    rw [map_eval_Pow f F₁ G M, Category.assoc, ← congr_eval_Pow' f e.inv]
+    simp only [← Category.assoc]
     congr 1
     revert f
-    let φ₁ : universal_map n m →+ ((G ⋙ Pow n ⋙ F₂).obj M ⟶ F₂.obj ((Pow m ⋙ G).obj M)) :=
+    let φ₁ : BreenDeligne.UniversalMap n m →+ ((G ⋙ Pow n ⋙ F₂).obj M ⟶ F₂.obj ((Pow m ⋙ G).obj M)) :=
       { toFun := fun f => ((eval_Pow F₂) f).app (G.obj M) ≫ F₂.map ((apply_Pow G m).inv.app M)
-        map_zero' := by simp only [eval_Pow_zero, nat_trans.app_zero, zero_comp]
-        map_add' := fun f₁ f₂ => by simp only [map_add, nat_trans.app_add, add_comp] }
-    let φ₂ : universal_map n m →+ ((G ⋙ Pow n ⋙ F₂).obj M ⟶ F₂.obj ((Pow m ⋙ G).obj M)) :=
+        map_zero' := by simp only [eval_Pow_zero, NatTrans.app_zero, zero_comp]
+        map_add' := fun f₁ f₂ => by simp only [map_add, NatTrans.app_add, add_comp] }
+    let φ₂ : BreenDeligne.UniversalMap n m →+ ((G ⋙ Pow n ⋙ F₂).obj M ⟶ F₂.obj ((Pow m ⋙ G).obj M)) :=
       { toFun := fun f => F₂.map ((apply_Pow G n).inv.app M) ≫ ((eval_Pow' (G ⋙ F₂)) f).app M
-        map_zero' := by simp only [map_zero, nat_trans.app_zero, comp_zero]
-        map_add' := fun f₁ f₂ => by simp only [map_add, nat_trans.app_add, comp_add] }
+        map_zero' := by simp only [map_zero, NatTrans.app_zero, comp_zero]
+        map_add' := fun f₁ f₂ => by simp only [map_add, NatTrans.app_add, comp_add] }
     suffices φ₁ = φ₂ by
       intro f
       change φ₁ f = φ₂ f
       rw [this]
     ext f
     dsimp only [φ₁, φ₂]; clear φ₁ φ₂
-    simp only [AddMonoidHom.coe_mk, eval_Pow'_of, eval_Pow_of, whisker_right_app, ← F₂.map_comp,
-      functor.comp_map]
+    simp only [AddMonoidHom.coe_mk, eval_Pow'_of, eval_Pow_of, CategoryTheory.whiskerRight_app, ← F₂.map_comp,
+      Functor.comp_map]
     congr 1
-    erw [← cancel_mono ((apply_Pow G m).hom.app M), category.assoc, ← nat_trans.comp_app,
-      iso.inv_hom_id, nat_trans.id_app, category.comp_id]
-    simp only [basic_universal_map.eval_Pow_app, apply_Pow_inv_app, apply_Pow_hom_app,
-      category.assoc]
-    apply limits.biproduct.hom_ext
+    erw [← cancel_mono ((apply_Pow G m).hom.app M), Category.assoc, ← NatTrans.comp_app,
+      Iso.inv_hom_id, NatTrans.id_app, Category.comp_id]
+    simp only [BasicUniversalMap.evalPow_app, apply_Pow_inv_app, apply_Pow_hom_app,
+      Category.assoc]
+    apply Limits.biproduct.hom_ext
     intro j
-    apply limits.biproduct.hom_ext'
+    apply Limits.biproduct.hom_ext'
     intro i
-    simp only [biproduct.matrix_π, biproduct.ι_desc, category.assoc, biproduct.lift_π,
+    simp only [biproduct.matrix_π, biproduct.ι_desc, Category.assoc, biproduct.lift_π,
       biproduct.ι_desc_assoc, ← G.map_comp, G.map_zsmul, G.map_id]
 
 end Preadditive

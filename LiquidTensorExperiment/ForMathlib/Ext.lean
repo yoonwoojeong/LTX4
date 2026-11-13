@@ -26,8 +26,8 @@ theorem six_term_exactSeq (n : ℕ) (A : ShortExactSequence C) (B : C) :
       [((Ext R C n).map A.g.op).app B, ((Ext R C n).map A.f.op).app B, δ R n A B,
         ((Ext R C (n + 1)).map A.g.op).app B, ((Ext R C (n + 1)).map A.f.op).app B] :=
   by
-  apply exact_seq.of_op
-  exact functor.left_derived.six_term_exact_seq _ n A
+  apply ExactSeq.of_op
+  exact Functor.leftDerived.six_term_exactSeq _ n A
 
 end Ext
 

@@ -34,9 +34,9 @@ instance : SmallCategory Mat where
   Hom m n := BasicUniversalMap m n
   id := BasicUniversalMap.id
   comp l m n f g := BasicUniversalMap.comp g f
-  id_comp' n f := BasicUniversalMap.comp_id
-  comp_id' n f := BasicUniversalMap.id_comp
-  assoc' k l m n f g h := (BasicUniversalMap.comp_assoc h g f).symm
+  id_comp n f := BasicUniversalMap.comp_id
+  comp_id n f := BasicUniversalMap.id_comp
+  assoc k l m n f g h := (BasicUniversalMap.comp_assoc h g f).symm
 
 end Mat
 
@@ -53,9 +53,9 @@ instance : SmallCategory FreeMat where
   Hom m n := UniversalMap m n
   id := UniversalMap.id
   comp l m n f g := UniversalMap.comp g f
-  id_comp' n f := UniversalMap.comp_id
-  comp_id' n f := UniversalMap.id_comp
-  assoc' k l m n f g h := (UniversalMap.comp_assoc h g f).symm
+  id_comp n f := UniversalMap.comp_id
+  comp_id n f := UniversalMap.id_comp
+  assoc k l m n f g h := (UniversalMap.comp_assoc h g f).symm
 
 instance : Preadditive FreeMat where
   homGroup m n := inferInstance
@@ -67,13 +67,13 @@ def toFreeAbMat : FreeMat ⥤ FreeAb Mat
     where
   obj n := FreeAb.of n
   map m n f := f
-  map_id' m := rfl
-  map_comp' l m n f g :=
+  map_id m := rfl
+  map_comp l m n f g :=
     by
     induction f using FreeAbelianGroup.induction_on <;>
-      try simp only [limits.zero_comp, preadditive.add_comp, preadditive.neg_comp, *]
+      try simp only [Limits.zero_comp, Preadditive.add_comp, Preadditive.neg_comp, *]
     induction g using FreeAbelianGroup.induction_on <;>
-      try simp only [limits.comp_zero, preadditive.comp_add, preadditive.comp_neg, *]
+      try simp only [Limits.comp_zero, Preadditive.comp_add, Preadditive.comp_neg, *]
     rfl
 
 open UniversalMap
@@ -83,14 +83,14 @@ def mulFunctor (N : ℕ) : FreeMat ⥤ FreeMat
     where
   obj n := N * n
   map m n f := mul N f
-  map_id' n :=
+  map_id n :=
     (FreeAbelianGroup.map_of _ _).trans <|
       congr_arg _ <| by
-        dsimp [basic_universal_map.mul, basic_universal_map.id]
+        dsimp [BasicUniversalMap.mul, BasicUniversalMap.id]
         ext i j
         simp only [Matrix.one_kronecker_one, Matrix.submatrix_apply, Matrix.one_apply,
           Equiv.apply_eq_iff_eq, eq_self_iff_true]
-  map_comp' l m n f g := hMul_comp _ _ _
+  map_comp l m n f g := hMul_comp _ _ _
 
 instance mulFunctor.additive (N : ℕ) : (mulFunctor N).Additive
     where map_add' m n f g := AddMonoidHom.map_add _ _ _
@@ -100,10 +100,10 @@ def isoMk' {m n : FreeMat} (f : BasicUniversalMap m n) (g : BasicUniversalMap n 
     (hfg : BasicUniversalMap.comp g f = BasicUniversalMap.id _)
     (hgf : BasicUniversalMap.comp f g = BasicUniversalMap.id _) : m ≅ n
     where
-  Hom := of f
+  hom := of f
   inv := of g
-  hom_inv_id' := (comp_of _ _).trans <| congr_arg _ <| hfg
-  inv_hom_id' := (comp_of _ _).trans <| congr_arg _ <| hgf
+  hom_inv_id := (comp_of _ _).trans <| congr_arg _ <| hfg
+  inv_hom_id := (comp_of _ _).trans <| congr_arg _ <| hgf
 
 def oneMulIso : mulFunctor 1 ≅ 𝟭 _ :=
   NatIso.ofComponents
@@ -113,7 +113,7 @@ def oneMulIso : mulFunctor 1 ≅ 𝟭 _ :=
     (by
       intro m n f
       dsimp
-      show universal_map.comp _ _ = universal_map.comp _ _
+      show UniversalMap.comp _ _ = UniversalMap.comp _ _
       rw [← AddMonoidHom.comp_apply, ← AddMonoidHom.compHom_apply_apply, ←
         AddMonoidHom.flip_apply _ f]
       congr 1; clear f; ext1 f
@@ -126,9 +126,9 @@ def oneMulIso : mulFunctor 1 ≅ 𝟭 _ :=
         ext i j; dsimp [Matrix.kronecker, Matrix.one_apply]
         simp only [one_mul, if_true, eq_iff_true_of_subsingleton]
       conv_rhs => rw [this]
-      simp only [comp_of, mul_of, basic_universal_map.comp, AddMonoidHom.mk'_apply,
-        basic_universal_map.mul, basic_universal_map.one_mul_hom, AddMonoidHom.compHom_apply_apply,
-        AddMonoidHom.comp_apply, AddMonoidHom.flip_apply, iso_mk'_hom]
+      simp only [comp_of, mul_of, BasicUniversalMap.comp, AddMonoidHom.mk'_apply,
+        BasicUniversalMap.mul, BasicUniversalMap.oneMulHom, AddMonoidHom.compHom_apply_apply,
+        AddMonoidHom.comp_apply, AddMonoidHom.flip_apply, BreenDeligne.FreeMat.isoMk'_hom]
       rw [Matrix.reindexLinearEquiv_mul, Matrix.reindexLinearEquiv_mul, Matrix.one_mul,
         Matrix.mul_one])
 
@@ -161,8 +161,8 @@ theorem hMul_hMul_iso_aux (m n i j : ℕ) (f : BasicUniversalMap i j) :
     (comp (of (BasicUniversalMap.mulMulHom m n j))) (mul m (mul n (of f))) =
       comp (mul (m * n) (of f)) (of (BasicUniversalMap.mulMulHom m n i)) :=
   by
-  simp only [comp_of, mul_of, basic_universal_map.comp, AddMonoidHom.mk'_apply,
-    basic_universal_map.mul, basic_universal_map.mul_mul_hom, Matrix.mul_reindexLinearEquiv_one]
+  simp only [comp_of, mul_of, BasicUniversalMap.comp, AddMonoidHom.mk'_apply,
+    BasicUniversalMap.mul, BasicUniversalMap.mulMulHom, Matrix.mul_reindexLinearEquiv_one]
   rw [Matrix.reindexLinearEquiv_mul, Matrix.one_mul, ←
     Matrix.reindexLinearEquiv_one ℕ _ (@finProdFinEquiv m n)]
   simp only [Matrix.reindexLinearEquiv_apply]
@@ -187,11 +187,11 @@ def mulMulIso (m n : ℕ) : mulFunctor n ⋙ mulFunctor m ≅ mulFunctor (m * n)
     (by
       intro i j f
       dsimp
-      show universal_map.comp _ _ = universal_map.comp _ _
+      show UniversalMap.comp _ _ = UniversalMap.comp _ _
       rw [← AddMonoidHom.comp_apply, ← AddMonoidHom.comp_apply, ←
         AddMonoidHom.flip_apply _ (mul (m * n) f), ← AddMonoidHom.comp_apply]
       congr 1; clear f; ext1 f
-      apply mul_mul_iso_aux)
+      apply BreenDeligne.FreeMat.hMul_hMul_iso_aux)
 
 end FreeMat
 
@@ -215,11 +215,11 @@ def mul (N : ℕ) : Data ⥤ Data :=
 
 def mulOneIso : (mul 1).obj BD ≅ BD :=
   HomologicalComplex.Hom.isoOfComponents (fun i => FreeMat.oneMulIso.app _) fun i j _ =>
-    (FreeMat.oneMulIso.Hom.naturality (BD.d i j)).symm
+    (FreeMat.oneMulIso.hom.naturality (BD.d i j)).symm
 
 def mulMulIso (m n : ℕ) : (mul m).obj ((mul n).obj BD) ≅ (mul (m * n)).obj BD :=
   HomologicalComplex.Hom.isoOfComponents (fun i => (FreeMat.mulMulIso _ _).app _) fun i j _ =>
-    ((FreeMat.mulMulIso _ _).Hom.naturality (BD.d i j)).symm
+    ((FreeMat.mulMulIso _ _).hom.naturality (BD.d i j)).symm
 
 end Mul
 
@@ -244,7 +244,7 @@ open HomologicalComplex FreeMat CategoryTheory CategoryTheory.Limits
 
 def homPow' {BD : Data} (f : (mul 2).obj BD ⟶ BD) : ∀ N, BD.pow' N ⟶ BD
   | 0 => 𝟙 _
-  | n + 1 => (mul 2).map (hom_pow' n) ≫ f
+  | n + 1 => (mul 2).map (BreenDeligne.Data.homPow' n) ≫ f
 
 open scoped ZeroObject
 
@@ -257,57 +257,57 @@ def pow'IsoMul : ∀ N, BD.pow' N ≅ (mul (2 ^ N)).obj BD
 theorem homPow'_sum : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.Sum 2) N = BD.Sum (2 ^ N)
   | 0 => by
     ext n : 2
-    simp only [hom_pow', category.comp_id]
+    simp only [BreenDeligne.Data.homPow', Category.comp_id]
     show (BD.pow'_iso_mul 0).inv.f n = (BD.sum 1).f n
-    dsimp only [sum_f, universal_map.sum]
+    dsimp only [sum_f, UniversalMap.sum]
     simp only [Fin.default_eq_zero, Finset.univ_unique, Finset.sum_singleton]
     refine' congr_arg of _
-    apply basic_universal_map.one_mul_hom_eq_proj
+    apply BasicUniversalMap.oneMulHom_eq_proj
   | N + 1 => by
-    dsimp [pow'_iso_mul, hom_pow']
-    slice_lhs 2 3 => rw [← functor.map_comp, hom_pow'_sum]
-    rw [iso.inv_comp_eq]
+    dsimp [pow'_iso_mul, BreenDeligne.Data.homPow']
+    slice_lhs 2 3 => rw [← Functor.map_comp, BreenDeligne.Data.homPow'_sum]
+    rw [Iso.inv_comp_eq]
     ext i : 2
     iterate 2 erw [HomologicalComplex.comp_f]
-    dsimp [mul_mul_iso, FreeMat.mul_mul_iso, universal_map.sum]
-    rw [universal_map.mul_of]
-    show universal_map.comp _ _ = universal_map.comp _ _
-    simp only [universal_map.comp_of, AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply]
+    dsimp [mul_mul_iso, FreeMat.mulMulIso, UniversalMap.sum]
+    rw [UniversalMap.hMul_of]
+    show UniversalMap.comp _ _ = UniversalMap.comp _ _
+    simp only [UniversalMap.comp_of, AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply]
     congr 1
     rw [← Finset.sum_product', Finset.univ_product_univ, ← fin_prod_fin_equiv.symm.sum_comp]
     apply Fintype.sum_congr
-    apply basic_universal_map.comp_proj_mul_proj
+    apply BasicUniversalMap.comp_proj_hMul_proj
 
-theorem homPow'_sum' (N : ℕ) : homPow' (BD.Sum 2) N = (BD.pow'IsoMul N).Hom ≫ BD.Sum (2 ^ N) := by
-  rw [← iso.inv_comp_eq]; apply hom_pow'_sum
+theorem homPow'_sum' (N : ℕ) : homPow' (BD.Sum 2) N = (BD.pow'IsoMul N).hom ≫ BD.Sum (2 ^ N) := by
+  rw [← Iso.inv_comp_eq]; apply BreenDeligne.Data.homPow'_sum
 
 theorem homPow'_proj : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.proj 2) N = BD.proj (2 ^ N)
   | 0 => by
     ext n : 2
-    simp only [hom_pow', category.comp_id]
+    simp only [BreenDeligne.Data.homPow', Category.comp_id]
     show (BD.pow'_iso_mul 0).inv.f n = (BD.proj 1).f n
-    dsimp only [proj_f, universal_map.proj]
+    dsimp only [proj_f, UniversalMap.proj]
     refine' congr_arg of _
-    apply basic_universal_map.one_mul_hom_eq_proj
+    apply BasicUniversalMap.oneMulHom_eq_proj
   | N + 1 => by
-    dsimp [pow'_iso_mul, hom_pow']
-    slice_lhs 2 3 => rw [← functor.map_comp, hom_pow'_proj]
-    rw [iso.inv_comp_eq]
+    dsimp [pow'_iso_mul, BreenDeligne.Data.homPow']
+    slice_lhs 2 3 => rw [← Functor.map_comp, BreenDeligne.Data.homPow'_proj]
+    rw [Iso.inv_comp_eq]
     ext i : 2
     iterate 2 erw [HomologicalComplex.comp_f]
-    dsimp [mul_mul_iso, FreeMat.mul_mul_iso, universal_map.proj]
-    simp only [AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply, preadditive.comp_sum,
-      preadditive.sum_comp]
+    dsimp [mul_mul_iso, FreeMat.mulMulIso, UniversalMap.proj]
+    simp only [AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply, Preadditive.comp_sum,
+      Preadditive.sum_comp]
     rw [← Finset.sum_comm, ← Finset.sum_product', Finset.univ_product_univ, ←
       fin_prod_fin_equiv.symm.sum_comp]
     apply Fintype.sum_congr
     intro j
-    rw [universal_map.mul_of]
-    show universal_map.comp _ _ = universal_map.comp _ _
-    simp only [universal_map.comp_of, basic_universal_map.comp_proj_mul_proj]
+    rw [UniversalMap.hMul_of]
+    show UniversalMap.comp _ _ = UniversalMap.comp _ _
+    simp only [UniversalMap.comp_of, BasicUniversalMap.comp_proj_hMul_proj]
 
-theorem homPow'_proj' (N : ℕ) : homPow' (BD.proj 2) N = (BD.pow'IsoMul N).Hom ≫ BD.proj (2 ^ N) :=
-  by rw [← iso.inv_comp_eq]; apply hom_pow'_proj
+theorem homPow'_proj' (N : ℕ) : homPow' (BD.proj 2) N = (BD.pow'IsoMul N).hom ≫ BD.proj (2 ^ N) :=
+  by rw [← Iso.inv_comp_eq]; apply BreenDeligne.Data.homPow'_proj
 
 end Data
 

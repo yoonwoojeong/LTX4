@@ -77,8 +77,10 @@ git history.)
    named `X` exists in Mathbin, judged by name only. This is unreliable (e.g. mathlib's
    `CategoryTheory.yoneda'` is an unrelated sheaf functor), so all 95 such blocks are
    restored to LTE's own declarations; genuine duplicates surface as compile errors.
-9. **Compile and repair.** `scripts/port/compile.py` compiles every module in dependency
-   order and records per-module results; `scripts/port/census.py` summarises them;
+9. **Project-wide mechanical renames** (`scripts/port/mechanical.py`, see below).
+10. **Compile and repair.** `scripts/port/compile.py` compiles every module in dependency
+   order (per-module timeout `LTE_TIMEOUT`, default 900 s) and records per-module results;
+   `scripts/port/census.py` summarises them;
    `scripts/port/autofix.py` / `autofix_all.py` repair mechanical naming mistranslations
    at Lean's reported error positions (see below); remaining errors are fixed by hand.
 
@@ -102,6 +104,27 @@ The auto-fixer reads Lean's error positions and proposes **renames only**, and o
 name that exists in mathlib4 / LTE's Lean 4 declarations or appears in mathport's own
 Lean 3 → Lean 4 translation table. A round is kept only if the module's error count drops
 (or stays equal while the first error moves later); otherwise the file is restored.
+
+### The project-wide renamer (`scripts/port/mechanical.py`)
+
+`autofix.py` keeps a round only if the error count drops, but fixing one naming error often
+lets Lean elaborate further and report new errors, so many correct renames were rejected.
+`mechanical.py` therefore applies a fixed set of pure renames once, everywhere outside
+comments and strings:
+
+* Lean 3 primed structure fields that mathlib4 unprimed (`hom_inv_id'`, `map_comp'`,
+  `naturality'`, `id_comp'`, ...; *not* `map_zero'`/`map_add'`/`map_smul'`, which are still
+  primed in mathlib4), and the `Iso` field `Hom :=` -> `hom :=`.
+* Lean 3 identifiers that do not exist in Lean 4 (`category.assoc`, `eq_to_hom_refl`,
+  `iso.refl`, `X.X_next_iso`, `e.Hom`, ...). A name is replaced only if mathport's own
+  Lean 3 -> Lean 4 translation table (or, for dotted names, the snake_case -> camelCase
+  convention) gives **exactly one** name that exists in mathlib4 or in LTE's Lean 4
+  declarations. Tactic names and any name a file binds locally are never touched, and the
+  qualification depth is kept (`category.assoc` -> `Category.assoc`).
+
+`--dry-run` lists every distinct rename with its count. After it was applied, a full
+recompile was compared module by module with the previous one: no module that compiled
+before stopped compiling because of it.
 
 ## Manual changes
 
@@ -129,6 +152,16 @@ manual change made so far:
   rest are listed in `PORTING_STATUS.md`. In particular `ChallengeNotations.lean` (part of
   the challenge statement) had its `by fact_arith` replaced by a no-op `trace` by mathport;
   this is restored.
+* **Lean 4 elaboration of definitions**: Lean 4 does not include a section variable that is only
+  used inside a tactic block of a statement, so where that changed a declaration's
+  arguments relative to Lean 3 the binders are stated explicitly (e.g.
+  `kernel_lift_comp_kernelDFromIso_hom` in `ForMathlib/HomologyIso.lean`). Lean 3's `ext`
+  applied extensionality lemmas recursively (e.g. through `X ⟶ Y` of a custom category into
+  kernels or coproducts); in Lean 4 an `@[ext]` lemma for `X ⟶ Y` is added where LTE defines
+  a category (`Endomorphisms.hom_ext`), and the inner lemma is applied explicitly.
+* **Upstreamed declarations**: where an LTE declaration was later added to mathlib with the
+  same name and the same definition (e.g. `NatIso.mapHomologicalComplex`), the Lean 4 file
+  uses mathlib's and says so, instead of redeclaring it.
 * Naming: mathport lowercases definitions, so LTE's `Ext'`/`liquid_tensor_experiment.Ext`
   are `ext'`/`LiquidTensorExperiment.ext` (consistently across the project).
 

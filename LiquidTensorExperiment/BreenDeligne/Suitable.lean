@@ -74,7 +74,7 @@ instance suitable_hMul_left (f : BasicUniversalMap m n) [h : f.Suitable c₁ c�
 
 instance suitable_hMul_right (f : BasicUniversalMap m n) [h : f.Suitable c₁ c₂] :
     f.Suitable (c₁ * c) (c₂ * c) := by rw [mul_comm _ c, mul_comm _ c];
-  exact basic_universal_map.suitable_mul_left _ _ _ _
+  exact BasicUniversalMap.suitable_hMul_left _ _ _ _
 
 instance suitable_id : (id n).Suitable c c := by
   intro i
@@ -179,7 +179,7 @@ instance proj_suitable (N : ℕ) (k : Fin N) (c : ℝ≥0) : (proj n k).Suitable
   by
   intro i
   apply le_of_eq
-  dsimp [proj, Matrix.kronecker, proj_aux, -finProdFinEquiv_symm_apply]
+  dsimp [proj, Matrix.kronecker, BreenDeligne.BasicUniversalMap.projAux, -finProdFinEquiv_symm_apply]
   rw [Finset.sum_eq_single (finProdFinEquiv (k, i))]
   ·
     simp only [Equiv.symm_apply_apply, if_pos rfl, Matrix.one_apply_eq, Nat.cast_one,
@@ -212,7 +212,7 @@ instance hMul_suitable (N : ℕ) (f : BasicUniversalMap m n) [hf : f.Suitable c�
       Matrix.one_apply_ne' hk, eq_self_iff_true, true_or_iff]
   · intro h; exact (h <| Finset.mem_univ _).elim
 
-instance oneMulHom_suitable : (oneMulHom n).Suitable c c := by rw [one_mul_hom_eq_proj];
+instance oneMulHom_suitable : (oneMulHom n).Suitable c c := by rw [BreenDeligne.BasicUniversalMap.oneMulHom_eq_proj];
   infer_instance
 
 instance mulMulInv_suitable (k : ℕ) : (mulMulInv m n k).Suitable c c :=
@@ -221,7 +221,7 @@ instance mulMulInv_suitable (k : ℕ) : (mulMulInv m n k).Suitable c c :=
   calc
     _ ≤ 1 * c := mul_le_mul' (le_of_eq _) le_rfl
     _ = c := one_mul c
-  dsimp only [mul_mul_inv]
+  dsimp only [BreenDeligne.BasicUniversalMap.mulMulInv]
   simp only [Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply, Matrix.submatrix_apply,
     Matrix.one_apply, Equiv.eq_symm_apply]
   rw [Finset.sum_eq_single, if_pos rfl, Int.natAbs_one, Nat.cast_one]
@@ -338,7 +338,7 @@ instance suitable_of (f : BasicUniversalMap m n) (c₁ c₂ : ℝ≥0) [f.Suitab
 @[simp]
 theorem suitable_of_iff (f : BasicUniversalMap m n) (c₁ c₂ : ℝ≥0) :
     Suitable c₁ c₂ (of f) ↔ f.Suitable c₁ c₂ :=
-  ⟨by intro h; apply basic_universal_map.suitable_of_suitable_of, by intro h; infer_instance⟩
+  ⟨by intro h; apply BasicUniversalMap.suitable_of_suitable_of, by intro h; infer_instance⟩
 
 instance suitable_zero : (0 : UniversalMap m n).Suitable c₁ c₂ :=
   (suitable_freePredicate c₁ c₂).zero
@@ -380,7 +380,7 @@ instance suitable_hMul_left (f : UniversalMap m n) [h : f.Suitable c₁ c₂] :
 
 instance suitable_hMul_right (f : UniversalMap m n) [h : f.Suitable c₁ c₂] :
     f.Suitable (c₁ * c) (c₂ * c) := by rw [mul_comm _ c, mul_comm _ c];
-  exact universal_map.suitable_mul_left _ _ _ _
+  exact UniversalMap.suitable_hMul_left _ _ _ _
 
 instance suitable_hMul_left_one_le (f : UniversalMap m n) [h : f.Suitable c₁ c₂] [Fact (1 ≤ c)] :
     f.Suitable c₁ (c * c₂) :=
@@ -406,7 +406,7 @@ theorem Suitable.comp {g : UniversalMap m n} {f : UniversalMap l m} {c₁ : ℝ�
     [hg : g.Suitable c₂ c₃] [hf : f.Suitable c₁ c₂] : (comp g f).Suitable c₁ c₃ :=
   by
   apply
-      FreeAbelianGroup.induction_on_freePredicate (suitable c₂ c₃) (suitable_free_predicate c₂ c₃) g
+      FreeAbelianGroup.induction_on_freePredicate (suitable c₂ c₃) (BreenDeligne.UniversalMap.suitable_freePredicate c₂ c₃) g
         hg <;>
     clear! g
   ·
@@ -414,7 +414,7 @@ theorem Suitable.comp {g : UniversalMap m n} {f : UniversalMap l m} {c₁ : ℝ�
       BreenDeligne.UniversalMap.suitable_zero _ _
   · intro g hg
     apply
-        FreeAbelianGroup.induction_on_freePredicate (suitable c₁ c₂) (suitable_free_predicate c₁ c₂)
+        FreeAbelianGroup.induction_on_freePredicate (suitable c₁ c₂) (BreenDeligne.UniversalMap.suitable_freePredicate c₁ c₂)
           f hf <;>
       clear! f
     · simp only [AddMonoidHom.map_zero]; infer_instance
@@ -437,7 +437,7 @@ instance sum_suitable (c : ℝ≥0) (n N : ℕ) : (sum n N).Suitable (c * N⁻¹
   by
   by_cases hN : N = 0
   · subst N; simp only [Nat.cast_zero, inv_zero, MulZeroClass.mul_zero]; infer_instance
-  refine' @universal_map.suitable_of _ _ _ _ _ (_root_.id _)
+  refine' @UniversalMap.suitable_of _ _ _ _ _ (_root_.id _)
   suffices c = ∑ i : Fin N, c * N⁻¹
     by
     conv =>
@@ -450,7 +450,7 @@ instance sum_suitable (c : ℝ≥0) (n N : ℕ) : (sum n N).Suitable (c * N⁻¹
   exact_mod_cast hN
 
 instance sum_two_suitable (c : ℝ≥0) (n : ℕ) : (sum n 2).Suitable (c * 2⁻¹) c := by
-  convert universal_map.sum_suitable c n 2; norm_num
+  convert UniversalMap.sum_suitable c n 2; norm_num
 
 instance proj_suitable (c : ℝ≥0) (n N : ℕ) : (proj n N).Suitable c c :=
   UniversalMap.suitable_sum _ _
@@ -458,9 +458,9 @@ instance proj_suitable (c : ℝ≥0) (n N : ℕ) : (proj n N).Suitable c c :=
 instance hMul_suitable (f : UniversalMap m n) [h : f.Suitable c₁ c₂] (N : ℕ) [hN : Fact (0 < N)] :
     (mul N f).Suitable c₁ c₂ := by
   intro g hg
-  rw [universal_map.mem_support_mul N hN.out] at hg 
+  rw [UniversalMap.mem_support_hMul N hN.out] at hg 
   rcases hg with ⟨g, hg, rfl⟩
-  haveI := universal_map.suitable_of_mem_support f c₁ c₂ g hg
+  haveI := UniversalMap.suitable_of_mem_support f c₁ c₂ g hg
   infer_instance
 
 end UniversalMap
@@ -478,7 +478,7 @@ induced by the maps `BD.d (i+1) i`. -/
 class Suitable (BD : Data) (κ : ℕ → ℝ≥0) : Prop where
   universal_suitable : ∀ i j, (BD.d i j).Suitable (κ i) (κ j)
 
-attribute [instance] suitable.universal_suitable
+attribute [instance] Suitable.universal_suitable
 
 variable (BD : Data) (κ : ℕ → ℝ≥0) (i j j' : ℕ)
 
@@ -518,31 +518,31 @@ instance proj_suitable_strict (i N : ℕ) : UniversalMap.Suitable c c ((BD.proj 
 instance proj_suitable (i N : ℕ) (N' : ℝ≥0) [Fact (N'⁻¹ ≤ 1)] :
     UniversalMap.Suitable (rescaleConstants κ N' i) (κ i) ((BD.proj N).f i) :=
   by
-  refine' (universal_map.proj_suitable _ _ _).le _ _ _ _ _ le_rfl
+  refine' (UniversalMap.proj_suitable _ _ _).le _ _ _ _ _ le_rfl
   dsimp [rescaleConstants]
   apply Fact.out
 
 instance homPow'_suitable_strict (f : (mul 2).obj BD ⟶ BD) (i : ℕ)
     [UniversalMap.Suitable c c (f.f i)] : ∀ N, ((homPow' f N).f i).Suitable c c
-  | 0 => by dsimp [hom_pow']; exact universal_map.suitable_id _
+  | 0 => by dsimp [BreenDeligne.Data.homPow']; exact UniversalMap.suitable_id _
   | N + 1 => by
-    dsimp [hom_pow']
-    refine' @universal_map.suitable.comp _ _ _ _ _ _ c _ _ (id _)
-    refine' @universal_map.mul_suitable _ _ _ _ _ (id _) _ ⟨two_pos⟩
+    dsimp [BreenDeligne.Data.homPow']
+    refine' @UniversalMap.Suitable.comp _ _ _ _ _ _ c _ _ (id _)
+    refine' @UniversalMap.hMul_suitable _ _ _ _ _ (id _) _ ⟨two_pos⟩
     apply_assumption
 
 instance homPow'_sum_suitable (i N : ℕ) :
     ((Data.homPow' (BD.Sum 2) N).f i).Suitable (c * (2 ^ N)⁻¹) c :=
   by
   induction' N with N ih
-  · simp only [hom_pow', rescaleConstants, pow_zero, inv_one, mul_one]
-    exact universal_map.suitable_id _
-  simp only [hom_pow', rescaleConstants, pow_succ, mul_inv] at ih ⊢; skip
-  refine' @universal_map.suitable.comp _ _ _ _ _ _ (c * 2⁻¹) _ (id _) (id _)
-  · apply universal_map.sum_two_suitable
+  · simp only [BreenDeligne.Data.homPow', rescaleConstants, pow_zero, inv_one, mul_one]
+    exact UniversalMap.suitable_id _
+  simp only [BreenDeligne.Data.homPow', rescaleConstants, pow_succ, mul_inv] at ih ⊢; skip
+  refine' @UniversalMap.Suitable.comp _ _ _ _ _ _ (c * 2⁻¹) _ (id _) (id _)
+  · apply UniversalMap.sum_two_suitable
   · rw [← mul_assoc, mul_right_comm]
     haveI : Fact (0 < 2) := ⟨two_pos⟩
-    apply universal_map.mul_suitable
+    apply UniversalMap.hMul_suitable
 
 end Data
 
@@ -583,7 +583,7 @@ instance hMul_left (f : UniversalMap m n) [h : f.VerySuitable r r' c₁ c₂] :
 
 instance hMul_right (f : UniversalMap m n) [h : f.VerySuitable r r' c₁ c₂] :
     f.VerySuitable r r' (c₁ * c) (c₂ * c) := by rw [mul_comm _ c, mul_comm _ c];
-  apply universal_map.very_suitable.mul_left
+  apply UniversalMap.VerySuitable.hMul_left
 
 theorem zero : (0 : UniversalMap m n).VerySuitable r r' c₁ c₂ :=
   by
@@ -606,7 +606,7 @@ class VerySuitable (BD : Data) (r r' : outParam ℝ≥0) (κ : ℕ → ℝ≥0) 
 theorem pos (BD : Data) {r r' : ℝ≥0} (κ : ℕ → ℝ≥0) [BD.VerySuitable r r' κ] (i : ℕ) : 0 < κ i :=
   VerySuitable.pos BD i
 
-attribute [instance] very_suitable.universal_very_suitable
+attribute [instance] VerySuitable.universal_verySuitable
 
 namespace VerySuitable
 
@@ -622,7 +622,7 @@ theorem ofSucc (h1 : ∀ i, UniversalMap.VerySuitable (BD.d (i + 1) i) r r' (κ 
       by_cases hij : i = j + 1
       · rw [hij]; exact h1 _
       · rw [BD.shape]; swap; exact Ne.symm hij
-        exact universal_map.very_suitable.zero r r' (κ i) (κ j)
+        exact UniversalMap.VerySuitable.zero r r' (κ i) (κ j)
     Pos := h2 }
 
 end VerySuitable

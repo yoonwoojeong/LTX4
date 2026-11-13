@@ -48,7 +48,7 @@ def polyhedralPostcompose {M N : ProFiltPseuNormGrpWithTinv₁ r} (f : M ⟶ N) 
     where
   toFun x := f.toAddMonoidHom.comp x
   map_zero' := by simp only [AddMonoidHom.comp_zero]
-  map_add' := by intros; ext; dsimp; erw [f.to_add_monoid_hom.map_add]; rfl
+  map_add' := by intros; ext; dsimp; erw [f.toAddMonoidHom.map_add]; rfl
   strict' := by
     obtain ⟨ι, hι, l, hl, h⟩ := PolyhedralLattice.polyhedral Λ
     skip
@@ -64,7 +64,7 @@ def polyhedralPostcompose {M N : ProFiltPseuNormGrpWithTinv₁ r} (f : M ⟶ N) 
     have aux1 := PolyhedralLattice.AddMonoidHom.incl_continuous Λ r M c
     have aux2 := f.level_continuous (c * ‖l‖₊)
     exact (aux2.comp (continuous_apply l)).comp aux1
-  map_Tinv' x := by ext l; dsimp; erw [f.map_Tinv]; rfl
+  map_Tinv' x := by ext l; dsimp; erw [f.map_tinv]; rfl
 
 /-- the functor `M ↦ Hom(Λ, M), where both are considered as objects in
   `ProFiltPseuNormGrpWithTinv₁.{u} r` -/
@@ -76,11 +76,11 @@ def homFunctor : ProFiltPseuNormGrpWithTinv₁.{u} r ⥤ ProFiltPseuNormGrpWithT
       str := inferInstance
       exhaustive' := by apply polyhedral_exhaustive; apply M.exhaustive r }
   map M N f := polyhedralPostcompose _ _ f
-  map_id' M := by
+  map_id M := by
     ext
     dsimp [polyhedralPostcompose]
     simp
-  map_comp' M N L f g := by
+  map_comp M N L f g := by
     ext
     dsimp [polyhedralPostcompose]
     simp
@@ -91,7 +91,7 @@ def polyhedralPostcompose' {M N : PseuNormGrp₁} (f : M ⟶ N) :
     where
   toFun x := f.toAddMonoidHom.comp x
   map_zero' := by simp only [AddMonoidHom.comp_zero]
-  map_add' := by intros; ext; dsimp; erw [f.to_add_monoid_hom.map_add]; rfl
+  map_add' := by intros; ext; dsimp; erw [f.toAddMonoidHom.map_add]; rfl
   strict' := by
     obtain ⟨ι, hι, l, hl, h⟩ := PolyhedralLattice.polyhedral Λ
     skip
@@ -108,8 +108,8 @@ def homFunctor' : PseuNormGrp₁.{u} ⥤ PseuNormGrp₁.{u}
     { carrier := Λ →+ M
       exhaustive' := by apply polyhedral_exhaustive; apply M.exhaustive }
   map M N f := polyhedralPostcompose' _ f
-  map_id' X := by ext; rfl
-  map_comp' X Y Z f g := by ext; rfl
+  map_id X := by ext; rfl
+  map_comp X Y Z f g := by ext; rfl
 
 open CategoryTheory.Limits PseuNormGrp₁
 
@@ -163,7 +163,7 @@ def homFunctor'ConeIsoHom :
     intro c x hx
     obtain ⟨⟨d, hc⟩, rfl⟩ := hx
     intro e q hq
-    dsimp [bounded_elements.filt_incl]
+    dsimp [boundedElements.filtIncl]
     delta homFunctor'ConeIsoHomToFunAuxToFunAux
     delta homFunctor'ConeIsoHomToFunAuxToFunAuxValAux
     refine' ⟨⟨_, _⟩, rfl⟩
@@ -229,10 +229,10 @@ def homFunctor'ConeIsoAux :
     boundedConePoint (Ab.limitCone' ((K ⋙ homFunctor' Λ) ⋙ _)) ≅
       (homFunctor' Λ).obj (boundedConePoint (Ab.limitCone' (K ⋙ _)))
     where
-  Hom := homFunctor'ConeIsoHom _ _
+  hom := homFunctor'ConeIsoHom _ _
   inv := homFunctor'ConeIsoInv _ _
-  hom_inv_id' := by ext; rfl
-  inv_hom_id' := by ext; rfl
+  hom_inv_id := by ext; rfl
+  inv_hom_id := by ext; rfl
 
 def homFunctorConeIso :
     boundedCone (Ab.limitCone' ((K ⋙ homFunctor' Λ) ⋙ _)) ≅
@@ -243,10 +243,10 @@ instance : PreservesLimits (homFunctor' Λ) :=
   by
   constructor; intro J hJ; constructor; intro K
   apply
-    preserves_limit_of_preserves_limit_cone
+    CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
       (PseuNormGrp₁.boundedConeIsLimit ⟨_, Ab.explicitLimitConeIsLimit.{u, u} _⟩)
   refine'
-    is_limit.of_iso_limit
+    IsLimit.ofIsoLimit
       (PseuNormGrp₁.boundedConeIsLimit ⟨_, Ab.explicitLimitConeIsLimit.{u, u} _⟩) _
   apply homFunctorConeIso
 
@@ -276,12 +276,12 @@ def homFunctor'ForgetIso (c) :
 instance homFunctorLevelPreservesLimits (c) :
     PreservesLimits (homFunctor r Λ ⋙ pFPNGT₁ToPFPNG₁ₑₗ r ⋙ ProFiltPseuNormGrp₁.level.obj c) :=
   by
-  apply preserves_limits_of_reflects_of_preserves _ (forget Profinite)
-  apply preserves_limits_of_nat_iso (homFunctor'ForgetIso _ _ _)
+  apply CategoryTheory.Limits.preservesLimitsOfReflectsOfPreserves _ (forget Profinite)
+  apply CategoryTheory.Limits.preservesLimitsOfNatIso (homFunctor'ForgetIso _ _ _)
   change
     preserves_limits
       (ProFiltPseuNormGrpWithTinv₁.toPNG₁ r ⋙ homFunctor' Λ ⋙ PseuNormGrp₁.level.obj c)
-  apply limits.comp_preserves_limits
+  apply Limits.compPreservesLimits
 
 end
 

@@ -47,14 +47,14 @@ def bhc : BoundedHomotopyCategory A :=
 
 def bhcπ : P.bhc ⟶ (BoundedHomotopyCategory.single _ 0).obj X :=
   ChainComplex.toBoundedHomotopyCategory.map P.π ≫
-    ((HomotopyCategory.quotient _ _).mapIso (ChainComplex.single₀CompEmbedIsoSingle.app X)).Hom
+    ((HomotopyCategory.quotient _ _).mapIso (ChainComplex.single₀CompEmbedIsoSingle.app X)).hom
 
 instance [EnoughProjectives A] : HomotopyCategory.IsQuasiIso P.bhcπ :=
   by
   dsimp only [bhc_π]
-  suffices HomotopyCategory.IsQuasiIso (chain_complex.to_bounded_homotopy_category.map P.π) by skip;
+  suffices HomotopyCategory.IsQuasiIso (chain_complex.toBoundedHomotopyCategory.map P.π) by skip;
     infer_instance
-  exact P.is_projective_resolution.is_quasi_iso_embed
+  exact P.is_projective_resolution.isQuasiIsoEmbed
 
 instance [EnoughProjectives A] : HomotopyCategory.IsKProjective P.bhc.val :=
   ChainComplex.toBoundedHomotopyCategory.isKProjective _ X P.π P.IsProjectiveResolution
@@ -100,13 +100,13 @@ def homologyZeroIso [EnoughProjectives A] (Y : A) :
     (((preadditiveYoneda.obj Y).mapHomologicalComplex _).obj P.bhc.val.as.op).homology' 0 ≅
       kernel ((preadditiveYoneda.obj Y).map (P.complex.d 1 0).op) :=
   homologyIso _ (1 : ℤ) 0 (-1) (by simp) (by simp) ≪≫
-    { Hom :=
+    { hom :=
         kernel.lift _
           (homology'.desc' _ _ _ (kernel.ι _)
             (by
               rw [kernel.lift_ι]
-              apply is_zero.eq_of_src
-              apply is_zero_hom_of_is_zero
+              apply IsZero.eq_of_src
+              apply CategoryTheory.ProjectiveResolution.isZero_hom_of_isZero
               exact is_zero_zero _))
           (by
             apply homology'.hom_from_ext
@@ -115,19 +115,19 @@ def homologyZeroIso [EnoughProjectives A] (Y : A) :
       inv :=
         homology'.lift _ _ _ (kernel.ι _ ≫ cokernel.π _)
           (by
-            simp only [functor.map_homological_complex_obj_d, HomologicalComplex.op_d,
-              category.assoc, cokernel.π_desc]
+            simp only [Functor.mapHomologicalComplex_obj_d, HomologicalComplex.op_d,
+              Category.assoc, cokernel.π_desc]
             erw [kernel.condition])
-      hom_inv_id' := by
+      hom_inv_id := by
         apply homology'.hom_to_ext
         apply homology'.hom_from_ext
         simp
-      inv_hom_id' := by
+      inv_hom_id := by
         apply equalizer.hom_ext
-        simp only [category.assoc, kernel.lift_ι, equalizer_as_kernel, category.id_comp]
+        simp only [Category.assoc, kernel.lift_ι, equalizer_as_kernel, Category.id_comp]
         apply homology'.lift_desc'_of_eq_zero
-        apply is_zero.eq_of_src
-        apply is_zero_hom_of_is_zero
+        apply IsZero.eq_of_src
+        apply CategoryTheory.ProjectiveResolution.isZero_hom_of_isZero
         exact is_zero_zero _ }
 
 def extSingleIsoKernel [EnoughProjectives A] (Y : A) :
@@ -142,16 +142,16 @@ def homToKernel [EnoughProjectives A] (Y : A) :
       kernel ((preadditiveYoneda.obj Y).map (P.complex.d 1 0).op) :=
   kernel.lift _ (CategoryTheory.Functor.map _ <| Quiver.Hom.op <| P.π.f _)
     (by
-      rw [← functor.map_comp, ← op_comp, ← P.π.comm, op_comp, functor.map_comp]
+      rw [← Functor.map_comp, ← op_comp, ← P.π.comm, op_comp, Functor.map_comp]
       convert zero_comp
-      apply is_zero.eq_of_tgt
+      apply IsZero.eq_of_tgt
       dsimp
-      apply is_zero_hom_of_is_zero
+      apply CategoryTheory.ProjectiveResolution.isZero_hom_of_isZero
       exact is_zero_zero _)
 
 instance mono_homToKernel [EnoughProjectives A] (Y : A) : CategoryTheory.Mono (homToKernel P Y) :=
   by
-  dsimp only [hom_to_kernel]
+  dsimp only [CategoryTheory.ProjectiveResolution.homToKernel]
   let e := (preadditive_yoneda.obj Y).map (P.π.f 0).op
   suffices mono e by
     skip
@@ -176,7 +176,7 @@ def cokernelTo : cokernel (P.complex.d 1 0) ⟶ X :=
     (by
       rw [← P.π.comm]
       convert zero_comp
-      apply is_zero.eq_of_tgt
+      apply IsZero.eq_of_tgt
       exact is_zero_zero _)
 
 instance epi_cokernelTo : CategoryTheory.Epi P.cokernelTo :=
@@ -188,20 +188,20 @@ instance epi_cokernelTo : CategoryTheory.Epi P.cokernelTo :=
 instance mono_cokernelTo : Mono P.cokernelTo :=
   by
   dsimp [cokernel_to]
-  apply abelian.pseudoelement.mono_of_zero_of_map_zero
+  apply Abelian.Pseudoelement.mono_of_zero_of_map_zero
   intro a ha
-  obtain ⟨a, rfl⟩ := abelian.pseudoelement.pseudo_surjective_of_epi (cokernel.π _) a
-  rw [← abelian.pseudoelement.comp_apply, cokernel.π_desc] at ha 
-  have e := abelian.pseudoelement.pseudo_exact_of_exact P.exact₀
+  obtain ⟨a, rfl⟩ := Abelian.Pseudoelement.pseudo_surjective_of_epi (cokernel.π _) a
+  rw [← Abelian.Pseudoelement.comp_apply, cokernel.π_desc] at ha 
+  have e := Abelian.Pseudoelement.pseudo_exact_of_exact P.exact₀
   obtain ⟨b, rfl⟩ := e.2 _ ha
-  rw [← abelian.pseudoelement.comp_apply, cokernel.condition, abelian.pseudoelement.zero_apply]
+  rw [← Abelian.Pseudoelement.comp_apply, cokernel.condition, Abelian.Pseudoelement.zero_apply]
 
 instance isIso_cokernelTo : IsIso P.cokernelTo :=
   isIso_of_mono_of_epi _
 
 instance epi_homToKernel [EnoughProjectives A] (Y : A) : CategoryTheory.Epi (homToKernel P Y) :=
   by
-  dsimp only [hom_to_kernel]
+  dsimp only [CategoryTheory.ProjectiveResolution.homToKernel]
   rw [AddCommGroupCat.epi_iff_surjective]
   intro f
   let g : P.complex.X 0 ⟶ Y := kernel.ι ((preadditive_yoneda.obj Y).map (P.complex.d 1 0).op) f
@@ -222,9 +222,9 @@ instance epi_homToKernel [EnoughProjectives A] (Y : A) : CategoryTheory.Epi (hom
   rw [← comp_apply, kernel.lift_ι]
   dsimp only [q']
   change _ ≫ _ = _
-  rw [← category.assoc]
+  rw [← Category.assoc]
   let t := _; change t ≫ _ = _
-  have ht : t = cokernel.π _ := by dsimp only [t]; rw [is_iso.comp_inv_eq]; dsimp [cokernel_to];
+  have ht : t = cokernel.π _ := by dsimp only [t]; rw [IsIso.comp_inv_eq]; dsimp [cokernel_to];
     simp
   rw [ht]; simp
 
@@ -245,8 +245,8 @@ def homTo [EnoughProjectives A] (Y : A) :
     -- Missing additive isntance for bounded_homotopy_category.single
     dsimp [BoundedHomotopyCategory.single]
     intro a b
-    rw [← preadditive.comp_add]; congr 1
-    rw [← functor.map_add]
+    rw [← Preadditive.comp_add]; congr 1
+    rw [← Functor.map_add]
     congr 1
     -- Missing additive instance....
     ext i
@@ -265,15 +265,15 @@ instance isIso_homTo [EnoughProjectives A] (Y : A) : IsIso (P.homTo Y) :=
     erw [← (HomotopyCategory.quotient _ _).map_comp] at h 
     replace h := HomotopyCategory.homotopyOfEq _ _ h
     have hh := h.comm 0; dsimp at hh 
-    simp only [eq_self_iff_true, category.comp_id, category.id_comp, if_true, category.assoc,
+    simp only [eq_self_iff_true, Category.comp_id, Category.id_comp, if_true, Category.assoc,
       HomologicalComplex.cochainComplex_dNext, HomologicalComplex.cochainComplex_prevD,
       HomologicalComplex.single_obj_d, comp_zero, add_zero] at hh 
     dsimp [ChainComplex.single₀CompEmbedIsoSingle,
       ChainComplex.single₀CompEmbedIsoSingleComponent] at hh 
-    simp only [category.id_comp] at hh 
+    simp only [Category.id_comp] at hh 
     rw [← dNext_eq_dFrom_fromNext, ← prevD_eq_toPrev_dTo] at hh 
     dsimp [dNext, prevD] at hh 
-    have : h.hom ((ComplexShape.up ℤ).next 0) 0 = 0 := by apply is_zero.eq_of_src;
+    have : h.hom ((ComplexShape.up ℤ).next 0) 0 = 0 := by apply IsZero.eq_of_src;
       rw [CochainComplex.next]; apply is_zero_zero
     simp only [comp_zero, add_zero, zero_add, this, cancel_epi (P.π.f 0)] at hh 
     exact hh
@@ -286,37 +286,37 @@ instance isIso_homTo [EnoughProjectives A] (Y : A) : IsIso (P.homTo Y) :=
     swap
     · dsimp [q']; change P.bhc.val.as.d (-1) 0 ≫ _ = _; rw [← q.comm]
       convert zero_comp
-      apply is_zero.eq_of_tgt
+      apply IsZero.eq_of_tgt
       exact is_zero_zero _
     use b
     rw [← HomotopyCategory.quotient_map_out a]
     erw [← (HomotopyCategory.quotient _ _).map_comp]
     congr 1; change _ = q; ext ((_ | i) | i)
     · change _ = q'
-      simp only [iso.app_hom, functor.map_comp, functor.map_inv, category.assoc,
+      simp only [Iso.app_hom, Functor.map_comp, Functor.map_inv, Category.assoc,
         HomologicalComplex.comp_f, HomologicalComplex.single_map_f, Int.ofNat_eq_coe,
-        Int.ofNat_zero, eq_self_iff_true, eq_to_hom_refl, category.comp_id, category.id_comp,
+        Int.ofNat_zero, eq_self_iff_true, CategoryTheory.eqToHom_refl, Category.comp_id, Category.id_comp,
         dite_eq_ite, if_true]
       change P.π.f 0 ≫ _ = _
-      simp_rw [← category.assoc]
+      simp_rw [← Category.assoc]
       let t := _; change t ≫ _ = _
       have ht : t = cokernel.π _ := by
         dsimp [t]
-        rw [← functor.map_inv, ← as_iso_inv, ← functor.map_iso_inv]
-        let w := (HomologicalComplex.single A (ComplexShape.up ℤ) 0).mapIso (as_iso P.cokernel_to)
+        rw [← Functor.map_inv, ← CategoryTheory.asIso_inv, ← Functor.mapIso_inv]
+        let w := (HomologicalComplex.single A (ComplexShape.up ℤ) 0).mapIso (CategoryTheory.asIso P.cokernel_to)
         change (P.π.f 0 ≫ _) ≫ ((HomologicalComplex.eval _ _ 0).mapIso w).inv = _
-        rw [iso.comp_inv_eq]
+        rw [Iso.comp_inv_eq]
         dsimp [ChainComplex.single₀CompEmbedIsoSingle,
           ChainComplex.single₀CompEmbedIsoSingleComponent]
-        simp only [eq_self_iff_true, category.comp_id, category.id_comp, if_true]
+        simp only [eq_self_iff_true, Category.comp_id, Category.id_comp, if_true]
         dsimp [cokernel_to]
         simp only [cokernel.π_desc]
-        change _ ≫ (iso.refl _).Hom = _
-        simp only [iso.refl_hom, category.comp_id]
+        change _ ≫ (iso.refl _).hom = _
+        simp only [Iso.refl_hom, Category.comp_id]
       rw [ht]; clear ht; clear t
       rw [cokernel.π_desc]
-    · apply is_zero.eq_of_src; exact is_zero_zero _
-    · apply is_zero.eq_of_tgt; exact is_zero_zero _
+    · apply IsZero.eq_of_src; exact is_zero_zero _
+    · apply IsZero.eq_of_tgt; exact is_zero_zero _
 
 def extSingleIsoHom [EnoughProjectives A] (Y : A) :
     (preadditiveYoneda.obj Y).obj (Opposite.op X) ≅

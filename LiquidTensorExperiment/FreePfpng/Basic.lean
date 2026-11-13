@@ -72,7 +72,7 @@ instance (c) : Fintype {f : FreePfpng S | ‖f‖₊ ≤ c} :=
   by
   let A := {f : FreePfpng S | ‖f‖₊ ≤ c}
   have h : ∃ N : ℕ, c ≤ N := ⟨Nat.ceil c, Nat.le_ceil c⟩
-  let N := h.some; let hN : c ≤ N := h.some_spec
+  let N := h.some; let hN : c ≤ N := h.choose_spec
   let ι : A → S → Set.Icc (-(N : ℤ)) N := fun a s => ⟨a.1 s, _, _⟩
   rotate_left
   · -- I'm sure there is a more efficient way to do this...
@@ -187,8 +187,8 @@ def freePfpngFunctor : FintypeCat ⥤ ProFiltPseuNormGrp₁
     { M := FreePfpng S
       exhaustive' := fun f => ⟨‖f‖₊, le_refl _⟩ }
   map S₁ S₂ f := FreePfpng.map f
-  map_id' := FreePfpng.map_id
-  map_comp' _ _ _ g₁ g₂ := FreePfpng.map_comp g₁ g₂
+  map_id := FreePfpng.map_id
+  map_comp _ _ _ g₁ g₂ := FreePfpng.map_comp g₁ g₂
 
 def FintypeCat.freePfpng (T : FintypeCat) : ProFiltPseuNormGrp₁ :=
   freePfpngFunctor.obj T
@@ -206,7 +206,7 @@ def FintypeCat.freePfpngUnit :
             · dsimp; rw [if_pos rfl, nnnorm_one]
             rintro t - ht; dsimp; rw [if_neg ht.symm, nnnorm_zero] }
       continuous_toFun := continuous_bot }
-  naturality' S T f := by
+  naturality S T f := by
     ext s t
     delta ProFiltPseuNormGrp₁.level
     simp only [FintypeCat.toProfinite_map_apply, Profinite.coe_comp, ContinuousMap.coe_mk,

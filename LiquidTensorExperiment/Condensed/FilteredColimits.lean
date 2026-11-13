@@ -47,8 +47,8 @@ noncomputable def firstIso :
       (by
         intro X Y f; dsimp [comparison_component]
         apply
-          (is_limit_of_preserves ((evaluation J C).obj Y)
-              (limit.is_limit (functor.empty Profiniteᵒᵖ ⋙ G.flip))).hom_ext
+          (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj Y)
+              (limit.isLimit (Functor.empty Profiniteᵒᵖ ⋙ G.flip))).hom_ext
         intro j; rcases j with ⟨⟨⟩⟩)
   e₂ ≪≫ HasColimit.isoOfNatIso e₃
 
@@ -56,9 +56,9 @@ noncomputable def firstIso :
 noncomputable instance preservesFiniteLimitsOfConcrete :
     PreservesFiniteLimits (colim : (J ⥤ C) ⥤ C) :=
   by
-  apply preserves_finite_limits_of_preserves_finite_limits_of_size
+  apply CategoryTheory.Limits.preservesFiniteLimitsOfPreservesFiniteLimitsOfSize
   intro K _ _
-  exact limits.filtered_colim_preserves_finite_limits
+  exact Limits.filteredColimPreservesFiniteLimits
 
 noncomputable def secondIso :
     colimit (limit (Functor.empty.{0} _ ⋙ G.flip)) ≅
@@ -75,7 +75,7 @@ noncomputable def comparison : (colimit G).obj (op Profinite.empty) ⟶ ⊤_ _ :
 
 theorem isIso_comparison : IsIso (comparison G) :=
   by
-  suffices comparison G = (first_iso G).Hom ≫ (second_iso G).Hom ≫ (third_iso G).Hom by rw [this];
+  suffices comparison G = (first_iso G).hom ≫ (second_iso G).hom ≫ (third_iso G).hom by rw [this];
     infer_instance
   simp
 
@@ -100,8 +100,8 @@ noncomputable def firstIsoAuxAux (j) :
     NatIso.ofComponents
       (fun p =>
         match p with
-        | discrete.mk walking_pair.left => Iso.refl _
-        | discrete.mk walking_pair.right => Iso.refl _)
+        | Discrete.mk WalkingPair.left => Iso.refl _
+        | Discrete.mk WalkingPair.right => Iso.refl _)
       (by rintro (_ | _) (_ | _) (_ | _); rfl; rfl)
   asIso (comparisonComponent X Y G j) ≪≫
     HasLimit.isoOfNatIso e₄ ≪≫
@@ -114,29 +114,29 @@ noncomputable def firstIsoAux :
     (by
       intro i j f; dsimp [comparison_component, first_iso_aux_aux]
       apply
-        (is_limit_of_preserves ((evaluation J C).obj j)
-            (limit.is_limit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).hom_ext
+        (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj j)
+            (limit.isLimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).hom_ext
       rintro (_ | _)
-      · dsimp [is_limit.cone_point_unique_up_to_iso]
+      · dsimp [IsLimit.conePointUniqueUpToIso]
         have h1 :=
-          (is_limit_of_preserves ((evaluation J C).obj j)
-                (limit.is_limit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
-            (limit.cone _) (discrete.mk walking_pair.left)
+          (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj j)
+                (limit.isLimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
+            (limit.cone _) (Discrete.mk WalkingPair.left)
         have h2 :=
-          (is_limit_of_preserves ((evaluation J C).obj i)
-                (limit.is_limit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
-            (limit.cone _) (discrete.mk walking_pair.left)
+          (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj i)
+                (limit.isLimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
+            (limit.cone _) (Discrete.mk WalkingPair.left)
         dsimp at h1 h2 ; simp [h1, reassoc_of h2]
         dsimp [first_iso_aux_aux._match_1]; simp
-      · dsimp [is_limit.cone_point_unique_up_to_iso]
+      · dsimp [IsLimit.conePointUniqueUpToIso]
         have h1 :=
-          (is_limit_of_preserves ((evaluation J C).obj j)
-                (limit.is_limit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
-            (limit.cone _) (discrete.mk walking_pair.right)
+          (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj j)
+                (limit.isLimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
+            (limit.cone _) (Discrete.mk WalkingPair.right)
         have h2 :=
-          (is_limit_of_preserves ((evaluation J C).obj i)
-                (limit.is_limit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
-            (limit.cone _) (discrete.mk walking_pair.right)
+          (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj i)
+                (limit.isLimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
+            (limit.cone _) (Discrete.mk WalkingPair.right)
         dsimp at h1 h2 ; simp [h1, reassoc_of h2]
         dsimp [first_iso_aux_aux._match_1]; simp)
 
@@ -204,9 +204,9 @@ noncomputable def thirdIsoAux : Cone (colimit (pair (G.flip.obj (op X)) (G.flip.
   π :=
     { app := fun p =>
         match p with
-        | discrete.mk walking_pair.left => Limits.prod.fst ≫ (thirdIsoAuxLeft _ _ _).inv
-        | discrete.mk walking_pair.right => Limits.prod.snd ≫ (thirdIsoAuxRight _ _ _).inv
-      naturality' := by
+        | Discrete.mk WalkingPair.left => Limits.prod.fst ≫ (thirdIsoAuxLeft _ _ _).inv
+        | Discrete.mk WalkingPair.right => Limits.prod.snd ≫ (thirdIsoAuxRight _ _ _).inv
+      naturality := by
         rintro (_ | _) (_ | _) (_ | _)
         · dsimp [third_iso_aux._match_1]; simp
         · dsimp [third_iso_aux._match_1]; simp }
@@ -215,21 +215,21 @@ noncomputable def thirdIso :
     limit (colimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))).flip) ≅
       Prod ((colimit G).obj (op X)) ((colimit G).obj (op Y))
     where
-  Hom :=
-    prod.lift (limit.π _ (Discrete.mk WalkingPair.left) ≫ (thirdIsoAuxLeft _ _ _).Hom)
-      (limit.π _ (Discrete.mk WalkingPair.right) ≫ (thirdIsoAuxRight _ _ _).Hom)
+  hom :=
+    prod.lift (limit.π _ (Discrete.mk WalkingPair.left) ≫ (thirdIsoAuxLeft _ _ _).hom)
+      (limit.π _ (Discrete.mk WalkingPair.right) ≫ (thirdIsoAuxRight _ _ _).hom)
   inv := limit.lift _ (thirdIsoAux _ _ _)
-  hom_inv_id' := by
+  hom_inv_id := by
     ext (_ | _)
-    · simp only [category.assoc, limit.lift_π, category.id_comp]
+    · simp only [Category.assoc, limit.lift_π, Category.id_comp]
       dsimp [third_iso_aux, third_iso_aux._match_1]; simp
-    · simp only [category.assoc, limit.lift_π, category.id_comp]
+    · simp only [Category.assoc, limit.lift_π, Category.id_comp]
       dsimp [third_iso_aux, third_iso_aux._match_1]; simp
-  inv_hom_id' := by
+  inv_hom_id := by
     ext
-    · simp only [prod.comp_lift, limit.lift_π_assoc, prod.lift_fst, category.id_comp]
+    · simp only [prod.comp_lift, limit.lift_π_assoc, prod.lift_fst, Category.id_comp]
       dsimp [third_iso_aux]; simp
-    · simp only [prod.comp_lift, limit.lift_π_assoc, prod.lift_snd, category.id_comp]
+    · simp only [prod.comp_lift, limit.lift_π_assoc, prod.lift_snd, Category.id_comp]
       dsimp [third_iso_aux]; simp
 
 /-
@@ -261,85 +261,85 @@ noncomputable def comparison :
 theorem isIso_comparison_aux_fst (j) :
     (colimit.ι G j).app (op (X.Sum Y)) ≫ comparison X Y G ≫ Limits.prod.fst =
       (colimit.ι G j).app (op (X.Sum Y)) ≫
-        (firstIso X Y G).Hom ≫ (secondIso X Y G).Hom ≫ (thirdIso X Y G).Hom ≫ Limits.prod.fst :=
+        (firstIso X Y G).hom ≫ (secondIso X Y G).hom ≫ (thirdIso X Y G).hom ≫ Limits.prod.fst :=
   by
-  dsimp [comparison, first_iso, second_iso, third_iso, colimit_limit_iso]
-  simp only [prod.comp_lift, prod.lift_fst, category.assoc, has_limit.iso_of_nat_iso_hom_π_assoc,
-    iso.symm_hom, colimit_flip_iso_comp_colim_inv_app,
-    limit.cone_point_unique_up_to_iso_hom_comp_assoc, functor.map_cone_π_app, binary_fan.π_app_left]
-  dsimp [has_colimit.iso_of_nat_iso, colim, colim_map, is_colimit.map,
-    is_colimit.cocone_point_unique_up_to_iso, colimit_obj_iso_colimit_comp_evaluation,
-    third_iso_aux, third_iso_aux_left, preserves_colimit_iso]
+  dsimp [comparison, first_iso, second_iso, third_iso, CategoryTheory.Limits.colimitLimitIso]
+  simp only [prod.comp_lift, prod.lift_fst, Category.assoc, HasLimit.isoOfNatIso_hom_π_assoc,
+    Iso.symm_hom, CategoryTheory.Limits.colimitFlipIsoCompColim_inv_app,
+    limit.conePointUniqueUpToIso_hom_comp_assoc, Functor.mapCone_π_app, CategoryTheory.Limits.BinaryFan.π_app_left]
+  dsimp [HasColimit.isoOfNatIso, colim, colim_map, IsColimit.map,
+    IsColimit.coconePointUniqueUpToIso, CategoryTheory.Limits.colimitObjIsoColimitCompEvaluation,
+    third_iso_aux, IsSheafColimitPresheafAux.Prod.thirdIsoAuxLeft, CategoryTheory.preservesColimitIso]
   have :=
-    (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ C).obj (op (X.sum Y)))
-          (colimit.is_colimit G)).fac
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ C).obj (op (X.sum Y)))
+          (colimit.isColimit G)).fac
       _ j
   dsimp at this ; slice_rhs 1 2 => rw [this]; clear this
-  simp only [colimit.cocone_ι, colimit.ι_desc, cocones.precompose_obj_ι, nat_trans.comp_app,
-    category.assoc, flip_comp_evaluation_inv_app, functor.map_cocone_ι_app, evaluation_obj_map]
+  simp only [colimit.cocone_ι, colimit.ι_desc, Cocones.precompose_obj_ι, NatTrans.comp_app,
+    Category.assoc, CategoryTheory.flipCompEvaluation_inv_app, Functor.mapCocone_ι_app, evaluation_obj_map]
   dsimp [first_iso_aux, first_iso_aux_aux, comparison_component,
-    is_limit.cone_point_unique_up_to_iso]
-  simp only [has_limit.lift_iso_of_nat_iso_hom_assoc, category.id_comp, category.assoc]
+    IsLimit.conePointUniqueUpToIso]
+  simp only [HasLimit.lift_isoOfNatIso_hom_assoc, Category.id_comp, Category.assoc]
   have :=
-    (is_limit_of_preserves ((evaluation J C).obj j)
-          (limit.is_limit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
-      _ (discrete.mk walking_pair.left)
+    (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj j)
+          (limit.isLimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
+      _ (Discrete.mk WalkingPair.left)
   dsimp at this 
   slice_rhs 2 3 => rw [this]; clear this
-  simp only [limit.cone_π, category.assoc, limit.lift_π_assoc, cones.postcompose_obj_π,
-    nat_trans.comp_app, nat_iso.of_components_hom_app]
+  simp only [limit.cone_π, Category.assoc, limit.lift_π_assoc, Cones.postcompose_obj_π,
+    NatTrans.comp_app, NatIso.ofComponents_hom_app]
   have :=
-    (is_colimit_of_preserves ((evaluation _ C).obj (discrete.mk walking_pair.left))
-          (colimit.is_colimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))).flip)).fac
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation _ C).obj (Discrete.mk WalkingPair.left))
+          (colimit.isColimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))).flip)).fac
       _ j
   dsimp at this ; slice_rhs 3 4 => rw [this]; clear this
-  dsimp [first_iso_aux_aux._match_1]; simp only [category.id_comp, nat_trans.naturality]
+  dsimp [first_iso_aux_aux._match_1]; simp only [Category.id_comp, NatTrans.naturality]
 
 theorem isIso_comparison_aux_snd (j) :
     (colimit.ι G j).app (op (X.Sum Y)) ≫ comparison X Y G ≫ Limits.prod.snd =
       (colimit.ι G j).app (op (X.Sum Y)) ≫
-        (firstIso X Y G).Hom ≫ (secondIso X Y G).Hom ≫ (thirdIso X Y G).Hom ≫ Limits.prod.snd :=
+        (firstIso X Y G).hom ≫ (secondIso X Y G).hom ≫ (thirdIso X Y G).hom ≫ Limits.prod.snd :=
   by
-  dsimp [comparison, first_iso, second_iso, third_iso, colimit_limit_iso]
-  simp only [prod.comp_lift, prod.lift_snd, category.assoc, has_limit.iso_of_nat_iso_hom_π_assoc,
-    iso.symm_hom, colimit_flip_iso_comp_colim_inv_app,
-    limit.cone_point_unique_up_to_iso_hom_comp_assoc, functor.map_cone_π_app,
-    binary_fan.π_app_right]
-  dsimp [has_colimit.iso_of_nat_iso, colim, colim_map, is_colimit.map,
-    is_colimit.cocone_point_unique_up_to_iso, colimit_obj_iso_colimit_comp_evaluation,
-    third_iso_aux, third_iso_aux_right, preserves_colimit_iso]
+  dsimp [comparison, first_iso, second_iso, third_iso, CategoryTheory.Limits.colimitLimitIso]
+  simp only [prod.comp_lift, prod.lift_snd, Category.assoc, HasLimit.isoOfNatIso_hom_π_assoc,
+    Iso.symm_hom, CategoryTheory.Limits.colimitFlipIsoCompColim_inv_app,
+    limit.conePointUniqueUpToIso_hom_comp_assoc, Functor.mapCone_π_app,
+    CategoryTheory.Limits.BinaryFan.π_app_right]
+  dsimp [HasColimit.isoOfNatIso, colim, colim_map, IsColimit.map,
+    IsColimit.coconePointUniqueUpToIso, CategoryTheory.Limits.colimitObjIsoColimitCompEvaluation,
+    third_iso_aux, IsSheafColimitPresheafAux.Prod.thirdIsoAuxRight, CategoryTheory.preservesColimitIso]
   have :=
-    (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ C).obj (op (X.sum Y)))
-          (colimit.is_colimit G)).fac
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ C).obj (op (X.sum Y)))
+          (colimit.isColimit G)).fac
       _ j
   dsimp at this ; slice_rhs 1 2 => rw [this]; clear this
-  simp only [colimit.cocone_ι, colimit.ι_desc, cocones.precompose_obj_ι, nat_trans.comp_app,
-    category.assoc, flip_comp_evaluation_inv_app, functor.map_cocone_ι_app, evaluation_obj_map]
+  simp only [colimit.cocone_ι, colimit.ι_desc, Cocones.precompose_obj_ι, NatTrans.comp_app,
+    Category.assoc, CategoryTheory.flipCompEvaluation_inv_app, Functor.mapCocone_ι_app, evaluation_obj_map]
   dsimp [first_iso_aux, first_iso_aux_aux, comparison_component,
-    is_limit.cone_point_unique_up_to_iso]
-  simp only [has_limit.lift_iso_of_nat_iso_hom_assoc, category.id_comp, category.assoc]
+    IsLimit.conePointUniqueUpToIso]
+  simp only [HasLimit.lift_isoOfNatIso_hom_assoc, Category.id_comp, Category.assoc]
   have :=
-    (is_limit_of_preserves ((evaluation J C).obj j)
-          (limit.is_limit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
-      _ (discrete.mk walking_pair.right)
+    (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj j)
+          (limit.isLimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))))).fac
+      _ (Discrete.mk WalkingPair.right)
   dsimp at this 
   slice_rhs 2 3 => rw [this]; clear this
-  simp only [limit.cone_π, category.assoc, limit.lift_π_assoc, cones.postcompose_obj_π,
-    nat_trans.comp_app, nat_iso.of_components_hom_app]
+  simp only [limit.cone_π, Category.assoc, limit.lift_π_assoc, Cones.postcompose_obj_π,
+    NatTrans.comp_app, NatIso.ofComponents_hom_app]
   have :=
-    (is_colimit_of_preserves ((evaluation _ C).obj (discrete.mk walking_pair.right))
-          (colimit.is_colimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))).flip)).fac
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation _ C).obj (Discrete.mk WalkingPair.right))
+          (colimit.isColimit (pair (G.flip.obj (op X)) (G.flip.obj (op Y))).flip)).fac
       _ j
   dsimp at this ; slice_rhs 3 4 => rw [this]; clear this
-  dsimp [first_iso_aux_aux._match_1]; simp only [category.id_comp, nat_trans.naturality]
+  dsimp [first_iso_aux_aux._match_1]; simp only [Category.id_comp, NatTrans.naturality]
 
 theorem isIso_comparison : IsIso (comparison X Y G) :=
   by
-  suffices comparison X Y G = (first_iso X Y G).Hom ≫ (second_iso X Y G).Hom ≫ (third_iso X Y G).Hom
+  suffices comparison X Y G = (first_iso X Y G).hom ≫ (second_iso X Y G).hom ≫ (third_iso X Y G).hom
     by rw [this]; infer_instance
   ext
-  · simp only [category.assoc, is_iso_comparison_aux_fst]
-  · simp only [category.assoc, is_iso_comparison_aux_snd]
+  · simp only [Category.assoc, IsSheafColimitPresheafAux.Prod.isIso_comparison_aux_fst]
+  · simp only [Category.assoc, IsSheafColimitPresheafAux.Prod.isIso_comparison_aux_snd]
 
 end Prod
 
@@ -365,8 +365,8 @@ def firstIsoAuxAux (j) :
   NatIso.ofComponents
     (fun p =>
       match p with
-      | walking_parallel_pair.zero => Iso.refl _
-      | walking_parallel_pair.one => Iso.refl _)
+      | WalkingParallelPair.zero => Iso.refl _
+      | WalkingParallelPair.one => Iso.refl _)
     (by
       rintro (_ | _) (_ | _) (_ | _)
       rfl
@@ -387,53 +387,53 @@ noncomputable def firstIsoAux :
     (by
       intro i j g; dsimp [comparison_component, first_iso_aux_aux]
       apply
-        (is_limit_of_preserves ((evaluation J C).obj j)
-            (limit.is_limit
-              (parallel_pair (G.flip.map (Profinite.pullback.fst f f).op)
+        (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj j)
+            (limit.isLimit
+              (CategoryTheory.Limits.parallelPair (G.flip.map (Profinite.pullback.fst f f).op)
                 (G.flip.map (Profinite.pullback.snd f f).op)))).hom_ext
       rintro (_ | _)
-      · dsimp [is_limit.cone_point_unique_up_to_iso]
+      · dsimp [IsLimit.conePointUniqueUpToIso]
         have :=
-          (is_limit_of_preserves ((evaluation J C).obj j)
-                (limit.is_limit
-                  (parallel_pair (G.flip.map (Profinite.pullback.fst f f).op)
+          (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj j)
+                (limit.isLimit
+                  (CategoryTheory.Limits.parallelPair (G.flip.map (Profinite.pullback.fst f f).op)
                     (G.flip.map (Profinite.pullback.snd f f).op)))).fac
-            (limit.cone _) walking_parallel_pair.zero
-        dsimp at this ; simp only [category.assoc, this]; clear this
+            (limit.cone _) WalkingParallelPair.zero
+        dsimp at this ; simp only [Category.assoc, this]; clear this
         have :=
-          (is_limit_of_preserves ((evaluation J C).obj i)
-                (limit.is_limit
-                  (parallel_pair (G.flip.map (Profinite.pullback.fst f f).op)
+          (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj i)
+                (limit.isLimit
+                  (CategoryTheory.Limits.parallelPair (G.flip.map (Profinite.pullback.fst f f).op)
                     (G.flip.map (Profinite.pullback.snd f f).op)))).fac
-            (limit.cone _) walking_parallel_pair.zero
-        dsimp at this ; simp only [nat_trans.naturality, category.assoc, reassoc_of this];
+            (limit.cone _) WalkingParallelPair.zero
+        dsimp at this ; simp only [NatTrans.naturality, Category.assoc, reassoc_of this];
         clear this
-        simp only [has_limit.iso_of_nat_iso_hom_π, nat_iso.of_components_hom_app,
-          equalizer.lift_ι_assoc, functor.flip_obj_map, has_limit.iso_of_nat_iso_hom_π_assoc]
+        simp only [HasLimit.isoOfNatIso_hom_π, NatIso.ofComponents_hom_app,
+          equalizer.lift_ι_assoc, Functor.flip_obj_map, HasLimit.isoOfNatIso_hom_π_assoc]
         dsimp [first_iso_aux_aux._match_1]
-        simp only [category.comp_id, category.id_comp, nat_trans.naturality]
-      · dsimp [is_limit.cone_point_unique_up_to_iso]
+        simp only [Category.comp_id, Category.id_comp, NatTrans.naturality]
+      · dsimp [IsLimit.conePointUniqueUpToIso]
         have :=
-          (is_limit_of_preserves ((evaluation J C).obj j)
-                (limit.is_limit
-                  (parallel_pair (G.flip.map (Profinite.pullback.fst f f).op)
+          (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj j)
+                (limit.isLimit
+                  (CategoryTheory.Limits.parallelPair (G.flip.map (Profinite.pullback.fst f f).op)
                     (G.flip.map (Profinite.pullback.snd f f).op)))).fac
-            (limit.cone _) walking_parallel_pair.one
-        dsimp at this ; simp only [category.assoc, this]; clear this
+            (limit.cone _) WalkingParallelPair.one
+        dsimp at this ; simp only [Category.assoc, this]; clear this
         have :=
-          (is_limit_of_preserves ((evaluation J C).obj i)
-                (limit.is_limit
-                  (parallel_pair (G.flip.map (Profinite.pullback.fst f f).op)
+          (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj i)
+                (limit.isLimit
+                  (CategoryTheory.Limits.parallelPair (G.flip.map (Profinite.pullback.fst f f).op)
                     (G.flip.map (Profinite.pullback.snd f f).op)))).fac
-            (limit.cone _) walking_parallel_pair.one
-        dsimp at this ; simp only [nat_trans.naturality, category.assoc, reassoc_of this];
+            (limit.cone _) WalkingParallelPair.one
+        dsimp at this ; simp only [NatTrans.naturality, Category.assoc, reassoc_of this];
         clear this
-        simp only [has_limit.iso_of_nat_iso_hom_π, nat_iso.of_components_hom_app,
-          limit.lift_π_assoc, fork.of_ι_π_app, category.assoc, functor.flip_obj_map,
-          has_limit.iso_of_nat_iso_hom_π_assoc]
+        simp only [HasLimit.isoOfNatIso_hom_π, NatIso.ofComponents_hom_app,
+          limit.lift_π_assoc, Fork.ofι_π_app, Category.assoc, Functor.flip_obj_map,
+          HasLimit.isoOfNatIso_hom_π_assoc]
         dsimp [first_iso_aux_aux._match_1]
-        simp only [category.comp_id, category.id_comp, nat_trans.naturality,
-          nat_trans.naturality_assoc])
+        simp only [Category.comp_id, Category.id_comp, NatTrans.naturality,
+          NatTrans.naturality_assoc])
 
 noncomputable def firstIso :
     (colimit G).obj (op <| Y) ≅
@@ -493,22 +493,22 @@ theorem thirdIsoAux_fst :
           WalkingParallelPairHom.left =
       (colimit G).map (Profinite.pullback.fst f f).op ≫ (thirdIsoAux'' f G).inv :=
   by
-  dsimp [third_iso_aux, third_iso_aux'']
+  dsimp [third_iso_aux, IsSheafColimitPresheafAux.Eq.thirdIsoAux'']
   apply
-    (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ C).obj (op X)) (colimit.is_colimit G)).hom_ext
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ C).obj (op X)) (colimit.isColimit G)).hom_ext
   intro j
-  dsimp [is_colimit.cocone_point_unique_up_to_iso]
+  dsimp [IsColimit.coconePointUniqueUpToIso]
   have h1 :=
-    (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ C).obj (op X)) (colimit.is_colimit G)).fac _ j
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ C).obj (op X)) (colimit.isColimit G)).fac _ j
   have h2 :=
-    (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ C).obj (op <| Profinite.pullback f f))
-          (colimit.is_colimit G)).fac
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ C).obj (op <| Profinite.pullback f f))
+          (colimit.isColimit G)).fac
       _ j
   dsimp at h1 h2 
   slice_lhs 1 2 => rw [h1]; clear h1
-  rw [← nat_trans.naturality_assoc]
+  rw [← NatTrans.naturality_assoc]
   slice_rhs 2 3 => rw [h2]; clear h2
-  dsimp; rw [← nat_trans.naturality]; rfl
+  dsimp; rw [← NatTrans.naturality]; rfl
 
 theorem thirdIsoAux_snd :
     (thirdIsoAux f G).inv ≫
@@ -518,22 +518,22 @@ theorem thirdIsoAux_snd :
           WalkingParallelPairHom.right =
       (colimit G).map (Profinite.pullback.snd f f).op ≫ (thirdIsoAux'' f G).inv :=
   by
-  dsimp [third_iso_aux, third_iso_aux'']
+  dsimp [third_iso_aux, IsSheafColimitPresheafAux.Eq.thirdIsoAux'']
   apply
-    (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ C).obj (op X)) (colimit.is_colimit G)).hom_ext
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ C).obj (op X)) (colimit.isColimit G)).hom_ext
   intro j
-  dsimp [is_colimit.cocone_point_unique_up_to_iso]
+  dsimp [IsColimit.coconePointUniqueUpToIso]
   have h1 :=
-    (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ C).obj (op X)) (colimit.is_colimit G)).fac _ j
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ C).obj (op X)) (colimit.isColimit G)).fac _ j
   have h2 :=
-    (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ C).obj (op <| Profinite.pullback f f))
-          (colimit.is_colimit G)).fac
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ C).obj (op <| Profinite.pullback f f))
+          (colimit.isColimit G)).fac
       _ j
   dsimp at h1 h2 
   slice_lhs 1 2 => rw [h1]; clear h1
-  rw [← nat_trans.naturality_assoc]
+  rw [← NatTrans.naturality_assoc]
   slice_rhs 2 3 => rw [h2]; clear h2
-  dsimp; rw [← nat_trans.naturality]; rfl
+  dsimp; rw [← NatTrans.naturality]; rfl
 
 noncomputable def thirdIsoAux' :
     Cone
@@ -547,18 +547,18 @@ noncomputable def thirdIsoAux' :
   π :=
     { app := fun p =>
         match p with
-        | walking_parallel_pair.zero => equalizer.ι _ _ ≫ (thirdIsoAux _ _).inv
-        | walking_parallel_pair.one =>
+        | WalkingParallelPair.zero => equalizer.ι _ _ ≫ (thirdIsoAux _ _).inv
+        | WalkingParallelPair.one =>
           equalizer.ι _ _ ≫
             (thirdIsoAux f G).inv ≫ CategoryTheory.Functor.map _ WalkingParallelPairHom.left
-      naturality' := by
+      naturality := by
         rintro (_ | _) (_ | _) ⟨⟩
-        · dsimp; simp only [category.id_comp, CategoryTheory.Functor.map_id, category.comp_id]
-        · dsimp [third_iso_aux'._match_1]; simp only [category.id_comp, category.assoc]
-        · dsimp [third_iso_aux'._match_1]; simp only [category.id_comp, category.assoc]
-          rw [third_iso_aux_fst, third_iso_aux_snd]
-          simp only [category.assoc, equalizer.condition_assoc]
-        · dsimp; simp only [category.id_comp, CategoryTheory.Functor.map_id, category.comp_id] }
+        · dsimp; simp only [Category.id_comp, CategoryTheory.Functor.map_id, Category.comp_id]
+        · dsimp [third_iso_aux'._match_1]; simp only [Category.id_comp, Category.assoc]
+        · dsimp [third_iso_aux'._match_1]; simp only [Category.id_comp, Category.assoc]
+          rw [IsSheafColimitPresheafAux.Eq.thirdIsoAux_fst, IsSheafColimitPresheafAux.Eq.thirdIsoAux_snd]
+          simp only [Category.assoc, equalizer.condition_assoc]
+        · dsimp; simp only [Category.id_comp, CategoryTheory.Functor.map_id, Category.comp_id] }
 
 noncomputable def thirdIso :
     limit
@@ -568,77 +568,77 @@ noncomputable def thirdIso :
       equalizer ((colimit G).map (Profinite.pullback.fst f f).op)
         ((colimit G).map (Profinite.pullback.snd f f).op)
     where
-  Hom :=
-    equalizer.lift (limit.π _ WalkingParallelPair.zero ≫ (thirdIsoAux f G).Hom)
+  hom :=
+    equalizer.lift (limit.π _ WalkingParallelPair.zero ≫ (thirdIsoAux f G).hom)
       (by
-        have := third_iso_aux_fst f G; rw [iso.eq_comp_inv] at this ; rw [← this]; clear this
-        have := third_iso_aux_snd f G; rw [iso.eq_comp_inv] at this ; rw [← this]; clear this
-        simp only [category.assoc, iso.hom_inv_id_assoc]
-        simp only [← category.assoc]; congr 1
+        have := IsSheafColimitPresheafAux.Eq.thirdIsoAux_fst f G; rw [Iso.eq_comp_inv] at this ; rw [← this]; clear this
+        have := IsSheafColimitPresheafAux.Eq.thirdIsoAux_snd f G; rw [Iso.eq_comp_inv] at this ; rw [← this]; clear this
+        simp only [Category.assoc, Iso.hom_inv_id_assoc]
+        simp only [← Category.assoc]; congr 1
         let F := _; change limit.π F _ ≫ F.map _ = limit.π F _ ≫ F.map _
-        simp [limit.w F walking_parallel_pair_hom.left])
+        simp [limit.w F WalkingParallelPairHom.left])
   inv := limit.lift _ (thirdIsoAux' _ _)
-  hom_inv_id' := by
+  hom_inv_id := by
     ext (_ | _)
-    · simp only [category.assoc, limit.lift_π, category.id_comp]
-      dsimp [third_iso_aux', third_iso_aux'._match_1]
-      simp only [equalizer.lift_ι_assoc, category.assoc, iso.hom_inv_id, category.comp_id]
-    · simp only [category.assoc, limit.lift_π, category.id_comp]
-      dsimp [third_iso_aux', third_iso_aux'._match_1]
-      simp only [equalizer.lift_ι_assoc, category.assoc, iso.hom_inv_id_assoc, category.comp_id,
-        category.id_comp, limit.w]
-  inv_hom_id' := by
+    · simp only [Category.assoc, limit.lift_π, Category.id_comp]
+      dsimp [IsSheafColimitPresheafAux.Eq.thirdIsoAux', third_iso_aux'._match_1]
+      simp only [equalizer.lift_ι_assoc, Category.assoc, Iso.hom_inv_id, Category.comp_id]
+    · simp only [Category.assoc, limit.lift_π, Category.id_comp]
+      dsimp [IsSheafColimitPresheafAux.Eq.thirdIsoAux', third_iso_aux'._match_1]
+      simp only [equalizer.lift_ι_assoc, Category.assoc, Iso.hom_inv_id_assoc, Category.comp_id,
+        Category.id_comp, limit.w]
+  inv_hom_id := by
     ext
-    simp only [category.assoc, equalizer.lift_ι, limit.lift_π_assoc, category.id_comp]
-    dsimp [third_iso_aux, third_iso_aux']
-    simp only [category.assoc, iso.inv_hom_id, category.comp_id]
+    simp only [Category.assoc, equalizer.lift_ι, limit.lift_π_assoc, Category.id_comp]
+    dsimp [third_iso_aux, IsSheafColimitPresheafAux.Eq.thirdIsoAux']
+    simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id]
 
 noncomputable def comparison :
     (colimit G).obj (op <| Y) ⟶
       equalizer ((colimit G).map (Profinite.pullback.fst f f).op)
         ((colimit G).map (Profinite.pullback.snd f f).op) :=
   equalizer.lift ((colimit G).map f.op)
-    (by simp only [← functor.map_comp, ← op_comp, Profinite.pullback.condition])
+    (by simp only [← Functor.map_comp, ← op_comp, Profinite.pullback.condition])
 
 theorem isIso_comparison : IsIso (comparison f G) :=
   by
-  suffices comparison f G = (first_iso f G).Hom ≫ (second_iso f G).Hom ≫ (third_iso f G).Hom by
+  suffices comparison f G = (first_iso f G).hom ≫ (second_iso f G).hom ≫ (third_iso f G).hom by
     rw [this]; infer_instance
   ext
-  dsimp [comparison, first_iso, second_iso, third_iso, colimit_limit_iso]
-  simp only [category.assoc, equalizer.lift_ι, has_limit.iso_of_nat_iso_hom_π_assoc, iso.symm_hom,
-    colimit_flip_iso_comp_colim_inv_app, limit.cone_point_unique_up_to_iso_hom_comp_assoc,
-    functor.map_cone_π_app, equalizer.fork_π_app_zero]
-  dsimp [has_colimit.iso_of_nat_iso, is_colimit.cocone_point_unique_up_to_iso, colim, colim_map,
-    is_colimit.map, colimit_obj_iso_colimit_comp_evaluation, preserves_colimit_iso, third_iso_aux]
+  dsimp [comparison, first_iso, second_iso, third_iso, CategoryTheory.Limits.colimitLimitIso]
+  simp only [Category.assoc, equalizer.lift_ι, HasLimit.isoOfNatIso_hom_π_assoc, Iso.symm_hom,
+    CategoryTheory.Limits.colimitFlipIsoCompColim_inv_app, limit.conePointUniqueUpToIso_hom_comp_assoc,
+    Functor.mapCone_π_app, equalizer.fork_π_app_zero]
+  dsimp [HasColimit.isoOfNatIso, IsColimit.coconePointUniqueUpToIso, colim, colim_map,
+    IsColimit.map, CategoryTheory.Limits.colimitObjIsoColimitCompEvaluation, CategoryTheory.preservesColimitIso, third_iso_aux]
   have :=
-    (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ C).obj (op Y)) (colimit.is_colimit G)).fac _ j
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ C).obj (op Y)) (colimit.isColimit G)).fac _ j
   dsimp at this 
   slice_rhs 1 2 => rw [this]; clear this
-  simp only [colimit.cocone_ι, colimit.ι_desc, cocones.precompose_obj_ι, nat_trans.comp_app,
-    category.assoc, flip_comp_evaluation_inv_app, functor.map_cocone_ι_app, evaluation_obj_map]
+  simp only [colimit.cocone_ι, colimit.ι_desc, Cocones.precompose_obj_ι, NatTrans.comp_app,
+    Category.assoc, CategoryTheory.flipCompEvaluation_inv_app, Functor.mapCocone_ι_app, evaluation_obj_map]
   dsimp [first_iso_aux, comparison_component]
-  simp only [has_limit.lift_iso_of_nat_iso_hom_assoc, category.id_comp, category.assoc]
-  dsimp [is_limit.cone_point_unique_up_to_iso]
+  simp only [HasLimit.lift_isoOfNatIso_hom_assoc, Category.id_comp, Category.assoc]
+  dsimp [IsLimit.conePointUniqueUpToIso]
   have :=
-    (is_colimit_of_preserves ((evaluation walking_parallel_pair C).obj walking_parallel_pair.zero)
-          (colimit.is_colimit
-            (parallel_pair (G.flip.map (Profinite.pullback.fst f f).op)
+    (CategoryTheory.Limits.isColimitOfPreserves ((evaluation CategoryTheory.Limits.WalkingParallelPair C).obj WalkingParallelPair.zero)
+          (colimit.isColimit
+            (CategoryTheory.Limits.parallelPair (G.flip.map (Profinite.pullback.fst f f).op)
                 (G.flip.map (Profinite.pullback.snd f f).op)).flip)).fac
       _ j
   dsimp at this ; slice_rhs 4 5 => rw [this]; clear this
   have :=
-    (is_limit_of_preserves ((evaluation J C).obj j)
-          (limit.is_limit
-            (parallel_pair (G.flip.map (Profinite.pullback.fst f f).op)
+    (CategoryTheory.Limits.isLimitOfPreserves ((evaluation J C).obj j)
+          (limit.isLimit
+            (CategoryTheory.Limits.parallelPair (G.flip.map (Profinite.pullback.fst f f).op)
               (G.flip.map (Profinite.pullback.snd f f).op)))).fac
-      _ walking_parallel_pair.zero
+      _ WalkingParallelPair.zero
   dsimp at this ⊢; slice_rhs 2 3 => erw [this]; clear this
   dsimp
-  simp only [limit.lift_π_assoc, cones.postcompose_obj_π, nat_trans.comp_app, fork.of_ι_π_app,
-    category.assoc]
+  simp only [limit.lift_π_assoc, Cones.postcompose_obj_π, NatTrans.comp_app, Fork.ofι_π_app,
+    Category.assoc]
   dsimp [first_iso_aux_aux]
-  simp only [category.id_comp, nat_trans.naturality]
+  simp only [Category.id_comp, NatTrans.naturality]
 
 end Eq
 
@@ -736,7 +736,7 @@ theorem isSheaf_colimit_presheaf :
   --rw is_sheaf_iff_is_sheaf_of_type,
   let G := colimit (F ⋙ Sheaf_to_presheaf _ _)
   let Gs := F ⋙ Sheaf_to_presheaf _ _
-  have hGs : ∀ j, presheaf.is_sheaf proetaleTopology (Gs.obj j) := by intro j; exact (F.obj j).2
+  have hGs : ∀ j, presheaf.isSheaf proetaleTopology (Gs.obj j) := by intro j; exact (F.obj j).2
   have hGsempty : ∀ j, (Gs.obj j).EmptyCondition' :=
     by
     intro j; specialize hGs j
@@ -754,15 +754,15 @@ theorem isSheaf_colimit_presheaf :
     exact hGs.2.2
   rw [G.is_proetale_sheaf_tfae.out 0 3]
   refine' ⟨_, _, _⟩
-  · apply (config := { instances := false }) empty.is_iso_comparison
+  · apply (config := { instances := false }) Empty.isIso_comparison
     exact hGsempty
     all_goals infer_instance
   · intro X Y
-    apply (config := { instances := false }) prod.is_iso_comparison
+    apply (config := { instances := false }) Prod.isIso_comparison
     intro j; apply hGsprod
     all_goals infer_instance
   · intro X Y f hf
-    apply (config := { instances := false }) eq.is_iso_comparison
+    apply (config := { instances := false }) Eq.isIso_comparison
     intro j; apply hGseq; assumption'
 
 @[simps]
@@ -771,7 +771,7 @@ noncomputable def filteredCocone : Cocone F
   pt := ⟨colimit (F ⋙ sheafToPresheaf _ _), isSheaf_colimit_presheaf _⟩
   ι :=
     { app := fun j => Sheaf.Hom.mk <| colimit.ι (F ⋙ sheafToPresheaf _ _) j
-      naturality' := by
+      naturality := by
         intro i j f
         ext1; dsimp
         simpa using colimit.w (F ⋙ Sheaf_to_presheaf _ _) f }
@@ -802,88 +802,88 @@ noncomputable def preservesLimitsAux1 (G : J ⥤ Condensed.{u} Ab.{u + 1}) :
     (by
       intro X
       let E := G ⋙ Sheaf_to_presheaf _ _ ⋙ (whiskering_right _ _ _).obj (forget Ab)
-      let e₀ := colimit.is_colimit E
-      let e₁ := is_colimit_of_preserves ((evaluation _ _).obj X) e₀
-      refine' _ ≪≫ (colimit.is_colimit _).coconePointUniqueUpToIso e₁
+      let e₀ := colimit.isColimit E
+      let e₁ := CategoryTheory.Limits.isColimitOfPreserves ((evaluation _ _).obj X) e₀
+      refine' _ ≪≫ (colimit.isColimit _).coconePointUniqueUpToIso e₁
       change (forget Ab).obj _ ≅ colimit _
-      let e₂ := colimit.is_colimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab)
-      let e₃ := is_colimit_of_preserves ((evaluation _ _).obj X) e₂
-      let e₄ := e₃.cocone_point_unique_up_to_iso (colimit.is_colimit _)
+      let e₂ := colimit.isColimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab)
+      let e₃ := CategoryTheory.Limits.isColimitOfPreserves ((evaluation _ _).obj X) e₂
+      let e₄ := e₃.coconePointUniqueUpToIso (colimit.isColimit _)
       refine' (forget Ab).mapIso e₄ ≪≫ _
       change (forget Ab).obj (colimit _) ≅ _
       let e₅ :=
-        is_colimit_of_preserves (forget Ab)
-          (colimit.is_colimit
+        CategoryTheory.Limits.isColimitOfPreserves (forget Ab)
+          (colimit.isColimit
             ((G ⋙ Sheaf_to_presheaf proetaleTopology Ab) ⋙ (evaluation Profiniteᵒᵖ Ab).obj X))
-      exact e₅.cocone_point_unique_up_to_iso (colimit.is_colimit _))
+      exact e₅.coconePointUniqueUpToIso (colimit.isColimit _))
     (by
-      intro X Y f; dsimp; simp only [category.assoc]
-      dsimp [is_colimit.cocone_point_unique_up_to_iso]
+      intro X Y f; dsimp; simp only [Category.assoc]
+      dsimp [IsColimit.coconePointUniqueUpToIso]
       let E₀ :=
-        is_colimit_of_preserves ((evaluation Profiniteᵒᵖ Ab).obj X)
-          (colimit.is_colimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab))
-      let E := is_colimit_of_preserves (forget Ab) E₀
+        CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ Ab).obj X)
+          (colimit.isColimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab))
+      let E := CategoryTheory.Limits.isColimitOfPreserves (forget Ab) E₀
       apply E.hom_ext; intro j; dsimp
       -- Let's work on the LHS
       slice_lhs 1 3 =>
         simp only [← (forget Ab).map_comp]
         rw [← (colimit.ι (G ⋙ Sheaf_to_presheaf proetaleTopology Ab) j).naturality_assoc]
       have :=
-        (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ Ab).obj Y)
-              (colimit.is_colimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab))).fac
+        (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ Ab).obj Y)
+              (colimit.isColimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab))).fac
           _ j
       dsimp at this ; rw [this]; clear this
       dsimp
       have :=
-        (is_colimit_of_preserves (forget Ab)
-              (colimit.is_colimit
+        (CategoryTheory.Limits.isColimitOfPreserves (forget Ab)
+              (colimit.isColimit
                 ((G ⋙ Sheaf_to_presheaf proetaleTopology Ab) ⋙
                   (evaluation Profiniteᵒᵖ Ab).obj Y))).fac
           _ j
-      simp only [(forget Ab).map_comp, category.assoc]
+      simp only [(forget Ab).map_comp, Category.assoc]
       dsimp at this ; slice_lhs 2 3 => rw [this]; clear this
       erw [colimit.ι_desc]
       -- Now for the RHS
       slice_rhs 1 2 => rw [← (forget Ab).map_comp]
       have :=
-        (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ Ab).obj X)
-              (colimit.is_colimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab))).fac
+        (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ Ab).obj X)
+              (colimit.isColimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab))).fac
           _ j
       dsimp at this ; rw [this]; clear this
       have :=
-        (is_colimit_of_preserves (forget Ab)
-              (colimit.is_colimit
+        (CategoryTheory.Limits.isColimitOfPreserves (forget Ab)
+              (colimit.isColimit
                 ((G ⋙ Sheaf_to_presheaf proetaleTopology Ab) ⋙
                   (evaluation Profiniteᵒᵖ Ab).obj X))).fac
           _ j
       dsimp at this ; slice_rhs 1 2 => erw [this]; clear this; erw [colimit.ι_desc]
-      dsimp; erw [← nat_trans.naturality]; rfl)
+      dsimp; erw [← NatTrans.naturality]; rfl)
 
-attribute [-simp] types_comp_apply functor_to_types.comp
+attribute [-simp] types_comp_apply FunctorToTypes.comp
 
 noncomputable def preservesLimitsOfShapeOfFilteredAux (G : J ⥤ Condensed.{u} Ab.{u + 1}) :
     condensedAbToCondensedSet.{u}.mapCocone (filteredCocone G) ≅
       filteredCocone (G ⋙ condensedAbToCondensedSet.{u}) :=
   Cocones.ext
-    { Hom := Sheaf.Hom.mk <| (preservesLimitsAux1 G).Hom
+    { hom := Sheaf.Hom.mk <| (preservesLimitsAux1 G).hom
       inv := Sheaf.Hom.mk <| (preservesLimitsAux1 G).inv
-      hom_inv_id' := by ext1; simp
-      inv_hom_id' := by ext1; simp }
+      hom_inv_id := by ext1; simp
+      inv_hom_id := by ext1; simp }
     (by
-      intro j; ext; dsimp [preservesLimitsAux1, is_colimit.cocone_point_unique_up_to_iso]
-      simp only [← category.assoc, ← (forget Ab).map_comp]
+      intro j; ext; dsimp [preservesLimitsAux1, IsColimit.coconePointUniqueUpToIso]
+      simp only [← Category.assoc, ← (forget Ab).map_comp]
       have :=
-        (is_colimit_of_preserves ((evaluation Profiniteᵒᵖ Ab).obj x)
-              (colimit.is_colimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab))).fac
+        (CategoryTheory.Limits.isColimitOfPreserves ((evaluation Profiniteᵒᵖ Ab).obj x)
+              (colimit.isColimit (G ⋙ Sheaf_to_presheaf proetaleTopology Ab))).fac
           _ j
-      dsimp at this ; rw [this]; clear this; dsimp; simp only [category.assoc]
+      dsimp at this ; rw [this]; clear this; dsimp; simp only [Category.assoc]
       have :=
-        (is_colimit_of_preserves (forget Ab)
-              (colimit.is_colimit
+        (CategoryTheory.Limits.isColimitOfPreserves (forget Ab)
+              (colimit.isColimit
                 ((G ⋙ Sheaf_to_presheaf proetaleTopology Ab) ⋙
                   (evaluation Profiniteᵒᵖ Ab).obj x))).fac
           _ j
-      dsimp at this ; simp only [← category.assoc]; rw [this]; clear this; erw [colimit.ι_desc]
+      dsimp at this ; simp only [← Category.assoc]; rw [this]; clear this; erw [colimit.ι_desc]
       rfl)
 
 end
@@ -893,7 +893,7 @@ noncomputable instance condensedAbToCondensedSetPreservesLimitsOfShapeOfFiltered
   by
   constructor
   intro G
-  apply preserves_colimit_of_preserves_colimit_cocone (filteredCoconeIsColimit G)
-  apply is_colimit.of_iso_colimit (filteredCoconeIsColimit (G ⋙ condensedAbToCondensedSet))
+  apply CategoryTheory.Limits.preservesColimitOfPreservesColimitCocone (filteredCoconeIsColimit G)
+  apply IsColimit.ofIsoColimit (filteredCoconeIsColimit (G ⋙ condensedAbToCondensedSet))
   exact (preservesLimitsOfShapeOfFilteredAux G).symm
 

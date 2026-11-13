@@ -63,12 +63,12 @@ def bddWeakDual : AddSubgroup (WeakDual ℝ C(X, ℝ))
     obtain ⟨ca, ha⟩ := ha
     obtain ⟨cb, hb⟩ := hb
     use ca + cb
-    apply bdd_add _ _ _ _ ha hb
+    apply Profinite.bddAdd _ _ _ _ ha hb
   zero_mem' := ⟨0, bddZero _ _⟩
   neg_mem' a ha := by
     obtain ⟨c, ha⟩ := ha
     use c
-    apply bdd_neg _ _ _ ha
+    apply Profinite.bddNeg _ _ _ ha
 
 instance : PseudoNormedGroup (X.bddWeakDual p)
     where
@@ -171,10 +171,10 @@ def radonPngFunctor : Profinite.{0} ⥤ CompHausFiltPseuNormGrp₁
     where
   obj X := X.radonPng p
   map X Y := mapRadonPng _
-  map_id' X := by
+  map_id X := by
     ext; dsimp [map_Radon_png, WeakDual.comap]; congr 1
     ext; rfl
-  map_comp' X Y Z f g := by ext; rfl
+  map_comp X Y Z f g := by ext; rfl
 
 /-- The cone exhibiting `X.Radon_png p` as a limit of `T.Radon_png p` as
 `T` varies over the discrete quotients of `X`. -/
@@ -185,10 +185,10 @@ def radonPngCone : Cone (X.diagram ⋙ radonPngFunctor p) :=
 def radonPngFunctorLevelIsoComponent (c : ℝ≥0) (X : Profinite.{0}) :
     (CompHausFiltPseuNormGrp₁.level.obj c).obj (X.radonPng p) ≅ (radonCompHausFunctor p c).obj X :=
   let e := bddWeakDualFiltrationHomeo X p c
-  { Hom := e.toContinuousMap
+  { hom := e.toContinuousMap
     inv := e.symm.toContinuousMap
-    hom_inv_id' := by ext; rfl
-    inv_hom_id' := by ext; rfl }
+    hom_inv_id := by ext; rfl
+    inv_hom_id := by ext; rfl }
 
 /-- An auxiliary definition to be used in the constructions below. -/
 def radonPngFunctorLevelIso (c : ℝ≥0) :
@@ -201,20 +201,20 @@ def isLimitRadonPngConeMapLevel (c : ℝ≥0) :
     where
   lift S :=
     (X.isLimitRadonCompHausCone p c).lift
-        ⟨_, S.π ≫ whiskerLeft _ (radonPngFunctorLevelIso p c).Hom⟩ ≫
+        ⟨_, S.π ≫ whiskerLeft _ (radonPngFunctorLevelIso p c).hom⟩ ≫
       (radonPngFunctorLevelIso p c).inv.app _
   fac := by
     intro S j
-    erw [category.assoc, ← nat_trans.naturality, (X.is_limit_Radon_CompHaus_cone p c).fac_assoc]
-    dsimp; simp only [category.assoc, iso.hom_inv_id_app]
-    erw [category.comp_id]
+    erw [Category.assoc, ← NatTrans.naturality, (X.is_limit_Radon_CompHaus_cone p c).fac_assoc]
+    dsimp; simp only [Category.assoc, Iso.hom_inv_id_app]
+    erw [Category.comp_id]
   uniq := by
     intro S m hm
-    rw [← nat_iso.app_inv, iso.eq_comp_inv]
+    rw [← NatIso.app_inv, Iso.eq_comp_inv]
     apply (X.is_limit_Radon_CompHaus_cone p c).hom_ext; intro j
     erw [(X.is_limit_Radon_CompHaus_cone p c).fac]
-    dsimp; rw [← hm]; dsimp; simp only [category.assoc]
-    erw [← nat_trans.naturality]
+    dsimp; rw [← hm]; dsimp; simp only [Category.assoc]
+    erw [← NatTrans.naturality]
 
 /-- As promised, `X.Radon_png p` is a limit cone. -/
 def isLimitRadonPngCone : IsLimit (X.radonPngCone p) :=
@@ -240,13 +240,13 @@ def radonPngComparison :
   NatIso.ofComponents (fun T => radonPngComparisonComponent _ _ _)
     (by
       intro S T f
-      dsimp only [Radon_png_comparison_component, iso.trans_hom]
+      dsimp only [Radon_png_comparison_component, Iso.trans_hom]
       apply CompHausFiltPseuNormGrp₁.level_jointly_faithful
       intro c
-      simp only [functor.map_comp]
-      simp_rw [CompHausFiltPseuNormGrp₁.level_createIsoFromLevel.{0}, iso.trans_hom,
-        nat_iso.app_hom, category.assoc]
-      erw [← (X.Radon_CompHaus_comparison p c).Hom.naturality f]
+      simp only [Functor.map_comp]
+      simp_rw [CompHausFiltPseuNormGrp₁.level_createIsoFromLevel.{0}, Iso.trans_hom,
+        NatIso.app_hom, Category.assoc]
+      erw [← (X.Radon_CompHaus_comparison p c).hom.naturality f]
       rfl)
 
 /-- The CompHaus-ly filtered pseudno normed group of signed `p`-Radon measures on `X`

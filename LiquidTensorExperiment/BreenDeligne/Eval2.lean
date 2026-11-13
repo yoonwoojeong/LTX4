@@ -27,8 +27,8 @@ instance eval_additive : (BD.eval F).Additive :=
   Functor.additive_of_map_fst_add_snd _ fun A =>
     by
     refine' HomotopyCategory.eq_of_homotopy _ _ _
-    rw [← functor.map_add]
-    exact HomologicalComplex.embedHomotopy _ _ (eval_functor_homotopy F BD A) _
+    rw [← Functor.map_add]
+    exact HomologicalComplex.embedHomotopy _ _ (BreenDeligne.Package.evalFunctorHomotopy F BD A) _
 
 theorem evalFunctor_obj_x (X : 𝒜) (n : ℕ) :
     (((Data.evalFunctor F).obj BD.data).obj X).pt n = F.obj ((pow (BD.data.pt n)).obj X) :=

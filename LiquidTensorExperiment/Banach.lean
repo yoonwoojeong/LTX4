@@ -38,7 +38,7 @@ variable (V : Type _) (p : ℝ) [AddCommGroup V] [Module ℝ V] [UniformSpace V]
 
 def HasPNorm.seminormedAddCommGroup [Fact (0 < p)] (h : HasPNorm V p) : SeminormedAddCommGroup V :=
   {
-    @seminormed_add_comm_group.of_core V _ h.toHasNorm <|
+    @seminormed_add_comm_group.ofCore V _ h.toHasNorm <|
       have hp0 : p ≠ 0 := (Fact.out _ : 0 < p).ne'
       { norm_zero := by simpa only [zero_smul, abs_zero, Real.zero_rpow hp0] using h.norm_smul 0 0
         triangle := h.triangle
@@ -115,10 +115,10 @@ def chooseNormedWithAut [Fact (0 < p)] (x : ℝ≥0) [Fact (0 < x)] :
   t :=
     { hom := smulNormedHom V x
       inv := smulNormedHom V x⁻¹
-      hom_inv_id' := by
+      hom_inv_id := by
         ext v; dsimp; rw [← mul_smul, inv_mul_cancel, one_smul]
         exact_mod_cast (Fact.out _ : 0 < x).ne'
-      inv_hom_id' := by
+      inv_hom_id := by
         ext v; dsimp; rw [← mul_smul, mul_inv_cancel, one_smul]
         exact_mod_cast (Fact.out _ : 0 < x).ne' }
   norm_t v := by
@@ -238,7 +238,7 @@ theorem norm_def {V : Type _} [Norm V] (p' p : ℝ) (v : AsNormedSpace' p' V) :
 induced by a `p`-normed group structure on `V` -/
 protected def normedAddCommGroup (V : Type _) [NormedAddCommGroup V] (p' p : ℝ) [Fact (0 < p')]
     [Fact (p' ≤ p)] : NormedAddCommGroup (AsNormedSpace' p' V) :=
-  @normed_add_comm_group.of_core _ _ (AsNormedSpace'.hasNorm p' p V) <|
+  @normed_add_comm_group.ofCore _ _ (AsNormedSpace'.hasNorm p' p V) <|
     have hp' : 0 < p' := Fact.out _
     have hp : 0 < p := lt_of_lt_of_le hp' (Fact.out _)
     have H : 0 < p' / p := div_pos hp' hp
