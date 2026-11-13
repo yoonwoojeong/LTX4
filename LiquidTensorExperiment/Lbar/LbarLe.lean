@@ -145,7 +145,7 @@ theorem truncate_surjective (M : ℕ) :
   · apply le_trans _ x.sum_le
     apply Finset.sum_le_sum
     rintro s -
-    rw [← sum_add_tsum_nat_add' (M + 1), tsum_eq_zero, add_zero]
+    rw [← NNReal.sum_add_tsum_nat_add' (M + 1), tsum_eq_zero, add_zero]
     · rw [← Fin.sum_univ_eq_sum_range]
       apply Finset.sum_le_sum
       rintro i -

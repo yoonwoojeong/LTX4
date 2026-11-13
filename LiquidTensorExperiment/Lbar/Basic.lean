@@ -406,7 +406,7 @@ theorem tinv_mem_filtration [h0r : Fact (0 < r')] :
   apply Finset.sum_le_sum
   rintro s -
   rw [← NNReal.tsum_mul_right]
-  conv_rhs => rw [← sum_add_tsum_nat_add' 1 (F.summable s)]
+  conv_rhs => rw [← NNReal.sum_add_tsum_nat_add' 1 (F.summable s)]
   refine' le_add_of_nonneg_of_le zero_le' _
   apply tsum_le_tsum
   · rintro (_ | i)

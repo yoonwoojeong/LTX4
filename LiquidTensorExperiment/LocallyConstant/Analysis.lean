@@ -31,9 +31,10 @@ theorem Real.sSup_hMul (r : ℝ) (s : Set ℝ) (hr : 0 < r) :
   by
   by_cases hs : s.Nonempty; swap
   · rw [not_nonempty_iff_eq_empty] at hs ; simp [hs]
-  have H : Set.Nonempty {x : ℝ | ∃ (y : ℝ) (H : y ∈ s), r * y = x} := by obtain ⟨x, hx⟩ := hs;
+  have H : Set.Nonempty {x : ℝ | ∃ y ∈ s, r * y = x} := by
+    obtain ⟨x, hx⟩ := hs
     exact ⟨r * x, x, hx, rfl⟩
-  have aux : BddAbove {x : ℝ | ∃ (y : ℝ) (H : y ∈ s), r * y = x} ↔ BddAbove s :=
+  have aux : BddAbove {x : ℝ | ∃ y ∈ s, r * y = x} ↔ BddAbove s :=
     by
     constructor <;> rintro ⟨x, hx⟩
     · refine' ⟨x / r, fun y hy => _⟩
@@ -93,21 +94,29 @@ section CompactDomain
 
 variable [CompactSpace X]
 
+-- Porting note: helper to avoid `rw [range_comp]` unification problems with lambdas
+theorem range_comp_finite (g : LocallyConstant X Y) (φ : Y → ℝ) :
+    (Set.range fun x => φ (g x)).Finite := by
+  rw [show (Set.range fun x => φ (g x)) = φ '' Set.range g from Set.range_comp φ g]
+  exact g.range_finite.image _
+
 theorem norm_apply_le [Norm Y] (f : LocallyConstant X Y) (x : X) : ‖f x‖ ≤ ‖f‖ :=
   by
   refine' le_csSup _ (Set.mem_range_self _)
   apply exists_upper_bound_image
-  rw [range_comp]
+  -- Porting note: `range_comp` does not unify with the lambda; provide it explicitly
+  rw [show (range fun x => ‖f x‖) = (fun y => ‖y‖) '' range f from range_comp (fun y => ‖y‖) f]
   exact f.range_finite.image _
 
 theorem exists_ub_range_dist [Dist Y] (f g : LocallyConstant X Y) :
     ∃ x : ℝ, ∀ y : ℝ, (y ∈ Set.range fun x : X => dist (f x) (g x)) → y ≤ x :=
   by
   apply exists_upper_bound_image
-  simp only [← Function.uncurry_apply_pair dist]
-  rw [range_comp]
+  -- Porting note: `range_comp` does not unify with the lambda; provide it explicitly
+  rw [show (range fun x => dist (f x) (g x)) = (Function.uncurry dist) '' range (fun x => (f x, g x))
+    from range_comp (Function.uncurry dist) (fun x => (f x, g x))]
   apply Finite.image
-  apply (f.range_finite.prod g.range_finite).Subset
+  apply (f.range_finite.prod g.range_finite).subset
   apply range_pair_subset
 
 theorem dist_apply_le [Dist Y] (f g : LocallyConstant X Y) (x : X) : dist (f x) (g x) ≤ dist f g :=
@@ -118,6 +127,7 @@ theorem dist_apply_le [Dist Y] (f g : LocallyConstant X Y) (x : X) : dist (f x) 
 protected def pseudoMetricSpace [PseudoMetricSpace Y] : PseudoMetricSpace (LocallyConstant X Y) :=
   {
     LocallyConstant.hasDist with
+    edist_dist := fun _ _ => rfl -- Porting note: autoParam failed, give explicitly
     dist_self := fun f =>
       show (⨆ x, dist (f x) (f x)) = 0 by
         simp only [dist_self, iSup]
@@ -128,7 +138,8 @@ protected def pseudoMetricSpace [PseudoMetricSpace Y] : PseudoMetricSpace (Local
     dist_triangle := by
       intro f g h
       cases isEmpty_or_nonempty X
-      · show Sup _ ≤ Sup _ + Sup _; simp only [Set.range_eq_empty, Real.sSup_empty, add_zero]
+      · show sSup _ ≤ sSup _ + sSup _
+        simp only [Set.range_eq_empty, Real.sSup_empty, add_zero, le_refl]
       refine' csSup_le _ _
       · inhabit X; exact ⟨_, Set.mem_range_self default⟩
       rintro r ⟨x, rfl⟩
@@ -141,11 +152,12 @@ protected def pseudoMetricSpace [PseudoMetricSpace Y] : PseudoMetricSpace (Local
 protected def metricSpace [MetricSpace Y] : MetricSpace (LocallyConstant X Y) :=
   {
     LocallyConstant.hasDist with
+    edist_dist := fun _ _ => rfl -- Porting note: autoParam failed, give explicitly
     dist_self := fun f =>
       show (⨆ x, dist (f x) (f x)) = 0 by
         simp only [dist_self, iSup]
         cases isEmpty_or_nonempty X
-        · rwa [Set.range_eq_empty, Real.sSup_empty]
+        · rw [Set.range_eq_empty, Real.sSup_empty]
         · simp only [Set.range_const, csSup_singleton]
     eq_of_dist_eq_zero := by
       intro f g h
@@ -158,7 +170,8 @@ protected def metricSpace [MetricSpace Y] : MetricSpace (LocallyConstant X Y) :=
     dist_triangle := by
       intro f g h
       cases isEmpty_or_nonempty X
-      · show Sup _ ≤ Sup _ + Sup _; simp only [Set.range_eq_empty, Real.sSup_empty, add_zero]
+      · show sSup _ ≤ sSup _ + sSup _
+        simp only [Set.range_eq_empty, Real.sSup_empty, add_zero, le_refl]
       refine' csSup_le _ _
       · inhabit X; exact ⟨_, Set.mem_range_self default⟩
       rintro r ⟨x, rfl⟩
@@ -170,7 +183,8 @@ protected def metricSpace [MetricSpace Y] : MetricSpace (LocallyConstant X Y) :=
 -/
 protected def seminormedAddCommGroup {G : Type _} [SeminormedAddCommGroup G] :
     SeminormedAddCommGroup (LocallyConstant X G) :=
-  { LocallyConstant.hasNorm, LocallyConstant.addCommGroup, LocallyConstant.pseudoMetricSpace with
+  { LocallyConstant.hasNorm, LocallyConstant.pseudoMetricSpace with
+    toAddCommGroup := inferInstance
     dist_eq := fun f g =>
       show sSup _ = sSup _ by
         simp only [SeminormedAddCommGroup.dist_eq, LocallyConstant.sub_apply] }
@@ -178,7 +192,9 @@ protected def seminormedAddCommGroup {G : Type _} [SeminormedAddCommGroup G] :
 /-- The normed group of locally constant functions from a compact space to a normed group. -/
 protected def normedAddCommGroup {G : Type _} [NormedAddCommGroup G] :
     NormedAddCommGroup (LocallyConstant X G) :=
-  { LocallyConstant.seminormedAddCommGroup, LocallyConstant.metricSpace with }
+  { LocallyConstant.seminormedAddCommGroup with
+    eq_of_dist_eq_zero := fun {f g} h =>
+      @MetricSpace.eq_of_dist_eq_zero _ LocallyConstant.metricSpace f g h }
 
 attribute [local instance] LocallyConstant.seminormedAddCommGroup
 
@@ -194,31 +210,31 @@ def mapHom (f : NormedAddGroupHom V₁ V₂) :
     NormedAddGroupHom (LocallyConstant X V₁) (LocallyConstant X V₂)
     where
   toFun := LocallyConstant.map f
-  map_add' := by intro x y; ext s; apply f.map_add'
+  map_add' := by
+    intro x y
+    ext s
+    exact f.map_add' (x s) (y s)
   bound' := by
     obtain ⟨C, C_pos, hC⟩ := f.bound
     use C
     rintro (g : LocallyConstant _ _)
-    calc
-      Sup (Set.range fun x => ‖(f (g x))‖) ≤ Sup (Set.range fun x => C * ‖g x‖) :=
-        _
-      _ = C * Sup (Set.range fun x => ‖g x‖) := _
-    · cases isEmpty_or_nonempty X
-      · simp only [Set.range_eq_empty, Real.sSup_empty]
+    have h1 : sSup (Set.range fun x => ‖(f (g x))‖) ≤ sSup (Set.range fun x => C * ‖g x‖) := by
+      cases isEmpty_or_nonempty X
+      · simp only [Set.range_eq_empty, Real.sSup_empty, le_refl]
       refine' csSup_le _ _
       · inhabit X; exact ⟨_, Set.mem_range_self default⟩
       rintro _ ⟨x, rfl⟩
       calc
         ‖(f (g x))‖ ≤ C * ‖g x‖ := hC _
-        _ ≤ Sup _ := le_csSup _ _
-      · apply exists_upper_bound_image
-        rw [Set.range_comp, Set.range_comp]
-        exact (g.range_finite.image _).image _
-      · exact Set.mem_range_self _
-    · convert Real.sSup_hMul C _ C_pos using 2
+        _ ≤ sSup (Set.range fun x => C * ‖g x‖) :=
+          le_csSup (range_comp_finite g fun y => C * ‖y‖).bddAbove
+            (Set.mem_range_self _)
+    have h2 : sSup (Set.range fun x => C * ‖g x‖) = C * sSup (Set.range fun x => ‖g x‖) := by
+      convert Real.sSup_hMul C _ C_pos using 2
       ext x
       simp only [Set.mem_range, exists_prop, Set.setOf_mem_eq, exists_exists_eq_and]
       simp only [Set.mem_setOf_eq]
+    exact h1.trans h2.le
 
 @[simp]
 theorem mapHom_id : @mapHom X _ _ _ _ _ _ (@NormedAddGroupHom.id V _) = NormedAddGroupHom.id _ := by
@@ -253,29 +269,18 @@ def comapHom (f : X → Y) (hf : Continuous f) :
     (by
       intro g
       rw [one_mul]
-      show Sup _ ≤ Sup _
+      show sSup _ ≤ sSup _
       simp only [hf, Function.comp_apply, coe_comap, AddMonoidHom.mk'_apply]
       cases isEmpty_or_nonempty X
       · simp only [Set.range_eq_empty, Real.sSup_empty]
         cases isEmpty_or_nonempty Y
-        · simp only [Set.range_eq_empty, Real.sSup_empty]
+        · simp only [Set.range_eq_empty, Real.sSup_empty, le_refl]
         inhabit Y
-        calc
-          0 ≤ ‖g default‖ := norm_nonneg _
-          _ ≤ _ := _
-        apply le_csSup
-        · apply exists_upper_bound_image
-          rw [Set.range_comp]
-          exact g.range_finite.image _
-        · exact Set.mem_range_self _
-      skip
+        exact (norm_nonneg (g default)).trans
+          (le_csSup (range_comp_finite g fun y => ‖y‖).bddAbove (Set.mem_range_self _))
       refine' csSup_le (range_nonempty _) _
-      · rintro _ ⟨x, rfl⟩
-        apply le_csSup
-        · apply exists_upper_bound_image
-          rw [Set.range_comp]
-          exact g.range_finite.image _
-        · exact Set.mem_range_self _)
+      rintro _ ⟨x, rfl⟩
+      exact le_csSup (range_comp_finite g fun y => ‖y‖).bddAbove (Set.mem_range_self _))
 
 @[simp]
 theorem comapHom_id : @comapHom X X V _ _ _ _ _ id continuous_id = NormedAddGroupHom.id _ :=
@@ -293,6 +298,7 @@ theorem comapHom_comp (f : X → Y) (g : Y → Z) (hf : Continuous f) (hg : Cont
   -- so we use `show` instead, to get into a defeq shape that is usable
   show (LocallyConstant.comapHom f hf) ((LocallyConstant.comapHom g hg) φ) x = _
   simp only [hg.comp hf, hf, hg, LocallyConstant.comapHom_apply, coe_comap]
+  rfl
 
 theorem comapHom_normNoninc (f : X → Y) (hf : Continuous f) :
     (@comapHom _ _ V _ _ _ _ _ f hf).NormNoninc :=

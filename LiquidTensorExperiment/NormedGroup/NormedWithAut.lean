@@ -23,7 +23,8 @@ In other words, it is a normed `ℤ[T^{±1}]`-module satisfying `∥T v∥ = r *
 Definition 8.13 of [Analytic] -/
 class NormedWithAut (r : outParam ℝ≥0) (V : SemiNormedGroupCat) where
   t : V ≅ V
-  norm_t : ∀ v : V, ‖((T.hom : V → V) v)‖ = r * ‖v‖
+  -- Porting note: Lean 3 field `T`; the Lean 4 field is `t` (see `lean3name` align table).
+  norm_t : ∀ v : V, ‖((t.hom : V → V) v)‖ = r * ‖v‖
 
 variable {r : ℝ≥0} (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)]
 
@@ -32,15 +33,19 @@ namespace NormedWithAut
 theorem norm_t_inv (v : V) : ‖t.inv v‖ = r⁻¹ * ‖v‖ :=
   by
   calc
-    ‖((T.inv : V → V) v)‖ = r⁻¹ * ‖(T.hom (T.inv v))‖ := _
-    _ = r⁻¹ * ‖v‖ := _
-  · rw [NormedWithAut.norm_t, inv_mul_cancel_left₀]
+    ‖((t.inv : V → V) v)‖ = r⁻¹ * ‖(t.hom (t.inv v))‖ := ?_
+    _ = r⁻¹ * ‖v‖ := ?_
+  · rw [NormedWithAut.norm_t, NNReal.coe_inv, inv_mul_cancel_left₀]
     apply ne_of_gt
     rw [NNReal.coe_pos]
     exact ‹Fact (0 < r)›.out
-  · rw [← CategoryTheory.comp_apply, T.inv_hom_id]; rfl
+  · -- Porting note: Lean 4 `rw [← comp_apply]` does not fire here; use `congrArg` instead.
+    have hv : ((NormedWithAut.t (V := V)).hom : V → V) ((NormedWithAut.t (V := V)).inv v) = v :=
+      congrArg (fun f : V ⟶ V => (f : V → V) v) (NormedWithAut.t (V := V)).inv_hom_id
+    rw [hv]
 
 end NormedWithAut
 
-#lint
+-- Porting note: Lean 3 `#lint- only unused_arguments def_lemma doc_blame` removed; the
+-- Lean 4 `#lint` run reports the undocumented field `t` as an error.
 

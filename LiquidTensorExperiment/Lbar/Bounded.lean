@@ -49,7 +49,7 @@ This is an auxiliary object used to define the profinite topology on `Lbar r' S`
 structure LbarBdd (r : ℝ≥0) (S : FintypeCat) (c : ℝ≥0) (M : ℕ) where
   toFun : S → Fin (M + 1) → ℤ
   coeff_zero' : ∀ s, toFun s 0 = 0
-  sum_le' : ∑ (s) (i), ↑(toFun s i).natAbs * r ^ (i : ℕ) ≤ c
+  sum_le' : ∑ s, ∑ i : Fin (M + 1), ↑(toFun s i).natAbs * r ^ (i : ℕ) ≤ c
 
 namespace LbarBdd
 
@@ -59,7 +59,7 @@ instance hasCoeToFun : CoeFun (LbarBdd r' S c M) fun _ => S → Fin (M + 1) → 
   ⟨LbarBdd.toFun⟩
 
 @[simp]
-theorem coe_mk (x h₁ h₂) : ((⟨x, h₁, h₂⟩ : LbarBdd r' S c M) : S → ℕ → ℤ) = x :=
+theorem coe_mk (x h₁ h₂) : ((⟨x, h₁, h₂⟩ : LbarBdd r' S c M) : S → Fin (M + 1) → ℤ) = x :=
   rfl
 
 @[simp]
@@ -67,7 +67,7 @@ protected theorem coeff_zero (x : LbarBdd r' S c M) (s : S) : x s 0 = 0 :=
   x.coeff_zero' s
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (s i) -/
-protected theorem sum_le (x : LbarBdd r' S c M) : ∑ (s) (i), ↑(x s i).natAbs * r' ^ (i : ℕ) ≤ c :=
+protected theorem sum_le (x : LbarBdd r' S c M) : ∑ s, ∑ i : Fin (M + 1), ↑(x s i).natAbs * r' ^ (i : ℕ) ≤ c :=
   x.sum_le'
 
 /-- The obvious map from `Lbar_bdd r' S c₁ M` to `Lbar_bdd r' S c₂ M`, for `c₁ ≤ c₂`. -/
@@ -75,8 +75,10 @@ protected def castLe [hc : Fact (c₁ ≤ c₂)] (x : LbarBdd r' S c₁ M) : Lba
   ⟨x.1, x.coeff_zero, x.sum_le.trans hc.out⟩
 
 @[ext]
-theorem ext (x y : LbarBdd r' S c M) (h : (⇑x : S → Fin (M + 1) → ℤ) = y) : x = y := by cases x;
-  cases y; congr; exact h
+theorem ext (x y : LbarBdd r' S c M) (h : (⇑x : S → Fin (M + 1) → ℤ) = y) : x = y := by
+  cases x
+  cases y
+  congr
 
 instance : Zero (LbarBdd r' S c M)
     where zero :=
@@ -92,31 +94,32 @@ instance : Inhabited (LbarBdd r' S c M) :=
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (s i) -/
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (s i) -/
 theorem coeff_bound [h0r : Fact (0 < r')] (F : S → Fin (M + 1) → ℤ)
-    (hF : ∑ (s) (i), ↑(F s i).natAbs * r' ^ (i : ℕ) ≤ c) (n : Fin (M + 1)) (s : S) :
+    (hF : ∑ s, ∑ i : Fin (M + 1), ↑(F s i).natAbs * r' ^ (i : ℕ) ≤ c) (n : Fin (M + 1)) (s : S) :
     ↑(F s n).natAbs ≤ c / min (r' ^ M) 1 :=
   by
   rw [div_eq_mul_inv]
-  apply le_mul_inv_of_mul_le (lt_min (pow_pos h0r.out _) zero_lt_one).Ne.symm
+  apply le_mul_inv_of_mul_le (lt_min (pow_pos h0r.out _) zero_lt_one).ne.symm
   calc
-    ↑(F s n).natAbs * min (r' ^ M) 1 ≤ ↑(F s n).natAbs * r' ^ (n : ℕ) := _
+    ↑(F s n).natAbs * min (r' ^ M) 1 ≤ ↑(F s n).natAbs * r' ^ (n : ℕ) := ?_
     -- see below for proof
-        _ ≤
-        ∑ i, ↑(F s i).natAbs * r' ^ (i : ℕ) :=
-      (Finset.single_le_sum (fun (i : Fin (M + 1)) _ => _) (Finset.mem_univ n))
-    _ ≤ ∑ (s) (i), ↑(F s i).natAbs * r' ^ (i : ℕ) :=
+    _ ≤ ∑ i : Fin (M + 1), ↑(F s i).natAbs * r' ^ (i : ℕ) :=
+      (Finset.single_le_sum (f := fun i : Fin (M + 1) => (↑(F s i).natAbs * r' ^ (i : ℕ) : ℝ≥0))
+        (fun (i : Fin (M + 1)) _ => zero_le _) (Finset.mem_univ n))
+    _ ≤ ∑ s, ∑ i : Fin (M + 1), ↑(F s i).natAbs * r' ^ (i : ℕ) :=
       by
-      refine' Finset.single_le_sum (fun _ _ => _) (Finset.mem_univ s)
-      exact Finset.sum_nonneg fun _ _ => Subtype.property (_ : ℝ≥0)
+      refine' Finset.single_le_sum
+        (f := fun s => ∑ i : Fin (M + 1), (↑(F s i).natAbs * r' ^ (i : ℕ) : ℝ≥0))
+        (fun _ _ => _) (Finset.mem_univ s)
+      exact Finset.sum_nonneg fun _ _ => zero_le _
     _ ≤ c := hF
-  · refine' mul_le_mul_of_nonneg_left _ (Subtype.property (_ : ℝ≥0))
-    cases' le_or_lt r' 1 with hr1 hr1
-    · refine' le_trans (min_le_left _ _) _
-      exact pow_le_pow_of_le_one h0r.out.le hr1 (Nat.lt_add_one_iff.1 n.2)
-    · exact le_trans (min_le_right _ _) (one_le_pow_of_one_le (le_of_lt hr1) _)
-  apply Subtype.property (_ : ℝ≥0)
+  refine' mul_le_mul_of_nonneg_left _ (zero_le _)
+  cases' le_or_lt r' 1 with hr1 hr1
+  · refine' le_trans (min_le_left _ _) _
+    exact pow_le_pow_of_le_one h0r.out.le hr1 (Nat.lt_add_one_iff.1 n.2)
+  · exact le_trans (min_le_right _ _) (one_le_pow_of_one_le (le_of_lt hr1) _)
 
 /-- An auxiliary function used to prove finiteness of `Lbar_bdd r' S c M`. -/
-private def temp_map [Fact (0 < r')] (F : LbarBdd r' S c M) (n : Fin (M + 1)) (s : S) :
+private def tempMap [Fact (0 < r')] (F : LbarBdd r' S c M) (n : Fin (M + 1)) (s : S) :
     Icc ⌈(-(c / min (r' ^ M) 1) : ℝ)⌉ ⌊(c / min (r' ^ M) 1 : ℝ)⌋ :=
   have h : (-(c / min (r' ^ M) 1) : ℝ) ≤ F s n ∧ (F s n : ℝ) ≤ (c / min (r' ^ M) 1 : ℝ) :=
     by
@@ -129,7 +132,7 @@ instance [Fact (0 < r')] : Fintype (LbarBdd r' S c M) :=
     (by
       rintro ⟨f1, hf1, hf1'⟩ ⟨f2, hf2, hf2'⟩ h
       ext s n
-      change (temp_map ⟨f1, hf1, hf1'⟩ n s).1 = (temp_map ⟨f2, hf2, hf2'⟩ n s).1
+      change (tempMap ⟨f1, hf1, hf1'⟩ n s).1 = (tempMap ⟨f2, hf2, hf2'⟩ n s).1
       rw [h])
 
 /-- The transition map from `Lbar_bdd r' S c N` to `Lbar_bdd r' S c M`, given `M ≤ N`. -/
@@ -172,7 +175,7 @@ abbrev Limit (r' S c) :=
 /-- The obvious embedding `Lbar_bdd.limit r' S c`
 into the product of `Lbar_bdd r' S c M` as `M` varies. -/
 def embAux : Limit r' S c → ∀ M : ℕ, LbarBdd r' S c M :=
-  coe
+  Subtype.val
 
 section TopologicalStructure
 
@@ -200,19 +203,18 @@ theorem emb (r' S c) : ClosedEmbedding (@embAux r' S c) :=
             {F : ∀ M, LbarBdd r' S c M | transition r' x.2 (F x.val.2) = F x.val.1} :=
         by
         ext
-        simp only [LbarBdd.embAux, Prod.forall, mem_Inter, Set.mem_setOf_eq, Subtype.range_coe_subtype,
+        simp only [LbarBdd.embAux, Prod.forall, mem_iInter, Set.mem_setOf_eq, Subtype.range_coe_subtype,
           Subtype.forall]
       rw [this]
       apply isClosed_iInter
       rintro ⟨⟨m, n⟩, h0 : m ≤ n⟩
-      refine' isClosed_eq (Continuous.comp _ <| continuous_apply _) (continuous_apply _)
-      exact continuous_of_discreteTopology }
+      exact isClosed_eq
+        ((continuous_of_discreteTopology (f := transition r' h0)).comp (continuous_apply n))
+        (continuous_apply m) }
 
 instance [Fact (0 < r')] : CompactSpace (Limit r' S c) :=
   by
-  erw [← isCompact_iff_compactSpace, isCompact_iff_isCompact_univ, compact_iff_compact_in_subtype]
-  apply IsClosed.isCompact
-  exact (emb r' S c).IsClosedMap _ isClosed_univ
+  exact (emb r' S c).compactSpace
 
 /-- The projection from `Lbar_bdd.limit r' S c M` to `Lbar_bdd r' S c M`.  -/
 def proj (M : ℕ) : LbarBdd.Limit r' S c → LbarBdd r' S c M := fun F => F.1 M
@@ -266,15 +268,15 @@ section Map
 -- TODO: Use `Fintype` everywhere?!
 /-- TODO -/
 def map {S T : Type _} [Fintype S] [Fintype T] (f : S → T) :
-    LbarBdd r' ⟨S⟩ c M → LbarBdd r' ⟨T⟩ c M := fun F =>
-  { toFun := fun t i => ∑ s in Finset.univ.filterₓ fun s' => f s' = t, F s i
+    LbarBdd r' (FintypeCat.of S) c M → LbarBdd r' (FintypeCat.of T) c M := fun F =>
+  { toFun := fun t i => ∑ s in Finset.univ.filter fun s' => f s' = t, F s i
     coeff_zero' := by simp
     sum_le' :=
       calc
-        ∑ (t : T) (i : Fin (M + 1)),
-              ↑(∑ s : S in Finset.univ.filterₓ fun s' => f s' = t, F s i).natAbs * r' ^ (i : ℕ) ≤
-            ∑ (t : T) (i : Fin (M + 1)),
-              ∑ s in Finset.univ.filterₓ fun s' => f s' = t, ↑(F s i).natAbs * r' ^ (i : ℕ) :=
+        ∑ t : T, ∑ i : Fin (M + 1),
+              ↑(∑ s : S in Finset.univ.filter fun s' => f s' = t, F s i).natAbs * r' ^ (i : ℕ) ≤
+            ∑ t : T, ∑ i : Fin (M + 1),
+              ∑ s in Finset.univ.filter fun s' => f s' = t, ↑(F s i).natAbs * r' ^ (i : ℕ) :=
           by
           apply Finset.sum_le_sum
           rintro t -
@@ -285,24 +287,26 @@ def map {S T : Type _} [Fintype S] [Fintype T] (f : S → T) :
           rw [← Nat.cast_sum]
           rw [Nat.cast_le]
           apply nat_abs_sum_le
-        _ ≤ ∑ (s : S) (i : Fin (M + 1)), ↑(F s i).natAbs * r' ^ (i : ℕ) :=
+        _ ≤ ∑ s : S, ∑ i : Fin (M + 1), ↑(F s i).natAbs * r' ^ (i : ℕ) :=
           by
           rw [Finset.sum_comm]
-          nth_rw 2 [Finset.sum_comm]
+          conv_rhs => rw [Finset.sum_comm]
           apply Finset.sum_le_sum
           rintro i -
           rw [← Finset.sum_biUnion]
           · apply Finset.sum_le_sum_of_subset
             intro _ _; simp
-          · rintro t1 - t2 - h s hs
-            simp at hs ⊢
-            apply h
-            rw [← hs.1, ← hs.2]
+          · rintro t1 - t2 - h
+            -- Porting note: `Set.PairwiseDisjoint` unfolds differently in Lean 4
+            rw [Function.onFun, Finset.disjoint_left]
+            intro s hs1 hs2
+            simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hs1 hs2
+            exact h (hs1.symm.trans hs2)
         _ ≤ _ := F.sum_le }
 
 end Map
 
 end LbarBdd
 
-#lint
+
 

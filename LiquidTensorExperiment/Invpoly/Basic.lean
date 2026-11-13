@@ -373,7 +373,7 @@ def tinvHom [hr : Fact (0 < r)] [Fact (r < 1)] :
         simp only [nnnorm_def, Finset.sum_mul]
         refine' Finset.sum_le_sum fun s _ => _
         trans ∑' n, ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) * r⁻¹
-        · rw [← sum_add_tsum_nat_add' 1]
+        · rw [← NNReal.sum_add_tsum_nat_add' 1]
           swap; · apply Tinv_aux_summable
           simp only [Finset.range_one, zpow_neg, zpow_ofNat, Finset.sum_singleton, pow_zero,
             inv_one, mul_one, Int.ofNat_succ, neg_add, zpow_add₀ hr.out.ne', zpow_one, mul_assoc,
