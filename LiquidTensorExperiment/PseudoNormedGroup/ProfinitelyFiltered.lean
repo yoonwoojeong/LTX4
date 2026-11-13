@@ -194,8 +194,9 @@ variable [ComphausFilteredPseudoNormedGroup M₃]
 variable (f g : ComphausFilteredPseudoNormedGroupHom M₁ M₂)
 
 instance : CoeFun (ComphausFilteredPseudoNormedGroupHom M₁ M₂) fun _ => M₁ → M₂ :=
-  -- Porting note: Lean 4 has no projection constant for the inherited field `toFun`
-  ⟨fun f => f.toFun⟩
+  -- Porting note: coerce through the `AddMonoidHom` parent (as `StrictPseudoNormedGroupHom` does),
+  -- so that applied homs have the same normal form as mathlib's `AddMonoidHom` coercion
+  ⟨fun f => f.toAddMonoidHom⟩
 
 -- Porting note: a custom `simps` projection for the coercion; without it `@[simps]` loops
 /-- See Note [custom simps projection]. -/
@@ -214,7 +215,8 @@ theorem mk_to_monoid_hom (f) (h₁) (h₂) (h₃) (h₄) :
       ⟨⟨f, h₁⟩, h₂⟩ :=
   rfl
 
-@[simp]
+-- Porting note: not `@[simp]`: Lean 4 expands `⇑f` to `f.toAddMonoidHom.toFun`, which
+-- mathlib's simp lemma `AddMonoidHom.toFun_eq_coe` turns back into the left-hand side (loop)
 theorem coe_toAddMonoidHom : ⇑f.toAddMonoidHom = f :=
   rfl
 
@@ -414,8 +416,9 @@ variable [ComphausFilteredPseudoNormedGroup M₃]
 variable (f g : StrictComphausFilteredPseudoNormedGroupHom M₁ M₂)
 
 instance : CoeFun (StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) fun _ => M₁ → M₂ :=
-  -- Porting note: Lean 4 has no projection constant for the inherited field `toFun`
-  ⟨fun f => f.toFun⟩
+  -- Porting note: coerce through the `AddMonoidHom` parent (as `StrictPseudoNormedGroupHom` does),
+  -- so that applied homs have the same normal form as mathlib's `AddMonoidHom` coercion
+  ⟨fun f => f.toAddMonoidHom⟩
 
 -- Porting note: a custom `simps` projection for the coercion; without it `@[simps]` loops
 /-- See Note [custom simps projection]. -/
@@ -434,7 +437,8 @@ theorem mk_to_monoid_hom (f) (h₁) (h₂) (h₃) (h₄) :
       ⟨⟨f, h₁⟩, h₂⟩ :=
   rfl
 
-@[simp]
+-- Porting note: not `@[simp]`: Lean 4 expands `⇑f` to `f.toAddMonoidHom.toFun`, which
+-- mathlib's simp lemma `AddMonoidHom.toFun_eq_coe` turns back into the left-hand side (loop)
 theorem coe_toAddMonoidHom : ⇑f.toAddMonoidHom = f :=
   rfl
 
