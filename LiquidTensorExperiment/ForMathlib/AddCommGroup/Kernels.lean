@@ -2,6 +2,7 @@
 Credit to Markus Himmel for the corresponding file about `Module` in mathlib
 -/
 import LiquidTensorExperiment.ForMathlib.AddCommGroup.Epi
+import Mathlib.Algebra.Category.GroupCat.Kernels
 
 #align_import for_mathlib.AddCommGroup.kernels
 
@@ -17,64 +18,23 @@ namespace AddCommGroupCat
 
 variable {M N : AddCommGroupCat.{u}} (f : M ⟶ N)
 
-/-- The kernel cone induced by the concrete kernel. -/
-def kernelCone : KernelFork f :=
-  @KernelFork.ofι AddCommGroupCat _ _ M N f (of f.ker) (f.ker.Subtype : of f.ker ⟶ M) <| by ext1;
-    cases x; assumption
-
-/-- The kernel of a linear map is a kernel in the categorical sense. -/
-def kernelIsLimit : IsLimit (kernelCone f) :=
-  Fork.IsLimit.mk _
-    (fun s : Fork f 0 =>
-      AddMonoidHom.codRestrict (Fork.ι s) f.ker fun c =>
-        (AddMonoidHom.mem_ker _).2 <|
-          by
-          rw [← @Function.comp_apply _ _ _ f s.ι c, ← coe_comp, Fork.condition,
-            HasZeroMorphisms.comp_zero (fork.ι s) N]
-          rfl)
-    (fun s => by ext; simp only [comp_apply, AddMonoidHom.codRestrict_apply]; rfl) fun s m h =>
-    AddMonoidHom.ext fun x =>
-      Subtype.ext_iff_val.2 <|
-        by
-        have h₁ : (m ≫ (kernelCone f).π.app zero).toFun = (s.π.app zero).toFun := by congr; exact h
-        convert @congr_fun _ _ _ _ h₁ x
-
-/-- The cokernel cocone induced by the projection onto the quotient. -/
-def cokernelCocone : CokernelCofork f :=
-  @CokernelCofork.ofπ AddCommGroupCat _ _ M N f (of <| N ⧸ f.range)
-      (QuotientAddGroup.mk' f.range) <|
-    by ext1;
-    simp only [comp_apply, QuotientAddGroup.mk'_apply, zero_apply, QuotientAddGroup.eq_zero_iff,
-      AddMonoidHom.mem_range, exists_apply_eq_apply]
-
-/-- The projection onto the quotient is a cokernel in the categorical sense. -/
-def cokernelIsColimit : IsColimit (cokernelCocone f) :=
-  Cofork.IsColimit.mk _
-    (fun s : Cofork f 0 =>
-      QuotientAddGroup.lift _ s.π <| by
-        rintro _ ⟨x, rfl⟩; have := AddMonoidHom.congr_fun s.condition x
-        simpa only [comp_apply, zero_apply, map_zero] using this)
-    (fun s => by ext; simp only [comp_apply]; rfl) fun s m h =>
-    by
-    let g : N ⟶ of <| N ⧸ f.range := QuotientAddGroup.mk' f.range
-    haveI : epi g := (epi_iff_range_eq_top _).mpr _
-    swap;
-    · ext ⟨x⟩;
-      simp only [AddMonoidHom.mem_range, QuotientAddGroup.mk'_apply, AddSubgroup.mem_top,
-        iff_true_iff]
-      exact ⟨x, rfl⟩
-    apply (cancel_epi g).1
-    convert h
-    ext; rfl
+/-!
+Porting note: LTE's `AddCommGroup.kernel_cone`, `kernel_is_limit`, `cokernel_cocone` and
+`cokernel_is_colimit` were later added to mathlib with the same names and the same data
+(the cone point `of f.ker` with `f.ker.subtype`, and the cocone point `of (N ⧸ f.range)`
+with `QuotientAddGroup.mk' f.range`); in Lean 4 they are
+`AddCommGroupCat.kernelCone` etc. in `Mathlib.Algebra.Category.GroupCat.Kernels`, which is
+imported here, so they are not redeclared.
+-/
 
 -- We now show this isomorphism commutes with the inclusion of the kernel into the source.
 -- TODO: the next two already exist: add `elementwise` to those lemmas in mathlib
 @[elementwise (attr := simp)]
-theorem kernelIsoKer_inv_kernel_ι : (kernelIsoKer f).inv ≫ kernel.ι f = f.ker.Subtype :=
+theorem kernelIsoKer_inv_kernel_ι : (kernelIsoKer f).inv ≫ kernel.ι f = f.ker.subtype :=
   kernelIsoKer_inv_comp_ι _
 
 @[elementwise (attr := simp)]
-theorem kernelIsoKer_hom_ker_subtype : (kernelIsoKer f).hom ≫ f.ker.Subtype = kernel.ι f :=
+theorem kernelIsoKer_hom_ker_subtype : (kernelIsoKer f).hom ≫ f.ker.subtype = kernel.ι f :=
   kernelIsoKer_hom_comp_subtype _
 
 /-- The categorical cokernel of a morphism in `Module`
@@ -91,8 +51,12 @@ theorem cokernel_π_cokernelIsoRangeQuotient_hom :
 
 @[elementwise (attr := simp)]
 theorem range_mkq_cokernelIsoRangeQuotient_inv :
-    (QuotientAddGroup.mk' f.range : _) ≫ (cokernelIsoRangeQuotient f).inv = cokernel.π f := by
-  convert colimit.isoColimitCocone_ι_inv ⟨_, cokernel_is_colimit f⟩ _ <;> rfl
+    -- Porting note: Lean 3's `(_ : _)` ascription is spelled with `show` so that the
+    -- `→+` is elaborated as a morphism of `AddCommGroupCat`
+    (show N ⟶ of (N ⧸ f.range) from QuotientAddGroup.mk' f.range) ≫ (cokernelIsoRangeQuotient f).inv =
+      cokernel.π f := by
+  -- Porting note: the walking-parallel-pair object is given explicitly
+  convert colimit.isoColimitCocone_ι_inv ⟨_, cokernelIsColimit f⟩ WalkingParallelPair.one <;> rfl
 
 end AddCommGroupCat
 
