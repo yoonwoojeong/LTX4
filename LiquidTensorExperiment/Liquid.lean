@@ -38,15 +38,12 @@ variable (BD : BreenDeligne.Package) (κ : ℕ → ℝ≥0)
 
 variable [BD.data.VerySuitable r r' κ] [∀ i : ℕ, Fact (0 < κ i)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 /-- A mix of Theorems 9.4 and 9.5 in [Analytic] -/
 theorem first_target :
     ∀ m : ℕ,
       ∃ (k K : ℝ≥0) (hk : Fact (1 ≤ k)) (c₀ : ℝ≥0),
         ∀ (S : Type) [Fintype S] (V : SemiNormedGroupCat.{u}) [NormedWithAut r V],
-          «expr​ »
-            "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation" :=
+          ((BD.data.system κ r V r').obj (op <| of r' (Lbar r' S))).IsWeakBoundedExact k K m c₀ :=
   by
   intro m
   obtain ⟨k, K, hk, H⟩ := thm95'' BD r r' κ m
@@ -86,15 +83,14 @@ The proof reduces to `thm95''` (a variant of Theorem 9.5).
 example : FirstTargetStmt r r' BD κ :=
   first_target r r' BD κ
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 /-- Theorem 9.4 in [Analytic] for weak bounded exactness -/
 theorem thm94_weak :
     ∀ m : ℕ,
       ∃ (k K : ℝ≥0) (hk : Fact (1 ≤ k)) (c₀ : ℝ≥0),
         ∀ (S : Profinite) (V : SemiNormedGroupCat.{u}) [NormedWithAut r V],
-          «expr​ »
-            "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation" :=
+          ((BD.data.system κ r V r').obj
+                (op <| of r' ((Lbar.functor.{0, 0} r').obj S))).IsWeakBoundedExact
+            k K m c₀ :=
   by
   intro m
   obtain ⟨k, K, hk, H⟩ := thm95''.profinite BD r r' κ m
@@ -109,15 +105,14 @@ theorem thm94_weak :
   apply SemiNormedGroupCat.iso_isometry_of_normNoninc <;>
     apply BreenDeligne.Data.complex.map_normNoninc
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 /-- Theorem 9.4 in [Analytic] -/
 theorem thm94 :
     ∀ m : ℕ,
       ∃ (k K : ℝ≥0) (hk : Fact (1 ≤ k)) (c₀ : ℝ≥0),
         ∀ (S : Profinite) (V : SemiNormedGroupCat.{u}) [NormedWithAut r V],
-          «expr​ »
-            "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation" :=
+          ((BD.data.system κ r V r').obj
+                (op <| of r' ((Lbar.functor.{0, 0} r').obj S))).IsBoundedExact
+            k K m c₀ :=
   by
   intro m
   obtain ⟨k, K, hk, c₀, H⟩ := thm94_weak r r' BD κ m
@@ -127,15 +122,14 @@ theorem thm94 :
   refine' SystemOfComplexes.IsWeakBoundedExact.strongOfComplete _ (H _ _) _ _ zero_lt_one
   apply BreenDeligne.Data.systemAdmissible
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 /-- Theorem 9.4 in [Analytic] for weak bounded exactness -/
 theorem thm94_weak' :
     ∀ m : ℕ,
       ∃ (k K : ℝ≥0) (hk : Fact (1 ≤ k)) (c₀ : ℝ≥0),
         ∀ (S : Profinite) (V : SemiNormedGroupCat.{u}) [NormedWithAut r V],
-          «expr​ »
-            "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation" :=
+          ((BD.data.system κ r V r').obj
+                (op <| of r' ((Lbar.functor.{0, 0} r').obj S))).IsWeakBoundedExact
+            k K m c₀ :=
   by
   intro m
   obtain ⟨k, K, hk, H⟩ := thm95''.profinite BD r r' κ m

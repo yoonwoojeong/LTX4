@@ -57,16 +57,27 @@ git history.)
    `condensed.evaluation_additive` and `Condensed.evaluation_additive` are different
    instances that mathport maps to the same Lean 4 name; the first becomes
    `Condensed.evaluation_additive'`.
-5. **Run mathport** on all modules in dependency order with bounded parallelism
+5. **Semantics-preserving pre-mathport edits** (`scripts/port/lean3_premathport.py`, applied to
+   a *working copy* of the Lean 3 source, never to `lean3/`):
+   * `asyncI { tac }` → `{ tac }` (LTE's `asyncI` only elaborated `tac` asynchronously as an
+     auxiliary lemma). mathport had commented out all 42 such proof blocks.
+   * LTE's zero-width-space notation `​e` → `(by exactI e)`, which is its literal definition.
+     mathport cannot translate user notation and had **replaced the statement of the main
+     theorem `first_target`** (and 9 other statements in `liquid`, `statement`, `thm95.default`)
+     by an error string. The re-exported Lean 3 `.tlean` of `statement` and `thm95.default` is
+     byte-identical to the original; `liquid` differs only in Lean 3's auto-generated
+     `_fresh.N.M` bound-variable names (alpha-equivalent).
+   The edited files are re-exported with `lean --ast --tlean` and re-ported.
+6. **Run mathport** on all modules in dependency order with bounded parallelism
    (`scripts/port/drive.py`, config `scripts/port/config-lte.json`). All 403 modules port.
-6. **Post-process** (`scripts/port/postprocess.py`, imports only) and
+7. **Post-process** (`scripts/port/postprocess.py`, imports only) and
    `scripts/port/fix_norm_notation.py` (LTE's old `∥x∥` notation → `‖x‖`).
-7. **Restore declarations mathport commented out** (`scripts/port/restore_print_blocks.py`):
+8. **Restore declarations mathport commented out** (`scripts/port/restore_print_blocks.py`):
    mathport replaces an LTE declaration with `#print X /- … -/` when *some* declaration
    named `X` exists in Mathbin, judged by name only. This is unreliable (e.g. mathlib's
    `CategoryTheory.yoneda'` is an unrelated sheaf functor), so all 95 such blocks are
    restored to LTE's own declarations; genuine duplicates surface as compile errors.
-8. **Compile and repair.** `scripts/port/compile.py` compiles every module in dependency
+9. **Compile and repair.** `scripts/port/compile.py` compiles every module in dependency
    order and records per-module results; `scripts/port/census.py` summarises them;
    `scripts/port/autofix.py` / `autofix_all.py` repair mechanical naming mistranslations
    at Lean's reported error positions (see below); remaining errors are fixed by hand.
@@ -109,7 +120,7 @@ manual change made so far:
   `typePow` instance during instance search; Lean 4 does not, so the pi
   `AddCommGroup` instance and `rfl` `_apply` simp lemmas are registered explicitly
   (LTE already did this for `TopologicalSpace`).
-* **Restored LTE definitions** that mathport had commented out (see step 7), e.g.
+* **Restored LTE definitions** that mathport had commented out (see step 8), e.g.
   `QuotientMap.homeomorph`, `CategoryTheory.yoneda'`.
 * Tactic substitutions where the Lean 3 tactic does not exist: `tidy` → `aesop_cat`.
 * **Lean 3 metaprograms**: mathport cannot translate `meta def` tactics and stubs them as

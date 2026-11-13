@@ -196,12 +196,6 @@ def p1ToP2 (hfg : f ≫ g = 0) : p1 f hrc ⟶ p2 g c :=
 theorem p1ToP2_comp_fst (hfg : f ≫ g = 0) : p1ToP2 f g hrc hfg ≫ pullback.fst = pullback.fst :=
   pullback.lift_fst _ _ _
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ refine [expr ⟨_, (π₁ y).2⟩],
-    simp [] [] ["only"] ["[", expr subtype.val_eq_coe, ",", expr set.mem_preimage, ",", expr set.mem_singleton_iff, "]"] [] [],
-    have [ident w] [] [":=", expr @pullback.condition _ _ _ _ _ ((Filtration.obj c).map g)
-     (pt (0 : pseudo_normed_group.filtration C c))
-     _],
-    have [] [] [":=", expr fun_like.congr_fun w y], exact [expr congr_arg subtype.val this] }] -/
 theorem surjective (h : StronglyExact f g r) :
     ∃ hfg : f ≫ g = 0, ∀ c, Function.Surjective (p1ToP2 f g (h.large c) hfg) :=
   by
@@ -209,9 +203,15 @@ theorem surjective (h : StronglyExact f g r) :
   refine' ⟨hfg, _⟩
   intro c y
   let π₁ : P2 g c ⟶ (Filtration.obj c).obj B := pullback.fst
-  have hy : (π₁ y).val ∈ g ⁻¹' {0} ∩ filtration B c
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ refine [expr ⟨_, (π₁ y).2⟩],\n    simp [] [] [\"only\"] [\"[\", expr subtype.val_eq_coe, \",\", expr set.mem_preimage, \",\", expr set.mem_singleton_iff, \"]\"] [] [],\n    have [ident w] [] [\":=\", expr @pullback.condition _ _ _ _ _ ((Filtration.obj c).map g)\n     (pt (0 : pseudo_normed_group.filtration C c))\n     _],\n    have [] [] [\":=\", expr fun_like.congr_fun w y], exact [expr congr_arg subtype.val this] }]"
+  have hy : (π₁ y).val ∈ g ⁻¹' {0} ∩ filtration B c :=
+    by
+    refine' ⟨_, (π₁ y).2⟩
+    simp only [Subtype.val_eq_coe, Set.mem_preimage, Set.mem_singleton_iff]
+    have w :=
+      @pullback.condition _ _ _ _ _ ((Filtration.obj c).map g)
+        (pt (0 : PseudoNormedGroup.filtration C c)) _
+    have := FunLike.congr_fun w y
+    exact congr_arg Subtype.val this
   obtain ⟨x, hx, hfx⟩ := h.cond c hy
   let s : CompHaus.of PUnit ⟶ P1 f (h.large c) :=
     terminal.from _ ≫ pullback.lift (pt (π₁ y)) (pt ⟨x, hx⟩) _

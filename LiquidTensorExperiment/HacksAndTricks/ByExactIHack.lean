@@ -1,24 +1,16 @@
--- brilliant hack by Gabriel Ebner
+import Mathlib.Tactic.Basic
+import Mathlib.Mathport.Rename
 
 #align_import hacks_and_tricks.by_exactI_hack
 
--- thanks!!
--- files that import this file can use the zero-width space char
--- to reset the TC instance cache, and avoid `by exactI` kludges
-open Tactic Expr
+/-!
+# The zero-width-space `by exactI` hack
 
-open Lean
-
-open Lean.Parser
-
-open Interactive
-
-open Tactic
-
--- zero-width space Unicode char
-@[user_notation]
-unsafe def exact_notation (_ : parse <| tk "​") (e : parse (lean.parser.pexpr 0)) : parser pexpr :=
-  do
-  let expr.macro d [_] ← pure ``(by skip)
-  pure <| expr.macro d [const `tactic.interactive.exactI [] (cast undefined e)]
-
+Porting note: in Lean 3 this file (a "brilliant hack by Gabriel Ebner") defined a user notation
+so that a zero-width space before an expression `e` meant `by exactI e`, i.e. elaborate `e`
+after resetting the type-class instance cache. Lean 4 always uses the current local instances,
+so no such device is needed: `by exactI e` is just `e`. The LTE call sites were expanded to
+`(by exactI e)` before porting (`scripts/port/lean3_premathport.py`; the resulting Lean 3
+declarations were checked to be identical up to bound-variable names), which mathport
+translates to `e`. This module therefore defines nothing.
+-/

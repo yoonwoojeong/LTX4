@@ -173,43 +173,6 @@ def replaceTriangle (T : triangle 𝒦) : triangle 𝒦
     haveI h : is_quasi_iso (T.obj₁.π⟦(1 : ℤ)⟧') := inferInstance
     @lift _ _ _ _ _ _ _ _ (T.obj₃.π ≫ T.mor₃) (T.obj₁.π⟦(1 : ℤ)⟧') h
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ haveI [] [":", expr is_K_projective
-     W'.obj₁] [":=", expr show is_K_projective T.obj₁.replace.val, by apply_instance],
-    haveI [] [":", expr is_K_projective
-     W'.obj₂] [":=", expr show is_K_projective T.obj₂.replace.val, by apply_instance],
-    exact [expr homotopy_category.is_K_projective_of_triangle W' hW] }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] [] [] [], rw ["[", expr category.comp_id, ",", expr category.id_comp, "]"] [] }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] ["[", expr S, ",", expr replace_triangle, "]"] [] [], rw [expr category.id_comp] [],
-    apply [expr lift_unique], erw ["[", expr category.assoc, ",", expr lift_lifts, "]"] [], exact [expr sq2] }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] ["[", expr S, ",", expr replace_triangle, "]"] [] [],
-    rw ["[", expr category_theory.functor.map_id, ",", expr category.comp_id, "]"] [],
-    haveI [] [":", expr is_quasi_iso
-     ((category_theory.shift_functor (bounded_homotopy_category A) (1 : exprℤ())).map T.obj₁.π)] [],
-    { show [expr is_quasi_iso «expr ⟦ ⟧'»(T.obj₁.π, (1 : exprℤ()))], apply_instance },
-    apply [expr lift_ext «expr ⟦ ⟧'»(T.obj₁.π, (1 : exprℤ()))],
-    erw ["[", expr category.assoc, ",", expr lift_lifts, ",", expr lift_lifts_assoc, "]"] [], exact [expr sq3],
-    assumption }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] [] [] [], rw ["[", expr category.id_comp, ",", expr category.comp_id, "]"] [] }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] ["[", expr S, ",", expr replace_triangle, "]"] [] [], rw [expr category.id_comp] [],
-    apply [expr lift_ext q],
-    erw ["[", expr category.assoc, ",", expr lift_lifts, ",", expr lift_lifts, ",", expr sq2, "]"] [], assumption }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] ["[", expr S, ",", expr replace_triangle, "]"] [] [],
-    rw ["[", expr category_theory.functor.map_id, ",", expr category.comp_id, "]"] [],
-    haveI [] [":", expr is_quasi_iso
-     ((category_theory.shift_functor (bounded_homotopy_category A) (1 : exprℤ())).map T.obj₁.π)] [],
-    { show [expr is_quasi_iso «expr ⟦ ⟧'»(T.obj₁.π, (1 : exprℤ()))], apply_instance },
-    apply [expr lift_ext «expr ⟦ ⟧'»(T.obj₁.π, (1 : exprℤ()))],
-    erw ["[", expr category.assoc, ",", expr lift_lifts, ",", expr sq3, ",", expr lift_lifts_assoc, "]"] [],
-    assumption }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ ext [] [] []; dsimp [] [] [] [], rw [expr category.id_comp] [], rw [expr category.id_comp] [],
-    apply [expr lift_ext q],
-    erw ["[", expr category.assoc, ",", expr lift_lifts, ",", expr lift_lifts, ",", expr category.id_comp, "]"] [],
-    assumption }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ ext [] [] []; dsimp [] [] [] [], rw [expr category.id_comp] [], rw [expr category.id_comp] [],
-    apply [expr lift_ext T.obj₃.π],
-    erw ["[", expr category.assoc, ",", expr lift_lifts, ",", expr lift_lifts, ",", expr category.id_comp, "]"] [],
-    assumption }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] ["[", expr W, ",", expr S, ",", expr replace_triangle, "]"] [] [], rw [expr lift_lifts] [] }] -/
 -- What?
 theorem distinguished_replaceTriangle (T : triangle 𝒦) (hT : T ∈ (dist_triang 𝒦)) :
     replaceTriangle T ∈ (dist_triang 𝒦) :=
@@ -227,64 +190,88 @@ theorem distinguished_replaceTriangle (T : triangle 𝒦) (hT : T ∈ (dist_tria
   let T' := triangle.mk (HomotopyCategory _ _) T.mor₁ T.mor₂ T.mor₃
   let r' : W' ⟶ T' := ⟨T.obj₁.π, T.obj₂.π, q, hWT, sq2, sq3⟩
   have : is_quasi_iso r.hom₃ := is_quasi_iso_of_triangle W' T' hW hT r'
-  have : is_K_projective W.obj₃.val := by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ haveI [] [\":\", expr is_K_projective\n     W'.obj₁] [\":=\", expr show is_K_projective T.obj₁.replace.val, by apply_instance],\n    haveI [] [\":\", expr is_K_projective\n     W'.obj₂] [\":=\", expr show is_K_projective T.obj₂.replace.val, by apply_instance],\n    exact [expr homotopy_category.is_K_projective_of_triangle W' hW] }]"
+  have : is_K_projective W.obj₃.val :=
+    by
+    haveI : is_K_projective W'.obj₁ := show is_K_projective T.obj₁.replace.val by infer_instance
+    haveI : is_K_projective W'.obj₂ := show is_K_projective T.obj₂.replace.val by infer_instance
+    exact HomotopyCategory.isKProjectiveOfTriangle W' hW
   haveI : is_K_projective S.obj₁.val := show is_K_projective T.obj₁.replace.val by infer_instance
   haveI : is_K_projective S.obj₂.val := show is_K_projective T.obj₂.replace.val by infer_instance
   haveI : is_K_projective S.obj₃.val := show is_K_projective T.obj₃.replace.val by infer_instance
   apply mem_distinguished_of_iso _ hW
   refine' ⟨⟨𝟙 _, 𝟙 _, lift q T.obj₃.π, _, _, _⟩, ⟨𝟙 _, 𝟙 _, lift T.obj₃.π q, _, _, _⟩, _, _⟩
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] [] [] [], rw [\"[\", expr category.comp_id, \",\", expr category.id_comp, \"]\"] [] }]"
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] [\"[\", expr S, \",\", expr replace_triangle, \"]\"] [] [], rw [expr category.id_comp] [],\n    apply [expr lift_unique], erw [\"[\", expr category.assoc, \",\", expr lift_lifts, \"]\"] [], exact [expr sq2] }]"
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] [\"[\", expr S, \",\", expr replace_triangle, \"]\"] [] [],\n    rw [\"[\", expr category_theory.functor.map_id, \",\", expr category.comp_id, \"]\"] [],\n    haveI [] [\":\", expr is_quasi_iso\n     ((category_theory.shift_functor (bounded_homotopy_category A) (1 : exprℤ())).map T.obj₁.π)] [],\n    { show [expr is_quasi_iso «expr ⟦ ⟧'»(T.obj₁.π, (1 : exprℤ()))], apply_instance },\n    apply [expr lift_ext «expr ⟦ ⟧'»(T.obj₁.π, (1 : exprℤ()))],\n    erw [\"[\", expr category.assoc, \",\", expr lift_lifts, \",\", expr lift_lifts_assoc, \"]\"] [], exact [expr sq3],\n    assumption }]"
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] [] [] [], rw [\"[\", expr category.id_comp, \",\", expr category.comp_id, \"]\"] [] }]"
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] [\"[\", expr S, \",\", expr replace_triangle, \"]\"] [] [], rw [expr category.id_comp] [],\n    apply [expr lift_ext q],\n    erw [\"[\", expr category.assoc, \",\", expr lift_lifts, \",\", expr lift_lifts, \",\", expr sq2, \"]\"] [], assumption }]"
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] [\"[\", expr S, \",\", expr replace_triangle, \"]\"] [] [],\n    rw [\"[\", expr category_theory.functor.map_id, \",\", expr category.comp_id, \"]\"] [],\n    haveI [] [\":\", expr is_quasi_iso\n     ((category_theory.shift_functor (bounded_homotopy_category A) (1 : exprℤ())).map T.obj₁.π)] [],\n    { show [expr is_quasi_iso «expr ⟦ ⟧'»(T.obj₁.π, (1 : exprℤ()))], apply_instance },\n    apply [expr lift_ext «expr ⟦ ⟧'»(T.obj₁.π, (1 : exprℤ()))],\n    erw [\"[\", expr category.assoc, \",\", expr lift_lifts, \",\", expr sq3, \",\", expr lift_lifts_assoc, \"]\"] [],\n    assumption }]"
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ ext [] [] []; dsimp [] [] [] [], rw [expr category.id_comp] [], rw [expr category.id_comp] [],\n    apply [expr lift_ext q],\n    erw [\"[\", expr category.assoc, \",\", expr lift_lifts, \",\", expr lift_lifts, \",\", expr category.id_comp, \"]\"] [],\n    assumption }]"
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ ext [] [] []; dsimp [] [] [] [], rw [expr category.id_comp] [], rw [expr category.id_comp] [],\n    apply [expr lift_ext T.obj₃.π],\n    erw [\"[\", expr category.assoc, \",\", expr lift_lifts, \",\", expr lift_lifts, \",\", expr category.id_comp, \"]\"] [],\n    assumption }]"
-  trace
-    "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ dsimp [] [\"[\", expr W, \",\", expr S, \",\", expr replace_triangle, \"]\"] [] [], rw [expr lift_lifts] [] }]"
+  · dsimp; rw [category.comp_id, category.id_comp]
+  · dsimp [S, replace_triangle]
+    rw [category.id_comp]
+    apply lift_unique
+    erw [category.assoc, lift_lifts]; exact sq2
+  · dsimp [S, replace_triangle]
+    rw [CategoryTheory.Functor.map_id, category.comp_id]
+    have :
+      is_quasi_iso
+        ((CategoryTheory.shiftFunctor (BoundedHomotopyCategory A) (1 : ℤ)).map T.obj₁.π) :=
+      by show is_quasi_iso (T.obj₁.π⟦(1 : ℤ)⟧'); infer_instance
+    -- strange.
+    apply lift_ext (T.obj₁.π⟦(1 : ℤ)⟧')
+    erw [category.assoc, lift_lifts, lift_lifts_assoc]
+    exact sq3
+    assumption
+  · dsimp; rw [category.id_comp, category.comp_id]
+  · dsimp [S, replace_triangle]
+    rw [category.id_comp]
+    apply lift_ext q
+    erw [category.assoc, lift_lifts, lift_lifts, sq2]
+    assumption
+  · dsimp [S, replace_triangle]
+    rw [CategoryTheory.Functor.map_id, category.comp_id]
+    have :
+      is_quasi_iso
+        ((CategoryTheory.shiftFunctor (BoundedHomotopyCategory A) (1 : ℤ)).map T.obj₁.π) :=
+      by show is_quasi_iso (T.obj₁.π⟦(1 : ℤ)⟧'); infer_instance
+    -- strange.
+    apply lift_ext (T.obj₁.π⟦(1 : ℤ)⟧')
+    erw [category.assoc, lift_lifts, sq3, lift_lifts_assoc]
+    assumption
+  · ext <;> dsimp; rw [category.id_comp]; rw [category.id_comp]
+    apply lift_ext q; erw [category.assoc, lift_lifts, lift_lifts, category.id_comp]
+    assumption
+  · ext <;> dsimp; rw [category.id_comp]; rw [category.id_comp]
+    apply lift_ext T.obj₃.π; erw [category.assoc, lift_lifts, lift_lifts, category.id_comp]
+    assumption
+  · dsimp [W, S, replace_triangle]
+    rw [lift_lifts]
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X], ext [] [ident Y, ident e] [],
-    dsimp [] ["[", expr preadditive_yoneda, ",", expr preadditive_yoneda_obj, "]"] [] [],
-    change [expr «expr = »(«expr ≫ »(_, e), e)] [] [],
-    simp [] [] ["only"] ["[", expr category.comp_id, ",", expr id_apply, "]"] [] [],
-    convert [] [expr category.id_comp _] [], symmetry, apply [expr lift_unique], simp [] [] [] [] [] [] }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X₁, ident X₂, ident X₃, ident f, ident g], ext [] [ident Y, ident e] [], dsimp [] [] [] [],
-    simp [] [] ["only"] ["[", expr comp_apply, ",", expr linear_map.to_add_monoid_hom_coe, ",", expr preadditive_yoneda_obj_map_apply, ",", expr quiver.hom.unop_op, "]"] [] [],
-    change [expr «expr = »(«expr ≫ »(_, e), «expr ≫ »(_, «expr ≫ »(_, e)))] [] [],
-    conv_rhs [] [] { rw ["<-", expr category.assoc] }, congr' [1] [], symmetry, apply [expr lift_unique],
-    simp [] [] [] [] [] [] }] -/
 @[simps]
 def ext0 : 𝒦ᵒᵖ ⥤ 𝒦 ⥤ Ab
     where
   obj X := preadditiveYoneda.flip.obj (Opposite.op <| X.unop.replace)
   map X₁ X₂ f := preadditiveYoneda.flip.map (lift (X₂.unop.π ≫ f.unop) X₁.unop.π).op
   map_id' := by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X], ext [] [ident Y, ident e] [],\n    dsimp [] [\"[\", expr preadditive_yoneda, \",\", expr preadditive_yoneda_obj, \"]\"] [] [],\n    change [expr «expr = »(«expr ≫ »(_, e), e)] [] [],\n    simp [] [] [\"only\"] [\"[\", expr category.comp_id, \",\", expr id_apply, \"]\"] [] [],\n    convert [] [expr category.id_comp _] [], symmetry, apply [expr lift_unique], simp [] [] [] [] [] [] }]"
+    intro X
+    ext Y e
+    dsimp [preadditive_yoneda, preadditive_yoneda_obj]
+    change _ ≫ e = e
+    simp only [category.comp_id, id_apply]
+    convert category.id_comp _
+    symm
+    apply lift_unique
+    simp
   map_comp' := by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X₁, ident X₂, ident X₃, ident f, ident g], ext [] [ident Y, ident e] [], dsimp [] [] [] [],\n    simp [] [] [\"only\"] [\"[\", expr comp_apply, \",\", expr linear_map.to_add_monoid_hom_coe, \",\", expr preadditive_yoneda_obj_map_apply, \",\", expr quiver.hom.unop_op, \"]\"] [] [],\n    change [expr «expr = »(«expr ≫ »(_, e), «expr ≫ »(_, «expr ≫ »(_, e)))] [] [],\n    conv_rhs [] [] { rw [\"<-\", expr category.assoc] }, congr' [1] [], symmetry, apply [expr lift_unique],\n    simp [] [] [] [] [] [] }]"
+    intro X₁ X₂ X₃ f g
+    ext Y e
+    dsimp
+    simp only [comp_apply, LinearMap.toAddMonoidHom_coe, preadditive_yoneda_obj_map_apply,
+      Quiver.Hom.unop_op]
+    change _ ≫ e = _ ≫ _ ≫ e
+    conv_rhs => rw [← category.assoc]
+    congr 1
+    symm
+    apply lift_unique
+    simp
 
 def ext (i : ℤ) : 𝒦ᵒᵖ ⥤ 𝒦 ⥤ Ab :=
   ext0 ⋙ (whiskeringLeft _ _ _).obj (shiftFunctor _ i)
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ have [] [":", expr «expr = »(«expr𝟙»() P₁, lift f₁ f₁)] [], { apply [expr lift_unique],
-      simp [] [] ["only"] ["[", expr category.id_comp, "]"] [] [] }, rw [expr this] [], apply [expr lift_unique],
-    simp [] [] ["only"] ["[", expr category.assoc, ",", expr lift_lifts, "]"] [] [] }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ have [] [":", expr «expr = »(«expr𝟙»() P₂, lift f₂ f₂)] [], { apply [expr lift_unique],
-      simp [] [] ["only"] ["[", expr category.id_comp, "]"] [] [] }, rw [expr this] [], apply [expr lift_unique],
-    simp [] [] ["only"] ["[", expr category.assoc, ",", expr lift_lifts, "]"] [] [] }] -/
 -- why is this so slow?
 -- DT: squeezing the simps made it very fast!
 @[simps]
@@ -293,12 +280,18 @@ def replacementIso (P₁ P₂ X : 𝒦) [IsKProjective P₁.val] [IsKProjective 
     where
   Hom := lift f₁ f₂
   inv := lift f₂ f₁
-  hom_inv_id' := by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ have [] [\":\", expr «expr = »(«expr𝟙»() P₁, lift f₁ f₁)] [], { apply [expr lift_unique],\n      simp [] [] [\"only\"] [\"[\", expr category.id_comp, \"]\"] [] [] }, rw [expr this] [], apply [expr lift_unique],\n    simp [] [] [\"only\"] [\"[\", expr category.assoc, \",\", expr lift_lifts, \"]\"] [] [] }]"
-  inv_hom_id' := by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ have [] [\":\", expr «expr = »(«expr𝟙»() P₂, lift f₂ f₂)] [], { apply [expr lift_unique],\n      simp [] [] [\"only\"] [\"[\", expr category.id_comp, \"]\"] [] [] }, rw [expr this] [], apply [expr lift_unique],\n    simp [] [] [\"only\"] [\"[\", expr category.assoc, \",\", expr lift_lifts, \"]\"] [] [] }]"
+  hom_inv_id' :=
+    by
+    have : 𝟙 P₁ = lift f₁ f₁ := by apply lift_unique; simp only [category.id_comp]
+    rw [this]
+    apply lift_unique
+    simp only [category.assoc, lift_lifts]
+  inv_hom_id' :=
+    by
+    have : 𝟙 P₂ = lift f₂ f₂ := by apply lift_unique; simp only [category.id_comp]
+    rw [this]
+    apply lift_unique
+    simp only [category.assoc, lift_lifts]
 
 @[simps]
 def extIso (i : ℤ) (P X Y : 𝒦) [IsKProjective P.val] (f : P ⟶ X) [IsQuasiIso f] :

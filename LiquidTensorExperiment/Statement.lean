@@ -14,8 +14,6 @@ variable (BD : BreenDeligne.Package) (κ : ℕ → ℝ≥0)
 
 variable [BD.data.VerySuitable r r' κ] [∀ i : ℕ, Fact (0 < κ i)]
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 @[nolint unused_arguments]
 def FirstTargetStmt : Prop :=
   ∀ m : ℕ,
@@ -23,6 +21,5 @@ def FirstTargetStmt : Prop :=
       ∃ c₀ : ℝ≥0,
         ∀ (S : Type) [Fintype S],
           ∀ (V : SemiNormedGroupCat.{0}) [NormedWithAut r V],
-            «expr​ »
-              "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation"
+            ((BD.data.system κ r V r').obj (op <| of r' (Lbar r' S))).IsWeakBoundedExact k K m c₀
 

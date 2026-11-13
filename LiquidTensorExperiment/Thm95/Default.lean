@@ -36,12 +36,10 @@ variable (m : ℕ)
 
 variable (Λ : PolyhedralLatticeCat.{u})
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 def Thm95.IH (m : ℕ) : Prop :=
   ∀ Λ : PolyhedralLatticeCat.{u},
-    «expr​ »
-      "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation"
+    ((BD.data.system κ r V r').obj (op <| Hom Λ M)).IsWeakBoundedExact (k κ' m) (K r r' BD κ' m) m
+      (c₀ r r' BD κ κ' m Λ)
 
 theorem nSCRowExact (IH : ∀ m' < m, Thm95.IH r r' BD V κ κ' M m') (h0m : 0 < m) (i : ℕ)
     (hi : i ≤ m + 1) :
@@ -97,14 +95,12 @@ def nSC (IH : ∀ m' < m, Thm95.IH r r' BD V κ κ' M m')
   htpy := nSCHtpy r r' BD V κ κ' M m Λ
   Admissible := Thm95.doubleComplexAdmissible _
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 /-- A variant of Theorem 9.5 in [Analytic] using weak bounded exactness. -/
 theorem thm95' :
     ∀ (Λ : PolyhedralLatticeCat.{u}) (S : Type u) [Fintype S] (V : SemiNormedGroupCat.{v})
       [NormedWithAut r V],
-      «expr​ »
-        "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation" :=
+      ((BD.data.system κ r V r').obj (op <| Hom Λ (Lbar r' S))).IsWeakBoundedExact (k κ' m)
+        (K r r' BD κ' m) m (c₀ r r' BD κ κ' m Λ) :=
   by
   apply Nat.strong_induction_on m <;> clear m
   intro m IH Λ S _S_fin V _V_r
@@ -118,14 +114,13 @@ theorem thm95' :
     apply IH; assumption
   exact normed_spectral cond
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 /-- A variant of Theorem 9.5 in [Analytic] using weak bounded exactness. -/
 theorem thm95'.profinite :
     ∀ (Λ : PolyhedralLatticeCat.{u}) (S : Profinite.{u}) (V : SemiNormedGroupCat.{v})
       [NormedWithAut r V],
-      «expr​ »
-        "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation" :=
+      ((BD.data.system κ r V r').obj
+            (op <| Hom Λ ((Lbar.functor.{u, u} r').obj S))).IsWeakBoundedExact
+        (k κ' m) (K r r' BD κ' m) m (c₀ r r' BD κ κ' m Λ) :=
   by
   apply Nat.strong_induction_on m <;> clear m
   intro m IH Λ S V _V_r
@@ -176,8 +171,6 @@ theorem Thm94.explicit (S : Profinite.{0}) (V : SemiNormedGroupCat.{v}) [NormedW
 
 end
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 /- ===
 Once we have determined the final shape of the statement,
 we can update the proof `thm95' → first_target`, and then delete the theorem below.
@@ -194,9 +187,7 @@ theorem thm95'' (BD : Package) (r r' : ℝ≥0) [Fact (0 < r)] [Fact (0 < r')] [
             ∀ (S : Type u) [Fintype S],
               ∀ (V : SemiNormedGroupCat.{v}) [NormedWithAut r V],
                 SystemOfComplexes.IsWeakBoundedExact
-                  («expr​ »
-                    "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation")
-                  k K m c₀ :=
+                  ((BD.data.system κ r V r').obj (op <| Hom Λ (Lbar r' S))) k K m c₀ :=
   by
   intro m
   let κ' := package.κ' BD κ
@@ -205,8 +196,6 @@ theorem thm95'' (BD : Package) (r r' : ℝ≥0) [Fact (0 < r)] [Fact (0 < r')] [
   refine' ⟨c₀ r r' BD κ κ' m (@PolyhedralLatticeCat.of Λ _inst_Λ), fun S _inst_S V _inst_V => _⟩
   apply thm95'
 
-/- ./././Mathport/Syntax/Translate/Expr.lean:207:4: warning: unsupported notation `«expr​ » -/
-/- ./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation -/
 /-- Theorem 9.5 in [Analytic] -/
 theorem thm95''.profinite (BD : Package) (r r' : ℝ≥0) [Fact (0 < r)] [Fact (0 < r')] [Fact (r < r')]
     [Fact (r' < 1)] (κ : ℕ → ℝ≥0) [BD.data.VerySuitable r r' κ] [∀ i : ℕ, Fact (0 < κ i)] :
@@ -217,9 +206,8 @@ theorem thm95''.profinite (BD : Package) (r r' : ℝ≥0) [Fact (0 < r)] [Fact (
             ∀ S : Profinite.{u},
               ∀ (V : SemiNormedGroupCat.{v}) [NormedWithAut r V],
                 SystemOfComplexes.IsWeakBoundedExact
-                  («expr​ »
-                    "./././Mathport/Syntax/Translate/Expr.lean:394:14: unsupported user notation exact_notation")
-                  k K m c₀ :=
+                  ((BD.data.system κ r V r').obj (op <| Hom Λ ((Lbar.functor.{u, u} r').obj S))) k K
+                  m c₀ :=
   by
   intro m
   let κ' := package.κ' BD κ

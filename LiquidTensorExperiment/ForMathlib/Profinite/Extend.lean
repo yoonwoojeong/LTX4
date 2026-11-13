@@ -18,11 +18,6 @@ variable {C : Type u} [Category.{v} C] (F : FintypeCat.{v} ⥤ C)
 
 variable {D : Type u'} [Category.{v} D]
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ rintros [ident I, ident J, ident h], dsimp [] [] [] [],
-    simp [] [] ["only"] ["[", expr category.id_comp, ",", expr category.assoc, "]"] [] [],
-    rw ["<-", expr D.w «expr $ »(hom_of_le, «expr $ »(discrete_quotient.comap_mono _, le_of_hom h))] [],
-    simp [] [] ["only"] ["[", expr category.assoc, ",", "<-", expr F.map_comp, ",", expr functor.comp_map, "]"] [] [],
-    congr' [2] [], ext [] ["⟨", ident t, "⟩"] [], refl }] -/
 /-- Change a cone with respect to a morphism from `Profinite`. -/
 @[simps]
 def changeCone {X Y : Profinite} (f : X ⟶ Y) (D : Cone (X.fintypeDiagram ⋙ F)) :
@@ -31,19 +26,17 @@ def changeCone {X Y : Profinite} (f : X ⟶ Y) (D : Cone (X.fintypeDiagram ⋙ F
   π :=
     { app := fun S => D.π.app (S.comap f.Continuous) ≫ F.map (DiscreteQuotient.map <| le_refl _)
       naturality' := by
-        trace
-          "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ rintros [ident I, ident J, ident h], dsimp [] [] [] [],\n    simp [] [] [\"only\"] [\"[\", expr category.id_comp, \",\", expr category.assoc, \"]\"] [] [],\n    rw [\"<-\", expr D.w «expr $ »(hom_of_le, «expr $ »(discrete_quotient.comap_mono _, le_of_hom h))] [],\n    simp [] [] [\"only\"] [\"[\", expr category.assoc, \",\", \"<-\", expr F.map_comp, \",\", expr functor.comp_map, \"]\"] [] [],\n    congr' [2] [], ext [] [\"⟨\", ident t, \"⟩\"] [], refl }]" }
+        rintro I J h
+        dsimp
+        simp only [category.id_comp, category.assoc]
+        rw [← D.w (hom_of_le <| DiscreteQuotient.comap_mono _ <| le_of_hom h)]
+        simp only [category.assoc, ← F.map_comp, functor.comp_map]
+        congr 2
+        ext ⟨t⟩; rfl }
 
 -- Assume that C has enough limits.
 variable [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ F)]
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X], ext [] [ident S] [], dsimp [] [] [] [],
-    simp [] [] ["only"] ["[", expr limit.lift_π, ",", expr coe_id, ",", expr change_cone_π_app, ",", expr limit.cone_π, ",", expr category.id_comp, "]"] [] [],
-    erw [expr discrete_quotient.map_id] [], change [expr «expr = »(«expr ≫ »(_, F.map («expr𝟙»() _)), _)] [] [],
-    rw ["[", expr F.map_id, ",", expr category.comp_id, "]"] [], congr, exact [expr S.comap_id] }] -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X, ident Y, ident Z, ident f, ident g], ext [] [ident S] [], dsimp [] [] [] [],
-    simp [] [] ["only"] ["[", expr limit.lift_π, ",", expr change_cone_π_app, ",", expr limit.cone_π, ",", expr limit.lift_π_assoc, ",", expr coe_comp, ",", expr category.assoc, ",", "<-", expr F.map_comp, "]"] [] [],
-    congr, exact [expr discrete_quotient.map_comp _ _] }] -/
 -- PROJECT: Prove that this is isomorphic to the right Kan extension along `Fintype.to_Profinite`.
 /-- Extend a functor `Fintype ⥤ C` to `Profinite`. -/
 @[simps]
@@ -51,29 +44,29 @@ def extend : Profinite ⥤ C where
   obj X := limit (X.fintypeDiagram ⋙ F)
   map X Y f := limit.lift _ (changeCone _ f _)
   map_id' := by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X], ext [] [ident S] [], dsimp [] [] [] [],\n    simp [] [] [\"only\"] [\"[\", expr limit.lift_π, \",\", expr coe_id, \",\", expr change_cone_π_app, \",\", expr limit.cone_π, \",\", expr category.id_comp, \"]\"] [] [],\n    erw [expr discrete_quotient.map_id] [], change [expr «expr = »(«expr ≫ »(_, F.map («expr𝟙»() _)), _)] [] [],\n    rw [\"[\", expr F.map_id, \",\", expr category.comp_id, \"]\"] [], congr, exact [expr S.comap_id] }]"
+    intro X
+    ext S
+    dsimp
+    simp only [limit.lift_π, coe_id, change_cone_π_app, limit.cone_π, category.id_comp]
+    erw [DiscreteQuotient.map_id]
+    change _ ≫ F.map (𝟙 _) = _
+    rw [F.map_id, category.comp_id]
+    congr
+    exact S.comap_id
   map_comp' := by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X, ident Y, ident Z, ident f, ident g], ext [] [ident S] [], dsimp [] [] [] [],\n    simp [] [] [\"only\"] [\"[\", expr limit.lift_π, \",\", expr change_cone_π_app, \",\", expr limit.cone_π, \",\", expr limit.lift_π_assoc, \",\", expr coe_comp, \",\", expr category.assoc, \",\", \"<-\", expr F.map_comp, \"]\"] [] [],\n    congr, exact [expr discrete_quotient.map_comp _ _] }]"
+    intro X Y Z f g
+    ext S
+    dsimp
+    simp only [limit.lift_π, change_cone_π_app, limit.cone_π, limit.lift_π_assoc, coe_comp,
+      category.assoc, ← F.map_comp]
+    congr
+    exact DiscreteQuotient.map_comp _ _
 
 /-- discrete quotients of a finite type has an initial object given by `⊥`. -/
 @[simps]
 def botInitial (X : FintypeCat) : IsInitial (⊥ : DiscreteQuotient (FintypeCat.toProfinite.obj X))
     where desc S := homOfLE bot_le
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X, ident Y, ident f], letI [] [":", expr topological_space X] [":=", expr «expr⊥»()],
-    letI [] [":", expr topological_space Y] [":=", expr «expr⊥»()],
-    have [ident hf] [":", expr continuous f] [":=", expr continuous_bot],
-    let [ident A] [] [":=", expr Fintype.to_Profinite.obj X], let [ident B] [] [":=", expr Fintype.to_Profinite.obj Y],
-    dsimp [] ["[", expr is_limit.cone_point_unique_up_to_iso, ",", expr limit_of_diagram_initial, "]"] [] [],
-    simp [] [] ["only"] ["[", expr change_cone_π_app, ",", expr limit.cone_π, ",", expr limit.lift_π_assoc, ",", expr category.assoc, "]"] [] [],
-    let [ident e] [":", expr «expr ⟶ »((«expr⊥»() : discrete_quotient X),
-      («expr⊥»() : discrete_quotient Y).comap hf)] [":=", expr hom_of_le bot_le],
-    erw ["<-", expr limit.w «expr ⋙ »(A.fintype_diagram, F) e] [],
-    simp [] [] ["only"] ["[", expr category.assoc, ",", "<-", expr F.map_comp, ",", expr functor.comp_map, "]"] [] [],
-    congr' [2] [], simp_rw ["[", "<-", expr iso.inv_comp_eq, ",", "<-", expr category.assoc, "]"] [], symmetry,
-    rw ["<-", expr iso.comp_inv_eq] [], refl }] -/
 /-- The extension of `F : Fintype ⥤ C` extends `F`. -/
 @[simps]
 def extendExtends : FintypeCat.toProfinite ⋙ extend F ≅ F :=
@@ -88,15 +81,23 @@ def extendExtends : FintypeCat.toProfinite ⋙ extend F ≅ F :=
       let g := D.cone_point_unique_up_to_iso E
       exact g ≪≫ F.map_iso e) <|
     by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X, ident Y, ident f], letI [] [\":\", expr topological_space X] [\":=\", expr «expr⊥»()],\n    letI [] [\":\", expr topological_space Y] [\":=\", expr «expr⊥»()],\n    have [ident hf] [\":\", expr continuous f] [\":=\", expr continuous_bot],\n    let [ident A] [] [\":=\", expr Fintype.to_Profinite.obj X], let [ident B] [] [\":=\", expr Fintype.to_Profinite.obj Y],\n    dsimp [] [\"[\", expr is_limit.cone_point_unique_up_to_iso, \",\", expr limit_of_diagram_initial, \"]\"] [] [],\n    simp [] [] [\"only\"] [\"[\", expr change_cone_π_app, \",\", expr limit.cone_π, \",\", expr limit.lift_π_assoc, \",\", expr category.assoc, \"]\"] [] [],\n    let [ident e] [\":\", expr «expr ⟶ »((«expr⊥»() : discrete_quotient X),\n      («expr⊥»() : discrete_quotient Y).comap hf)] [\":=\", expr hom_of_le bot_le],\n    erw [\"<-\", expr limit.w «expr ⋙ »(A.fintype_diagram, F) e] [],\n    simp [] [] [\"only\"] [\"[\", expr category.assoc, \",\", \"<-\", expr F.map_comp, \",\", expr functor.comp_map, \"]\"] [] [],\n    congr' [2] [], simp_rw [\"[\", \"<-\", expr iso.inv_comp_eq, \",\", \"<-\", expr category.assoc, \"]\"] [], symmetry,\n    rw [\"<-\", expr iso.comp_inv_eq] [], refl }]"
+    intro X Y f
+    letI : TopologicalSpace X := ⊥
+    letI : TopologicalSpace Y := ⊥
+    have hf : Continuous f := continuous_bot
+    let A := Fintype.to_Profinite.obj X
+    let B := Fintype.to_Profinite.obj Y
+    dsimp [is_limit.cone_point_unique_up_to_iso, limit_of_diagram_initial]
+    simp only [change_cone_π_app, limit.cone_π, limit.lift_π_assoc, category.assoc]
+    let e : (⊥ : DiscreteQuotient X) ⟶ (⊥ : DiscreteQuotient Y).comap hf := hom_of_le bot_le
+    erw [← limit.w (A.fintype_diagram ⋙ F) e]
+    simp only [category.assoc, ← F.map_comp, functor.comp_map]
+    congr 2
+    simp_rw [← iso.inv_comp_eq, ← category.assoc]
+    symm
+    rw [← iso.comp_inv_eq]
+    rfl
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident A, ident B, ident f],
-    dsimp [] ["[", expr is_limit.postcompose_hom_equiv, ",", expr is_limit.of_cone_equiv, ",", expr is_limit.cone_point_unique_up_to_iso, "]"] [] [],
-    ext [] [ident S] [],
-    simp [] [] ["only"] ["[", "<-", expr nat_trans.naturality
-     w.hom, ",", expr limit.lift_π, ",", expr cones.postcompose_obj_π, ",", expr functor.comp_map, ",", expr functor.map_cone_π_app, ",", expr change_cone_π_app, ",", expr limit.cone_π, ",", expr limit.lift_π_assoc, ",", expr whisker_left_app, ",", expr nat_trans.comp_app, ",", expr category.assoc, "]"] [] [],
-    simp [] [] ["only"] ["[", "<-", expr category.assoc, ",", "<-", expr G.map_comp, "]"] [] [], refl }] -/
 /-
 instance extend_preserves_limit (X : Profinite) : preserves_limit X.diagram (extend F) :=
 { preserves := λ D hD,
@@ -127,21 +128,30 @@ def extendUnique (G : Profinite ⥤ C) [∀ X : Profinite, PreservesLimit X.diag
       let hE' : IsLimit E' := (IsLimit.postcomposeHomEquiv f _).symm hE
       hE'.conePointUniqueUpToIso (limit.isLimit _)) <|
     by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident A, ident B, ident f],\n    dsimp [] [\"[\", expr is_limit.postcompose_hom_equiv, \",\", expr is_limit.of_cone_equiv, \",\", expr is_limit.cone_point_unique_up_to_iso, \"]\"] [] [],\n    ext [] [ident S] [],\n    simp [] [] [\"only\"] [\"[\", \"<-\", expr nat_trans.naturality\n     w.hom, \",\", expr limit.lift_π, \",\", expr cones.postcompose_obj_π, \",\", expr functor.comp_map, \",\", expr functor.map_cone_π_app, \",\", expr change_cone_π_app, \",\", expr limit.cone_π, \",\", expr limit.lift_π_assoc, \",\", expr whisker_left_app, \",\", expr nat_trans.comp_app, \",\", expr category.assoc, \"]\"] [] [],\n    simp [] [] [\"only\"] [\"[\", \"<-\", expr category.assoc, \",\", \"<-\", expr G.map_comp, \"]\"] [] [], refl }]"
+    intro A B f
+    dsimp [is_limit.postcompose_hom_equiv, is_limit.of_cone_equiv,
+      is_limit.cone_point_unique_up_to_iso]
+    ext S
+    simp only [← nat_trans.naturality w.hom, limit.lift_π, cones.postcompose_obj_π,
+      functor.comp_map, functor.map_cone_π_app, change_cone_π_app, limit.cone_π, limit.lift_π_assoc,
+      whisker_left_app, nat_trans.comp_app, category.assoc]
+    simp only [← category.assoc, ← G.map_comp]
+    rfl
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X, ident Y, ident f], ext [] [] [], dsimp [] [] [] [],
-    simp [] [] ["only"] ["[", expr category.assoc, ",", expr limit.lift_π, ",", expr change_cone_π_app, ",", expr limit.cone_π, ",", expr functor.comp_map, "]"] [] [],
-    erw ["[", expr limit.lift_π, ",", expr limit.lift_π_assoc, "]"] [], dsimp [] [] [] [],
-    rw ["[", "<-", expr G.map_comp, ",", expr limit.lift_π, ",", "<-", expr G.map_comp, "]"] [], refl }] -/
 @[simps]
 def extendCommutes (G : C ⥤ D) [∀ X : Profinite.{v}, PreservesLimitsOfShape (DiscreteQuotient X) G]
     [∀ X : Profinite.{v}, HasLimit (X.fintypeDiagram ⋙ F ⋙ G)] : extend F ⋙ G ≅ extend (F ⋙ G) :=
   (NatIso.ofComponents fun X =>
       (isLimitOfPreserves G (limit.isLimit _)).conePointUniqueUpToIso (limit.isLimit _)) <|
     by
-    trace
-      "./././Mathport/Syntax/Translate/Tactic/Builtin.lean:73:14: unsupported tactic `asyncI #[{ intros [ident X, ident Y, ident f], ext [] [] [], dsimp [] [] [] [],\n    simp [] [] [\"only\"] [\"[\", expr category.assoc, \",\", expr limit.lift_π, \",\", expr change_cone_π_app, \",\", expr limit.cone_π, \",\", expr functor.comp_map, \"]\"] [] [],\n    erw [\"[\", expr limit.lift_π, \",\", expr limit.lift_π_assoc, \"]\"] [], dsimp [] [] [] [],\n    rw [\"[\", \"<-\", expr G.map_comp, \",\", expr limit.lift_π, \",\", \"<-\", expr G.map_comp, \"]\"] [], refl }]"
+    intro X Y f
+    ext
+    dsimp
+    simp only [category.assoc, limit.lift_π, change_cone_π_app, limit.cone_π, functor.comp_map]
+    erw [limit.lift_π, limit.lift_π_assoc]
+    dsimp
+    rw [← G.map_comp, limit.lift_π, ← G.map_comp]
+    rfl
 
 @[reassoc]
 theorem extendCommutes_comp_extendExtends (G : C ⥤ D)
