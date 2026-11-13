@@ -642,13 +642,14 @@ def index {M : CompHausFiltPseuNormGrp₁} (x : M) : ℝ≥0 :=
 def preimage {M : CompHausFiltPseuNormGrp₁} (x : M) : filtration M (index x) :=
   ⟨x, (M.exhaustive x).choose_spec⟩
 
+-- Porting note: Lean 3's `simp` derived this from the cone condition through the coercions
+theorem cone_level_compat (D : Cone G) {i j : J} (e : i ⟶ j) {c : ℝ≥0} (t : filtration D.pt c) :
+    StrictComphausFilteredPseudoNormedGroupHom.level (G.map e) (StrictComphausFilteredPseudoNormedGroupHom.level (D.π.app i) t) = StrictComphausFilteredPseudoNormedGroupHom.level (D.π.app j) t :=
+  Subtype.ext (congrArg (fun f : D.pt ⟶ G.obj j => (f : D.pt → G.obj j) t.1) (D.w e))
+
 def limitConeLiftMap (D : Cone G) : D.pt → conePoint G := fun x =>
   ConePointType.incl (index x)
-    ⟨fun j => (D.π.app j).level (preimage x), by
-      intro i j e
-      ext
-      dsimp
-      simp⟩
+    ⟨fun j => StrictComphausFilteredPseudoNormedGroupHom.level (D.π.app j) (preimage x), fun _ _ e => cone_level_compat G D e _⟩
 
 theorem limitConeLiftMap_map_zero {D : Cone G} : limitConeLiftMap G D 0 = 0 :=
   by
@@ -677,11 +678,7 @@ theorem limitConeLiftMap_strict {D : Cone G} {x : D.pt} (c : ℝ≥0) (hx : x �
   by
   dsimp [CompHausFiltPseuNormGrp₁.limitConeLiftMap]
   change _ ∈ Set.range _
-  refine' ⟨⟨fun j => (D.π.app j).level ⟨x, hx⟩, _⟩, _⟩
-  · intro i j e
-    ext
-    dsimp
-    simp
+  refine' ⟨⟨fun j => StrictComphausFilteredPseudoNormedGroupHom.level (D.π.app j) ⟨x, hx⟩, fun _ _ e => cone_level_compat G D e _⟩, _⟩
   · dsimp
     apply Quotient.sound'
     refine' ⟨_, le_sup_left, le_sup_right, _⟩
@@ -699,12 +696,7 @@ def limitConeLift (D : Cone G) : D.pt ⟶ conePoint G
     intro c
     rw [(ConePointType.filtHomeo G c).inducing.continuous_iff]
     let E : filtration D.pt c → CompHausFiltPseuNormGrp₁.ConePointTypeFilt G c := fun t =>
-      ⟨fun j => (D.π.app j).level t, _⟩
-    swap;
-    · intro i j e
-      ext
-      dsimp
-      simp
+      ⟨fun j => StrictComphausFilteredPseudoNormedGroupHom.level (D.π.app j) t, fun _ _ e => cone_level_compat G D e t⟩
     have :
       ConePointType.filtHomeo G c ∘
           PseudoNormedGroup.level (CompHausFiltPseuNormGrp₁.limitConeLiftMap G D)
@@ -742,15 +734,15 @@ def limitConeIsLimit : IsLimit (limitCone G)
     intro S m h
     ext x
     dsimp [limitConeLift, CompHausFiltPseuNormGrp₁.limitConeLiftMap]
-    rw [← (m x).preimage_spec]
+    -- Porting note: `rw [← (m x).preimage_spec]` does not see `m x` through the coercions
+    refine Eq.trans (ConePointType.preimage_spec (m x)).symm ?_
     apply Quotient.sound'
     refine' ⟨_, le_sup_left, le_sup_right, _⟩
     ext j
     dsimp
     simp only [ConePointTypeFilt.trans_apply, coe_castLe, PseudoNormedGroup.coe_castLe']
-    specialize h j
-    apply_fun fun e => e x at h 
-    exact h
+    -- Porting note: the cone condition `h j`, applied to `x`
+    exact congrArg (fun f : S.pt ⟶ G.obj j => (f : S.pt → G.obj j) x) (h j)
 
 -- This is the goal of this section...
 instance : HasLimit G :=
@@ -775,7 +767,10 @@ instance (c : ℝ≥0) : PreservesLimit G (level.obj c) :=
         dsimp [limitCone, ConePointType.filtIso, ConePointType.filtHomeo,
           Homeomorph.homeomorphOfContinuousOpen, ConePointType.filtEquiv, level, proj,
           CompHaus.limitCone, TopCat.limitCone]
-        simpa
+        -- Porting note: mathlib4's `CompHaus.limitCone` is a different (but equal) construction
+        first
+        | exact Subtype.ext (ConePointType.coe_incl_preimage_apply ⟨t, fun _ _ e => ht e⟩ j).symm
+        | exact Subtype.ext (ConePointType.coe_incl_preimage_apply ⟨t, fun _ _ e => ht e⟩ j)
       uniq := by
         intro S m hm
         rw [Iso.eq_comp_inv]
@@ -789,7 +784,10 @@ instance (c : ℝ≥0) : PreservesLimit G (level.obj c) :=
         dsimp [limitCone, ConePointType.filtIso, ConePointType.filtHomeo,
           Homeomorph.homeomorphOfContinuousOpen, ConePointType.filtEquiv, level, proj,
           CompHaus.limitCone, TopCat.limitCone]
-        simpa }
+        -- Porting note: mathlib4's `CompHaus.limitCone` is a different (but equal) construction
+        first
+        | exact Subtype.ext (ConePointType.coe_incl_preimage_apply ⟨t, fun _ _ e => ht e⟩ j).symm
+        | exact Subtype.ext (ConePointType.coe_incl_preimage_apply ⟨t, fun _ _ e => ht e⟩ j) }
 
 instance (c : ℝ≥0) : PreservesLimits (level.obj c)
     where preservesLimitsOfShape := { preservesLimit := inferInstance }
@@ -827,6 +825,7 @@ theorem mem_filtration_iff_of_isLimit (C : Cone G) (hC : IsLimit C) (c : ℝ≥0
       dsimp
       change (E.π.app i ≫ G.map f) _ = _
       rw [E.w]
+      rfl
     · obtain ⟨i, z, hz⟩ := ConePointType.incl_jointly_surjective w
       let d : ℝ≥0 := i ⊔ c
       conv_rhs => rw [← hz]
@@ -836,10 +835,10 @@ theorem mem_filtration_iff_of_isLimit (C : Cone G) (hC : IsLimit C) (c : ℝ≥0
       dsimp [ConePointTypeFilt.trans]
       ext j
       dsimp
-      change E.π.app j _ = _
+      -- Porting note: `w` is unfolded in the goal, so it is restated before rewriting with `hz`
+      show (proj G j) w = (z j : G.obj j)
       rw [← hz]
-      dsimp [E, limitCone, proj]
-      simp
+      exact ConePointType.coe_incl_preimage_apply z j
 
 theorem isLimit_ext (C : Cone G) (hC : IsLimit C) (x y : C.pt)
     (h : ∀ j, C.π.app j x = C.π.app j y) : x = y :=
@@ -904,34 +903,19 @@ def product.π {α : Type u} [Fintype α] (X : α → CompHausFiltPseuNormGrp₁
   strict' c x hx := hx i
   continuous' :=
     by
-    -- This can be golfed.
+    -- Porting note: proved directly (the Lean 3 script relied on goal ordering of `swap`/`rotate`)
     intro c
     have h : Inducing (PseudoNormedGroup.filtrationPiEquiv (fun i => X i) c) := ⟨rfl⟩
-    let e :
-      ↥(PseudoNormedGroup.filtration (↥(product X)) c) →
-        ↥(PseudoNormedGroup.filtration (↥(X i)) c) :=
-      PseudoNormedGroup.level (fun m : ↥(product X) => m i) _ c
-    swap
-    · intro c x hx
-      apply hx
-    change Continuous e
-    have : e = _ ∘ PseudoNormedGroup.filtrationPiEquiv (fun i => X i) c
-    rotate_left 2
-    · intro x; exact x i
-    · ext; rfl
-    erw [this]
-    apply Continuous.comp
-    apply continuous_apply
-    refine' Inducing.continuous h
+    exact (continuous_apply i).comp h.continuous
 
 @[simps]
 def product.lift {α : Type u} [Fintype α] (X : α → CompHausFiltPseuNormGrp₁.{u})
     (M : CompHausFiltPseuNormGrp₁.{u}) (f : ∀ i, M ⟶ X i) : M ⟶ product X
     where
   toFun m i := f _ m
-  map_zero' := by ext; simp
-  map_add' := by intros; ext; simp
-  strict' c x hx i := (f i).Strict hx
+  map_zero' := by funext i; simp only [map_zero]; rfl
+  map_add' := by intros; funext i; simp only [map_add]; rfl
+  strict' c x hx i := StrictComphausFilteredPseudoNormedGroupHom.strict (f i) hx
   continuous' := by
     intro c
     have h : Inducing (PseudoNormedGroup.filtrationPiEquiv (fun i => X i) c) := ⟨rfl⟩
@@ -942,11 +926,13 @@ def product.lift {α : Type u} [Fintype α] (X : α → CompHausFiltPseuNormGrp�
 @[reassoc (attr := simp)]
 theorem product.lift_π {α : Type u} [Fintype α] (X : α → CompHausFiltPseuNormGrp₁.{u})
     (M : CompHausFiltPseuNormGrp₁.{u}) (f : ∀ i, M ⟶ X i) (i) :
-    product.lift X M f ≫ product.π X i = f i := by ext; simp
+    product.lift X M f ≫ product.π X i = f i := by ext; rfl
 
 theorem product.lift_unique {α : Type u} [Fintype α] (X : α → CompHausFiltPseuNormGrp₁.{u})
     (M : CompHausFiltPseuNormGrp₁.{u}) (f : ∀ i, M ⟶ X i) (g : M ⟶ product X)
-    (hg : ∀ i, g ≫ product.π X i = f i) : g = product.lift X M f := by ext; simp [← hg]
+    (hg : ∀ i, g ≫ product.π X i = f i) : g = product.lift X M f := by
+  ext x; funext i
+  exact congrArg (fun φ : M ⟶ X i => (φ : M → X i) x) (hg i)
 
 theorem product.hom_ext {α : Type u} [Fintype α] (X : α → CompHausFiltPseuNormGrp₁.{u})
     (M : CompHausFiltPseuNormGrp₁.{u}) (g₁ g₂ : M ⟶ product X)
