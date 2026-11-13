@@ -184,12 +184,12 @@ instance : Epi (factorThruImage f ≫ (imageSubobjectIso f).inv) :=
 
 instance : Mono (homology'.ι f g w) := by delta homology'.ι; infer_instance
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem π_cokernelIsoOfEq {f₁ f₂ : A ⟶ B} (e : f₁ = f₂) :
     cokernel.π f₁ ≫ (cokernelIsoOfEq e).hom = cokernel.π f₂ := by subst e;
   erw [HasColimit.isoOfNatIso_ι_hom]; exact Category.id_comp _
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem Homology.π_iso_cokernel_lift_hom :
     homology'.π f g w ≫ (homology'IsoCokernelLift f g w).hom =
       (kernelSubobjectIso _).hom ≫ cokernel.π _ :=
@@ -198,11 +198,11 @@ theorem Homology.π_iso_cokernel_lift_hom :
   erw [homology'.π_desc_assoc]
   simp only [cokernel.π_desc_assoc, Category.assoc, Iso.cancel_iso_hom_left, π_cokernel_iso_of_eq]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem Homology.π'_ι : homology'.π' f g w ≫ homology'.ι f g w = kernel.ι g ≫ cokernel.π f := by
   delta homology'.π' homology'.ι homology'IsoKernelDesc; simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem Homology.π_ι :
     homology'.π f g w ≫ homology'.ι f g w = (kernelSubobject _).arrow ≫ cokernel.π _ := by
   rw [← homology'.π'_eq_π, Category.assoc, homology'.π'_ι, CategoryTheory.Limits.kernelSubobject_arrow_assoc]
@@ -275,7 +275,7 @@ noncomputable def pullbackCompMonoIso {X Y Z Z' : V} (f : X ⟶ Z) (g : Y ⟶ Z)
     pullback (f ≫ h) (g ≫ h) ≅ pullback f g :=
   limit.isoLimitCone ⟨_, pullbackIsPullbackOfCompMono f g h⟩
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem pullbackCompMonoIso_fst {X Y Z Z' : V} (f : X ⟶ Z) (g : Y ⟶ Z) (h : Z ⟶ Z') [Mono h] :
     (pullbackCompMonoIso f g h).hom ≫ pullback.fst = pullback.fst :=
   limit.isoLimitCone_hom_π _ WalkingCospan.left

@@ -40,7 +40,7 @@ def kernelIso (S : ExtrDisc.{u}) :
       (limit.isLimit _) ≪≫
     HasLimit.isoOfNatIso (kernelDiagramIso _ _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem kernelIso_hom (S : ExtrDisc.{u}) :
     (kernelIso f S).hom ≫ kernel.ι _ = (Condensed.evaluation _ S.val).map (kernel.ι _) :=
   by
@@ -57,7 +57,7 @@ def cokernelIso (S : ExtrDisc.{u}) :
     (colimit.isColimit _).coconePointUniqueUpToIso
       (isColimitOfPreserves (Condensed.evaluation _ _) (colimit.isColimit (parallelPair f 0)))
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem cokernelIso_hom (S : ExtrDisc.{u}) :
     cokernel.π _ ≫ (cokernelIso f S).hom = (Condensed.evaluation _ S.val).map (cokernel.π _) :=
   by

@@ -40,7 +40,7 @@ structure HomologyIsoPredatum where
 
 namespace HomologyIsoPredatum
 
-attribute [simp, reassoc] fac zero₁ zero₂
+attribute [reassoc (attr := simp)] fac zero₁ zero₂
 
 @[simps]
 def tautological : HomologyIsoPredatum f g (cokernel (kernel.lift g f w)) :=
@@ -180,13 +180,13 @@ def mapIso {X' Y' Z' : C} (f' : X' ⟶ Y') (g' : Y' ⟶ Z') (e₁ : Arrow.mk f �
 def iso₁ : h.k ≅ kernel g :=
   IsLimit.conePointUniqueUpToIso h.forkIsLimit (LimitCone.isLimit _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem iso₁_hom_kernel_ι : h.iso₁.hom ≫ kernel.ι g = h.ι :=
   IsLimit.conePointUniqueUpToIso_hom_comp _ _ _
 
 instance : Mono h.ι := by rw [← h.iso₁_hom_kernel_ι]; infer_instance
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem f'_iso₁_hom : h.f' ≫ h.iso₁.hom = kernel.lift g f h.w :=
   by
   ext
@@ -195,7 +195,7 @@ theorem f'_iso₁_hom : h.f' ≫ h.iso₁.hom = kernel.lift g f h.w :=
 def iso₂ : H ≅ cokernel h.f' :=
   IsColimit.coconePointUniqueUpToIso h.coforkIsColimit (ColimitCocone.isColimit _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem cokernel_π_iso₂_inv : cokernel.π h.f' ≫ h.iso₂.inv = h.π :=
   IsColimit.comp_coconePointUniqueUpToIso_inv _ _ _
 
@@ -209,7 +209,7 @@ def iso₃ : cokernel h.f' ≅ cokernel (kernel.lift g f h.w) :=
   cokernel.mapIso _ _ (Iso.refl _) h.iso₁
     (by simp only [f'_iso₁_hom, Iso.refl_hom, Category.id_comp])
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem cokernel_π_iso₃_hom :
     cokernel.π h.f' ≫ h.iso₃.hom = h.iso₁.hom ≫ cokernel.π (kernel.lift g f h.w) :=
   by
@@ -280,14 +280,14 @@ structure Change {H₁ H₂ : C} (h₁ : HomologyIsoDatum f g H₁) (h₂ : Homo
 
 namespace Change
 
-attribute [simp, reassoc] fac₁ fac₂
+attribute [reassoc (attr := simp)] fac₁ fac₂
 
 attribute [reassoc] fac₃
 
 variable {H₁ H₂ : C} {h₁ : HomologyIsoDatum f g H₁} {h₂ : HomologyIsoDatum f g H₂}
   (c : Change h₁ h₂)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem fac_iso₁ : c.κ ≫ h₂.iso₁.hom = h₁.iso₁.hom := by ext;
   simp only [Category.assoc, iso₁_hom_kernel_ι, fac₂]
 
@@ -298,7 +298,7 @@ def cokerIso : cokernel h₁.f' ≅ cokernel h₂.f' :=
   cokernel.mapIso _ _ (Iso.refl _) (asIso c.κ)
     (by simp only [CategoryTheory.asIso_hom, fac₁, Iso.refl_hom, Category.id_comp])
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem cokerIso_comm : cokernel.π h₁.f' ≫ c.cokerIso.hom = c.κ ≫ cokernel.π h₂.f' :=
   by
   dsimp only [HomologyIsoDatum.Change.cokerIso]
@@ -315,18 +315,18 @@ instance : IsIso c.η :=
   haveI : is_iso (h₁.iso₂.inv ≫ c.η) := by rw [← fac_iso₂]; infer_instance
   apply IsIso.of_isIso_comp_left h₁.iso₂.inv
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem cokerIso_iso₃_hom : c.cokerIso.hom ≫ h₂.iso₃.hom = h₁.iso₃.hom :=
   by
   ext
   simp only [HomologyIsoDatum.Change.cokerIso_comm_assoc, cokernel_π_iso₃_hom, fac_iso₁_assoc]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem η_iso₂_hom_iso₃_hom : c.η ≫ h₂.iso₂.hom ≫ h₂.iso₃.hom = h₁.iso₂.hom ≫ h₁.iso₃.hom := by
   rw [← cancel_epi h₁.iso₂.inv, Iso.inv_hom_id_assoc, ← c.cokerIso_iso₃_hom, ← fac_iso₂_assoc,
     Iso.inv_hom_id_assoc]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem η_iso_hom : c.η ≫ h₂.Iso.Hom = h₁.Iso.Hom :=
   by
   dsimp only [iso]

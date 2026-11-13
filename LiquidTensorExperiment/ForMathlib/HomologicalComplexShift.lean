@@ -70,15 +70,15 @@ theorem xEqToIso_inv (X : HomologicalComplex V c) {i j : ι} (h : i = j) :
     (X.xEqToIso h).inv = (X.xEqToIso h.symm).hom :=
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem xEqToIso_d (X : HomologicalComplex V c) {i j k : ι} (h : i = j) :
     (X.xEqToIso h).hom ≫ X.d j k = X.d i k := by subst h; exact Category.id_comp _
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem x_d_eq_to_iso (X : HomologicalComplex V c) {i j k : ι} (h : j = k) :
     X.d i j ≫ (X.xEqToIso h).hom = X.d i k := by subst h; exact Category.comp_id _
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem xEqToIso_trans (X : HomologicalComplex V c) {i j k : ι} (h : i = j) (h' : j = k) :
     (X.xEqToIso h).hom ≫ (X.xEqToIso h').hom = (X.xEqToIso (h.trans h')).hom := by
   simp [X_eq_to_iso]
@@ -87,7 +87,7 @@ theorem xEqToIso_trans (X : HomologicalComplex V c) {i j k : ι} (h : i = j) (h'
 theorem xEqToIso_refl (X : HomologicalComplex V c) {i : ι} : (X.xEqToIso (refl i)).hom = 𝟙 _ :=
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem xEqToIso_f {X Y : HomologicalComplex V c} (f : X ⟶ Y) {i j : ι} (h : i = j) :
     (X.xEqToIso h).hom ≫ f.f j = f.f i ≫ (Y.xEqToIso h).hom := by subst h; simp [X_eq_to_iso]
 
@@ -340,12 +340,12 @@ noncomputable def homologyShiftObjIso (X : CochainComplex A ℤ) (i j : ℤ) :
   · dsimp; abel
   · dsimp; abel
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem homology'.π'_ι {X Y Z : A} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f ≫ g = 0) :
     homology'.π' f g w ≫ homology'.ι f g w = kernel.ι g ≫ cokernel.π f := by
   delta homology'.π' homology'.ι homology'IsoKernelDesc; simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem homology'.desc'_ι {X X' Y Z Z' : A} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f ≫ g = 0) (f' : X' ⟶ Y)
     (g' : Y ⟶ Z') (w' : f' ≫ g' = 0) (h₁) (h₂) (h₃) :
     homology'.desc' _ _ w (kernel.lift _ (kernel.ι _) h₁ ≫ homology'.π' _ _ _) h₂ ≫
@@ -353,7 +353,7 @@ theorem homology'.desc'_ι {X X' Y Z Z' : A} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f 
       homology'.ι _ _ _ ≫ cokernel.desc _ (cokernel.π _) h₃ :=
   by ext; simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem homology'.π'_lift {X X' Y Z Z' : A} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f ≫ g = 0) (f' : X' ⟶ Y)
     (g' : Y ⟶ Z') (w' : f' ≫ g' = 0) (h₁) (h₂) (h₃) :
     homology'.π' _ _ w ≫

@@ -35,7 +35,7 @@ def piLift {α : Type v} {Y : AddCommGroupCat.{max v u}} (X : α → AddCommGrou
   map_zero' := by ext; simp
   map_add' x y := by ext; simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem piLift_π {α : Type v} {Y : AddCommGroupCat.{max v u}} (X : α → AddCommGroupCat.{max v u})
     (f : ∀ a, Y ⟶ X a) (i) : piLift X f ≫ piπ _ i = f _ := by ext; rfl
 
@@ -125,7 +125,7 @@ def directSumLift {α : Type v} [Fintype α] {Y : AddCommGroupCat.{max v u}}
         _
     simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem directSumLift_π {α : Type v} [Fintype α] {Y : AddCommGroupCat.{max v u}}
     (X : α → AddCommGroupCat.{max v u}) (f : ∀ a, Y ⟶ X a) (i) :
     directSumLift X f ≫ directSumπ _ i = f i := by ext; rfl
@@ -183,7 +183,7 @@ def directSumDesc {α : Type v} {Y : AddCommGroupCat.{max v u}} (X : α → AddC
     (f : ∀ i, X i ⟶ Y) : AddCommGroupCat.of (DirectSum α fun i => X i) ⟶ Y :=
   DirectSum.toAddMonoid f
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem directSumι_desc {α : Type v} {Y : AddCommGroupCat.{max v u}}
     (X : α → AddCommGroupCat.{max v u}) (f : ∀ i, X i ⟶ Y) (i) :
     directSumι X i ≫ directSumDesc X f = f _ := by ext; dsimp [direct_sum_ι, AddCommGroupCat.directSumDesc]; simp

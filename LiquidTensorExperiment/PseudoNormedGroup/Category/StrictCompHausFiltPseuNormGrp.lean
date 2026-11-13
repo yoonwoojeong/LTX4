@@ -905,7 +905,7 @@ def product.lift {α : Type u} [Fintype α] (X : α → CompHausFiltPseuNormGrp�
     intro i
     exact (f i).continuous' c
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem product.lift_π {α : Type u} [Fintype α] (X : α → CompHausFiltPseuNormGrp₁.{u})
     (M : CompHausFiltPseuNormGrp₁.{u}) (f : ∀ i, M ⟶ X i) (i) :
     product.lift X M f ≫ product.π X i = f i := by ext; simp

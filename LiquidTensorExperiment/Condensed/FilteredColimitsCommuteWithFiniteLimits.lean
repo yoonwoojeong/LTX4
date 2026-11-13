@@ -68,7 +68,7 @@ def CategoryTheory.Functor.mapLimit {C D J : Type _} [Category C] [Category D] [
     G.obj (limit F) ≅ limit (F ⋙ G) :=
   IsLimit.conePointUniqueUpToIso (isLimitOfPreserves G (limit.isLimit _)) (limit.isLimit _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem CategoryTheory.Functor.mapLimit_hom_π {J C D : Type _} [SmallCategory J] [Category C]
     [Category D] (G : C ⥤ D) (F : J ⥤ C) [HasLimit F] [HasLimit (F ⋙ G)] [PreservesLimit F G]
     (j : J) : (G.mapLimit F).hom ≫ limit.π (F ⋙ G) j = G.map (limit.π F j) := by
@@ -81,7 +81,7 @@ def CategoryTheory.Functor.mapColimit {J C D : Type _} [SmallCategory J] [Catego
   IsColimit.coconePointUniqueUpToIso (isColimitOfPreserves G (colimit.isColimit _))
     (colimit.isColimit _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem CategoryTheory.Functor.ι_mapColimit_inv {J C D : Type _} [SmallCategory J] [Category C]
     [Category D] (G : C ⥤ D) (F : J ⥤ C) [HasColimit F] [HasColimit (F ⋙ G)] [PreservesColimit F G]
     (j : J) : colimit.ι (F ⋙ G) j ≫ (G.mapColimit F).inv = G.map (colimit.ι F j) := by

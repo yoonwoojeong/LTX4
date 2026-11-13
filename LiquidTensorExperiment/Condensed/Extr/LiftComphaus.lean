@@ -31,7 +31,7 @@ def lift' {X Y : CompHaus} {P : ExtrDisc} (f : X ⟶ Y) (hf : Function.Surjectiv
     (e : P.val.toCompHaus ⟶ Y) : P.val.toCompHaus ⟶ X :=
   (lift_exists' f hf e).some
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem lift_lifts' {X Y : CompHaus} {P : ExtrDisc} (f : X ⟶ Y) (hf : Function.Surjective f)
     (e : P.val.toCompHaus ⟶ Y) : lift' f hf e ≫ f = e :=
   (lift_exists' f hf e).choose_spec

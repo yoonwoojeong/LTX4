@@ -30,7 +30,7 @@ set_option pp.universes true
 def asNatDiagram : AsSmall.{u + 1} ℕ ⥤ CondensedSet.{u} :=
   restrictDiagram ι A.levelCondensedDiagram'
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem ι_colimitIsoCondensedObj (i) :
     colimit.ι _ i ≫ A.colimitIsoCondensedObj.hom = A.levelCondensedDiagramCocone.ι.app _ :=
   by

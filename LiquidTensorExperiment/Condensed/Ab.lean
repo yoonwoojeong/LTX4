@@ -127,7 +127,7 @@ def ofTopAb : Condensed.{u} Ab.{u + 1}
     rw [CategoryTheory.Presheaf.isSheaf_iff_isSheaf_forget _ _ (forget Ab)]
     swap; infer_instance
     let B := TopCat.of A
-    change presheaf.isSheaf _ B.to_Condensed.val
+    change Presheaf.IsSheaf _ B.to_Condensed.val
     exact B.to_Condensed.cond
 
 variable {A} {B : Type u} [AddCommGroup B] [TopologicalSpace B] [TopologicalAddGroup B]

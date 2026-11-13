@@ -149,7 +149,7 @@ def condensedLCC : Condensed.{u} Ab.{u + 1}
   cond := by
     let e := lCCIsoCondOfTopAb V
     let e' := CategoryTheory.isoWhiskerRight e Ab.ulift.{u + 1}
-    apply presheaf.isSheaf_of_iso proetaleTopology.{u} e'
+    apply Presheaf.isSheaf_of_iso proetaleTopology.{u} e'
     exact (Condensed.ofTopAb _).2
 
 def condensedLCCIsoOfTopAb : condensedLCC V ≅ Condensed.ofTopAb V :=

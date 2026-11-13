@@ -73,12 +73,12 @@ theorem boundaries.ext' {X : C} (f g : (boundaries A j : C) ⟶ X)
     (h : factorThruImageSubobject _ ≫ f = factorThruImageSubobject _ ≫ g) : f = g := by
   rwa [cancel_epi (CategoryTheory.Limits.factorThruImageSubobject (A.d_to j))] at h 
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem deltaToBoundaries_comp_arrow :
     deltaToBoundaries A i j hij ≫ (boundaries A j).arrow = A.d i j := by
   rw [HomologicalComplex.deltaToBoundaries, Category.assoc, CategoryTheory.Limits.imageSubobject_arrow_comp, X_prev_iso_comp_d_to]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem boundaries_arrow_comp_deltaToBoundaries :
     (boundaries _ i).arrow ≫ deltaToBoundaries A i j hij = 0 :=
   by
@@ -89,11 +89,11 @@ theorem boundaries_arrow_comp_deltaToBoundaries :
 def deltaToCycles : A.pt i ⟶ A.cycles' j :=
   deltaToBoundaries _ i j hij ≫ boundariesToCycles' _ _
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem deltaToCycles_comp_arrow : deltaToCycles A i j hij ≫ (cycles' A j).arrow = A.d i j := by
   rw [HomologicalComplex.deltaToCycles, Category.assoc, imageToKernel_arrow, HomologicalComplex.deltaToBoundaries_comp_arrow]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem boundaries_arrow_comp_deltaToCycles :
     (boundaries _ _).arrow ≫ deltaToCycles A i j hij = 0 := by
   rw [HomologicalComplex.deltaToCycles, ← Category.assoc, HomologicalComplex.boundaries_arrow_comp_deltaToBoundaries, zero_comp]

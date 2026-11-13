@@ -114,7 +114,7 @@ noncomputable def coproductIso {α : Type v} (X : α → CochainComplex A ℤ) (
           rintro ⟨⟩ ⟨⟩ ⟨⟨⟨⟩⟩⟩
           simp))
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem coproduct_ι_coproductIso_inv {α : Type v} (X : α → CochainComplex A ℤ) (i) (a) :
     Sigma.ι _ a ≫ (coproductIso X i).inv = (Sigma.ι X a : _ ⟶ _).f i :=
   by
@@ -122,7 +122,7 @@ theorem coproduct_ι_coproductIso_inv {α : Type v} (X : α → CochainComplex A
     IsColimit.coconePointUniqueUpToIso]
   simp; dsimp; simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem coproduct_ι_coproductIso_hom {α : Type v} (X : α → CochainComplex A ℤ) (i) (a : α) :
     (Sigma.ι X a : _ ⟶ _).f i ≫ (coproductIso X i).hom = Sigma.ι _ a :=
   by

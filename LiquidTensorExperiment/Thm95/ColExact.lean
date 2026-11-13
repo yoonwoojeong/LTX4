@@ -246,7 +246,7 @@ def cechNerveLevelHom' (c : ℝ≥0) :
   @Arrow.homMk _ _ (Augmented.toArrow.obj ((cechNerveLevel r' Λ M N n).obj c))
     (fLCComplexArrow _ (augMapStrict r' Λ M N n) c) (𝟙 _) (𝟙 _)
     (by
-      erw [Category.comp_id, Category.id_comp, augmented.toArrow_obj_hom]
+      erw [Category.comp_id, Category.id_comp, Augmented.toArrow_obj_hom]
       dsimp only [Cech_nerve_level_obj, NatTrans.comp_app, CategoryTheory.whiskerRight_app,
         Functor.constComp_hom_app, NatTrans.leftOp_app, unop_op, Functor.flip_obj_map,
         Functor.comp_map, Functor.flip_map_app]
@@ -260,7 +260,7 @@ def cechNerveLevelInv' (c : ℝ≥0) :
   @Arrow.homMk _ _ (fLCComplexArrow _ (augMapStrict r' Λ M N n) c)
     (Augmented.toArrow.obj ((cechNerveLevel r' Λ M N n).obj c)) (𝟙 _) (𝟙 _)
     (by
-      erw [Category.comp_id, Category.id_comp, augmented.toArrow_obj_hom]
+      erw [Category.comp_id, Category.id_comp, Augmented.toArrow_obj_hom]
       dsimp only [Cech_nerve_level_obj, NatTrans.comp_app, CategoryTheory.whiskerRight_app,
         Functor.constComp_hom_app, NatTrans.leftOp_app, unop_op, Functor.flip_obj_map,
         Functor.comp_map, Functor.flip_map_app]
@@ -360,7 +360,7 @@ theorem hz : ∀ j, (Augmented.toArrow.obj ((cechNerveLevel r' Λ M N n).obj c))
   by
   intro j; dsimp only [z₀, z]
   have := (Cech_nerve_level_inv' r' Λ M N n c).w
-  simp only [Functor.id_map, augmented.toArrow_obj_hom] at this 
+  simp only [Functor.id_map, Augmented.toArrow_obj_hom] at this 
   erw [← comp_apply, this, comp_apply, hz']
   rfl
 
@@ -377,7 +377,7 @@ def s' (y : (fLCComplexArrow _ (augMapStrict r' Λ M N n) c).augmentedCechNerve.
   intro j l
   dsimp only [AddMonoidHom.comp_apply, Subtype.coe_mk, PolyhedralLatticeHom.coe_toAddMonoidHom]
   rw [← hz y j]
-  dsimp only [augmented.toArrow_obj_hom]
+  dsimp only [Augmented.toArrow_obj_hom]
   rw [Cech_nerve_level_hom_app]
   dsimp only [filtration_obj_map_apply, Cech_augmentation_map,
     ComphausFilteredPseudoNormedGroupWithTinvHom.level, PseudoNormedGroup.level,

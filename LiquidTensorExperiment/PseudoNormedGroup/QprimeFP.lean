@@ -457,7 +457,7 @@ def condensedProdValIso {α : Type (u + 1)} (X : α → CondensedSet.{u}) :
   preservesLimitIso condensedSetToPresheaf _ ≪≫
     HasLimit.isoOfNatIso (Discrete.natIso fun p => Iso.refl _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem condensedProdValIso_spec {α : Type (u + 1)} (X : α → CondensedSet.{u}) (i : α) :
     (condensedProdValIso X).hom ≫ Pi.π _ i = (Pi.π X i : ∏ X ⟶ X i).val :=
   by
@@ -469,7 +469,7 @@ theorem condensedProdValIso_spec {α : Type (u + 1)} (X : α → CondensedSet.{u
   erw [Category.comp_id]
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem condensedProdValIso_spec' {α : Type (u + 1)} (X : α → CondensedSet.{u}) (i : α) :
     (condensedProdValIso X).inv ≫ (Pi.π X i : ∏ X ⟶ X i).val = Pi.π _ _ := by rw [Iso.inv_comp_eq];
   rw [condensedProdValIso_spec]
@@ -479,7 +479,7 @@ def functorProdEvalIso {α : Type (u + 1)} (X : α → Profinite.{u}ᵒᵖ ⥤ T
   preservesLimitIso ((evaluation _ _).obj T) _ ≪≫
     HasLimit.isoOfNatIso (Discrete.natIso fun p => Iso.refl _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem functorProdEvalIso_spec {α : Type (u + 1)} (X : α → Profinite.{u}ᵒᵖ ⥤ Type (u + 1)) (T)
     (i : α) : (functorProdEvalIso X T).hom ≫ Pi.π _ i = (Pi.π X i : ∏ X ⟶ X i).app _ :=
   by
@@ -491,7 +491,7 @@ theorem functorProdEvalIso_spec {α : Type (u + 1)} (X : α → Profinite.{u}ᵒ
   erw [Category.comp_id]
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem functorProdEvalIso_spec' {α : Type (u + 1)} (X : α → Profinite.{u}ᵒᵖ ⥤ Type (u + 1)) (T)
     (i : α) : (functorProdEvalIso X T).inv ≫ (Pi.π X i : ∏ X ⟶ X i).app _ = Pi.π _ i := by
   rw [Iso.inv_comp_eq]; rw [functorProdEvalIso_spec]
@@ -503,7 +503,7 @@ def filtrationPowIsoAux (j : ℕ) (r : ℝ≥0) :
   preservesLimitIso (ProFiltPseuNormGrp₁.level.obj r) _ ≪≫
     HasLimit.isoOfNatIso (Discrete.natIso fun q => Iso.refl _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem filtrationPowIsoAux_spec (j : ℕ) (r : ℝ≥0) (i) :
     (filtrationPowIsoAux M j r).hom ≫
         Pi.π (fun i : ULift.{u} (Fin j) => PseudoNormedGroup.filtrationObj M r) i =
@@ -517,7 +517,7 @@ theorem filtrationPowIsoAux_spec (j : ℕ) (r : ℝ≥0) (i) :
   erw [Category.comp_id]
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem filtrationPowIsoAux_spec' (j : ℕ) (r : ℝ≥0) (i) :
     (filtrationPowIsoAux M j r).inv ≫ (ProFiltPseuNormGrp₁.level.obj r).map (Pi.π _ i) = Pi.π _ i :=
   by rw [Iso.inv_comp_eq]; rw [filtrationPowIsoAux_spec]
@@ -545,7 +545,7 @@ def ProFiltPseuNormGrp₁.productPowIso {α : Type u} [Fintype α] (X : α → P
     ∏ X ≅ ProFiltPseuNormGrp₁.product X :=
   (limit.isLimit _).conePointUniqueUpToIso (ProFiltPseuNormGrp₁.isLimitProductFan _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem ProFiltPseuNormGrp₁.productPowIso_spec {α : Type u} [Fintype α]
     (X : α → ProFiltPseuNormGrp₁.{u}) (i) :
     (ProFiltPseuNormGrp₁.productPowIso X).hom ≫ ProFiltPseuNormGrp₁.product.π _ _ = Pi.π _ i :=
@@ -553,7 +553,7 @@ theorem ProFiltPseuNormGrp₁.productPowIso_spec {α : Type u} [Fintype α]
   erw [ProFiltPseuNormGrp₁.product.lift_π]
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem ProFiltPseuNormGrp₁.productPowIso_spec' {α : Type u} [Fintype α]
     (X : α → ProFiltPseuNormGrp₁.{u}) (i) :
     (ProFiltPseuNormGrp₁.productPowIso X).inv ≫ Pi.π _ i = ProFiltPseuNormGrp₁.product.π _ _ := by
@@ -612,14 +612,14 @@ def filtrationPowIsoAux'₀ (j : ℕ) (r : ℝ≥0) :
   hom_inv_id := by ext; rfl
   inv_hom_id := by ext _ ⟨⟩; rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem filtrationPowIsoAux'₀_spec (j : ℕ) (r : ℝ≥0) (i) :
     (filtrationPowIsoAux'₀ M j r).hom ≫
         ((ProFiltPseuNormGrp₁.level.obj r).map <| ProFiltPseuNormGrp₁.product.π _ i) =
       filtrationPowProj M j r i.down :=
   by ext; rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem filtrationPowIsoAux'₀_spec' (j : ℕ) (r : ℝ≥0) (i : ULift.{u} (Fin j)) :
     (filtrationPowIsoAux'₀ M j r).inv ≫ filtrationPowProj M j r i.down =
       ((ProFiltPseuNormGrp₁.level.obj r).map <| ProFiltPseuNormGrp₁.product.π _ i) :=
@@ -632,7 +632,7 @@ def filtrationPowIsoAux' (j : ℕ) (r : ℝ≥0) :
   filtrationPowIsoAux'₀ _ _ _ ≪≫
     (ProFiltPseuNormGrp₁.level.obj r).mapIso (ProFiltPseuNormGrp₁.productPowIso _).symm
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem filtrationPowIsoAux'_spec (j : ℕ) (r : ℝ≥0) (i) :
     (filtrationPowIsoAux' M j r).hom ≫ (ProFiltPseuNormGrp₁.level.obj r).map (Pi.π _ i) =
       filtrationPowProj _ _ _ i.down :=
@@ -642,7 +642,7 @@ theorem filtrationPowIsoAux'_spec (j : ℕ) (r : ℝ≥0) (i) :
   simp only [← Functor.map_comp, ProFiltPseuNormGrp₁.productPowIso_spec']
   simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem filtrationPowIsoAux'_spec' (j : ℕ) (r : ℝ≥0) (i : ULift.{u} (Fin j)) :
     (filtrationPowIsoAux' M j r).inv ≫ filtrationPowProj _ _ _ i.down =
       (ProFiltPseuNormGrp₁.level.obj r).map (Pi.π _ i) :=
@@ -653,14 +653,14 @@ def filtrationPowIso (j : ℕ) (r : ℝ≥0) :
       ∏ fun i : ULift.{u} (Fin j) => PseudoNormedGroup.filtrationObj M r :=
   filtrationPowIsoAux' _ _ _ ≪≫ filtrationPowIsoAux _ _ _
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem filtrationPowIso_spec (j : ℕ) (r : ℝ≥0) (i : ULift.{u} (Fin j)) :
     (filtrationPowIso M j r).hom ≫ Pi.π _ i = filtrationPowProj _ _ _ i.down :=
   by
   dsimp [filtrationPowIso]
   simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem filtrationPowIso_spec' (j : ℕ) (r : ℝ≥0) (i : ULift.{u} (Fin j)) :
     (filtrationPowIso M j r).inv ≫ filtrationPowProj _ _ _ i.down = Pi.π _ i := by
   rw [Iso.inv_comp_eq]; rw [filtrationPowIso_spec]
@@ -695,7 +695,7 @@ def profinitePowFiltrationIsoComponent (j : ℕ) (r : ℝ≥0) (T : Profinite.{u
         rw [← comp_apply, limit.lift_π]
         rfl }
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem profinitePowFiltrationIsoComponent_spec (j : ℕ) (r : ℝ≥0) (T : Profinite.{u})
     (i : ULift.{u + 1} (Fin j)) :
     (profinitePowFiltrationIsoComponent M j r T).hom ≫ Pi.π _ i =
@@ -707,7 +707,7 @@ theorem profinitePowFiltrationIsoComponent_spec (j : ℕ) (r : ℝ≥0) (T : Pro
   dsimp
   simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem profinitePowFiltrationIsoComponent_spec' (j : ℕ) (r : ℝ≥0) (T : Profinite.{u})
     (i : ULift.{u + 1} (Fin j)) :
     (profinitePowFiltrationIsoComponent M j r T).inv ≫
@@ -734,7 +734,7 @@ def profinitePowFiltrationIso (j : ℕ) (r : ℝ≥0) :
       profinitePowFiltrationIsoComponent_spec, profinitePowFiltrationIsoComponent_spec_assoc]
     ext; rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem profinitePowFiltrationIso_spec (j : ℕ) (r : ℝ≥0) (i : ULift.{u + 1} (Fin j)) :
     (profinitePowFiltrationIso M j r).hom ≫ Pi.π _ i =
       profiniteToCondensed.map (filtrationPowProj _ _ _ i.down) :=
@@ -750,7 +750,7 @@ theorem profinitePowFiltrationIso_spec (j : ℕ) (r : ℝ≥0) (i : ULift.{u + 1
   erw [profinitePowFiltrationIsoComponent_spec]
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem profinitePowFiltrationIso_spec' (j : ℕ) (r : ℝ≥0) (i : ULift.{u + 1} (Fin j)) :
     (profinitePowFiltrationIso M j r).inv ≫
         profiniteToCondensed.map (filtrationPowProj _ _ _ i.down) =
@@ -773,7 +773,7 @@ def isoOnTheLeftZero₀ :
   refine' CategoryTheory.preservesColimitIso (HomologicalComplex.eval _ _ 0) _ ≪≫ _
   refine' HasColimit.isoOfNatIso (Discrete.natIso fun i => iso.refl _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftZero₀_spec' (i : ULift.{u + 1} ℕ) :
     Sigma.ι (fun k : ULift.{u + 1, 0} ℕ => ((qprimeFPInt.{u} r' BD.data κ M).obj (ι k)).pt 0) i ≫
         (isoOnTheLeftZero₀ BD κ M ι).inv =
@@ -783,7 +783,7 @@ theorem isoOnTheLeftZero₀_spec' (i : ULift.{u + 1} ℕ) :
   erw [colimit.ι_desc_assoc]; dsimp; simp only [Category.id_comp]
   erw [colimit.ι_desc]; rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftZero₀_spec (i : ULift.{u + 1} ℕ) :
     (Sigma.ι (fun k : ULift.{u + 1, 0} ℕ => (qprimeFPInt.{u} r' BD.data κ M).obj (ι k)) i).f 0 ≫
         (isoOnTheLeftZero₀ BD κ M ι).hom =
@@ -805,7 +805,7 @@ def isoOnTheLeftZero :
   refine' profinitePowFiltrationIso M (BD.data.X 0) (κ (ι ⟨j⟩) 0)
 
 --≪≫ _,
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftZero_spec' (k : ℕ) :
     Sigma.ι
           (fun i : AsSmall.{u + 1, 0, 0} ℕ =>
@@ -823,7 +823,7 @@ theorem isoOnTheLeftZero_spec' (k : ℕ) :
   rw [Category.assoc]
   slice_lhs 2 3 => rw [isoOnTheLeftZero₀_spec']
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftZero_spec (k : ℕ) :
     condensedSetToCondensedAb.map (profinitePowFiltrationIso M (BD.data.pt 0) (κ (ι ⟨k⟩) 0)).inv ≫
         (Sigma.ι (fun k : ULift.{u + 1, 0} ℕ => (qprimeFPInt.{u} r' BD.data κ M).obj (ι k)) ⟨k⟩).f
@@ -837,7 +837,7 @@ theorem isoOnTheLeftZero_spec (k : ℕ) :
         ⟨k⟩ :=
   by rw [← Category.assoc, ← Iso.eq_comp_inv, isoOnTheLeftZero_spec']
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftZero_spec_alt (k : ℕ) :
     (Sigma.ι (fun k : ULift.{u + 1, 0} ℕ => (qprimeFPInt.{u} r' BD.data κ M).obj (ι k)) ⟨k⟩).f 0 ≫
         (isoOnTheLeftZero _ _ _ _ _).hom =
@@ -937,7 +937,7 @@ def isoOnTheLeftNeg₀ (q : ℕ) :
   refine' CategoryTheory.preservesColimitIso (HomologicalComplex.eval _ _ _) _ ≪≫ _
   refine' HasColimit.isoOfNatIso (Discrete.natIso fun i => iso.refl _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftNeg₀_spec' (q : ℕ) (i : ULift.{u + 1} ℕ) :
     Sigma.ι (fun k : ULift.{u + 1, 0} ℕ => ((qprimeFPInt.{u} r' BD.data κ M).obj (ι k)).pt -[q+1])
           i ≫
@@ -949,7 +949,7 @@ theorem isoOnTheLeftNeg₀_spec' (q : ℕ) (i : ULift.{u + 1} ℕ) :
   erw [colimit.ι_desc_assoc]; dsimp; simp only [Category.id_comp]
   erw [colimit.ι_desc]; rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftNeg₀_spec (q : ℕ) (i : ULift.{u + 1} ℕ) :
     (Sigma.ι (fun k : ULift.{u + 1, 0} ℕ => (qprimeFPInt.{u} r' BD.data κ M).obj (ι k)) i).f
           -[q+1] ≫
@@ -972,7 +972,7 @@ def isoOnTheLeftNeg (q : ℕ) :
   refine' CondensedSet_to_Condensed_Ab.map_iso _
   refine' profinitePowFiltrationIso M (BD.data.X (q + 1)) (κ (ι ⟨j⟩) (q + 1))
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftNeg_spec' (q : ℕ) (k : ℕ) :
     Sigma.ι
           (fun i : AsSmall.{u + 1, 0, 0} ℕ =>
@@ -991,7 +991,7 @@ theorem isoOnTheLeftNeg_spec' (q : ℕ) (k : ℕ) :
   rw [Category.assoc]
   slice_lhs 2 3 => rw [isoOnTheLeftNeg₀_spec']
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftNeg_spec (q : ℕ) (k : ℕ) :
     condensedSetToCondensedAb.map
           (profinitePowFiltrationIso M (BD.data.pt (q + 1)) (κ (ι ⟨k⟩) (q + 1))).inv ≫
@@ -1006,7 +1006,7 @@ theorem isoOnTheLeftNeg_spec (q : ℕ) (k : ℕ) :
         ⟨k⟩ :=
   by rw [← Category.assoc, ← Iso.eq_comp_inv, isoOnTheLeftNeg_spec']
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheLeftNeg_spec_alt (q : ℕ) (k : ℕ) :
     (Sigma.ι (fun k : ULift.{u + 1, 0} ℕ => (qprimeFPInt.{u} r' BD.data κ M).obj (ι k)) ⟨k⟩).f
           -[q+1] ≫
@@ -1089,12 +1089,12 @@ def productIsoBiproduct {A : Type (u + 2)} [Category.{u + 1} A] [Abelian A] {α 
     [Fintype α] (X : α → A) : ∏ X ≅ biproduct X :=
   (limit.isLimit _).conePointUniqueUpToIso (biproduct.isLimit _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem productIsoBiproduct_spec' {A : Type (u + 2)} [Category.{u + 1} A] [Abelian A]
     {α : Type (u + 1)} [Fintype α] (X : α → A) (t) :
     (productIsoBiproduct X).inv ≫ Pi.π _ t = biproduct.π _ t := by erw [limit.lift_π]; rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem productIsoBiproduct_spec {A : Type (u + 2)} [Category.{u + 1} A] [Abelian A]
     {α : Type (u + 1)} [Fintype α] (X : α → A) (t) :
     (productIsoBiproduct X).hom ≫ biproduct.π _ t = Pi.π _ t := by
@@ -1110,7 +1110,7 @@ def condensedProductIsoBiproduct (q : ℕ) :
       inv_hom_id := by apply biproduct.hom_ext; rintro ⟨j⟩; dsimp; simp }
 
 --(limit.is_limit _).cone_point_unique_up_to_iso (biproduct.is_limit _)
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem condensedProductIsoBiproduct_spec' (q : ℕ) (i : ULift.{u + 1} (Fin q)) :
     (condensedProductIsoBiproduct M q).inv ≫ condensedAbToCondensedSet.map (Pi.π _ i) =
       condensedAbToCondensedSet.map (biproduct.π _ i.down) :=
@@ -1120,7 +1120,7 @@ theorem condensedProductIsoBiproduct_spec' (q : ℕ) (i : ULift.{u + 1} (Fin q))
   erw [limit.lift_π]
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem condensedProductIsoBiproduct_spec (q : ℕ) (i : ULift.{u + 1} (Fin q)) :
     (condensedProductIsoBiproduct M q).hom ≫ condensedAbToCondensedSet.map (biproduct.π _ i.down) =
       condensedAbToCondensedSet.map (Pi.π _ i) :=
@@ -1132,7 +1132,7 @@ def condensedProductIsoProduct (q : ℕ) :
   preservesLimitIso condensedAbToCondensedSet _ ≪≫
     HasLimit.isoOfNatIso (Discrete.natIso fun i => Iso.refl _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem condensedProductIsoProduct_spec (q : ℕ) (i : ULift.{u + 1} (Fin q)) :
     (condensedProductIsoProduct M q).hom ≫ Pi.π _ i = condensedAbToCondensedSet.map (Pi.π _ i) :=
   by
@@ -1141,7 +1141,7 @@ theorem condensedProductIsoProduct_spec (q : ℕ) (i : ULift.{u + 1} (Fin q)) :
   dsimp
   erw [Category.comp_id, limit.lift_π]; rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem condensedProductIsoProduct_spec' (q : ℕ) (i : ULift.{u + 1} (Fin q)) :
     (condensedProductIsoProduct M q).inv ≫ condensedAbToCondensedSet.map (Pi.π _ i) = Pi.π _ i := by
   rw [Iso.inv_comp_eq]; rw [condensedProductIsoProduct_spec]
@@ -1160,7 +1160,7 @@ def isoOnTheRightZero :
 -- Why is this thing tagged with simp in the first place!?
 attribute [-simp] forget_map_eq_coe
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheRightZero_spec' (i : ULift.{u + 1} (Fin (BD.data.pt 0))) :
     (isoOnTheRightZero BD κ M ι hι).inv ≫ condensedSetToCondensedAb.map (Pi.π _ i) =
       condensedSetToCondensedAb.map (condensedAbToCondensedSet.map <| biproduct.π _ i.down) :=
@@ -1171,7 +1171,7 @@ theorem isoOnTheRightZero_spec' (i : ULift.{u + 1} (Fin (BD.data.pt 0))) :
   erw [condensedProductIsoBiproduct_spec']
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheRightZero_spec (i : ULift.{u + 1} (Fin (BD.data.pt 0))) :
     (isoOnTheRightZero BD κ M ι hι).hom ≫
         condensedSetToCondensedAb.map (condensedAbToCondensedSet.map <| biproduct.π _ i.down) =
@@ -1224,7 +1224,7 @@ def isoOnTheRightNeg (q : ℕ) :
   refine' _ ≪≫ condensedProductIsoBiproduct _ _
   refine' (condensedProductIsoProduct _ _).symm
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheRightNeg_spec' (q : ℕ) (i : ULift.{u + 1} (Fin (BD.data.pt (q + 1)))) :
     (isoOnTheRightNeg BD κ M ι hι q).inv ≫ condensedSetToCondensedAb.map (Pi.π _ i) =
       condensedSetToCondensedAb.map (condensedAbToCondensedSet.map <| biproduct.π _ i.down) :=
@@ -1235,7 +1235,7 @@ theorem isoOnTheRightNeg_spec' (q : ℕ) (i : ULift.{u + 1} (Fin (BD.data.pt (q 
   erw [condensedProductIsoBiproduct_spec']
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem isoOnTheRightNeg_spec (q : ℕ) (i : ULift.{u + 1} (Fin (BD.data.pt (q + 1)))) :
     (isoOnTheRightNeg BD κ M ι hι q).hom ≫
         condensedSetToCondensedAb.map (condensedAbToCondensedSet.map <| biproduct.π _ i.down) =

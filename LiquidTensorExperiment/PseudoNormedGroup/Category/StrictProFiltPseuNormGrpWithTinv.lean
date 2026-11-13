@@ -350,7 +350,7 @@ def product.lift {α : Type u} [Fintype α] (X : α → ProFiltPseuNormGrpWithTi
       erw [(f i).map_tinv]
       rfl }
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem product.lift_π {α : Type u} [Fintype α] (X : α → ProFiltPseuNormGrpWithTinv₁.{u} r)
     (M : ProFiltPseuNormGrpWithTinv₁.{u} r) (f : ∀ i, M ⟶ X i) (i) :
     product.lift r X M f ≫ product.π r X i = f i := by ext; simpa

@@ -71,7 +71,7 @@ end
 
 namespace Commsq
 
-attribute [simp, reassoc] ι_fst ι_snd inl_π inr_π
+attribute [reassoc (attr := simp)] ι_fst ι_snd inl_π inr_π
 
 @[reassoc]
 theorem w (sq : Commsq f₁₁ g₁₁ g₁₂ f₂₁) : f₁₁ ≫ g₁₂ = g₁₁ ≫ f₂₁ := by rw [sq.tr₁, sq.tr₂]

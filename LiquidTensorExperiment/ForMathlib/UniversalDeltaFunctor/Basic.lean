@@ -67,7 +67,7 @@ theorem ext {F G : A ⥤δ B} (η γ : F ⟶ G) (h : ∀ n, η n = γ n) : η = 
 theorem η_eq_coe {F G : A ⥤δ B} (η : F ⟶ G) (n : ℕ) : η.η n = η n :=
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem comm {F G : A ⥤δ B} (η : F ⟶ G) (n : ℕ) (S : ShortExactSequence A) :
     (F.δ n).app S ≫ (η (n + 1)).app S.fst = (η n).app S.trd ≫ (G.δ n).app S :=
   by
@@ -209,7 +209,7 @@ def Effacement.cokernelIso {F : A ⥤δ B} {X n} (e : Effacement F X n) :
     Limits.cokernel ((F n).map (Limits.cokernel.π e.ι)) ≅ (F (n + 1)).obj X :=
   asIso e.cokernelComparison
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem Effacement.cokernelIso_spec {F : A ⥤δ B} {X n} (e : Effacement F X n) :
     Limits.cokernel.π _ ≫ e.cokernelIso.hom = (F.δ n).app e.ses :=
   Limits.cokernel.π_desc _ _ _

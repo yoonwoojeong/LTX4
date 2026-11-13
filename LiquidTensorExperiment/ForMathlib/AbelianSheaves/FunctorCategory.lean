@@ -74,7 +74,7 @@ instance functor_category_hasKernels : HasKernels (C ⥤ D) :=
 def NatTrans.kernelObjIso {F G : C ⥤ D} (η : F ⟶ G) (X : C) : (kernel η).obj X ≅ kernel (η.app X) :=
   ((limit.isLimit _).conePointUniqueUpToIso η.isLimitKernelFork).app X
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem NatTrans.kernelObjIso_hom_ι {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
     (NatTrans.kernelObjIso η X).hom ≫ kernel.ι (η.app X) = (kernel.ι η).app X :=
   by
@@ -83,7 +83,7 @@ theorem NatTrans.kernelObjIso_hom_ι {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
   apply_fun fun e => e.app X at h 
   exact h
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem NatTrans.kernelObjIso_inv_ι {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
     (NatTrans.kernelObjIso η X).inv ≫ (kernel.ι η).app X = kernel.ι _ := by simp [Iso.inv_comp_eq]
 
@@ -147,7 +147,7 @@ def NatTrans.cokernelObjIso {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
     (cokernel η).obj X ≅ cokernel (η.app X) :=
   ((colimit.isColimit _).coconePointUniqueUpToIso η.isColimitCokernelCofork).app X
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem NatTrans.cokernelObjIso_π_hom {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
     (cokernel.π η).app X ≫ (NatTrans.cokernelObjIso η X).hom = cokernel.π _ :=
   by
@@ -157,7 +157,7 @@ theorem NatTrans.cokernelObjIso_π_hom {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
   apply_fun fun e => e.app X at h 
   exact h
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem NatTrans.cokernelObjIso_π_inv {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
     cokernel.π (η.app X) ≫ (NatTrans.cokernelObjIso η X).inv = (cokernel.π η).app X := by
   simp [Iso.comp_inv_eq]

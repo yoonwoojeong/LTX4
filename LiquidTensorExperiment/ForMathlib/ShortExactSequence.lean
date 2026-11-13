@@ -58,7 +58,7 @@ attribute [instance] mono' epi'
 
 variable {𝒞} [HasImages 𝒞] [HasZeroMorphisms 𝒞] [HasKernels 𝒞]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem f_comp_g (A : ShortExactSequence 𝒞) : A.f ≫ A.g = 0 :=
   A.exact'.w
 
@@ -119,15 +119,15 @@ theorem id_trd (A : ShortExactSequence 𝒞) : Hom.trd (𝟙 A) = 𝟙 A.3 :=
 
 variable {A B C : ShortExactSequence 𝒞} (f : A ⟶ B) (g : B ⟶ C)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem comp_fst : (f ≫ g).1 = f.1 ≫ g.1 :=
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem comp_snd : (f ≫ g).2 = f.2 ≫ g.2 :=
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem comp_trd : (f ≫ g).3 = f.3 ≫ g.3 :=
   rfl
 

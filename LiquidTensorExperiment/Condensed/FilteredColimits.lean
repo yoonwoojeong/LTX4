@@ -736,7 +736,7 @@ theorem isSheaf_colimit_presheaf :
   --rw is_sheaf_iff_is_sheaf_of_type,
   let G := colimit (F ⋙ Sheaf_to_presheaf _ _)
   let Gs := F ⋙ Sheaf_to_presheaf _ _
-  have hGs : ∀ j, presheaf.isSheaf proetaleTopology (Gs.obj j) := by intro j; exact (F.obj j).2
+  have hGs : ∀ j, Presheaf.IsSheaf proetaleTopology (Gs.obj j) := by intro j; exact (F.obj j).2
   have hGsempty : ∀ j, (Gs.obj j).EmptyCondition' :=
     by
     intro j; specialize hGs j

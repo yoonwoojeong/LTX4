@@ -133,7 +133,7 @@ def scaleIndexLeft (C : SystemOfComplexes) (κ : ℝ≥0) :=
 
 theorem Admissible.scaleIndexLeft {C : SystemOfComplexes} (hC : C.Admissible) (κ : ℝ≥0) :
     (C.scaleIndexLeft κ).Admissible :=
-  { d_norm_noninc' := fun c i j hij => by apply admissible.d_normNoninc C hC (κ * c) i j
+  { d_norm_noninc' := fun c i j hij => by apply Admissible.d_normNoninc C hC (κ * c) i j
     res_normNoninc := fun c₁ c₂ i hc => hC.res_normNoninc _ _ i (by skip; dsimp; infer_instance) }
 
 theorem IsWeakBoundedExact.scaleIndexLeft {C : SystemOfComplexes} {k K : ℝ≥0} {m : ℕ} (c₀ c₁ : ℝ≥0)
@@ -166,7 +166,7 @@ def scaleIndexRight (C : SystemOfComplexes) (κ : ℝ≥0) :=
 
 theorem Admissible.scaleIndexRight {C : SystemOfComplexes} (hC : C.Admissible) (κ : ℝ≥0) :
     (C.scaleIndexRight κ).Admissible :=
-  { d_norm_noninc' := fun c i j hij => by apply admissible.d_normNoninc C hC (c * κ) i j
+  { d_norm_noninc' := fun c i j hij => by apply Admissible.d_normNoninc C hC (c * κ) i j
     res_normNoninc := fun c₁ c₂ i hc => hC.res_normNoninc _ _ i (by skip; dsimp; infer_instance) }
 
 theorem IsWeakBoundedExact.scaleIndexRight {C : SystemOfComplexes} {k K : ℝ≥0} {m : ℕ} (c₀ c₁ : ℝ≥0)

@@ -98,7 +98,7 @@ instance uniformBoundReplaceUniformly {α : Type v} (X : α → BoundedHomotopyC
 def lift {P X Y : 𝒦} [IsKProjective P.val] (f : P ⟶ Y) (g : X ⟶ Y) [IsQuasiIso g] : P ⟶ X :=
   ((hom_K_projective_bijective P.val g).2 f).some
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem lift_lifts {P X Y : 𝒦} [IsKProjective P.val] (f : P ⟶ Y) (g : X ⟶ Y) [IsQuasiIso g] :
     lift f g ≫ g = f :=
   ((hom_K_projective_bijective P.val g).2 f).choose_spec
@@ -120,12 +120,12 @@ theorem lift_comp {P X Y : 𝒦} [IsKProjective P.val] (f : P ⟶ X) (g : X ⟶ 
     lift (f ≫ g) g = f :=
   (lift_unique _ _ _ (by simp)).symm
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem lift_comp_lift_self {P X Y Z : 𝒦} [IsKProjective P.val] [IsKProjective X.val] (f : P ⟶ Y)
     (g : X ⟶ Y) [IsQuasiIso g] (k : Z ⟶ Y) [IsQuasiIso k] : lift f g ≫ lift g k = lift f k :=
   lift_unique _ _ _ (by simp)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem lift_comp_lift_comp {P W X Y Z : 𝒦} [IsKProjective P.val] [IsKProjective X.val] (f : P ⟶ Y)
     (g : X ⟶ Y) [IsQuasiIso g] (h : Y ⟶ Z) (k : W ⟶ Z) [IsQuasiIso k] :
     lift f g ≫ lift (g ≫ h) k = lift (f ≫ h) k :=

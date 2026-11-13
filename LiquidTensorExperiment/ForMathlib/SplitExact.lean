@@ -35,31 +35,34 @@ variable [HasZeroMorphisms 𝒜] [HasKernels 𝒜] [HasImages 𝒜]
 /-- If `f : A ⟶ B` and `g : B ⟶ C` then `short_exact f g` is the proposition saying
   the resulting diagram `0 ⟶ A ⟶ B ⟶ C ⟶ 0` is an exact sequence. -/
 structure ShortExact : Prop where
-  [Mono : Mono f]
-  [Epi : Epi g]
+  [mono : Mono f]
+  [epi : Epi g]
   exact : Exact f g
 
 open scoped ZeroObject
 
 -- TODO move
 instance zero_to_zero_isIso {C : Type _} [Category C] [HasZeroObject C] (f : (0 : C) ⟶ 0) :
-    IsIso f := by convert show is_iso (𝟙 (0 : C)) by infer_instance
+    IsIso f := by
+  convert show IsIso (𝟙 (0 : C)) by infer_instance
+  -- Porting note: Lean 3's `convert` closed this by subsingleton elimination
+  exact HasZeroObject.from_zero_ext _ _
 
 /-- An exact sequence `A -f⟶ B -g⟶ C` is *left split*
 if there exists a morphism `φ : B ⟶ A` such that `f ≫ φ = 𝟙 A` and `g` is epi.
 
 Such a sequence is automatically short exact (i.e., `f` is mono). -/
 structure LeftSplit : Prop where
-  LeftSplit : ∃ φ : B ⟶ A, f ≫ φ = 𝟙 A
-  [Epi : Epi g]
+  leftSplit : ∃ φ : B ⟶ A, f ≫ φ = 𝟙 A
+  [epi : Epi g]
   exact : Exact f g
 
 theorem LeftSplit.shortExact {f : A ⟶ B} {g : B ⟶ C} (h : LeftSplit f g) : ShortExact f g :=
-  { Mono := by
-      obtain ⟨φ, hφ⟩ := h.left_split
-      haveI : mono (f ≫ φ) := by rw [hφ]; infer_instance
+  { mono := by
+      obtain ⟨φ, hφ⟩ := h.leftSplit
+      haveI : Mono (f ≫ φ) := by rw [hφ]; infer_instance
       exact mono_of_mono f φ
-    Epi := h.Epi
+    epi := h.epi
     exact := h.exact }
 
 /-- An exact sequence `A -f⟶ B -g⟶ C` is *right split*
@@ -67,16 +70,16 @@ if there exists a morphism `φ : C ⟶ B` such that `f ≫ φ = 𝟙 A` and `f` 
 
 Such a sequence is automatically short exact (i.e., `g` is epi). -/
 structure RightSplit : Prop where
-  RightSplit : ∃ χ : C ⟶ B, χ ≫ g = 𝟙 C
-  [Mono : Mono f]
+  rightSplit : ∃ χ : C ⟶ B, χ ≫ g = 𝟙 C
+  [mono : Mono f]
   exact : Exact f g
 
 theorem RightSplit.shortExact {f : A ⟶ B} {g : B ⟶ C} (h : RightSplit f g) : ShortExact f g :=
-  { Epi := by
-      obtain ⟨χ, hχ⟩ := h.right_split
-      haveI : epi (χ ≫ g) := by rw [hχ]; infer_instance
+  { epi := by
+      obtain ⟨χ, hχ⟩ := h.rightSplit
+      haveI : Epi (χ ≫ g) := by rw [hχ]; infer_instance
       exact epi_of_epi χ g
-    Mono := h.Mono
+    mono := h.mono
     exact := h.exact }
 
 end HasZeroMorphisms
@@ -104,44 +107,46 @@ variable [HasKernels 𝒜] [HasImages 𝒜]
 theorem exact_of_split {A B C : 𝒜} (f : A ⟶ B) (g : B ⟶ C) (χ : C ⟶ B) (φ : B ⟶ A) (hfg : f ≫ g = 0)
     (H : φ ≫ f + g ≫ χ = 𝟙 B) : Exact f g :=
   { w := hfg
-    Epi :=
+    epi :=
       by
-      let ψ : (kernel_subobject g : 𝒜) ⟶ CategoryTheory.Limits.imageSubobject f :=
+      let ψ : (kernelSubobject g : 𝒜) ⟶ CategoryTheory.Limits.imageSubobject f :=
         Subobject.arrow _ ≫ φ ≫ CategoryTheory.Limits.factorThruImageSubobject f
       suffices ψ ≫ imageToKernel f g hfg = 𝟙 _ by convert epi_of_epi ψ _; rw [this]; infer_instance
-      rw [← cancel_mono (Subobject.arrow _)]; swap; · infer_instance
+      rw [← cancel_mono (Subobject.arrow _)]
       simp only [imageToKernel_arrow, CategoryTheory.Limits.imageSubobject_arrow_comp, Category.id_comp, Category.assoc]
+      -- Porting note: Lean 4 `calc` does not defer `_` steps, so the proof is given inline
       calc
-        (kernel_subobject g).arrow ≫ φ ≫ f = (kernel_subobject g).arrow ≫ 𝟙 B := _
-        _ = (kernel_subobject g).arrow := Category.comp_id _
-      rw [← H, Preadditive.comp_add]
-      simp only [add_zero, zero_comp, CategoryTheory.Limits.kernelSubobject_arrow_comp_assoc] }
+        (kernelSubobject g).arrow ≫ φ ≫ f = (kernelSubobject g).arrow ≫ 𝟙 B := by
+          rw [← H, Preadditive.comp_add]
+          simp only [add_zero, zero_comp, CategoryTheory.Limits.kernelSubobject_arrow_comp_assoc]
+        _ = (kernelSubobject g).arrow := Category.comp_id _ }
 
 section
 
 variable {f g}
 
-theorem Split.exact (h : Split f g) : Exact f g := by obtain ⟨φ, χ, -, -, h1, -, h2⟩ := h;
+theorem Split.exact (h : Split f g) : Exact f g := by
+  obtain ⟨φ, χ, -, -, h1, -, h2⟩ := h
   exact exact_of_split f g χ φ h1 h2
 
 theorem Split.leftSplit (h : Split f g) : LeftSplit f g :=
-  { LeftSplit := by obtain ⟨φ, χ, h1, -⟩ := h; exact ⟨φ, h1⟩
-    Epi := by
+  { leftSplit := by obtain ⟨φ, χ, h1, -⟩ := h; exact ⟨φ, h1⟩
+    epi := by
       obtain ⟨φ, χ, -, h2, -⟩ := h
-      have : epi (χ ≫ g) := by rw [h2]; infer_instance
+      have : Epi (χ ≫ g) := by rw [h2]; infer_instance
       exact epi_of_epi χ g
     exact := h.exact }
 
 theorem Split.rightSplit (h : Split f g) : RightSplit f g :=
-  { RightSplit := by obtain ⟨φ, χ, -, h1, -⟩ := h; exact ⟨χ, h1⟩
-    Mono := by
+  { rightSplit := by obtain ⟨φ, χ, -, h1, -⟩ := h; exact ⟨χ, h1⟩
+    mono := by
       obtain ⟨φ, χ, h1, -⟩ := h
-      have : mono (f ≫ φ) := by rw [h1]; infer_instance
+      have : Mono (f ≫ φ) := by rw [h1]; infer_instance
       exact mono_of_mono f φ
     exact := h.exact }
 
 theorem Split.shortExact (h : Split f g) : ShortExact f g :=
-  h.LeftSplit.ShortExact
+  h.leftSplit.shortExact
 
 end
 
@@ -151,7 +156,10 @@ theorem Split.map {𝒜 ℬ : Type _} [Category 𝒜] [Abelian 𝒜] [Category �
   by
   obtain ⟨φ, χ, h1, h2, h3, h4, h5⟩ := h
   refine' ⟨⟨F.map φ, F.map χ, _⟩⟩
-  simp only [← F.map_comp, ← F.map_id, ← F.map_add, F.map_zero, *, eq_self_iff_true, and_true_iff]
+  simp only [← F.map_comp, ← F.map_id]
+  -- Porting note: `simp only` does not use `← F.map_add` here (as in mathlib4's port)
+  rw [← F.map_add]
+  simp only [F.map_zero, *, true_and]
 
 /-- The sequence `A ⟶ A ⊞ B ⟶ B` is exact. -/
 theorem exact_inl_snd [HasBinaryBiproducts 𝒜] (A B : 𝒜) :
@@ -175,27 +183,25 @@ theorem isIso_of_shortExact_of_isIso_of_isIso (h : ShortExact f g) (h' : ShortEx
     (i₁ : A ⟶ A') (i₂ : B ⟶ B') (i₃ : C ⟶ C') (comm₁ : i₁ ≫ f' = f ≫ i₂) (comm₂ : i₂ ≫ g' = g ≫ i₃)
     [IsIso i₁] [IsIso i₃] : IsIso i₂ :=
   by
-  obtain ⟨_, _, _⟩ := h
-  obtain ⟨_, _, _⟩ := h'
-  skip
-  refine'
-            @Abelian.isIso_of_epi_of_isIso_of_isIso_of_mono 𝒜 _ _ 0 _ _ _ 0 _ _ _ 0 f g 0 f'
-              g' 0 i₁ i₂ i₃ _ comm₁ comm₂ 0 0 0 0 0 _ _ _ _ _ _ _ _ _ _ _ <;>
-          try simp <;>
-        try apply exact_zero_left_of_mono <;>
-      try assumption <;>
-    rwa [← epi_iff_exact_zero_right]
+  -- Porting note: proof adapted from mathlib4's port of the identical mathlib3 lemma
+  haveI := h.mono; haveI := h.epi; haveI := h'.mono; haveI := h'.epi
+  have := h.exact; have := h'.exact
+  refine @Abelian.isIso_of_epi_of_isIso_of_isIso_of_mono 𝒜 _ _ 0 _ _ _ 0 _ _ _ 0 f g 0 f' g'
+      0 i₁ i₂ i₃ ?_ comm₁ comm₂ 0 0 0 0 0 ?_ ?_ ?_ ?_ ?_ ?_ ?_ _ _ _ _
+  all_goals try simp
+  all_goals try assumption
+  all_goals try apply exact_zero_left_of_mono
+  all_goals rwa [← epi_iff_exact_zero_right ]
 
 end Abelian
 
 /-- A *splitting* of a sequence `A -f⟶ B -g⟶ C` is an isomorphism
 to the short exact sequence `0 ⟶ A ⟶ A ⊞ C ⟶ C ⟶ 0` such that
 the vertical maps on the left and the right are the identity. -/
-@[nolint has_inhabited_instance]
 structure Splitting [HasZeroMorphisms 𝒜] [HasBinaryBiproducts 𝒜] where
-  Iso : B ≅ A ⊞ C
-  comp_iso_eq_inl : f ≫ Iso.hom = biprod.inl
-  iso_comp_snd_eq : Iso.hom ≫ biprod.snd = g
+  iso : B ≅ A ⊞ C
+  comp_iso_eq_inl : f ≫ iso.hom = biprod.inl
+  iso_comp_snd_eq : iso.hom ≫ biprod.snd = g
 
 variable {f g}
 
@@ -205,34 +211,35 @@ section HasZeroMorphisms
 
 variable [HasZeroMorphisms 𝒜] [HasBinaryBiproducts 𝒜]
 
-attribute [simp, reassoc] comp_iso_eq_inl iso_comp_snd_eq
+attribute [reassoc (attr := simp)] comp_iso_eq_inl iso_comp_snd_eq
 
 variable (h : Splitting f g)
 
-@[simp, reassoc]
-theorem inl_comp_iso_eq : biprod.inl ≫ h.Iso.inv = f := by rw [Iso.comp_inv_eq, h.comp_iso_eq_inl]
+@[reassoc (attr := simp)]
+theorem inl_comp_iso_eq : biprod.inl ≫ h.iso.inv = f := by rw [Iso.comp_inv_eq, h.comp_iso_eq_inl]
 
-@[simp, reassoc]
-theorem iso_comp_eq_snd : h.Iso.inv ≫ g = biprod.snd := by rw [Iso.inv_comp_eq, h.iso_comp_snd_eq]
+@[reassoc (attr := simp)]
+theorem iso_comp_eq_snd : h.iso.inv ≫ g = biprod.snd := by rw [Iso.inv_comp_eq, h.iso_comp_snd_eq]
 
 /-- If `h` is a splitting of `A -f⟶ B -g⟶ C`,
 then `h.section : C ⟶ B` is the morphism satisfying `h.section ≫ g = 𝟙 C`. -/
-def CategoryTheory.Splitting.section : C ⟶ B :=
-  biprod.inr ≫ h.Iso.inv
+def «section» : C ⟶ B :=
+  biprod.inr ≫ h.iso.inv
 
 /-- If `h` is a splitting of `A -f⟶ B -g⟶ C`,
 then `h.retraction : B ⟶ A` is the morphism satisfying `f ≫ h.retraction = 𝟙 A`. -/
 def retraction : B ⟶ A :=
-  h.Iso.Hom ≫ biprod.fst
+  h.iso.hom ≫ biprod.fst
 
-@[simp, reassoc]
-theorem section_π : h.section ≫ g = 𝟙 C := by delta Splitting.section; simp
+@[reassoc (attr := simp)]
+theorem section_π : h.section ≫ g = 𝟙 C := by delta Splitting.«section»; simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem ι_retraction : f ≫ h.retraction = 𝟙 A := by delta retraction; simp
 
-@[simp, reassoc]
-theorem section_retraction : h.section ≫ h.retraction = 0 := by delta Splitting.section retraction;
+@[reassoc (attr := simp)]
+theorem section_retraction : h.section ≫ h.retraction = 0 := by
+  delta Splitting.«section» retraction
   simp
 
 /-- The retraction in a splitting is a split mono. -/
@@ -243,12 +250,12 @@ protected def splitMono : SplitMono f :=
 protected def splitEpi : SplitEpi g :=
   ⟨h.section, by simp⟩
 
-@[simp, reassoc]
-theorem inr_iso_inv : biprod.inr ≫ h.Iso.inv = h.section :=
+@[reassoc (attr := simp)]
+theorem inr_iso_inv : biprod.inr ≫ h.iso.inv = h.section :=
   rfl
 
-@[simp, reassoc]
-theorem iso_hom_fst : h.Iso.Hom ≫ biprod.fst = h.retraction :=
+@[reassoc (attr := simp)]
+theorem iso_hom_fst : h.iso.hom ≫ biprod.fst = h.retraction :=
   rfl
 
 -- move this, add `iso_zero_biprod`
@@ -272,18 +279,15 @@ def splittingOfIsIsoZero {X Y Z : 𝒜} (f : X ⟶ Y) [IsIso f] (hZ : IsZero Z) 
   ⟨(asIso f).symm ≪≫ isoBiprodZero hZ, by simp [hZ.eq_of_tgt _ 0], by simp⟩
 
 protected theorem mono : Mono f :=
-  by
-  apply mono_of_mono _ h.retraction
-  rw [h.ι_retraction]
-  infer_instance
+  -- Porting note: as in mathlib4's port of the identical lemma
+  mono_of_mono_fac h.ι_retraction
 
 protected theorem epi : Epi g :=
   by
-  apply (config := { instances := false }) epi_of_epi h.section
-  rw [h.section_π]
-  infer_instance
+  -- Porting note: `apply_with` has no direct Lean 4 equivalent; mathlib4's proof
+  exact epi_of_epi_fac h.section_π
 
-instance : Mono h.section := by delta Splitting.section; infer_instance
+instance : Mono h.section := by delta Splitting.«section»; infer_instance
 
 instance : Epi h.retraction := by delta retraction; apply epi_comp
 
@@ -297,7 +301,7 @@ variable (h : Splitting f g)
 
 theorem split_add : h.retraction ≫ f + g ≫ h.section = 𝟙 _ :=
   by
-  delta Splitting.section retraction
+  delta Splitting.«section» retraction
   rw [← cancel_mono h.iso.hom, ← cancel_epi h.iso.inv]
   simp only [Category.comp_id, Category.id_comp, Category.assoc, Iso.inv_hom_id_assoc,
     Iso.inv_hom_id, Limits.biprod.total, Preadditive.comp_add, Preadditive.add_comp,
@@ -335,17 +339,18 @@ protected theorem exact : Exact f g :=
   by
   rw [exact_iff_exact_of_iso f g (biprod.inl : A ⟶ A ⊞ C) (biprod.snd : A ⊞ C ⟶ C) _ _ _]
   · exact exact_inl_snd _ _
-  · refine' Arrow.isoMk (iso.refl _) h.iso _
+  -- Porting note: the remaining goals as in mathlib4's port of the identical lemma
+  · refine Arrow.isoMk (Iso.refl _) h.iso ?_
     simp only [Iso.refl_hom, Arrow.mk_hom, Category.id_comp, comp_iso_eq_inl]
-  · refine' Arrow.isoMk h.iso (iso.refl _) _
-    simp only [Iso.refl_hom, Arrow.mk_hom, Category.comp_id, iso_comp_snd_eq]
-    erw [Category.comp_id]
-  -- why ??
+    rfl
+  · refine Arrow.isoMk h.iso (Iso.refl _) ?_
+    dsimp
+    simp
   · rfl
 
 protected theorem shortExact : ShortExact f g :=
-  { Mono := h.Mono
-    Epi := h.Epi
+  { mono := h.mono
+    epi := h.epi
     exact := h.exact }
 
 end Preadditive
@@ -365,7 +370,7 @@ The morphism `i` is than automatically an isomorphism. -/
 def mk' (h : ShortExact f g) (i : B ⟶ A ⊞ C) (h1 : f ≫ i = biprod.inl) (h2 : i ≫ biprod.snd = g) :
     Splitting f g
     where
-  Iso := by
+  iso := by
     refine' @CategoryTheory.asIso _ _ _ _ i (id _)
     refine'
       CategoryTheory.isIso_of_shortExact_of_isIso_of_isIso f g _ _ h _ _ _ _
@@ -373,7 +378,7 @@ def mk' (h : ShortExact f g) (i : B ⟶ A ⊞ C) (h1 : f ≫ i = biprod.inl) (h2
     constructor
     apply exact_inl_snd
   comp_iso_eq_inl := by rwa [CategoryTheory.asIso_hom]
-  iso_comp_snd_eq := h2
+  iso_comp_snd_eq := by exact h2
 
 end Abelian
 
@@ -385,10 +390,10 @@ variable [Abelian 𝒜]
 
 /-- A short exact sequence that is left split admits a splitting. -/
 def LeftSplit.splitting {f : A ⟶ B} {g : B ⟶ C} (h : LeftSplit f g) : Splitting f g :=
-  Splitting.mk' h.ShortExact (biprod.lift h.LeftSplit.some g)
+  Splitting.mk' h.shortExact (biprod.lift h.leftSplit.choose g)
     (by
       ext
-      · simpa only [biprod.inl_fst, biprod.lift_fst, Category.assoc] using h.left_split.choose_spec
+      · simpa only [biprod.inl_fst, biprod.lift_fst, Category.assoc] using h.leftSplit.choose_spec
       · simp only [biprod.inl_snd, biprod.lift_snd, Category.assoc, h.exact.w])
     (by simp only [biprod.lift_snd])
 

@@ -44,7 +44,7 @@ that forms a complex, together with a `homotopy`
 between the two universal maps `σ_add` and `σ_proj`. -/
 structure Package where
   data : Data
-  Homotopy : Homotopy (Data.proj 2) (Data.sum 2)
+  Homotopy : Homotopy (data.proj 2) (data.sum 2)
 
 namespace Package
 

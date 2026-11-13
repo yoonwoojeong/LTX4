@@ -8,7 +8,7 @@ open CategoryTheory
 
 namespace CategoryTheory.Limits
 
-attribute [local instance] concrete_category.hasCoeToFun concrete_category.hasCoeToSort
+attribute [local instance] concrete_category.hasCoeToFun ConcreteCategory.hasCoeToSort
 
 variable {C : Type u} [Category.{v} C] [ConcreteCategory.{v} C]
 

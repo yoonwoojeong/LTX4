@@ -82,8 +82,8 @@ theorem functor_unitIso_comp (F : ShortComplex (J ⥤ C)) :
         FunctorCategoryEquivalence.counitIso.hom.app (FunctorCategoryEquivalence.functor.obj F) =
       𝟙 _ :=
   by
-  dsimp [functor_category_equivalence.functor, functor_category_equivalence.unitIso,
-    functor_category_equivalence.inverse, functor_category_equivalence.counitIso, evaluation,
+  dsimp [functor_category_equivalence.functor, FunctorCategoryEquivalence.unitIso,
+    functor_category_equivalence.inverse, FunctorCategoryEquivalence.counitIso, evaluation,
     Functor.flip, Functor.mapShortComplex, FunctorCategoryEquivalence.CounitIso.obj,
     FunctorCategoryEquivalence.UnitIso.obj, NatIso.ofComponents]
   ext <;> apply id_comp
@@ -141,12 +141,12 @@ theorem natTransHomMk_app_τ₂_eq {S₁ S₂ : J ⥤ ShortComplex C} (τ₁ : S
     (comm₂₃ : (𝟙 S₁ ◫ φ₂₃) ≫ τ₃ = τ₂ ≫ 𝟙 S₂ ◫ φ₂₃) (j : J) :
     ((natTransHomMk τ₁ τ₂ τ₃ comm₁₂ comm₂₃).app j).τ₂ = τ₂.app j :=
   by
-  dsimp [functor_category_equivalence.counitIso, FunctorCategoryEquivalence.CounitIso.obj,
+  dsimp [FunctorCategoryEquivalence.counitIso, FunctorCategoryEquivalence.CounitIso.obj,
     iso.refl]
   erw [id_comp, comp_id]
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 def natTransHomMk_comp {S₁ S₂ S₃ : J ⥤ ShortComplex C} (τ₁ : S₁ ⋙ π₁ ⟶ S₂ ⋙ π₁)
     (τ₂ : S₁ ⋙ π₂ ⟶ S₂ ⋙ π₂) (τ₃ : S₁ ⋙ π₃ ⟶ S₂ ⋙ π₃) (comm₁₂ : (𝟙 S₁ ◫ φ₁₂) ≫ τ₂ = τ₁ ≫ 𝟙 S₂ ◫ φ₁₂)
     (comm₂₃ : (𝟙 S₁ ◫ φ₂₃) ≫ τ₃ = τ₂ ≫ 𝟙 S₂ ◫ φ₂₃) (τ₁' : S₂ ⋙ π₁ ⟶ S₃ ⋙ π₁)
@@ -160,7 +160,7 @@ def natTransHomMk_comp {S₁ S₂ S₃ : J ⥤ ShortComplex C} (τ₁ : S₁ ⋙
   by
   ext
   all_goals
-    dsimp [functor_category_equivalence.counitIso, NatIso.ofComponents,
+    dsimp [FunctorCategoryEquivalence.counitIso, NatIso.ofComponents,
       FunctorCategoryEquivalence.CounitIso.obj, functor_category_equivalence.functor]
     erw [id_comp, id_comp, id_comp, comp_id, comp_id, comp_id]
 
@@ -172,7 +172,7 @@ def natTransHomMk_id (S : J ⥤ ShortComplex C) :
   by
   ext
   all_goals
-    dsimp [functor_category_equivalence.counitIso, NatIso.ofComponents,
+    dsimp [FunctorCategoryEquivalence.counitIso, NatIso.ofComponents,
       FunctorCategoryEquivalence.CounitIso.obj, functor_category_equivalence.functor]
     erw [id_comp, comp_id]
     rfl

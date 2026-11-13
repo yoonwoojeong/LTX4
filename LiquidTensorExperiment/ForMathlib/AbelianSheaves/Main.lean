@@ -74,7 +74,7 @@ def kernelSheaf {F G : Sheaf J A} (η : F ⟶ G) : Sheaf J A
     where
   val := Limits.kernel.{max v u} ((sheafToPresheaf J A).map η)
   cond := by
-    apply presheaf.isSheaf_of_iso J (kernel_iso η).symm
+    apply Presheaf.isSheaf_of_iso J (kernel_iso η).symm
     exact Sheaf.cond _
 
 def kernelι {F G : Sheaf J A} (η : F ⟶ G) : kernelSheaf η ⟶ F :=
@@ -100,25 +100,25 @@ example : Limits.HasKernels (Sheaf J A) := by infer_instance
 def kernelIsoKernelSheaf {F G : Sheaf J A} (η : F ⟶ G) : Limits.kernel η ≅ kernelSheaf η :=
   (Limits.limit.isLimit _).conePointUniqueUpToIso (isLimitKernelFork _)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem kernelIsoKernelSheaf_hom_ι {F G : Sheaf J A} (η : F ⟶ G) :
     (kernelIsoKernelSheaf η).hom ≫ kernelι η = Limits.kernel.ι _ :=
   ((Limits.limit.isLimit _).uniqueUpToIso (isLimitKernelFork η)).hom.w
     Limits.WalkingParallelPair.zero
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem kernelIsoKernelSheaf_hom_ι_val {F G : Sheaf J A} (η : F ⟶ G) :
     (kernelIsoKernelSheaf η).hom.val ≫ (kernelι η).val = (Limits.kernel.ι η).val :=
   by
   change ((CategoryTheory.Sheaf.kernelIsoKernelSheaf η).hom ≫ kernel_ι η).val = (Limits.kernel.ι η).val
   simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem kernelIsoKernelSheaf_inv_ι {F G : Sheaf J A} (η : F ⟶ G) :
     (kernelIsoKernelSheaf η).inv ≫ Limits.kernel.ι _ = kernelι η := by
   simp only [← kernel_iso_kernel_sheaf_hom_ι, Iso.inv_hom_id_assoc]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem kernelIsoKernelSheaf_inv_ι_val {F G : Sheaf J A} (η : F ⟶ G) :
     (kernelIsoKernelSheaf η).inv.val ≫ (Limits.kernel.ι η).val = (kernelι η).val :=
   by

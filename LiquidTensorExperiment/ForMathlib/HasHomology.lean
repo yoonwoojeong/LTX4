@@ -82,11 +82,11 @@ attribute [reassoc] π_ι
 
 section Misc
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem ι_desc (hH : HasHomology f g H) : hH.ι ≫ cokernel.desc f g hH.w = 0 :=
   hH.ι_ex.w
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem lift_π (hH : HasHomology f g H) : kernel.lift g f hH.w ≫ hH.π = 0 :=
   hH.ex_π.w
 
@@ -224,7 +224,7 @@ is `lift_comp_ι`). -/
 def lift : X ⟶ H :=
   hH.ι_ex.monoLift φ hφ
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem lift_comp_ι : hH.lift φ hφ ≫ hH.ι = φ :=
   hH.ι_ex.monoLift_comp φ hφ
 
@@ -269,7 +269,7 @@ triangle commutes is `π_comp_desc`. -/
 def desc : H ⟶ X :=
   hH.ex_π.epiDesc φ hφ
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem π_comp_desc : hH.π ≫ hH.desc φ hφ = φ :=
   hH.ex_π.comp_epiDesc φ hφ
 
@@ -330,14 +330,14 @@ def map : H₁ ⟶ H₂ :=
     simp only [Category.assoc, zero_comp, h₂.lift_comp_ι, kernel.lift_ι_assoc, sq1.w_assoc,
       cokernel.condition, comp_zero]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem π_map :
     h₁.π ≫ h₁.map h₂ sq1 sq2 =
       (h₂.lift (kernel.ι _ ≫ β ≫ cokernel.π _) <| by
         simp only [Category.assoc, cokernel.π_desc, ← sq2.w, kernel.condition_assoc, zero_comp]) :=
   h₁.π_comp_desc _ _
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem map_ι :
     h₁.map h₂ sq1 sq2 ≫ h₂.ι =
       (h₁.desc (kernel.ι _ ≫ β ≫ cokernel.π _) <| by
@@ -367,7 +367,7 @@ theorem homology'_map_eq' (w₁ : f₁ ≫ g₁ = 0) (w₂ : f₂ ≫ g₂ = 0) 
 theorem eq_map_of_π_map_ι (φ : H₁ ⟶ H₂) (hφ : h₁.π ≫ φ ≫ h₂.ι = kernel.ι g₁ ≫ β ≫ cokernel.π f₂) :
     φ = h₁.map h₂ sq1 sq2 := by rwa [← π_map_ι h₁ h₂ sq1 sq2, cancel_epi, cancel_mono] at hφ 
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem lift_map {X : 𝓐} (φ : X ⟶ cokernel f₁) (hφ : φ ≫ cokernel.desc f₁ g₁ h₁.w = 0) :
     h₁.lift φ hφ ≫ h₁.map h₂ sq1 sq2 =
       h₂.lift (φ ≫ cokernel.map f₁ f₂ α β sq1.w)
@@ -382,7 +382,7 @@ theorem lift_map {X : 𝓐} (φ : X ⟶ cokernel f₁) (hφ : φ ≫ cokernel.de
 -- move this
 attribute [reassoc] Limits.kernel.lift_map
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem map_desc {X : 𝓐} (φ : kernel g₂ ⟶ X) (hφ : kernel.lift g₂ f₂ h₂.w ≫ φ = 0) :
     h₁.map h₂ sq1 sq2 ≫ h₂.desc φ hφ =
       h₁.desc (kernel.map g₁ g₂ β γ sq2.w ≫ φ)

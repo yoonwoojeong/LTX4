@@ -22,7 +22,7 @@ variable (h : Exact f g) [Mono f] (φ : T ⟶ B) (w : φ ≫ g = 0)
 def monoLift : T ⟶ A :=
   (Abelian.isLimitOfExactOfMono f g h).lift (KernelFork.ofι _ w)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem monoLift_comp : h.monoLift φ w ≫ f = φ :=
   (Abelian.isLimitOfExactOfMono f g h).fac (KernelFork.ofι _ w) WalkingParallelPair.zero
 
@@ -38,7 +38,7 @@ variable (h : Exact f g) [CategoryTheory.Epi g] (φ : B ⟶ T) (w : f ≫ φ = 0
 def epiDesc : C ⟶ T :=
   (Abelian.isColimitOfExactOfEpi f g h).desc (CokernelCofork.ofπ _ w)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem comp_epiDesc : g ≫ h.epiDesc φ w = φ :=
   (Abelian.isColimitOfExactOfEpi f g h).fac (CokernelCofork.ofπ _ w) WalkingParallelPair.one
 

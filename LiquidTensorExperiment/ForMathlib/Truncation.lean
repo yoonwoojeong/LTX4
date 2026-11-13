@@ -296,7 +296,7 @@ theorem HomologicalComplex.dFrom_eq_d_comp_xNextIso_inv {ι V : Type _} [Categor
     (r : c.Rel i j) : C.dFrom i = C.d i j ≫ (C.xNextIso r).inv := by simp [C.d_from_eq r]
 
 --- move
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem CategoryTheory.Limits.EqToHomCompImage.ι {C : Type _} [Category C] {X Y : C} {f f' : X ⟶ Y}
     [HasImage f] [HasImage f'] [HasEqualizers C] (h : f = f') :
     eqToHom (by simp_rw [h]) ≫ image.ι f' = image.ι f :=
@@ -305,7 +305,7 @@ theorem CategoryTheory.Limits.EqToHomCompImage.ι {C : Type _} [Category C] {X Y
   simp
 
 --- move
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem CategoryTheory.Limits.EqToHomCompKernel.ι {C : Type _} [Category C] [Abelian C] {X Y : C}
     {f f' : X ⟶ Y} (h : f = f') : eqToHom (by simp_rw [h]) ≫ kernel.ι f' = kernel.ι f :=
   by
@@ -343,7 +343,7 @@ theorem comp_factorThruImage_eq_zero {A B C : 𝓐} {f : A ⟶ B} {g : B ⟶ C} 
   ext
   simp [w]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem kernel_ι_comp_factorThruImage {A B : 𝓐} {f : A ⟶ B} : kernel.ι f ≫ factorThruImage f = 0 :=
   comp_factorThruImage_eq_zero (kernel.condition f)
 

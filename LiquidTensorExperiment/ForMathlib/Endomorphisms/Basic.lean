@@ -29,7 +29,7 @@ protected structure Hom (X Y : Endomorphisms C) where
   f : X.pt ⟶ Y.pt
   comm : X.e ≫ f = f ≫ Y.e
 
-attribute [reassoc, simp] Hom.comm
+attribute [reassoc (attr := simp)] Hom.comm
 
 instance (C : Type u) [Category.{v} C] : Quiver (Endomorphisms C) where Hom X Y := Endomorphisms.Hom X Y
 
@@ -69,7 +69,7 @@ theorem endOfE_comm {X Y : Endomorphisms C} (g : X ⟶ Y) : X.endOfE ≫ g = g �
   ext
   apply Endomorphisms.Hom.comm
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem comp_f {X Y Z : Endomorphisms C} (f : X ⟶ Y) (g : Y ⟶ Z) : Hom.f (f ≫ g) = f.f ≫ g.f :=
   rfl
 
@@ -81,7 +81,7 @@ instance (C : Type u) [Category.{v} C] : Category (Endomorphisms C)
 
 theorem congr_f {X Y : Endomorphisms C} (f₁ f₂ : X ⟶ Y) (h : f₁ = f₂) : f₁.f = f₂.f := by rw [h]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem pow_comm {X Y : Endomorphisms C} (f : X ⟶ Y) (n : ℕ) :
     (X.e ^ n : End X.pt) ≫ f.f = f.f ≫ (Y.e ^ n : End Y.pt) :=
   by

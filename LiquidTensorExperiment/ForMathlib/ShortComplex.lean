@@ -45,7 +45,7 @@ end HomologicalComplex
 
 namespace ShortComplex
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem zero [HasZeroMorphisms C] (S : ShortComplex C) : S.1.f ≫ S.1.g = 0 :=
   S.2
 

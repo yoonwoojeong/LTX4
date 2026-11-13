@@ -69,7 +69,7 @@ def lift {X Y : Profinite} {P : ExtrDisc} (f : X ⟶ Y) (hf : Function.Surjectiv
   choose g h using Projective.factors e f
   exact g
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem lift_lifts {X Y : Profinite} {P : ExtrDisc} (f : X ⟶ Y) (hf : Function.Surjective f)
     (e : P.val ⟶ Y) : lift f hf e ≫ f = e :=
   by

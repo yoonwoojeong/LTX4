@@ -184,7 +184,7 @@ def product.lift {α : Type u} [Fintype α] (X : α → ProFiltPseuNormGrp₁.{u
   CompHausFiltPseuNormGrp₁.product.lift (fun i => pFPNG₁ToCHFPNG₁ₑₗ.obj (X i))
     (pFPNG₁ToCHFPNG₁ₑₗ.obj M) f
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem product.lift_π {α : Type u} [Fintype α] (X : α → ProFiltPseuNormGrp₁.{u})
     (M : ProFiltPseuNormGrp₁.{u}) (f : ∀ i, M ⟶ X i) (i) :
     product.lift X M f ≫ product.π X i = f i := by ext; simp

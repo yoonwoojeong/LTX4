@@ -252,7 +252,7 @@ noncomputable def localizeLift {C : Type _} [Category C] (F : BoundedHomotopyCat
       congr 1
       rw [BoundedHomotopyCategory.lift_lifts])
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem π_lift_id_π (X : BoundedDerivedCategory A) :
     X.val.π ≫ BoundedHomotopyCategory.lift (𝟙 X.val) X.val.π = 𝟙 X.val.replace :=
   by

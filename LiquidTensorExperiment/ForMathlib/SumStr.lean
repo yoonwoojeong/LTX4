@@ -23,7 +23,7 @@ namespace SumStr
 
 variable {A B X : 𝓐}
 
-attribute [simp, reassoc] SumStr.inl_fst SumStr.inr_snd SumStr.inl_snd SumStr.inr_fst
+attribute [reassoc (attr := simp)] SumStr.inl_fst SumStr.inr_snd SumStr.inl_snd SumStr.inr_fst
 
 @[simps]
 def biprod (A B : 𝓐) : SumStr A B (A ⊞ B)

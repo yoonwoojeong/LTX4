@@ -85,7 +85,7 @@ theorem CategoryTheory.Functor.mapHomologicalComplex_dTo (F : C ⥤ D) [F.Additi
     ((F.mapHomologicalComplex c).obj X).dTo i = F.map (X.dTo i) :=
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem CategoryTheory.Limits.preserves_kernel_iso_inv_map (F : C ⥤ D) [F.Additive]
     [PreservesFiniteLimits F] {X₁ Y₁ X₂ Y₂ : C} (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) (iX : X₁ ⟶ X₂)
     (iY : Y₁ ⟶ Y₂) (e) :
@@ -100,7 +100,7 @@ theorem CategoryTheory.Limits.preserves_kernel_iso_inv_map (F : C ⥤ D) [F.Addi
 -- attribute [reassoc] kernel.lift_map
 open CategoryTheory CategoryTheory.Limits
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem homology'.π'_iso_cokernel_lift_hom {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f ≫ g = 0) :
     homology'.π' f g w ≫ (homology'IsoCokernelLift f g w).hom = cokernel.π _ := by
   delta homology'.π'; simp

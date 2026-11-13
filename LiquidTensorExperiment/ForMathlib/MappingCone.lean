@@ -25,11 +25,11 @@ variable {V : Type u} [Category.{v} V] [Abelian V]
 
 variable (A B C : CochainComplex V ℤ) (f : A ⟶ B) (g : B ⟶ C)
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem Homotopy.comp_xEqToIso {X Y : CochainComplex V ℤ} {f g : X ⟶ Y} (h : Homotopy f g) (i : ℤ)
     {j k : ℤ} (e : j = k) : h.hom i j ≫ (Y.xEqToIso e).hom = h.hom i k := by subst e; simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem Homotopy.xEqToIso_comp {X Y : CochainComplex V ℤ} {f g : X ⟶ Y} (h : Homotopy f g) {i j : ℤ}
     (e : i = j) (k : ℤ) : (X.xEqToIso e).hom ≫ h.hom j k = h.hom i k := by subst e; simp
 
@@ -37,12 +37,12 @@ theorem Homotopy.xEqToIso_comp {X Y : CochainComplex V ℤ} {f g : X ⟶ Y} (h :
 theorem xEqToIso_shift (n i j : ℤ) (h : i = j) : xEqToIso (A⟦n⟧) h = A.xEqToIso (congr_arg _ h) :=
   rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem retraction_x_eq_to_hom (h : ∀ i, Splitting (f.f i) (g.f i)) {i j : ℤ} (e : i = j) :
     (h i).retraction ≫ (A.xEqToIso e).hom = (B.xEqToIso e).hom ≫ (h j).retraction := by subst e;
   simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem section_x_eq_to_hom (h : ∀ i, Splitting (f.f i) (g.f i)) {i j : ℤ} (e : i = j) :
     (h i).section ≫ (B.xEqToIso e).hom = (C.xEqToIso e).hom ≫ (h j).section := by subst e; simp
 
@@ -162,11 +162,11 @@ def cone.map : cone f ⟶ cone f'
       congr 2
     · simp only [Preadditive.comp_add, biprod.inr_desc_assoc, zero_comp, hom.comm]
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem cone.in_map : cone.in f ≫ cone.map comm = i₂ ≫ cone.in f' := by
   ext <;> · dsimp [cone.map, cone.in]; simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem cone.map_out : cone.map comm ≫ cone.out f' = cone.out f ≫ i₁⟦(1 : ℤ)⟧' := by
   ext <;> · dsimp [cone.map, cone.out]; simp
 
@@ -294,7 +294,7 @@ def ofTermwiseSplitMono (H : ∀ i, SplitMono (f.f i)) : B ⟶ B'
       Preadditive.sub_comp, zero_comp, sub_right_inj, d_comp_d_assoc]
     congr <;> ring
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem ofTermwiseSplitMono_commutes (H : ∀ i, SplitMono (f.f i)) :
     f ≫ ofTermwiseSplitMono comm H = i₁ ≫ f' :=
   by
@@ -333,7 +333,7 @@ def ofTermwiseSplitEpi (H : ∀ i, SplitEpi (f'.f i)) : A ⟶ A'
       hom.comm, zero_comp, Preadditive.add_comp, d_comp_d_assoc]
     congr <;> ring
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem ofTermwiseSplitEpi_commutes (H : ∀ i, SplitEpi (f'.f i)) :
     ofTermwiseSplitEpi comm H ≫ f' = f ≫ i₂ := by
   ext i
@@ -375,7 +375,7 @@ def termwiseSplitMonoDesc (f : A ⟶ B) : biproduct B (cone (𝟙 A)) ⟶ B :=
 def termwiseSplitMonoSection (f : A ⟶ B) : B ⟶ biproduct B (cone (𝟙 A)) :=
   biproduct.inl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem termwiseSplitMonoSection_desc (f : A ⟶ B) :
     termwiseSplitMonoSection f ≫ termwiseSplitMonoDesc f = 𝟙 _ := by ext; simp
 
@@ -464,7 +464,7 @@ def termwiseSplitEpiDesc (f : A ⟶ B) : biproduct A (cone (𝟙 (B⟦(-1 : ℤ)
 def termwiseSplitEpiRetraction (f : A ⟶ B) : biproduct A (cone (𝟙 (B⟦(-1 : ℤ)⟧))) ⟶ A :=
   biproduct.fst
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem termwiseSplitEpiLift_retraction (f : A ⟶ B) :
     termwiseSplitEpiLift f ≫ termwiseSplitEpiRetraction f = 𝟙 _ := by ext; simp
 
@@ -901,13 +901,13 @@ def isoTermwiseSplitOfCone :
 
 -- Lemma 13.9.15. skipped
 --move
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem Biprod.map_desc {C : Type _} [Category C] [HasZeroMorphisms C] {X Y X' Y' Z : C}
     [HasBinaryBiproduct X Y] [HasBinaryBiproduct X' Y'] (f : X ⟶ X') (g : Y ⟶ Y') (f' : X' ⟶ Z)
     (g' : Y' ⟶ Z) : biprod.map f g ≫ biprod.desc f' g' = biprod.desc (f ≫ f') (g ≫ g') := by
   ext <;> simp
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem Biprod.lift_map {C : Type _} [Category C] [HasZeroMorphisms C] {W X Y X' Y' : C}
     [HasBinaryBiproduct X Y] [HasBinaryBiproduct X' Y'] (f : X ⟶ X') (g : Y ⟶ Y') (f' : W ⟶ X)
     (g' : W ⟶ Y) : biprod.lift f' g' ≫ biprod.map f g = biprod.lift (f' ≫ f) (g' ≫ g) := by

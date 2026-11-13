@@ -113,8 +113,15 @@ BINDER_RE = [re.compile(r"[(\{\[⟨⦃]\s*((?:[\w'₀-₉]+\s+)*[\w'₀-₉]+)\s
              re.compile(r"⟨\s*([^⟩:=]*?)⟩")]
 
 
+STRUCT_RE = re.compile(r"(?ms)^(?:@\[[^\n]*\]\s*)?(?:protected\s+)?(?:structure|class)\s[^\n]*?where\n(.*?)(?=^\S)")
+
+
 def bound_names(text):
     out = set()
+    # structure fields: inside a `structure` declaration, `iso.hom` is a projection of the field
+    # `iso`, not the constant `Iso.hom`
+    for m in STRUCT_RE.finditer(text):
+        out.update(re.findall(r"(?m)^\s+\[?([A-Za-z_][\w']*)\s*:(?!=)", m.group(1)))
     for r in BINDER_RE:
         for m in r.finditer(text):
             out.update(re.findall(r"[A-Za-z_][\w']*", m.group(1)))
@@ -153,13 +160,20 @@ def field_fix(code, m, log):
     return None
 
 
+# Lean 3 `@[simp, reassoc]` also made the generated `_assoc` lemma a simp lemma; in Lean 4 this
+# is written `@[reassoc (attr := simp)]` (same for `elementwise`). mathport kept the Lean 3 form.
+ATTR_RE = re.compile(r"(@\[|attribute \[)(?:simp, (reassoc|elementwise)|(reassoc|elementwise), simp)\]")
+
+
 def fix_code(code, log, bound=frozenset()):
+    code, k = ATTR_RE.subn(lambda m: f"{m.group(1)}{m.group(2) or m.group(3)} (attr := simp)]", code)
+    log['attr'] = log.get('attr', 0) + k
     code, k = FIELD_RE.subn(r'\1\2', code); log['primed field'] += k
     code, k = HOM_RE.subn(r'\1hom :=', code); log['Hom field'] += k
 
     def tok(m):
         x = m.group(1)
-        if known(x) or not lean3_style(x) or x.startswith('_') or x in bound:
+        if known(x) or not lean3_style(x) or x.startswith('_') or x in bound or x.split('.')[0] in bound:
             return x
         # never rename a declaration being defined, or a binder
         pre = code[max(0, m.start() - 40):m.start()]
@@ -199,6 +213,7 @@ def main():
         log = {'primed field': 0, 'Hom field': 0, 'ident': 0, 'field': 0, 'pairs': {}}
         bound = bound_names(text)
         new = ''.join(fix_code(c, log, bound) if code else c for code, c in split_comments(text))
+        total['attr'] = total.get('attr', 0) + log.get('attr', 0)
         for k in ('primed field', 'Hom field', 'ident', 'field'):
             total[k] += log[k]
         for p, v in log['pairs'].items():
@@ -207,7 +222,7 @@ def main():
             changed += 1
             if not dry:
                 open(f, 'w').write(new)
-    print(f"files changed {changed}; primed fields {total['primed field']}; Hom fields {total['Hom field']}; identifiers {total['ident']}; dot-fields {total['field']}")
+    print(f"files changed {changed}; primed fields {total['primed field']}; Hom fields {total['Hom field']}; identifiers {total['ident']}; dot-fields {total['field']}; simp attrs {total.get('attr', 0)}")
     if dry:
         for p, v in sorted(total['pairs'].items(), key=lambda t: -t[1]):
             print(f'{v:5d}  {p}')

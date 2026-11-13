@@ -69,11 +69,11 @@ def cokernelIsColimit : IsColimit (cokernelCocone f) :=
 
 -- We now show this isomorphism commutes with the inclusion of the kernel into the source.
 -- TODO: the next two already exist: add `elementwise` to those lemmas in mathlib
-@[simp, elementwise]
+@[elementwise (attr := simp)]
 theorem kernelIsoKer_inv_kernel_ι : (kernelIsoKer f).inv ≫ kernel.ι f = f.ker.Subtype :=
   kernelIsoKer_inv_comp_ι _
 
-@[simp, elementwise]
+@[elementwise (attr := simp)]
 theorem kernelIsoKer_hom_ker_subtype : (kernelIsoKer f).hom ≫ f.ker.Subtype = kernel.ι f :=
   kernelIsoKer_hom_comp_subtype _
 
@@ -84,12 +84,12 @@ noncomputable def cokernelIsoRangeQuotient : cokernel f ≅ of (N ⧸ f.range) :
   colimit.isoColimitCocone ⟨_, cokernelIsColimit f⟩
 
 -- We now show this isomorphism commutes with the projection of target to the cokernel.
-@[simp, elementwise]
+@[elementwise (attr := simp)]
 theorem cokernel_π_cokernelIsoRangeQuotient_hom :
     cokernel.π f ≫ (cokernelIsoRangeQuotient f).hom = QuotientAddGroup.mk' f.range := by
   convert colimit.isoColimitCocone_ι_hom _ _ <;> rfl
 
-@[simp, elementwise]
+@[elementwise (attr := simp)]
 theorem range_mkq_cokernelIsoRangeQuotient_inv :
     (QuotientAddGroup.mk' f.range : _) ≫ (cokernelIsoRangeQuotient f).inv = cokernel.π f := by
   convert colimit.isoColimitCocone_ι_inv ⟨_, cokernel_is_colimit f⟩ _ <;> rfl

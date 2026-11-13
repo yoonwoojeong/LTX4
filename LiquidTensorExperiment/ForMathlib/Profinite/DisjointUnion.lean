@@ -42,11 +42,11 @@ def sum.desc {Z} (X Y : Profinite.{u}) (f : X ⟶ Z) (g : Y ⟶ Z) : sum X Y ⟶
     simp only [continuous_sup_dom, continuous_coinduced_dom]
     exact ⟨f.continuous, g.continuous⟩
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem sum.inl_desc {Z} (X Y : Profinite.{u}) (f : X ⟶ Z) (g : Y ⟶ Z) :
     sum.inl X Y ≫ sum.desc X Y f g = f := by ext; rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem sum.inr_desc {Z} (X Y : Profinite.{u}) (f : X ⟶ Z) (g : Y ⟶ Z) :
     sum.inr X Y ≫ sum.desc X Y f g = g := by ext; rfl
 
@@ -89,7 +89,7 @@ theorem sigma.desc_surjective {Y} (f : ∀ a, X a ⟶ Y) (surj : ∀ y, ∃ (a :
   obtain ⟨a, x, hx⟩ := surj y
   exact ⟨⟨a, x⟩, hx⟩
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem sigma.ι_desc {Y} (a) (f : ∀ a, X a ⟶ Y) : sigma.ι X a ≫ sigma.desc X f = f a := by ext; rfl
 
 theorem sigma.hom_ext {Y} (f g : sigma X ⟶ Y) (w : ∀ a, sigma.ι X a ≫ f = sigma.ι X a ≫ g) :
@@ -146,12 +146,12 @@ def pullback.lift {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : 
     (w : e₁ ≫ f = e₂ ≫ g) : W ⟶ pullback f g
     where toFun t := ⟨(e₁ t, e₂ t), by apply_fun fun ee => ee t at w ; exact w⟩
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem pullback.lift_fst {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X)
     (e₂ : W ⟶ Y) (w : e₁ ≫ f = e₂ ≫ g) : pullback.lift f g e₁ e₂ w ≫ pullback.fst f g = e₁ := by
   ext; rfl
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem pullback.lift_snd {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X)
     (e₂ : W ⟶ Y) (w : e₁ ≫ f = e₂ ≫ g) : pullback.lift f g e₁ e₂ w ≫ pullback.snd f g = e₂ := by
   ext; rfl
@@ -333,7 +333,7 @@ def equalizer.ι {X Y : Profinite.{u}} (f g : X ⟶ Y) : equalizer f g ⟶ X whe
 def equalizer.lift {W X Y : Profinite.{u}} (f g : X ⟶ Y) (e : W ⟶ X) (w : e ≫ f = e ≫ g) :
     W ⟶ equalizer f g where toFun t := ⟨e t, by apply_fun fun ee => ee t at w ; exact w⟩
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem equalizer.lift_ι {W X Y : Profinite.{u}} (f g : X ⟶ Y) (e : W ⟶ X) (w : e ≫ f = e ≫ g) :
     equalizer.lift f g e w ≫ equalizer.ι f g = e := by ext; rfl
 
@@ -422,7 +422,7 @@ def product.lift {α : Type} {Y : Profinite.{u}} (X : α → Profinite.{u}) (f :
     intro i
     exact (f i).2⟩
 
-@[simp, reassoc]
+@[reassoc (attr := simp)]
 theorem product.lift_π {α : Type} {Y : Profinite.{u}} (X : α → Profinite.{u}) (f : ∀ a, Y ⟶ X a)
     (a) : product.lift X f ≫ product.π X a = f _ := by ext; rfl
 
