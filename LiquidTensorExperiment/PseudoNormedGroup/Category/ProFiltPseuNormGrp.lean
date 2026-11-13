@@ -20,17 +20,24 @@ namespace ProFiltPseuNormGrp
 
 attribute [local instance] CompHausFiltPseuNormGrp.bundledHom
 
-def bundled_hom :
+def bundledHom :
     BundledHom.ParentProjection
       @ProfinitelyFilteredPseudoNormedGroup.toComphausFilteredPseudoNormedGroup :=
   ⟨⟩
 
-attribute [local instance] bundled_hom
+attribute [local instance] bundledHom
 
-deriving instance LargeCategory, ConcreteCategory for ProFiltPseuNormGrp
+-- Porting note: Lean 3 used `attribute [derive [large_category, concrete_category]]`; the
+-- instances it derived are written out (with the names Lean 3 gave them), as for mathlib's
+-- `CommMonCat`
+instance largeCategory : LargeCategory ProFiltPseuNormGrp := by
+  dsimp only [ProFiltPseuNormGrp]; infer_instance
 
-instance : CoeSort ProFiltPseuNormGrp (Type _) :=
-  Bundled.hasCoeToSort
+instance concreteCategory : ConcreteCategory ProFiltPseuNormGrp := by
+  dsimp only [ProFiltPseuNormGrp]; infer_instance
+
+instance : CoeSort ProFiltPseuNormGrp (Type _) where
+  coe X := X.α
 
 instance : HasForget₂ ProFiltPseuNormGrp CompHausFiltPseuNormGrp :=
   BundledHom.forget₂ _ _
@@ -51,6 +58,11 @@ instance : Inhabited ProFiltPseuNormGrp :=
 
 instance (M : ProFiltPseuNormGrp) : ProfinitelyFilteredPseudoNormedGroup M :=
   M.str
+
+-- Porting note: in Lean 3 morphisms unfolded to `ComphausFilteredPseudoNormedGroupHom` and used
+-- its coercion; in Lean 4 it is declared (as for mathlib's `MonCat`)
+instance {A B : ProFiltPseuNormGrp.{u}} : CoeFun (A ⟶ B) fun _ => A → B where
+  coe (f : ComphausFilteredPseudoNormedGroupHom A B) := f
 
 @[simp]
 theorem coe_of (V : Type u) [ProfinitelyFilteredPseudoNormedGroup V] :
