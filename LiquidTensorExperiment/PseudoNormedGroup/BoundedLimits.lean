@@ -85,19 +85,19 @@ def boundedConePoint : PseuNormGrp₁
     where
   carrier := boundedElements C
   str :=
-    { filtration := boundedElements.filtration _
-      filtration_mono := by
+    { filtration' := boundedElements.filtration _
+      filtration_mono' := by
         intro c₁ c₂ h x hx
         obtain ⟨t, rfl⟩ := hx; refine' ⟨⟨t, _⟩, rfl⟩; intro i
         apply PseudoNormedGroup.filtration_mono h; apply t.2
-      zero_mem_filtration := by
+      zero_mem_filtration' := by
         intro c; refine' ⟨⟨0, fun i => _⟩, rfl⟩; simp
         apply PseudoNormedGroup.zero_mem_filtration
-      neg_mem_filtration := by
+      neg_mem_filtration' := by
         intro c x hx
         obtain ⟨t, rfl⟩ := hx; refine' ⟨⟨-t, fun i => _⟩, rfl⟩; simp
         apply PseudoNormedGroup.neg_mem_filtration; apply t.2
-      add_mem_filtration := by
+      add_mem_filtration' := by
         intro c₁ c₂ x₁ x₂ h₁ h₂
         obtain ⟨t₁, rfl⟩ := h₁; obtain ⟨t₂, rfl⟩ := h₂
         refine' ⟨⟨t₁ + t₂, fun i => _⟩, rfl⟩; simp

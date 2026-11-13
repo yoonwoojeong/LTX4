@@ -19,11 +19,11 @@ variable [PseudoNormedGroup M]
 
 instance : PseudoNormedGroup (Rescale r M)
     where
-  filtration c := show Set M from filtration M (c * r⁻¹)
-  filtration_mono c₁ c₂ h := filtration_mono (mul_le_mul' h le_rfl)
-  zero_mem_filtration c := @zero_mem_filtration M _ _
-  neg_mem_filtration c := @neg_mem_filtration M _ _
-  add_mem_filtration c₁ c₂ := by simp only [add_mul]; apply add_mem_filtration
+  filtration' c := show Set M from filtration M (c * r⁻¹)
+  filtration_mono' c₁ c₂ h := filtration_mono (mul_le_mul' h le_rfl)
+  zero_mem_filtration' c := @zero_mem_filtration M _ _
+  neg_mem_filtration' c := @neg_mem_filtration M _ _
+  add_mem_filtration' c₁ c₂ := by simp only [add_mul]; apply add_mem_filtration
 
 theorem mem_filtration (x : Rescale r M) (c : ℝ≥0) :
     x ∈ filtration (Rescale r M) c ↔ of.symm x ∈ filtration M (c * r⁻¹) :=

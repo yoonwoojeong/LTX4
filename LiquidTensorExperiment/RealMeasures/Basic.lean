@@ -109,11 +109,11 @@ protected theorem nnnorm_add [h0p : Fact (0 ≤ p)] [hp1 : Fact (p ≤ 1)] (F G 
 --needed? [FAE] Yes!
 instance pngRealMeasures [Fact (0 < p)] [Fact (p ≤ 1)] : PseudoNormedGroup (ℳ p S)
     where
-  filtration c := {F | ‖F‖₊ ≤ c}
-  filtration_mono c₁ c₂ h F hF := by dsimp at *; exact le_trans hF h
-  zero_mem_filtration c := by simp only [RealMeasures.nnnorm_zero, zero_le', Set.mem_setOf_eq]
-  neg_mem_filtration c F h := by dsimp [nnnorm_def] at *; simp only [h, nnnorm_neg]
-  add_mem_filtration c₁ c₂ F₁ F₂ h₁ h₂ := (RealMeasures.nnnorm_add _ _).trans (add_le_add h₁ h₂)
+  filtration' c := {F | ‖F‖₊ ≤ c}
+  filtration_mono' c₁ c₂ h F hF := by dsimp at *; exact le_trans hF h
+  zero_mem_filtration' c := by simp only [RealMeasures.nnnorm_zero, zero_le', Set.mem_setOf_eq]
+  neg_mem_filtration' c F h := by dsimp [nnnorm_def] at *; simp only [h, nnnorm_neg]
+  add_mem_filtration' c₁ c₂ F₁ F₂ h₁ h₂ := (RealMeasures.nnnorm_add _ _).trans (add_le_add h₁ h₂)
 
 theorem mem_filtration_iff [Fact (0 < p)] [Fact (p ≤ 1)] (F : ℳ p S) (c : ℝ≥0) :
     F ∈ PseudoNormedGroup.filtration (ℳ p S) c ↔ ‖F‖₊ ≤ c :=

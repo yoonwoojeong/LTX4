@@ -79,11 +79,11 @@ shows that the standard filtration `λ c, {z : α | ∥z∥₊ ≤ c}` endows `�
 `pseudo_normed_group` class. -/
 def StdFlt.toPseudoNormedGroup [AddCommGroup α] [NnnormAddClass α] : PseudoNormedGroup α
     where
-  filtration c := {z : α | ‖z‖₊ ≤ c}
-  filtration_mono := std_flt_mono α
-  zero_mem_filtration := std_flt_zero_mem α nnn_zero
-  neg_mem_filtration := std_flt_neg_mem α nnn_neg
-  add_mem_filtration := std_flt_add_mem α nnn_add_le
+  filtration' c := {z : α | ‖z‖₊ ≤ c}
+  filtration_mono' := std_flt_mono α
+  zero_mem_filtration' := std_flt_zero_mem α nnn_zero
+  neg_mem_filtration' := std_flt_neg_mem α nnn_neg
+  add_mem_filtration' := std_flt_add_mem α nnn_add_le
 
 end StdFltLemmas
 

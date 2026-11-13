@@ -665,11 +665,11 @@ lemma laurent_measures_are_c (r : ℝ≥0) (S : Type*) (hS : fintype S) (F : ℒ
 --needed?
 instance : PseudoNormedGroup (ℒ S)
     where
-  filtration c := {F | ‖F‖₊ ≤ c}
-  filtration_mono c₁ c₂ h F hF := by dsimp at *; exact le_trans hF h
-  zero_mem_filtration c := by simp [nnnorm_def]
-  neg_mem_filtration c F h := (nnnorm_neg F).le.trans h
-  add_mem_filtration c₁ c₂ F₁ F₂ h₁ h₂ := (nnnorm_add _ _).trans (add_le_add h₁ h₂)
+  filtration' c := {F | ‖F‖₊ ≤ c}
+  filtration_mono' c₁ c₂ h F hF := by dsimp at *; exact le_trans hF h
+  zero_mem_filtration' c := by simp [nnnorm_def]
+  neg_mem_filtration' c F h := (nnnorm_neg F).le.trans h
+  add_mem_filtration' c₁ c₂ F₁ F₂ h₁ h₂ := (nnnorm_add _ _).trans (add_le_add h₁ h₂)
 
 @[simp]
 theorem mem_filtration_iff (F : ℒ S) (c : ℝ≥0) :

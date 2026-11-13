@@ -158,11 +158,11 @@ theorem norm_add (F G : ℤ[T⁻¹] S) : ‖F + G‖ ≤ ‖F‖ + ‖G‖ := by
 
 instance : PseudoNormedGroup (ℤ[T⁻¹] S)
     where
-  filtration c := {F | ‖F‖₊ ≤ c}
-  filtration_mono c₁ c₂ h F hF := by dsimp at *; exact le_trans hF h
-  zero_mem_filtration c := by simp [nnnorm_def]
-  neg_mem_filtration c F h := (nnnorm_neg F).le.trans h
-  add_mem_filtration c₁ c₂ F₁ F₂ h₁ h₂ := (nnnorm_add _ _).trans (add_le_add h₁ h₂)
+  filtration' c := {F | ‖F‖₊ ≤ c}
+  filtration_mono' c₁ c₂ h F hF := by dsimp at *; exact le_trans hF h
+  zero_mem_filtration' c := by simp [nnnorm_def]
+  neg_mem_filtration' c F h := (nnnorm_neg F).le.trans h
+  add_mem_filtration' c₁ c₂ F₁ F₂ h₁ h₂ := (nnnorm_add _ _).trans (add_le_add h₁ h₂)
 
 @[simp]
 theorem mem_filtration_iff (F : ℤ[T⁻¹] S) (c : ℝ≥0) :

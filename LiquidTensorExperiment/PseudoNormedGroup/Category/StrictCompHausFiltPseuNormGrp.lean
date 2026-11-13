@@ -454,21 +454,21 @@ theorem incl_zero {c} : incl c (0 : ConePointTypeFilt G c) = 0 :=
 
 instance : PseudoNormedGroup (ConePointType G)
     where
-  filtration := filt G
-  filtration_mono := by
+  filtration' := filt G
+  filtration_mono' := by
     rintro c1 c2 h x ⟨x, rfl⟩
     dsimp [filt]
     use x.trans h
     simp
-  zero_mem_filtration := by
+  zero_mem_filtration' := by
     intro c
     use 0
     simp
-  neg_mem_filtration := by
+  neg_mem_filtration' := by
     rintro c x ⟨x, rfl⟩
     use-x
     simp
-  add_mem_filtration := by
+  add_mem_filtration' := by
     rintro c1 c2 x1 x2 ⟨x1, rfl⟩ ⟨x2, rfl⟩
     use x1.add' x2
     simp

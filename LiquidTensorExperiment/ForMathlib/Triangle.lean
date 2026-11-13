@@ -6,12 +6,13 @@ namespace CategoryTheory
 
 namespace Triangulated
 
-open CategoryTheory.Triangulated.TriangleMorphism
+-- Porting note: mathlib4's triangles live in `CategoryTheory.Pretriangulated`
+open CategoryTheory.Pretriangulated CategoryTheory.Pretriangulated.TriangleMorphism
 
-variable {C : Type _} [Category C] [HasShift C ℤ] {T₁ T₂ : triangle C} (f : T₁ ⟶ T₂)
+variable {C : Type _} [Category C] [HasShift C ℤ] {T₁ T₂ : Triangle C} (f : T₁ ⟶ T₂)
 
 theorem triangle_morphism_isIso [IsIso f.hom₁] [IsIso f.hom₂] [IsIso f.hom₃] : IsIso f := by
-  refine' ⟨⟨⟨inv f.hom₁, inv f.hom₂, inv f.hom₃, _, _, _⟩, _, _⟩⟩ <;> tidy
+  refine' ⟨⟨⟨inv f.hom₁, inv f.hom₂, inv f.hom₃, _, _, _⟩, _, _⟩⟩ <;> aesop_cat
 
 instance [IsIso f] : IsIso f.hom₁ := by
   refine' ⟨⟨(inv f).hom₁, _, _⟩⟩ <;>
@@ -26,15 +27,18 @@ instance [IsIso f] : IsIso f.hom₃ := by
     simpa only [← comp_hom₃, ← CategoryTheory.Pretriangulated.triangleCategory_comp, IsIso.hom_inv_id, IsIso.inv_hom_id]
 
 @[simp]
-theorem inv_hom₁ [IsIso f] : (inv f).hom₁ = inv f.hom₁ := by ext; change (f ≫ inv f).hom₁ = _;
+theorem inv_hom₁ [IsIso f] : (inv f).hom₁ = inv f.hom₁ := by
+  ext; change (f ≫ inv f).hom₁ = _
   rw [IsIso.hom_inv_id]; rfl
 
 @[simp]
-theorem inv_hom₂ [IsIso f] : (inv f).hom₂ = inv f.hom₂ := by ext; change (f ≫ inv f).hom₂ = _;
+theorem inv_hom₂ [IsIso f] : (inv f).hom₂ = inv f.hom₂ := by
+  ext; change (f ≫ inv f).hom₂ = _
   rw [IsIso.hom_inv_id]; rfl
 
 @[simp]
-theorem inv_hom₃ [IsIso f] : (inv f).hom₃ = inv f.hom₃ := by ext; change (f ≫ inv f).hom₃ = _;
+theorem inv_hom₃ [IsIso f] : (inv f).hom₃ = inv f.hom₃ := by
+  ext; change (f ≫ inv f).hom₃ = _
   rw [IsIso.hom_inv_id]; rfl
 
 theorem triangle_morphism_isIso_iff : IsIso f ↔ IsIso f.hom₁ ∧ IsIso f.hom₂ ∧ IsIso f.hom₃ :=
@@ -53,21 +57,21 @@ def mkTriangleIso (e₁ : T₁.obj₁ ≅ T₂.obj₁) (e₂ : T₁.obj₂ ≅ T
     by ext <;> simp, by ext <;> simp⟩
 
 @[simps]
-noncomputable def Triangle.nonnegInvRotate (T : triangle C) : triangle C :=
-  Triangle.mk _ (T.mor₃⟦(-1 : ℤ)⟧' ≫ (shiftShiftNeg _ _).hom) T.mor₁
+noncomputable def Triangle.nonnegInvRotate (T : Triangle C) : Triangle C :=
+  Triangle.mk (T.mor₃⟦(-1 : ℤ)⟧' ≫ (shiftShiftNeg _ _).hom) T.mor₁
     (T.mor₂ ≫ (shiftNegShift _ _).inv)
 
 @[simps]
-def Triangle.nonnegRotate {C : Type _} [Category C] [HasShift C ℤ] (T : triangle C) : triangle C :=
-  Triangle.mk _ T.mor₂ T.mor₃ (T.mor₁⟦1⟧')
+def Triangle.nonnegRotate {C : Type _} [Category C] [HasShift C ℤ] (T : Triangle C) : Triangle C :=
+  Triangle.mk T.mor₂ T.mor₃ (T.mor₁⟦1⟧')
 
 variable (C) [Preadditive C]
 
 @[simps]
-def neg₃Functor : triangle C ⥤ triangle C
+def neg₃Functor : Triangle C ⥤ Triangle C
     where
-  obj T := Triangle.mk C T.mor₁ T.mor₂ (-T.mor₃)
-  map S T f :=
+  obj T := Triangle.mk T.mor₁ T.mor₂ (-T.mor₃)
+  map f :=
     { hom₁ := f.hom₁
       hom₂ := f.hom₂
       hom₃ := f.hom₃ }
@@ -84,9 +88,9 @@ def neg₃UnitIso : neg₃Functor C ⋙ neg₃Functor C ≅ 𝟭 _ :=
     simp only [Category.comp_id, Category.id_comp, CategoryTheory.Functor.map_id, neg_neg]
 
 @[simps]
-def neg₃Equiv : triangle C ≌ triangle C
+def neg₃Equiv : Triangle C ≌ Triangle C
     where
-  Functor := neg₃Functor C
+  functor := neg₃Functor C
   inverse := neg₃Functor C
   unitIso := (neg₃UnitIso C).symm
   counitIso := neg₃UnitIso C
@@ -114,18 +118,18 @@ def CategoryTheory.Equivalence.isoEquiv {C D : Type _} [Category C] [Category D]
   invFun f := e.functor.mapIso f ≪≫ e.counitIso.app Y
   left_inv f := by
     ext; dsimp; simp only [CategoryTheory.Iso.inv_hom_id_app, Category.assoc, Functor.map_comp, e.fun_inv_map]
-    rw [reassoc_of e.functor_unitIso_comp]; dsimp; simp
+    rw [reassoc_of% e.functor_unitIso_comp]; dsimp; simp
   right_inv f := by ext; dsimp; simp
 
-variable {C} (T : triangle C)
+variable {C} (T : Triangle C)
 
 noncomputable def Triangle.nonnegInvRotateNeg₃ [(shiftFunctor C (1 : ℤ)).Additive] :
     (neg₃Functor C).obj T.nonnegInvRotate ≅ T.invRotate :=
   by
   fapply CategoryTheory.Triangulated.mkTriangleIso
-  exact -iso.refl _
-  exact iso.refl _
-  exact iso.refl _
+  exact -Iso.refl _
+  exact Iso.refl _
+  exact Iso.refl _
   all_goals dsimp; simp
 
 noncomputable def Triangle.nonnegInvRotateIso [(shiftFunctor C (1 : ℤ)).Additive] :
@@ -148,7 +152,7 @@ def Triangle.nonnegRotateIso : T.nonnegRotate ≅ (neg₃Functor C).obj T.rotate
 
 --
 @[simps]
-def Triangle.obj₁Functor : triangle C ⥤ C
+def Triangle.obj₁Functor : Triangle C ⥤ C
     where
   obj T := T.obj₁
   map S T f := f.hom₁
@@ -156,7 +160,7 @@ def Triangle.obj₁Functor : triangle C ⥤ C
   map_comp A B C f g := rfl
 
 @[simps]
-def Triangle.obj₂Functor : triangle C ⥤ C
+def Triangle.obj₂Functor : Triangle C ⥤ C
     where
   obj T := T.obj₂
   map S T f := f.hom₂
@@ -164,7 +168,7 @@ def Triangle.obj₂Functor : triangle C ⥤ C
   map_comp A B C f g := rfl
 
 @[simps]
-def Triangle.obj₃Functor : triangle C ⥤ C
+def Triangle.obj₃Functor : Triangle C ⥤ C
     where
   obj T := T.obj₃
   map S T f := f.hom₃

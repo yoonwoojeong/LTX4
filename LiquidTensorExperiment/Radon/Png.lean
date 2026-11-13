@@ -72,11 +72,11 @@ def bddWeakDual : AddSubgroup (WeakDual ℝ C(X, ℝ))
 
 instance : PseudoNormedGroup (X.bddWeakDual p)
     where
-  filtration c := {μ | μ.1.bdd p c}
-  filtration_mono c₁ c₂ h μ hμ e := by apply le_trans (hμ e) h
-  zero_mem_filtration c e := le_trans (bddZero _ _ _) (zero_le _)
-  neg_mem_filtration c μ hμ e := bddNeg _ _ _ hμ _
-  add_mem_filtration c₁ c₂ a b ha hb := bddAdd _ _ _ _ ha hb
+  filtration' c := {μ | μ.1.bdd p c}
+  filtration_mono' c₁ c₂ h μ hμ e := by apply le_trans (hμ e) h
+  zero_mem_filtration' c e := le_trans (bddZero _ _ _) (zero_le _)
+  neg_mem_filtration' c μ hμ e := bddNeg _ _ _ hμ _
+  add_mem_filtration' c₁ c₂ a b ha hb := bddAdd _ _ _ _ ha hb
 
 instance topologicalSpaceBddWeakDualFiltration (c : ℝ≥0) :
     TopologicalSpace (PseudoNormedGroup.filtration (X.bddWeakDual p) c) :=

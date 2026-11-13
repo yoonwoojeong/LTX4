@@ -286,11 +286,11 @@ theorem nnnorm_sum_le {ι : Type _} (s : Finset ι) (F : ι → Lbar r' S) :
 
 instance pseudoNormedGroup : PseudoNormedGroup (Lbar r' S)
     where
-  filtration c := {F | ‖F‖₊ ≤ c}
-  filtration_mono c₁ c₂ h F hF := le_trans hF h
-  zero_mem_filtration c := by dsimp; rw [nnnorm_zero]; apply zero_le'
-  neg_mem_filtration c F hF := by dsimp; rwa [nnnorm_neg]
-  add_mem_filtration c₁ c₂ F₁ F₂ hF₁ hF₂ := le_trans (nnnorm_add_le _ _) (add_le_add hF₁ hF₂)
+  filtration' c := {F | ‖F‖₊ ≤ c}
+  filtration_mono' c₁ c₂ h F hF := le_trans hF h
+  zero_mem_filtration' c := by dsimp; rw [nnnorm_zero]; apply zero_le'
+  neg_mem_filtration' c F hF := by dsimp; rwa [nnnorm_neg]
+  add_mem_filtration' c₁ c₂ F₁ F₂ hF₁ hF₂ := le_trans (nnnorm_add_le _ _) (add_le_add hF₁ hF₂)
 
 theorem mem_filtration_iff (x : Lbar r' S) (c : ℝ≥0) :
     x ∈ PseudoNormedGroup.filtration (Lbar r' S) c ↔ ‖x‖₊ ≤ c :=

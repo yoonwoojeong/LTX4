@@ -121,11 +121,11 @@ instance : ProfinitelyFilteredPseudoNormedGroup (NormedFreePfpng p S) :=
       AddCommGroup
         (NormedFreePfpng p
           S)) with
-    filtration := fun c => {f | ‖f‖₊ ≤ c}
-    filtration_mono := fun c₁ c₂ h f hf => le_trans hf h
-    zero_mem_filtration := fun c => by simp
-    neg_mem_filtration := fun c f hf => by simpa
-    add_mem_filtration := fun c₁ c₂ f₁ f₂ h₁ h₂ => le_trans (nnnorm_add _ _ _ _) (add_le_add h₁ h₂)
+    filtration' := fun c => {f | ‖f‖₊ ≤ c}
+    filtration_mono' := fun c₁ c₂ h f hf => le_trans hf h
+    zero_mem_filtration' := fun c => by simp
+    neg_mem_filtration' := fun c f hf => by simpa
+    add_mem_filtration' := fun c₁ c₂ f₁ f₂ h₁ h₂ => le_trans (nnnorm_add _ _ _ _) (add_le_add h₁ h₂)
     continuous_add' := fun c₁ c₂ => continuous_of_discreteTopology
     continuous_neg' := fun c => continuous_of_discreteTopology
     continuous_castLe := fun _ _ _ => continuous_of_discreteTopology }

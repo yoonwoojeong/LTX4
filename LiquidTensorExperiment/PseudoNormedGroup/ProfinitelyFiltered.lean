@@ -580,11 +580,11 @@ namespace PUnit
 
 instance : ProfinitelyFilteredPseudoNormedGroup PUnit
     where
-  filtration _ := Set.univ
-  filtration_mono _ _ _ := Set.subset_univ _
-  zero_mem_filtration _ := Set.mem_univ _
-  neg_mem_filtration _ _ _ := Set.mem_univ _
-  add_mem_filtration _ _ _ _ _ _ := Set.mem_univ _
+  filtration' _ := Set.univ
+  filtration_mono' _ _ _ := Set.subset_univ _
+  zero_mem_filtration' _ := Set.mem_univ _
+  neg_mem_filtration' _ _ _ := Set.mem_univ _
+  add_mem_filtration' _ _ _ _ _ _ := Set.mem_univ _
   continuous_add' _ _ := continuous_of_discreteTopology
   continuous_neg' _ := continuous_of_discreteTopology
   continuous_castLe _ _ _ := continuous_of_discreteTopology

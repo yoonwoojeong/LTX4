@@ -47,7 +47,6 @@ open scoped NNReal BigOperators
 
 attribute [local instance] typePow
 
-/- ./././Mathport/Syntax/Translate/Command.lean:394:30: infer kinds are unsupported in Lean 4: #[`filtration] [] -/
 /-- A pseudo-normed group is an abelian group `M`
 together with an increasing filtration indexed by `ℝ≥0` of subsets `M_{≤c}`
 containing `0` and closed under negation,
@@ -63,12 +62,21 @@ Implementation details:
   if `M₁` and `M₂` are pseudo-normed groups. -/
 class PseudoNormedGroup (M : Type _) where
   [toAddCommGroup : AddCommGroup M]
-  filtration : ℝ≥0 → Set M
-  filtration_mono : ∀ ⦃c₁ c₂⦄, c₁ ≤ c₂ → filtration c₁ ⊆ filtration c₂
-  zero_mem_filtration : ∀ c, (0 : M) ∈ filtration c
-  neg_mem_filtration : ∀ ⦃c x⦄, x ∈ filtration c → -x ∈ filtration c
-  add_mem_filtration :
-    ∀ ⦃c₁ c₂ x₁ x₂⦄, x₁ ∈ filtration c₁ → x₂ ∈ filtration c₂ → x₁ + x₂ ∈ filtration (c₁ + c₂)
+  filtration' : ℝ≥0 → Set M
+  filtration_mono' : ∀ ⦃c₁ c₂⦄, c₁ ≤ c₂ → filtration' c₁ ⊆ filtration' c₂
+  zero_mem_filtration' : ∀ c, (0 : M) ∈ filtration' c
+  neg_mem_filtration' : ∀ ⦃c x⦄, x ∈ filtration' c → -x ∈ filtration' c
+  add_mem_filtration' :
+    ∀ ⦃c₁ c₂ x₁ x₂⦄, x₁ ∈ filtration' c₁ → x₂ ∈ filtration' c₂ → x₁ + x₂ ∈ filtration' (c₁ + c₂)
+
+/-- The filtration `M_{≤c}` of a pseudo-normed group `M`.
+
+Porting note: Lean 3 declared the class field as `filtration [] : ℝ≥0 → set M`, which makes `M`
+an explicit argument (`filtration M c`). Lean 4 has no such annotation, so the field is called
+`filtration'` and `filtration` is this reducible abbreviation taking `M` explicitly. -/
+abbrev PseudoNormedGroup.filtration (M : Type _) [PseudoNormedGroup M] : ℝ≥0 → Set M :=
+  PseudoNormedGroup.filtration'
+
 
 /-- The additive commutative group instance underlying a pseudo-normed group. -/
 add_decl_doc PseudoNormedGroup.toAddCommGroup
@@ -102,6 +110,24 @@ Maybe we want both defintions above, and write a bit of glue to move between the
 Both seem useful for different bits of what we want to do.
 -/
 attribute [instance] PseudoNormedGroup.toAddCommGroup
+
+-- Porting note: the class axioms, stated (as their Lean 3 projections were) with `filtration M c`.
+theorem PseudoNormedGroup.filtration_mono {M : Type _} [PseudoNormedGroup M] ⦃c₁ c₂ : ℝ≥0⦄
+    (h : c₁ ≤ c₂) : PseudoNormedGroup.filtration M c₁ ⊆ PseudoNormedGroup.filtration M c₂ :=
+  PseudoNormedGroup.filtration_mono' h
+
+theorem PseudoNormedGroup.zero_mem_filtration {M : Type _} [PseudoNormedGroup M] (c : ℝ≥0) :
+    (0 : M) ∈ PseudoNormedGroup.filtration M c :=
+  PseudoNormedGroup.zero_mem_filtration' c
+
+theorem PseudoNormedGroup.neg_mem_filtration {M : Type _} [PseudoNormedGroup M] ⦃c : ℝ≥0⦄ ⦃x : M⦄
+    (h : x ∈ PseudoNormedGroup.filtration M c) : -x ∈ PseudoNormedGroup.filtration M c :=
+  PseudoNormedGroup.neg_mem_filtration' h
+
+theorem PseudoNormedGroup.add_mem_filtration {M : Type _} [PseudoNormedGroup M] ⦃c₁ c₂ : ℝ≥0⦄
+    ⦃x₁ x₂ : M⦄ (h₁ : x₁ ∈ PseudoNormedGroup.filtration M c₁) (h₂ : x₂ ∈ PseudoNormedGroup.filtration M c₂) :
+    x₁ + x₂ ∈ PseudoNormedGroup.filtration M (c₁ + c₂) :=
+  PseudoNormedGroup.add_mem_filtration' h₁ h₂
 
 namespace PseudoNormedGroup
 
@@ -139,8 +165,8 @@ theorem neg'_eq {c : ℝ≥0} (x : filtration M c) : (neg' x : M) = -x :=
   rfl
 
 theorem sub_mem_filtration ⦃c₁ c₂ x₁ x₂⦄ (h₁ : x₁ ∈ filtration M c₁) (h₂ : x₂ ∈ filtration M c₂) :
-    x₁ - x₂ ∈ filtration M (c₁ + c₂) := by rw [sub_eq_add_neg];
-  exact add_mem_filtration h₁ (neg_mem_filtration h₂)
+    x₁ - x₂ ∈ filtration M (c₁ + c₂) := by
+  rw [sub_eq_add_neg]; exact add_mem_filtration h₁ (neg_mem_filtration h₂)
 
 theorem neg_mem_filtration_iff (c x) : -x ∈ filtration M c ↔ x ∈ filtration M c :=
   ⟨fun h => by rw [← neg_neg x]; exact neg_mem_filtration h, fun h => neg_mem_filtration h⟩
@@ -149,9 +175,11 @@ theorem sum_mem_filtration {ι : Type _} (x : ι → M) (c : ι → ℝ≥0) (s 
     (h : ∀ i ∈ s, x i ∈ filtration M (c i)) : ∑ i in s, x i ∈ filtration M (∑ i in s, c i) := by
   classical
   revert h
-  apply Finset.induction_on s <;> clear s
-  · intro; simpa only [Finset.sum_empty] using zero_mem_filtration _
-  · intro i s his IH h
+  -- Porting note: `apply Finset.induction_on s` is written with `induction ... using`
+  induction s using Finset.induction_on with
+  | empty => intro; simpa only [Finset.sum_empty] using zero_mem_filtration (M := M) _
+  | @insert i s his IH =>
+    intro h
     rw [Finset.sum_insert his, Finset.sum_insert his]
     apply add_mem_filtration (h _ _) (IH _)
     · exact Finset.mem_insert_self i s
@@ -159,7 +187,7 @@ theorem sum_mem_filtration {ι : Type _} (x : ι → M) (c : ι → ℝ≥0) (s 
 
 theorem nat_smul_mem_filtration (n : ℕ) (m : M) (c : ℝ≥0) (h : m ∈ filtration M c) :
     n • m ∈ filtration M (n * c) := by
-  induction' n with n ih; · simpa only [zero_smul] using zero_mem_filtration _
+  induction' n with n ih; · simpa only [Nat.zero_eq, zero_smul] using zero_mem_filtration (M := M) _
   simp only [Nat.succ_eq_add_one, add_smul, one_smul, Nat.cast_succ, add_mul, one_mul]
   exact add_mem_filtration ih h
 
@@ -168,13 +196,14 @@ theorem int_smul_mem_filtration (n : ℤ) (m : M) (c : ℝ≥0) (h : m ∈ filtr
   by
   by_cases hn : 0 ≤ n
   · lift n to ℕ using hn
-    simp only [Int.natAbs_ofNat, ← zsmul_eq_smul, coe_nat_zsmul, nsmul_eq_smul]
+    -- Porting note: Lean 4 has no separate `zsmul`/`smul` forms to rewrite between
+    simp only [Int.natAbs_ofNat, coe_nat_zsmul]
     exact PseudoNormedGroup.nat_smul_mem_filtration n m c h
   · push_neg at hn ; rw [← neg_pos] at hn 
     lift -n to ℕ using hn.le with k hk
     rw [← neg_neg n, Int.natAbs_neg, ← hk, Int.natAbs_ofNat, neg_smul]
     apply neg_mem_filtration
-    simp only [neg_smul, ← zsmul_eq_smul, coe_nat_zsmul, nsmul_eq_smul]
+    simp only [coe_nat_zsmul]
     exact PseudoNormedGroup.nat_smul_mem_filtration k m c h
 
 /-- The map from `filtration M₁ c` to `filtration M₂ c` induced by a strict morphism `M₁ → M₂`. -/
@@ -185,16 +214,14 @@ def level {M₁ M₂ : Type _} [PseudoNormedGroup M₁] [PseudoNormedGroup M₂]
 
 section Pi
 
-variable ()
-
 instance pi {ι : Type _} (M : ι → Type _) [∀ i, PseudoNormedGroup (M i)] :
     PseudoNormedGroup (∀ i, M i)
     where
-  filtration c := {x | ∀ i, x i ∈ filtration (M i) c}
-  filtration_mono c₁ c₂ h x hx i := filtration_mono h (hx i)
-  zero_mem_filtration c i := zero_mem_filtration _
-  neg_mem_filtration c x h i := neg_mem_filtration (h i)
-  add_mem_filtration c₁ c₂ x₁ x₂ h₁ h₂ i := add_mem_filtration (h₁ i) (h₂ i)
+  filtration' c := {x | ∀ i, x i ∈ filtration (M i) c}
+  filtration_mono' c₁ c₂ h x hx i := filtration_mono h (hx i)
+  zero_mem_filtration' c i := zero_mem_filtration _
+  neg_mem_filtration' c x h i := neg_mem_filtration (h i)
+  add_mem_filtration' c₁ c₂ x₁ x₂ h₁ h₂ i := add_mem_filtration (h₁ i) (h₂ i)
 
 theorem mem_filtration_pi {ι : Type _} (M : ι → Type _) [∀ i, PseudoNormedGroup (M i)] (c : ℝ≥0)
     (x : ∀ i, M i) : x ∈ filtration (∀ i, M i) c ↔ ∀ i, x i ∈ filtration (M i) c :=
@@ -218,11 +245,11 @@ variable (M₁ M₂ : Type _) [PseudoNormedGroup M₁] [PseudoNormedGroup M₂]
 
 instance prod : PseudoNormedGroup (M₁ × M₂)
     where
-  filtration c := {x | x.1 ∈ filtration M₁ c ∧ x.2 ∈ filtration M₂ c}
-  filtration_mono c₁ c₂ h x hx := ⟨filtration_mono h hx.1, filtration_mono h hx.2⟩
-  zero_mem_filtration c := ⟨zero_mem_filtration _, zero_mem_filtration _⟩
-  neg_mem_filtration c x h := ⟨neg_mem_filtration h.1, neg_mem_filtration h.2⟩
-  add_mem_filtration c₁ c₂ x₁ x₂ h₁ h₂ :=
+  filtration' c := {x | x.1 ∈ filtration M₁ c ∧ x.2 ∈ filtration M₂ c}
+  filtration_mono' c₁ c₂ h x hx := ⟨filtration_mono h hx.1, filtration_mono h hx.2⟩
+  zero_mem_filtration' c := ⟨zero_mem_filtration _, zero_mem_filtration _⟩
+  neg_mem_filtration' c x h := ⟨neg_mem_filtration h.1, neg_mem_filtration h.2⟩
+  add_mem_filtration' c₁ c₂ x₁ x₂ h₁ h₂ :=
     ⟨add_mem_filtration h₁.1 h₂.1, add_mem_filtration h₁.2 h₂.2⟩
 
 theorem mem_filtration_prod (c : ℝ≥0) (x : M₁ × M₂) :
@@ -266,7 +293,7 @@ theorem coe_castLe' {c₁ c₂ : ℝ≥0} (h : c₁ ≤ c₂) (x : filtration M 
 
 theorem injective_castLe (c₁ c₂ : ℝ≥0) [Fact (c₁ ≤ c₂)] :
     Function.Injective (castLe : filtration M c₁ → filtration M c₂) := fun x y h =>
-  Subtype.coe_injective <| by simpa only [coe_cast_le] using congr_arg (coe : filtration M c₂ → M) h
+  Subtype.coe_injective <| by simpa only [coe_castLe] using congr_arg (fun x : filtration M c₂ => (x : M)) h
 
 variable (M)
 
@@ -282,15 +309,19 @@ variable [PseudoNormedGroup M] [PseudoNormedGroup M₁]
 
 variable [PseudoNormedGroup M₂] [PseudoNormedGroup M₃]
 
+-- Porting note: Lean 3's `{ ..add_monoid_hom.add_comm_group, .. }` filled the class field
+-- `to_add_comm_group`; in Lean 4 it has to be given by name.
 instance : PseudoNormedGroup (M₁ →+ M₂) :=
-  {
-    AddMonoidHom.addCommGroup with
-    filtration := fun N => {f | ∀ ⦃c⦄ ⦃x : M₁⦄, x ∈ filtration M₁ c → f x ∈ filtration M₂ (N * c)}
-    filtration_mono := fun N₁ N₂ h f hf c x hx => filtration_mono (mul_le_mul_right' h c) (hf hx)
-    zero_mem_filtration := fun N c x hx => zero_mem_filtration _
-    neg_mem_filtration := fun N f hf c x hx => neg_mem_filtration <| hf hx
-    add_mem_filtration := fun N₁ N₂ f₁ f₂ hf₁ hf₂ c x hx => by rw [add_mul];
-      apply add_mem_filtration (hf₁ hx) (hf₂ hx) }
+  { toAddCommGroup := AddMonoidHom.addCommGroup
+    filtration' := fun N => {f | ∀ ⦃c⦄ ⦃x : M₁⦄, x ∈ filtration M₁ c → f x ∈ filtration M₂ (N * c)}
+    filtration_mono' := fun N₁ N₂ h f hf c x hx => filtration_mono (mul_le_mul_right' h c) (hf hx)
+    -- Porting note: `(0 : M₁ →+ M₂) x = 0` etc. need to be rewritten explicitly in Lean 4
+    -- Porting note: the elaborated `0`, `-f`, `f₁ + f₂` are those of `AddMonoidHom.addCommGroup`;
+    -- the equalities `0 x = 0` etc. hold by definition (`exact`), not syntactically
+    zero_mem_filtration' := fun N c x _ => (zero_mem_filtration (M := M₂) (N * c) :)
+    neg_mem_filtration' := fun N f hf c x hx => (neg_mem_filtration (hf hx) :)
+    add_mem_filtration' := fun N₁ N₂ f₁ f₂ hf₁ hf₂ c x hx => by
+      rw [add_mul]; exact add_mem_filtration (hf₁ hx) (hf₂ hx) }
 
 theorem comp_mem_filtration {g f cg cf} (hg : g ∈ filtration (M₂ →+ M₃) cg)
     (hf : f ∈ filtration (M₁ →+ M₂) cf) : g.comp f ∈ filtration (M₁ →+ M₃) (cg * cf) :=
@@ -306,9 +337,7 @@ theorem id_mem_filtration (c : ℝ≥0) (hc : 1 ≤ c) : id M ∈ filtration (M 
 -- move this, maybe it already exists?
 /-- The additive monoid homomorphism into a product of additive monoids,
 constructed from a family of monoid homomorphisms into the factors. -/
-@[simps (config :=
-      { rhsMd := semireducible
-        fullyApplied := false })]
+@[simps (config := { rhsMd := .default, fullyApplied := false })]
 def mkToPi {M₁} [AddMonoid M₁] {ι : Type _} {M : ι → Type _} [∀ i, AddMonoid (M i)]
     (f : ∀ i, M₁ →+ M i) : M₁ →+ ∀ i, M i
     where
@@ -344,7 +373,8 @@ theorem mkFromPi_apply {ι : Type _} [Fintype ι] {M : ι → Type _} [∀ i, Ad
 
 @[simp]
 theorem coe_mkFromPi {ι : Type _} [Fintype ι] {M : ι → Type _} [∀ i, AddCommMonoid (M i)]
-    (f : ∀ i, M i →+ M₂) : ⇑(mkFromPi f) = ∑ i, f i ∘ Pi.evalAddMonoidHom M i := by ext x;
+    (f : ∀ i, M i →+ M₂) : ⇑(mkFromPi f) = ∑ i, f i ∘ Pi.evalAddMonoidHom M i := by
+  ext x
   rw [@AddMonoidHom.mkFromPi_apply M₂ _ ι _ M _ f x, Fintype.sum_apply]; rfl
 
 theorem mkFromPi_mem_filtration {ι : Type _} [Fintype ι] {M : ι → Type _}
@@ -372,7 +402,7 @@ end AddMonoidHom
 structure StrictPseudoNormedGroupHom (M N : Type _) [PseudoNormedGroup M]
     [PseudoNormedGroup N] extends M →+ N where
   strict' :
-    ∀ c x, x ∈ PseudoNormedGroup.filtration M c → to_fun x ∈ PseudoNormedGroup.filtration N c
+    ∀ c x, x ∈ PseudoNormedGroup.filtration M c → toFun x ∈ PseudoNormedGroup.filtration N c
 
 namespace StrictPseudoNormedGroupHom
 
@@ -414,7 +444,7 @@ theorem ext (h : ∀ x, f x = g x) : f = g := by cases f; cases g; congr; ext; a
 
 def id (M : Type _) [PseudoNormedGroup M] : StrictPseudoNormedGroupHom M M
     where
-  toFun := id
+  toFun := _root_.id
   map_zero' := rfl
   map_add' _ _ := rfl
   strict' _ _ h := h
