@@ -34,19 +34,29 @@ instance : LargeCategory ProFiltPseuNormGrp₁.{u}
     where
   Hom A B := StrictComphausFilteredPseudoNormedGroupHom A B
   id A := StrictComphausFilteredPseudoNormedGroupHom.id
-  comp A B C f g := g.comp f
+  comp f g := StrictComphausFilteredPseudoNormedGroupHom.comp g f
+  -- Porting note: Lean 3 proved the category laws automatically
+  id_comp _ := StrictComphausFilteredPseudoNormedGroupHom.ext fun _ => rfl
+  comp_id _ := StrictComphausFilteredPseudoNormedGroupHom.ext fun _ => rfl
+  assoc _ _ _ := StrictComphausFilteredPseudoNormedGroupHom.ext fun _ => rfl
+
+-- Porting note: in Lean 3 morphisms unfolded to `StrictComphausFilteredPseudoNormedGroupHom` and used its
+-- coercion; in Lean 4 it is declared (as for mathlib's `MonCat`)
+instance {A B : ProFiltPseuNormGrp₁.{u}} : CoeFun (A ⟶ B) fun _ => A → B where
+  coe (f : StrictComphausFilteredPseudoNormedGroupHom A B) := f
 
 def pFPNG₁ToPFPNGₑₗ : ProFiltPseuNormGrp₁ ⥤ ProFiltPseuNormGrp
     where
   obj M := ProFiltPseuNormGrp.of M
-  map M₁ M₂ f := f.toChfpsngHom
+  map f := StrictComphausFilteredPseudoNormedGroupHom.toChfpsngHom f
 
 instance : ConcreteCategory ProFiltPseuNormGrp₁.{u}
     where
   forget :=
     { obj := fun M => M.M
-      map := fun A B f => f }
-  forget_faithful := ⟨⟩
+      map := fun f => f }
+  -- Porting note: Lean 3 proved this field automatically
+  forget_faithful := ⟨fun h => StrictComphausFilteredPseudoNormedGroupHom.ext (congrFun h)⟩
 
 /-- The forgetful functor from groups filtered by profinite spaces to
 groups filtered by compact Hausdorff spaces. -/
@@ -55,7 +65,7 @@ def pFPNG₁ToCHFPNG₁ₑₗ : ProFiltPseuNormGrp₁.{u} ⥤ CompHausFiltPseuNo
   obj M :=
     { M
       exhaustive' := M.exhaustive }
-  map A B f := f
+  map f := f
 
 def limitCone {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrp₁.{u}) : Limits.Cone K
     where
@@ -85,8 +95,9 @@ def limitCone {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrp₁.{u
       naturality := (CompHausFiltPseuNormGrp₁.limitCone (K ⋙ pFPNG₁ToCHFPNG₁ₑₗ)).π.naturality }
 
 instance {J : Type u} [SmallCategory J] : CreatesLimitsOfShape J pFPNG₁ToCHFPNG₁ₑₗ
-    where CreatesLimit K :=
-    { reflects := fun C hC =>
+    where
+  CreatesLimit {K} :=
+    { reflects := fun {C} hC =>
         { lift := fun S => hC.lift (pFPNG₁ToCHFPNG₁ₑₗ.mapCone S)
           fac := fun S j => hC.fac _ _
           uniq := fun S m h => hC.uniq (pFPNG₁ToCHFPNG₁ₑₗ.mapCone S) m h }
@@ -95,8 +106,8 @@ instance {J : Type u} [SmallCategory J] : CreatesLimitsOfShape J pFPNG₁ToCHFPN
           validLift :=
             (CompHausFiltPseuNormGrp₁.limitConeIsLimit (K ⋙ pFPNG₁ToCHFPNG₁ₑₗ)).uniqueUpToIso hC } }
 
-instance : CreatesLimits pFPNG₁ToCHFPNG₁ₑₗ :=
-  ⟨⟩
+instance : CreatesLimits pFPNG₁ToCHFPNG₁ₑₗ where
+  CreatesLimitsOfShape := inferInstance
 
 def limitConeIsLimit {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrp₁.{u}) :
     Limits.IsLimit (limitCone K) :=
@@ -108,22 +119,9 @@ instance : Limits.HasLimits ProFiltPseuNormGrp₁.{u} :=
 theorem eq_of_π_eq {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrp₁.{u}}
     (C : Limits.Cone K) (hC : Limits.IsLimit C) (x y : C.pt)
     (cond : ∀ j, C.π.app j x = C.π.app j y) : x = y :=
-  by
-  let D := limit_cone K
-  let hD : Limits.IsLimit D := limit_cone_is_limit _
-  let E : C.X ≅ D.X := hC.conePointUniqueUpToIso hD
-  apply_fun E.hom
-  swap;
-  · intro a b h
-    apply_fun E.inv at h 
-    change (E.hom ≫ E.inv) _ = (E.hom ≫ E.inv) _ at h 
-    simpa using h
-  apply Quotient.sound'
-  refine' ⟨_, le_sup_left, le_sup_right, _⟩
-  simp
-  ext j : 3
-  dsimp; simp
-  exact cond j
+  -- Porting note: Lean 3 unfolded the explicit limit cone; this follows from the same fact for
+  -- `CompHausFiltPseuNormGrp₁`, as `isLimit_ext` below
+  CompHausFiltPseuNormGrp₁.isLimit_ext _ _ (Limits.isLimitOfPreserves pFPNG₁ToCHFPNG₁ₑₗ hC) _ _ cond
 
 theorem coe_comp_apply {A B C : ProFiltPseuNormGrp₁} (f : A ⟶ B) (g : B ⟶ C) (x : A) :
     (f ≫ g) x = g (f x) :=
@@ -133,12 +131,17 @@ def level : ℝ≥0 ⥤ ProFiltPseuNormGrp₁.{u} ⥤ Profinite.{u}
     where
   obj c :=
     { obj := fun M => Profinite.of <| PseudoNormedGroup.filtration M c
-      map := fun A B f => ⟨_, f.level_continuous _⟩ }
-  map c₁ c₂ h :=
-    {
-      app := fun M =>
-        letI : Fact (c₁ ≤ c₂) := ⟨h.le⟩
-        ⟨_, ComphausFilteredPseudoNormedGroup.continuous_castLe _ _⟩ }
+      map := fun f => ⟨_, StrictComphausFilteredPseudoNormedGroupHom.level_continuous f _⟩
+      -- Porting note: Lean 3 proved the functor and naturality laws automatically
+      map_id := fun _ => rfl
+      map_comp := fun _ _ => rfl }
+  map {c₁ c₂} h :=
+    { app := fun M =>
+        letI : Fact (c₁ ≤ c₂) := ⟨leOfHom h⟩
+        ⟨_, ComphausFilteredPseudoNormedGroup.continuous_castLe _ _⟩
+      naturality := fun _ _ _ => rfl }
+  map_id := fun _ => rfl
+  map_comp := fun _ _ => rfl
 
 instance {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrp₁.{u}) (c : ℝ≥0) :
     Limits.PreservesLimit K (level.obj c) :=
@@ -148,7 +151,7 @@ instance {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrp₁.{u}) (c
   apply Limits.isLimitOfReflects profiniteToCompHaus
   change
     Limits.IsLimit
-      ((CompHausFiltPseuNormGrp₁.level.obj c).mapCone (PFPNG₁_to_CHFPNG₁ₑₗ.map_cone E))
+      ((CompHausFiltPseuNormGrp₁.level.obj c).mapCone (pFPNG₁ToCHFPNG₁ₑₗ.mapCone E))
   apply Limits.isLimitOfPreserves
   apply Limits.isLimitOfPreserves
   assumption
@@ -187,11 +190,13 @@ def product.lift {α : Type u} [Fintype α] (X : α → ProFiltPseuNormGrp₁.{u
 @[reassoc (attr := simp)]
 theorem product.lift_π {α : Type u} [Fintype α] (X : α → ProFiltPseuNormGrp₁.{u})
     (M : ProFiltPseuNormGrp₁.{u}) (f : ∀ i, M ⟶ X i) (i) :
-    product.lift X M f ≫ product.π X i = f i := by ext; simp
+    product.lift X M f ≫ product.π X i = f i := by ext; rfl
 
 theorem product.lift_unique {α : Type u} [Fintype α] (X : α → ProFiltPseuNormGrp₁.{u})
     (M : ProFiltPseuNormGrp₁.{u}) (f : ∀ i, M ⟶ X i) (g : M ⟶ product X)
-    (hg : ∀ i, g ≫ product.π X i = f i) : g = product.lift X M f := by ext; simp [← hg]
+    (hg : ∀ i, g ≫ product.π X i = f i) : g = product.lift X M f := by
+  ext x; funext i
+  exact congrArg (fun φ : M ⟶ X i => (φ : M → X i) x) (hg i)
 
 theorem product.hom_ext {α : Type u} [Fintype α] (X : α → ProFiltPseuNormGrp₁.{u})
     (M : ProFiltPseuNormGrp₁.{u}) (g₁ g₂ : M ⟶ product X)
