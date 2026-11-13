@@ -48,7 +48,11 @@ It seems a bit ridiculous that this file has to import `locally_constant.Vhat`.
 See also Definition 9.3 of [Analytic]. -/
 def SystemOfComplexes : Type _ :=
   ℝ≥0ᵒᵖ ⥤ CochainComplex SemiNormedGroupCat ℕ
-deriving CategoryTheory.Category, CategoryTheory.Preadditive
+deriving CategoryTheory.Category
+
+-- Porting note: `deriving Preadditive` is not supported; provide the instance by hand
+instance : CategoryTheory.Preadditive SystemOfComplexes :=
+  inferInstanceAs (CategoryTheory.Preadditive (ℝ≥0ᵒᵖ ⥤ CochainComplex SemiNormedGroupCat ℕ))
 
 -- instance : has_shift system_of_complexes := has_shift.mk $ (shift _).congr_right
 variable {M M' N : SystemOfComplexes.{u}} (f : M ⟶ M') (g : M' ⟶ N)
@@ -58,7 +62,8 @@ instance : CoeFun SystemOfComplexes fun C => ℝ≥0 → ℕ → SemiNormedGroup
 
 /-- `f.apply c i` is application of the natural transformation `f`: $f_c^i : M_c^i ⟶ N_c^i$. -/
 def Quiver.Hom.apply (f : M ⟶ N) {c : ℝ≥0} {i : ℕ} : M c i ⟶ N c i :=
-  (f.app (op c)).f i
+  -- Porting note: `op` would resolve to `Quiver.Hom.op` inside this namespace
+  (f.app (Opposite.op c)).f i
 
 instance homToFun : CoeFun (M ⟶ N) fun f => ∀ {c : ℝ≥0} {i : ℕ}, M c i → N c i :=
   ⟨fun f {c} {i} x => f.apply x⟩
@@ -67,7 +72,7 @@ theorem SystemOfComplexes.hom_apply (f : M ⟶ N) {c : ℝ≥0} {i : ℕ} (x : M
   rfl
 
 theorem SystemOfComplexes.map_sub (f : M ⟶ N) {c i} (m m' : M c i) : f (m - m') = f m - f m' :=
-  map_sub ((f.app (op c)).f i) m m'
+  _root_.map_sub ((f.app (op c)).f i) m m'
 
 /-- `f.apply c i` is application of the natural isomorphism `f`: $f_c^i : M_c^i ≅ N_c^i$. -/
 def CategoryTheory.Iso.apply (f : M ≅ N) {c : ℝ≥0} {i : ℕ} : M c i ≅ N c i :=
@@ -88,7 +93,7 @@ variable {c₁ c₂ c₃ : ℝ≥0} (i j : ℕ)
 theorem res_comp_res (h₁ : Fact (c₂ ≤ c₁)) (h₂ : Fact (c₃ ≤ c₂)) :
     @res C _ _ i h₁ ≫ @res C _ _ i h₂ = @res C _ _ i ⟨h₂.out.trans h₁.out⟩ :=
   by
-  have := CategoryTheory.Functor.map_comp C (homOfLe h₁.out).op (homOfLe h₂.out).op
+  have := CategoryTheory.Functor.map_comp C (homOfLE h₁.out).op (homOfLE h₂.out).op
   rw [← op_comp] at this 
   delta res
   erw [this]
@@ -128,7 +133,7 @@ theorem d_res (h : Fact (c₂ ≤ c₁)) (x) : C.d i j (@res C _ _ _ _ x) = @res
 
 section Iso
 
-variable (ϕ : M ≅ N) (c : ℝ≥0) (i)
+variable (ϕ : M ≅ N) (c : ℝ≥0)
 
 theorem apply_hom_eq_hom_apply : (ϕ.apply.hom : M c i ⟶ N c i) = ϕ.hom.apply :=
   rfl
@@ -147,12 +152,14 @@ theorem inv_apply_comp_hom_apply : (ϕ.inv.apply : N c i ⟶ M c i) ≫ ϕ.hom.a
 @[simp]
 theorem inv_apply_hom_apply (x : M c i) : ϕ.inv.apply (ϕ.hom.apply x) = x :=
   show ((ϕ.hom.apply : M c i ⟶ N c i) ≫ ϕ.inv.apply) x = x by
-    simp only [SystemOfComplexes.hom_apply_comp_inv_apply, coe_id, id.def]
+    rw [SystemOfComplexes.hom_apply_comp_inv_apply]
+    rfl
 
 @[simp]
 theorem hom_apply_inv_apply (x : N c i) : ϕ.hom (ϕ.inv x) = x :=
   show ((ϕ.inv.apply : N c i ⟶ M c i) ≫ ϕ.hom.apply) x = x by
-    simp only [SystemOfComplexes.inv_apply_comp_hom_apply, coe_id, id.def]
+    rw [SystemOfComplexes.inv_apply_comp_hom_apply]
+    rfl
 
 end Iso
 
@@ -161,7 +168,7 @@ The identity morphism of an object in the system of complexes
 when it is given by different indices that are not
 definitionally equal. -/
 def congr {c c' : ℝ≥0} {i i' : ℕ} (hc : c = c') (hi : i = i') : C c i ⟶ C c' i' :=
-  eqToHom <| by subst hc; subst hi
+  eqToHom <| by subst hc; subst hi; rfl
 
 variable (M M' N)
 
@@ -269,6 +276,13 @@ theorem ofIso (h : C₁.IsWeakBoundedExact k K m c₀) (f : C₁ ≅ C₂)
   intro c hc i hi x ε hε
   obtain ⟨i', j, hi', hj, y, hy⟩ := h c hc i hi (f.inv.apply x) ε hε
   refine' ⟨i', j, hi', hj, f.hom y, _⟩
+  -- Porting note: the final `calc` step with a tactic-block placeholder was split off
+  have h2 : ‖(C₁.d i j (f.inv x))‖ = ‖C₂.d _ _ x‖ :=
+    calc
+      ‖(C₁.d i j (f.inv x))‖ = ‖(f.inv (C₂.d i j x))‖ := by rw [d_apply]
+      _ = ‖(f.hom (f.inv (C₂.d _ _ x)))‖ :=
+        (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _).symm
+      _ = ‖C₂.d _ _ x‖ := by rw [hom_apply_inv_apply]
   calc
     ‖(res x - C₂.d _ _ (f.hom y))‖ = ‖(res x - f.hom (C₁.d _ _ y))‖ := by
       rw [d_apply]
@@ -278,13 +292,7 @@ theorem ofIso (h : C₁.IsWeakBoundedExact k K m c₀) (f : C₁ ≅ C₂)
     _ = ‖(f.inv (res x) - C₁.d _ _ y)‖ := (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _)
     _ = ‖(res (f.inv x) - C₁.d _ _ y)‖ := by rw [res_apply]
     _ ≤ K * ‖(C₁.d _ _ (f.inv x))‖ + ε := hy
-    _ = K * ‖C₂.d _ _ x‖ + ε := _
-  congr 2
-  calc
-    ‖(C₁.d i j (f.inv x))‖ = ‖(f.inv (C₂.d i j x))‖ := by rw [d_apply]
-    _ = ‖(f.hom (f.inv (C₂.d _ _ x)))‖ :=
-      (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _).symm
-    _ = ‖C₂.d _ _ x‖ := by rw [hom_apply_inv_apply]
+    _ = K * ‖C₂.d _ _ x‖ + ε := by rw [h2]
 
 theorem iff_of_iso (f : C₁ ≅ C₂)
     (hf : ∀ c i, @Isometry (C₁ c i) (C₂ c i) _ _ (f.hom.apply : C₁ c i ⟶ C₂ c i)) :
@@ -296,7 +304,8 @@ theorem iff_of_iso (f : C₁ ≅ C₂)
   apply AddMonoidHomClass.isometry_of_norm
   intro v
   rw [← NormedAddGroupHom.norm_eq_of_isometry (hf c n)]
-  simp only [← apply_hom_eq_hom_apply, ← apply_inv_eq_inv_apply, Iso.symm_hom, Iso.inv_hom_id_apply]
+  -- Porting note: `simp only` no longer closes this goal; use the defeq `hom_apply_inv_apply`
+  exact congrArg norm (hom_apply_inv_apply n f c v)
 
 end IsWeakBoundedExact
 
@@ -326,6 +335,13 @@ theorem ofIso (h : C₁.IsBoundedExact k K m c₀) (f : C₁ ≅ C₂)
   intro c hc i hi x
   obtain ⟨i', j, hi', hj, y, hy⟩ := h c hc i hi (f.inv.apply x)
   refine' ⟨i', j, hi', hj, f.hom y, _⟩
+  -- Porting note: the final `calc` step with a tactic-block placeholder was split off
+  have h2 : ‖(C₁.d i j (f.inv x))‖ = ‖C₂.d _ _ x‖ :=
+    calc
+      ‖(C₁.d i j (f.inv x))‖ = ‖(f.inv (C₂.d i j x))‖ := by rw [d_apply]
+      _ = ‖(f.hom (f.inv (C₂.d _ _ x)))‖ :=
+        (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _).symm
+      _ = ‖C₂.d _ _ x‖ := by rw [hom_apply_inv_apply]
   calc
     ‖(res x - C₂.d _ _ (f.hom y))‖ = ‖(res x - f.hom (C₁.d _ _ y))‖ := by
       rw [d_apply]
@@ -335,12 +351,7 @@ theorem ofIso (h : C₁.IsBoundedExact k K m c₀) (f : C₁ ≅ C₂)
     _ = ‖(f.inv (res x) - C₁.d _ _ y)‖ := (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _)
     _ = ‖(res (f.inv x) - C₁.d _ _ y)‖ := by rw [res_apply]
     _ ≤ K * ‖(C₁.d _ _ (f.inv x))‖ := hy
-    _ = K * ‖C₂.d _ _ x‖ := congr_arg _ _
-  calc
-    ‖(C₁.d i j (f.inv x))‖ = ‖(f.inv (C₂.d i j x))‖ := by rw [d_apply]
-    _ = ‖(f.hom (f.inv (C₂.d _ _ x)))‖ :=
-      (NormedAddGroupHom.norm_eq_of_isometry (hf _ _) _).symm
-    _ = ‖C₂.d _ _ x‖ := by rw [hom_apply_inv_apply]
+    _ = K * ‖C₂.d _ _ x‖ := by rw [h2]
 
 end IsBoundedExact
 
@@ -370,8 +381,9 @@ theorem toExact (hC : C.IsWeakBoundedExact k K m c₀) [∀ c i, SeparatedSpace 
     refine' ⟨i', _, hi', rfl, y, _⟩
     have :
       ((K + δ : ℝ≥0) : ℝ) * ‖(C.d _ (i + 1) x)‖ =
-        K * ‖(C.d _ (i + 1) x)‖ + δ * ‖(C.d _ (i + 1) x)‖
-    apply_mod_cast add_mul
+        K * ‖(C.d _ (i + 1) x)‖ + δ * ‖(C.d _ (i + 1) x)‖ := by
+      push_cast
+      ring
     rwa [this]
 
 end IsWeakBoundedExact
@@ -433,10 +445,14 @@ instance SemiNormedGroup.forget₂Ab : HasForget₂ SemiNormedGroupCat Ab
     where
   forget₂ :=
     { obj := fun V => AddCommGroupCat.of V
-      map := fun _ _ f => f.toAddMonoidHom }
-  forget_comp := by tidy
+      map := fun f => f.toAddMonoidHom }
+  forget_comp := rfl
 
 instance SemiNormedGroup.forget₂Ab_additive : (forget₂ SemiNormedGroupCat Ab).Additive where
+  map_add := by
+    intros
+    ext
+    rfl
 
 def toAb (C : SystemOfComplexes) : ℝ≥0ᵒᵖ ⥤ CochainComplex Ab ℕ :=
   C ⋙ Functor.mapHomologicalComplex (forget₂ _ _) _
