@@ -32,6 +32,8 @@ def filteredColimitSetoid : Setoid (Σ j : J, F.obj j)
       change (F.map _ ≫ F.map _ ≫ F.map _) _ = (F.map _ ≫ F.map _ ≫ F.map _) _
       dsimp only [t]
       simp only [← F.map_comp, ← Category.assoc, IsFiltered.coeq_condition]
+      -- Porting note: `simp only` no longer rewrites with `coeq_condition` here
+      rw [IsFiltered.coeq_condition]
 
 def filteredColimitCocone : Cocone F
     where

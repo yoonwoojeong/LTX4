@@ -6,8 +6,6 @@ import Mathlib.CategoryTheory.EpiMono
 #align_import for_mathlib.AddCommGroup.epi
 
 -- TODO: This should be integrated in the category theory library with a construction of an
--- TODO: This should be integrated in the category theory library with a construction of an
--- explicit pushout cocone, etc.
 -- explicit pushout cocone, etc.
 variable {A B C : Type _} [AddCommGroup A] [AddCommGroup B] [AddCommGroup C]
 
@@ -19,7 +17,10 @@ def compareInProd (f : A →+ B) (g : A →+ C) : A →+ B × C
 
 def AddMonoidHom.Pushout (f : A →+ B) (g : A →+ C) : Type _ :=
   (B × C) ⧸ (compareInProd f g).range
-deriving AddCommGroup
+
+-- Porting note: `deriving AddCommGroup` is not supported for this definition in Lean 4
+instance (f : A →+ B) (g : A →+ C) : AddCommGroup (f.Pushout g) :=
+  inferInstanceAs (AddCommGroup ((B × C) ⧸ (compareInProd f g).range))
 
 abbrev AddMonoidHom.pushoutπ (f : A →+ B) (g : A →+ C) : B × C →+ f.Pushout g :=
   QuotientAddGroup.mk' _
@@ -27,14 +28,16 @@ abbrev AddMonoidHom.pushoutπ (f : A →+ B) (g : A →+ C) : B × C →+ f.Push
 def AddMonoidHom.pushoutInl (f : A →+ B) (g : A →+ C) : B →+ f.Pushout g
     where
   toFun b := f.pushoutπ g (b, 0)
-  map_zero' := by simp; use 0; simpa
-  map_add' x y := by erw [QuotientAddGroup.eq_iff_sub_mem]; simp; use 0; simpa
+  -- Porting note: Lean 4's `simp` leaves different goals than Lean 3's here
+  map_zero' := by simp; exact map_zero _
+  map_add' x y := by erw [QuotientAddGroup.eq_iff_sub_mem]; simp; exact ⟨0, map_zero _⟩
 
 def AddMonoidHom.pushoutInr (f : A →+ B) (g : A →+ C) : C →+ f.Pushout g
     where
   toFun b := f.pushoutπ g (0, b)
-  map_zero' := by simp; use 0; simpa
-  map_add' x y := by erw [QuotientAddGroup.eq_iff_sub_mem]; simp; use 0; simpa
+  -- Porting note: Lean 4's `simp` leaves different goals than Lean 3's here
+  map_zero' := by simp; exact map_zero _
+  map_add' x y := by erw [QuotientAddGroup.eq_iff_sub_mem]; simp; exact ⟨0, map_zero _⟩
 
 theorem surjective_of_comp_inl_eq_comp_inr (f : A →+ B)
     (h : f.range.subtype.pushoutInl f.range.subtype = f.range.subtype.pushoutInr f.range.subtype) :
@@ -42,13 +45,13 @@ theorem surjective_of_comp_inl_eq_comp_inr (f : A →+ B)
   intro b
   apply_fun fun e => e b at h 
   dsimp [AddMonoidHom.pushoutInl, AddMonoidHom.pushoutInr] at h 
-  rw [QuotientAddGroup.eq_iff_sub_mem] at h 
+  erw [QuotientAddGroup.eq_iff_sub_mem] at h 
   simp at h 
-  obtain ⟨⟨a, ⟨a, rfl⟩⟩, ht⟩ := h
+  -- Porting note: Lean 4's `simp` splits the subtype in the existential
+  obtain ⟨_, ⟨a, rfl⟩, ht⟩ := h
   dsimp [compareInProd] at ht 
   apply_fun fun e => e.fst at ht 
-  use a
-  exact ht
+  exact ⟨a, ht⟩
 
 open CategoryTheory
 
@@ -56,15 +59,14 @@ theorem AddCommGroupCat.surjective_of_epi {A B : AddCommGroupCat} (f : A ⟶ B) 
     Function.Surjective f := by
   apply surjective_of_comp_inl_eq_comp_inr
   apply_fun AddCommGroupCat.ofHom
-  swap; · tidy
+  swap; · aesop_cat
   erw [← cancel_epi f]
   change AddMonoidHom.comp _ _ = AddMonoidHom.comp _ _
-  ext
+  ext x
   dsimp [AddCommGroupCat.ofHom, AddMonoidHom.pushoutInl, AddMonoidHom.pushoutInr]
-  rw [QuotientAddGroup.eq_iff_sub_mem]
+  erw [QuotientAddGroup.eq_iff_sub_mem]
   simp
-  use⟨_, ⟨x, rfl⟩⟩
-  rfl
+  exact ⟨_, ⟨x, rfl⟩, rfl⟩
 
 universe u
 

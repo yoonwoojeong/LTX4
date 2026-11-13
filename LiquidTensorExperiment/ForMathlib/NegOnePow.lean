@@ -34,8 +34,10 @@ attribute [local simp] CategoryTheory.Preadditive.zsmul_comp CategoryTheory.Prea
 -- move this section
 namespace Int
 
+-- Porting note: Lean 3 wrote `@has_pow.pow (units ℤ) ℤ _ (-1) n`, which was `(-1 : ℤˣ) ^ n`;
+-- in Lean 4 `^` is `HPow.hPow`, so the definition is stated with `^` to keep the `zpow` API usable.
 def negOnePow (n : ℤ) : ℤ :=
-  @Pow.pow (Units ℤ) ℤ _ (-1) n
+  ((-1 : ℤˣ) ^ n : ℤˣ)
 
 @[simp]
 theorem negOnePow_add (n m : ℤ) : negOnePow (n + m) = negOnePow n * negOnePow m := by
@@ -80,8 +82,9 @@ theorem negOnePow_eq_pow_abs (n : ℤ) : negOnePow n = (-1) ^ n.natAbs :=
   by
   rw [Int.negOnePow_ite]
   convert (Int.negOnePow_ite n.natAbs).symm using 2
-  · simp [parity_simps]
-  · delta negOnePow; simp
+  -- Porting note: Lean 4's `simp` normalises `↑n.natAbs` to `|n|`, so these need the `abs` lemmas
+  · simp [parity_simps, even_abs]
+  · delta negOnePow; rw [zpow_coe_nat]; simp
 
 theorem negOnePow_eq_neg_one_npow (n : ℕ) : negOnePow n = (-1) ^ n := by delta negOnePow; simp
 
