@@ -7,6 +7,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 SRC = os.path.join(ROOT, 'LiquidTensorExperiment'); OUT = os.path.join(ROOT, '.lake/build/lib')
 LOG = os.path.join(ROOT, '.lake/compile-logs'); os.makedirs(LOG, exist_ok=True)
 J = int(sys.argv[1]) if len(sys.argv) > 1 else 3
+TIMEOUT = int(os.environ.get('LTE_TIMEOUT', '900'))  # seconds per module
 only = set(sys.argv[2:])
 mods = {}
 for r, _, fs in os.walk(SRC):
@@ -20,13 +21,17 @@ res = {}; cv = threading.Condition()
 def run(m):
     t = time.time(); f = os.path.join(ROOT, *m.split('.')) + '.lean'
     o = os.path.join(OUT, *m.split('.')) + '.olean'; os.makedirs(os.path.dirname(o), exist_ok=True)
-    r = subprocess.run(['lean', '-o', o, '-i', o[:-6] + '.ilean', f], cwd=ROOT, env=env, capture_output=True, text=True)
-    out = r.stdout + r.stderr; open(os.path.join(LOG, m + '.log'), 'w').write(out)
+    try:
+        r = subprocess.run(['lean', '-o', o, '-i', o[:-6] + '.ilean', f], cwd=ROOT, env=env, capture_output=True, text=True, timeout=TIMEOUT)
+        out, rc = r.stdout + r.stderr, r.returncode
+    except subprocess.TimeoutExpired as e:
+        out = f'{f}:1:0: error: TIMEOUT after {TIMEOUT}s (compile.py)\n'; rc = 1
+    open(os.path.join(LOG, m + '.log'), 'w').write(out)
     errs = len(re.findall(r':\d+:\d+: error', out)); sorries = len(re.findall(r"declaration uses 'sorry'", out))
     with cv:
         res[m] = {'errors': errs, 'sorry_warnings': sorries, 'olean': os.path.exists(o), 'secs': round(time.time() - t)}
         cv.notify_all()
-    print(f"{'OK ' if errs == 0 and r.returncode == 0 else 'ERR'} {errs:4d} {res[m]['secs']:5d}s {m}", flush=True)
+    print(f"{'OK ' if errs == 0 and rc == 0 else 'ERR'} {errs:4d} {res[m]['secs']:5d}s {m}", flush=True)
 todo = set(mods) if not only else set(only); running = set()
 with ThreadPoolExecutor(J) as ex, cv:
     while todo or running:

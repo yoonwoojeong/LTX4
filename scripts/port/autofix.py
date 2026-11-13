@@ -20,6 +20,7 @@ import os, re, subprocess, sys, json
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LAKE = os.path.join(ROOT, '.lake')
+TIMEOUT = int(os.environ.get('LTE_TIMEOUT', '900'))  # seconds per compile
 
 
 def load_lines(p):
@@ -100,9 +101,13 @@ def compile_module(mod, env):
     f = os.path.join(ROOT, *mod.split('.')) + '.lean'
     o = os.path.join(LAKE, 'build/lib', *mod.split('.')) + '.olean'
     os.makedirs(os.path.dirname(o), exist_ok=True)
-    r = subprocess.run(['lean', '-o', o, '-i', o[:-6] + '.ilean', f], cwd=ROOT, env=env,
-                       capture_output=True, text=True)
-    out = r.stdout + r.stderr
+    try:
+        r = subprocess.run(['lean', '-o', o, '-i', o[:-6] + '.ilean', f], cwd=ROOT, env=env,
+                           capture_output=True, text=True, timeout=TIMEOUT)
+        out = r.stdout + r.stderr
+    except subprocess.TimeoutExpired:
+        # a timed-out round is never accepted: report it as worse than any real result
+        out = '\n'.join(f'{f}:1:0: error: TIMEOUT' for _ in range(10**4))
     os.makedirs(os.path.join(LAKE, 'compile-logs'), exist_ok=True)
     open(os.path.join(LAKE, 'compile-logs', mod + '.log'), 'w').write(out)
     return out
