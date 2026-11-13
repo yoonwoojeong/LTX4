@@ -10,18 +10,18 @@ open CategoryTheory.Limits
 variable {C D : Type _} [Category C] [Category D] (e : C ≌ D) {X Y B : D} (f : X ⟶ B) (g : Y ⟶ B)
   [HasPullback (e.inverse.map f) (e.inverse.map g)]
 
-theorem Equivalence.hom_eq_map {X Y : C} (f : e.Functor.obj X ⟶ e.Functor.obj Y) (g : X ⟶ Y) :
-    e.inverse.map f = e.symm.counit.app _ ≫ g ≫ e.Unit.app _ → f = e.Functor.map g :=
+theorem Equivalence.hom_eq_map {X Y : C} (f : e.functor.obj X ⟶ e.functor.obj Y) (g : X ⟶ Y) :
+    e.inverse.map f = e.symm.counit.app _ ≫ g ≫ e.unit.app _ → f = e.functor.map g :=
   by
   intro h
-  change _ = (e.unit_iso.app _).inv ≫ g ≫ (e.unit_iso.app _).hom at h 
-  rw [iso.eq_inv_comp] at h 
+  change _ = (e.unitIso.app _).inv ≫ g ≫ (e.unitIso.app _).hom at h 
+  rw [CategoryTheory.Iso.eq_inv_comp] at h 
   replace h := h.symm
-  rw [← iso.eq_comp_inv] at h 
+  rw [← CategoryTheory.Iso.eq_comp_inv] at h 
   rw [h]
   simp
-  nth_rw 1 [← category.id_comp f]
-  simp_rw [← category.assoc]
+  nth_rw 1 [← CategoryTheory.Category.id_comp f]
+  simp_rw [← CategoryTheory.Category.assoc]
   congr 1
   simp
 
@@ -56,15 +56,15 @@ def Equivalence.pullbackCone : Cone (cospan f g)
           simp_rw [← category.assoc, ← e.functor.map_comp, limits.pullback.condition]
         · tidy }
 
-attribute [reassoc] equivalence.unit_inverse_comp
+attribute [reassoc] CategoryTheory.Equivalence.unit_inverse_comp
 
 -- This is a mess :-(
 -- Please fix before moving this file to mathlib!
-def Equivalence.isLimitPullbackCone : Limits.IsLimit (e.PullbackCone f g)
+def Equivalence.isLimitPullbackCone : Limits.IsLimit (e.pullbackCone f g)
     where
   lift S :=
-    e.symm.Unit.app S.pt ≫
-      e.Functor.map
+    e.symm.unit.app S.pt ≫
+      e.functor.map
         (pullback.lift (e.inverse.map (S.π.app WalkingCospan.left))
           (e.inverse.map (S.π.app WalkingCospan.right))
           (by
@@ -108,8 +108,8 @@ def Equivalence.isLimitPullbackCone : Limits.IsLimit (e.PullbackCone f g)
   uniq := by
     intro S m h
     --dsimp at *,
-    change m = (e.counit_iso.app S.X).inv ≫ _
-    rw [iso.eq_inv_comp]
+    change m = (e.counitIso.app S.X).inv ≫ _
+    rw [CategoryTheory.Iso.eq_inv_comp]
     apply equivalence.hom_eq_map
     change _ = (e.unit_iso.app _).inv ≫ _ ≫ (e.unit_iso.app _).hom
     rw [iso.eq_inv_comp]
@@ -132,13 +132,13 @@ def Equivalence.isLimitPullbackCone : Limits.IsLimit (e.PullbackCone f g)
 
 theorem Equivalence.hasPullback {X Y B : D} (f : X ⟶ B) (g : Y ⟶ B)
     [HasPullback (e.inverse.map f) (e.inverse.map g)] : HasPullback f g :=
-  Limits.HasLimit.mk ⟨e.PullbackCone _ _, e.isLimitPullbackCone _ _⟩
+  Limits.HasLimit.mk ⟨e.pullbackCone _ _, e.isLimitPullbackCone _ _⟩
 
 theorem Equivalence.hasPullbacks [HasPullbacks C] : HasPullbacks D :=
   by
-  apply has_pullbacks_of_has_limit_cospan _
+  apply CategoryTheory.Limits.hasPullbacks_of_hasLimit_cospan _
   intro X Y B f g
-  apply e.has_pullback
+  apply e.hasPullback
 
 end CategoryTheory
 

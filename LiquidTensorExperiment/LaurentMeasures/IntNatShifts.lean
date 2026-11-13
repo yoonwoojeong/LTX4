@@ -54,7 +54,7 @@ def mulInvFun (d e : G) : { x // d ≤ x } → { x // e ≤ x } := fun ⟨x, hx�
 
 @[to_additive]
 theorem mulInvFun_def (d e : G) (z : { x // d ≤ x }) : mulInvFun d e z = ⟨_, aux_ineq_hMul z.2⟩ :=
-  by cases z; simp [mul_inv_fun]
+  by cases z; simp [AuxThm69.mulInvFun]
 
 @[simp, to_additive]
 theorem mulInvFun_comp (d e f : G) : mulInvFun e f ∘ mulInvFun d e = mulInvFun d f := by funext;
@@ -66,7 +66,7 @@ theorem mulInvFun_comp_id (d e : G) : mulInvFun e d ∘ mulInvFun d e = id := by
 
 @[simp, to_additive]
 theorem mulInvFun_comp_id_apply (d e : G) (z : { x // d ≤ x }) :
-    mulInvFun e d (mulInvFun d e z) = z := by simp [mul_inv_fun_def, mul_assoc]
+    mulInvFun e d (mulInvFun d e z) = z := by simp [AuxThm69.mulInvFun_def, mul_assoc]
 
 /-- The function `mul_inv_fun d e` bundled as an equivalence `{x // d ≤ x} ≃ {x // e ≤ x}`. -/
 @[to_additive
@@ -241,10 +241,10 @@ theorem int_summable_iff :
     Summable f ↔ (Summable fun n : ℕ => f n) ∧ Summable fun n : ℕ => f (-n - 1) :=
   by
   refine' (@summable_subtype_and_compl α _ _ _ _ _ _ {z : ℤ | 0 ≤ z}).symm.trans _
-  rw [← Equiv.summable_iff int_subtype_nonneg_equiv, ← Equiv.summable_iff oppo.symm]
+  rw [← Equiv.summable_iff AuxThm69.intSubtypeNonnegEquiv, ← Equiv.summable_iff oppo.symm]
   refine' ⟨_, _⟩ <;> rintro ⟨h1, h2⟩ <;> refine' ⟨_, _⟩ <;>
         refine' Summable.congr ‹_› fun b => _ <;>
-      simp only [oppo_symm_eval, int_subtype_nonneg_equiv_eval, Function.comp_apply] <;>
+      simp only [oppo_symm_eval, AuxThm69.intSubtypeNonnegEquiv_eval, Function.comp_apply] <;>
     · apply congr_arg; simp [b.2]
 
 end Uniform
@@ -268,7 +268,7 @@ theorem Summable.prod_nat {f : ℤ → ℝ} {g : ℕ → ℝ} (hf : Summable f) 
     (hg : Summable g) (g0 : ∀ n, 0 ≤ g n) :
     Summable fun lj : ℕ × ℕ => f (lj.fst + lj.snd) * g lj.snd :=
   by
-  apply (Equiv.summable_iff equiv_nat_diag).mp
+  apply (Equiv.summable_iff AuxThm69.equivNatDiag).mp
   suffices Summable fun lj : { x : ℕ × ℕ // x.2 ≤ x.1 } => f lj.1.fst * g lj.1.snd
     by
     convert this

@@ -17,14 +17,14 @@ variable {C : Type u} [Category.{v} C] [MonoidalCategory.{v} C]
 class RightClosed (X : C) where
   isAdj : IsLeftAdjoint (tensorRight X)
 
-attribute [instance 100] right_closed.is_adj
+attribute [instance 100] CategoryTheory.Monoidal.RightClosed.isAdj
 
 variable (C)
 
 class MonoidalClosedRight where
   closed : ∀ X : C, RightClosed X
 
-attribute [instance 100] monoidal_closed_right.closed
+attribute [instance 100] CategoryTheory.Monoidal.MonoidalClosedRight.closed
 
 variable [MonoidalClosedRight.{v} C]
 
@@ -71,12 +71,12 @@ theorem split_right {A₁ A₂ B₁ B₂ : C} (f : A₁ ⟶ A₂) (g : B₁ ⟶ 
 theorem internalHomEquiv_tensor_right {X Y₁ Y₂ Z : C} (f : Y₁ ⟶ Y₂) (g : X ⊗ Y₂ ⟶ Z) :
     internalHomEquiv _ _ _ ((𝟙 _ ⊗ f) ≫ g) = internalHomEquiv _ _ _ g ≫ internalHomPrecompose f _ :=
   by
-  apply_fun (internal_hom_equiv _ _ _).symm
+  apply_fun (CategoryTheory.Monoidal.internalHomEquiv _ _ _).symm
   simp
-  dsimp [internal_hom_precompose, internal_hom_equiv, internal_hom]
-  simp only [adjunction.hom_equiv_unit, adjunction.hom_equiv_counit, tensor_right_map, tensor_id,
-    adjunction.hom_equiv_naturality_right, functor.map_comp, CategoryTheory.Functor.map_id,
-    category.id_comp, category.assoc, adjunction.hom_equiv_naturality_left_symm,
+  dsimp [CategoryTheory.Monoidal.internalHomPrecompose, CategoryTheory.Monoidal.internalHomEquiv, internalHom]
+  simp only [CategoryTheory.Adjunction.homEquiv_unit, CategoryTheory.Adjunction.homEquiv_counit, CategoryTheory.MonoidalCategory.tensorRight_map, tensor_id,
+    CategoryTheory.Adjunction.homEquiv_naturality_right, CategoryTheory.Functor.map_comp, CategoryTheory.Functor.map_id,
+    CategoryTheory.Category.id_comp, CategoryTheory.Category.assoc, CategoryTheory.Adjunction.homEquiv_naturality_left_symm,
     adjunction.hom_equiv_naturality_right_symm]
   simp only [← tensor_right_map]
   rw [(adjunction.of_left_adjoint (tensor_right Y₁)).counit_naturality_assoc]
@@ -91,14 +91,14 @@ theorem internalHomEquiv_tensor_right {X Y₁ Y₂ Z : C} (f : Y₁ ⟶ Y₂) (g
 
 @[simp]
 theorem internalHomPrecompose_id (X Y : C) : internalHomPrecompose (𝟙 X) Y = 𝟙 _ := by
-  dsimp [internal_hom_precompose, internal_hom_equiv, internal_hom]; simp; dsimp; simp
+  dsimp [CategoryTheory.Monoidal.internalHomPrecompose, CategoryTheory.Monoidal.internalHomEquiv, internalHom]; simp; dsimp; simp
 
 @[simp]
 theorem internalHomPrecompose_comp {X₁ X₂ X₃ : C} (f₁ : X₁ ⟶ X₂) (f₂ : X₂ ⟶ X₃) (Y : C) :
     internalHomPrecompose (f₁ ≫ f₂) Y = internalHomPrecompose f₂ Y ≫ internalHomPrecompose f₁ Y :=
   by
-  change _ = internal_hom_equiv _ _ _ _ ≫ _
-  rw [← internal_hom_equiv_tensor_right, ← category.assoc, ← tensor_comp, category.id_comp]
+  change _ = CategoryTheory.Monoidal.internalHomEquiv _ _ _ _ ≫ _
+  rw [← CategoryTheory.Monoidal.internalHomEquiv_tensor_right, ← CategoryTheory.Category.assoc, ← tensor_comp, CategoryTheory.Category.id_comp]
   rfl
 
 @[simp]
@@ -106,11 +106,11 @@ theorem internalHomPostcompose_comp_precompose {A₁ A₂ B₁ B₂ : C} (f : A�
     internalHomPostcompose _ f ≫ internalHomPrecompose g _ =
       internalHomPrecompose g _ ≫ internalHomPostcompose _ f :=
   by
-  apply_fun (internal_hom_equiv _ _ _).symm
-  dsimp [internal_hom_precompose, internal_hom_postcompose, internal_hom_equiv, internal_hom]
-  simp only [adjunction.hom_equiv_counit, tensor_right_map, tensor_id,
-    adjunction.hom_equiv_naturality_right, adjunction.hom_equiv_unit, functor.map_comp,
-    CategoryTheory.Functor.map_id, category.id_comp, category.assoc,
+  apply_fun (CategoryTheory.Monoidal.internalHomEquiv _ _ _).symm
+  dsimp [CategoryTheory.Monoidal.internalHomPrecompose, CategoryTheory.Monoidal.internalHomPostcompose, CategoryTheory.Monoidal.internalHomEquiv, internalHom]
+  simp only [CategoryTheory.Adjunction.homEquiv_counit, CategoryTheory.MonoidalCategory.tensorRight_map, tensor_id,
+    CategoryTheory.Adjunction.homEquiv_naturality_right, CategoryTheory.Adjunction.homEquiv_unit, CategoryTheory.Functor.map_comp,
+    CategoryTheory.Functor.map_id, CategoryTheory.Category.id_comp, CategoryTheory.Category.assoc,
     adjunction.hom_equiv_naturality_left_symm, adjunction.hom_equiv_naturality_right_symm]
   simp only [← tensor_right_map, adjunction.counit_naturality, adjunction.counit_naturality_assoc,
     functor.map_comp, adjunction.left_triangle_components, adjunction.right_triangle_components,

@@ -10,9 +10,9 @@ variable {𝓐 : Type _} [Category 𝓐] [Preadditive 𝓐]
 
 def Cons.x (C : CochainComplex 𝓐 ℕ) (A : 𝓐) : ℕ → 𝓐
   | 0 => A
-  | n + 1 => C.pt n
+  | n + 1 => C.X n
 
-def Cons.d (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.pt 0) :
+def Cons.d (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.X 0) :
     ∀ i j : ℕ, Cons.x C A i ⟶ Cons.x C A j
   | 0, 0 => 0
   | 0, 1 => d
@@ -20,7 +20,7 @@ def Cons.d (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.pt 0) :
   | i + 1, 0 => 0
   | i + 1, j + 1 => C.d i j
 
-theorem Cons.shape (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.pt 0) :
+theorem Cons.shape (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.X 0) :
     ∀ i j : ℕ, ¬(ComplexShape.up ℕ).Rel i j → Cons.d C A d i j = 0
   | 0, 0, h => rfl
   | 0, 1, h => (h rfl).elim
@@ -28,30 +28,30 @@ theorem Cons.shape (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.pt 0) :
   | i + 1, 0, h => rfl
   | i + 1, j + 1, h => C.shape i j <| mt (add_left_inj 1).mpr h
 
-theorem Cons.d_comp_d (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.pt 0) (h : d ≫ C.d 0 1 = 0) :
+theorem Cons.d_comp_d (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.X 0) (h : d ≫ C.d 0 1 = 0) :
     ∀ i j k,
       (ComplexShape.up ℕ).Rel i j →
         (ComplexShape.up ℕ).Rel j k → Cons.d C A d i j ≫ Cons.d C A d j k = 0
   | 0, 1, 2, rfl, rfl => h
   | i + 1, _, _, rfl, rfl => C.d_comp_d _ _ _
 
-def cons (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.pt 0) (h : d ≫ C.d 0 1 = 0) :
+def cons (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.X 0) (h : d ≫ C.d 0 1 = 0) :
     CochainComplex 𝓐 ℕ where
-  pt := Cons.x C A
+  X := Cons.x C A
   d := Cons.d C A d
   shape' := Cons.shape C A d
   d_comp_d' := Cons.d_comp_d C A d h
 
 section SimpLemmas
 
-variable (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.pt 0) (h : d ≫ C.d 0 1 = 0)
+variable (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.X 0) (h : d ≫ C.d 0 1 = 0)
 
 @[simp]
-theorem cons_x_0 : (C.cons A d h).pt 0 = A :=
+theorem cons_x_0 : (C.cons A d h).X 0 = A :=
   rfl
 
 @[simp]
-theorem cons_x_succ (n : ℕ) : (C.cons A d h).pt (n + 1) = C.pt n :=
+theorem cons_x_succ (n : ℕ) : (C.cons A d h).X (n + 1) = C.X n :=
   rfl
 
 @[simp]
@@ -66,7 +66,7 @@ end SimpLemmas
 
 namespace Hom
 
-variable {C₁ C₂ : CochainComplex 𝓐 ℕ} {A₁ A₂ : 𝓐} {d₁ : A₁ ⟶ C₁.pt 0} {d₂ : A₂ ⟶ C₂.pt 0}
+variable {C₁ C₂ : CochainComplex 𝓐 ℕ} {A₁ A₂ : 𝓐} {d₁ : A₁ ⟶ C₁.X 0} {d₂ : A₂ ⟶ C₂.X 0}
   (h₁ : d₁ ≫ C₁.d 0 1 = 0) (h₂ : d₂ ≫ C₂.d 0 1 = 0) (f : A₁ ⟶ A₂) (g : C₁ ⟶ C₂)
 
 def Cons.f : ∀ i : ℕ, (C₁.cons A₁ d₁ h₁).pt i ⟶ (C₂.cons A₂ d₂ h₂).pt i

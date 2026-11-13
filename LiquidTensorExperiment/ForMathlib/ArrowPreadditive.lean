@@ -30,8 +30,8 @@ namespace CategoryTheory
 
 variable {A : Type _} [Category A] [Preadditive A]
 
-attribute [local simp] preadditive.comp_nsmul preadditive.nsmul_comp preadditive.comp_zsmul
-  preadditive.zsmul_comp
+attribute [local simp] CategoryTheory.Preadditive.comp_nsmul CategoryTheory.Preadditive.nsmul_comp CategoryTheory.Preadditive.comp_zsmul
+  CategoryTheory.Preadditive.zsmul_comp
 
 instance Arrow.hasZero (P Q : Arrow A) : Zero (P ⟶ Q) :=
   ⟨Arrow.homMk (show 0 ≫ Q.hom = P.hom ≫ 0 by simp)⟩

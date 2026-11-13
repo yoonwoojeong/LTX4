@@ -20,7 +20,7 @@ variable {C : Type u} [Category.{v} C] {Z : C → Prop}
 @[simps]
 def liftIso {X Y : FullSubcategory Z} (h : X.obj ≅ Y.obj) : X ≅ Y
     where
-  Hom := h.Hom
+  hom := h.Hom
   inv := h.inv
   hom_inv_id' := h.hom_inv_id
   inv_hom_id' := h.inv_hom_id
@@ -99,7 +99,7 @@ theorem walkingComplex_hom_d_comp_d {i j k : WalkingComplex c} (r : c.Rel i j) (
 variable [HasZeroMorphisms V]
 
 def complexToFunctorMap (h : HomologicalComplex V c) {i j : WalkingComplex c} (f : i ⟶ j) :
-    h.pt i ⟶ h.pt j := by cases f; exacts [𝟙 _, h.d _ _, 0]
+    h.X i ⟶ h.X j := by cases f; exacts [𝟙 _, h.d _ _, 0]
 
 @[simp]
 theorem complexToFunctorMap_id (h : HomologicalComplex V c) (i : WalkingComplex c) :
@@ -119,7 +119,7 @@ theorem complexToFunctorMap_d (h : HomologicalComplex V c) {i j : WalkingComplex
 @[simps]
 def complexToFunctor (h : HomologicalComplex V c) : WalkingComplex c ⥤ V
     where
-  obj := h.pt
+  obj := h.X
   map i j f := complexToFunctorMap h f
 
 variable [DecidableRel c.Rel]
@@ -127,7 +127,7 @@ variable [DecidableRel c.Rel]
 @[simps]
 def functorToComplex (F : WalkingComplex c ⥤ V) (hF : ∀ i j, F.map (0 : i ⟶ j) = 0) :
     HomologicalComplex V c where
-  pt := F.obj
+  X := F.obj
   d i j := if r : c.Rel i j then F.map (walkingComplexD r) else 0
   d_comp_d' := by
     introv r r'
@@ -173,7 +173,7 @@ def complexEquivFunctor :
     HomologicalComplex V c ≌
       FullSubcategory fun F : WalkingComplex c ⥤ V => ∀ i j, F.map (0 : i ⟶ j) = 0
     where
-  Functor := complexToFunctorFunctor V c
+  functor := complexToFunctorFunctor V c
   inverse := functorToComplexFunctor V c
   unitIso := complexEquivFunctorUnit V c
   counitIso := complexEquivFunctorCounit V c
