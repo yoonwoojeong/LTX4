@@ -47,10 +47,10 @@ variable {N : ℝ≥0} {V : Type _}
 
 instance (Λ : Type _) [hN : Fact (0 < N)] [PolyhedralLattice Λ] : PolyhedralLattice (Rescale N Λ)
     where
-  Finite := by delta Rescale; infer_instance
-  Free := by delta Rescale; infer_instance
+  finite := by delta Rescale; infer_instance
+  free := by delta Rescale; infer_instance
   polyhedral' := by
-    obtain ⟨ι, _inst_ι, l, hl⟩ := PolyhedralLattice.polyhedral' Λ; skip
+    obtain ⟨ι, _inst_ι, l, hl⟩ := PolyhedralLattice.polyhedral' (Λ := Λ)
     refine' ⟨ι, _inst_ι, l, hl.rescale N⟩
 
 end Rescale

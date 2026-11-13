@@ -113,10 +113,10 @@ variable [PolyhedralLattice Λ]
 
 instance {ι : Type} [Fintype ι] : PolyhedralLattice (ι →₀ Λ)
     where
-  Finite := Module.Finite.of_basis (Finsupp.basis fun i => Module.Free.chooseBasis ℤ Λ)
-  Free := Module.Free.of_basis (Finsupp.basis fun i => Module.Free.chooseBasis ℤ Λ)
+  finite := Module.Finite.of_basis (Finsupp.basis fun i => Module.Free.chooseBasis ℤ Λ)
+  free := Module.Free.of_basis (Finsupp.basis fun i => Module.Free.chooseBasis ℤ Λ)
   polyhedral' := by
-    obtain ⟨J, _instJ, x, hx⟩ := PolyhedralLattice.polyhedral' Λ; skip
+    obtain ⟨J, _instJ, x, hx⟩ := PolyhedralLattice.polyhedral' (Λ := Λ)
     refine' ⟨ι × J, inferInstance, fun j => single j.1 (x j.2), _⟩
     exact hx.finsupp _
 

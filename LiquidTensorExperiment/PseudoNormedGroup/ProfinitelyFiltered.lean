@@ -604,7 +604,8 @@ end ComphausFilteredPseudoNormedGroupHom
 
 namespace PUnit
 
-instance : ProfinitelyFilteredPseudoNormedGroup PUnit
+-- Porting note: named as Lean 3's automatically generated instance name
+instance profinitelyFilteredPseudoNormedGroup : ProfinitelyFilteredPseudoNormedGroup PUnit
     where
   filtration' _ := Set.univ
   filtration_mono' _ _ _ := Set.subset_univ _

@@ -53,12 +53,11 @@ theorem generatesNorm_of_generates_nnnorm {x : ι → Λ}
 
 end GeneratesNorm
 
-/- ./././Mathport/Syntax/Translate/Command.lean:394:30: infer kinds are unsupported in Lean 4: #[`Finite] [] -/
-/- ./././Mathport/Syntax/Translate/Command.lean:394:30: infer kinds are unsupported in Lean 4: #[`Free] [] -/
-/- ./././Mathport/Syntax/Translate/Command.lean:394:30: infer kinds are unsupported in Lean 4: #[`polyhedral'] [] -/
+/-- Porting note: Lean 3 declared the fields with `[]` (making `Λ` explicit in the projections);
+Lean 4 cannot express this, so `Λ` is passed by name where the projection is applied. -/
 class PolyhedralLattice (Λ : Type _) extends NormedAddCommGroup Λ where
-  [Finite : Module.Finite ℤ Λ]
-  [Free : Module.Free ℤ Λ]
+  [finite : Module.Finite ℤ Λ]
+  [free : Module.Free ℤ Λ]
   polyhedral' : ∃ (ι : Type) (_ : Fintype ι) (l : ι → Λ), GeneratesNorm l
 
 namespace PolyhedralLattice
@@ -71,13 +70,13 @@ instance noZeroSMulDivisors_int : NoZeroSMulDivisors ℤ Λ :=
   Module.Free.noZeroSMulDivisors ℤ Λ
 
 instance noZeroSMulDivisors_nat : NoZeroSMulDivisors ℕ Λ :=
-  ⟨fun n l h => by
+  ⟨fun {n l} h => by
     rw [← coe_nat_zsmul, smul_eq_zero] at h 
     refine' h.imp _ id; simp only [imp_self, Int.coe_nat_eq_zero]⟩
 
 theorem polyhedral : ∃ (ι : Type) (_ : Fintype ι) (l : ι → Λ), GeneratesNorm l ∧ ∀ i, l i ≠ 0 :=
   by
-  obtain ⟨ι, _ι_inst, l, hl⟩ := PolyhedralLattice.polyhedral' Λ; skip
+  obtain ⟨ι, _ι_inst, l, hl⟩ := PolyhedralLattice.polyhedral' (Λ := Λ)
   refine' ⟨{ i // l i ≠ 0 }, inferInstance, fun i => l i, _, fun i => i.2⟩
   intro x
   obtain ⟨c, h1, h2⟩ := hl x
@@ -85,13 +84,13 @@ theorem polyhedral : ∃ (ι : Type) (_ : Fintype ι) (l : ι → Λ), Generates
   · rw [h1]
     refine' Finset.sum_bij_ne_zero _ (fun _ _ _ => Finset.mem_univ _) _ _ _
     · rintro i - hi; refine' ⟨i, _⟩; contrapose! hi; rw [hi, smul_zero]
-    · dsimp; rintro i j - hi - hj; simp only [imp_self]
+    · dsimp; rintro i j - hi - hj; simp only [Subtype.mk.injEq, imp_self]
     · rintro ⟨i, hi⟩ -; dsimp; intro H; refine' ⟨i, Finset.mem_univ _, H, rfl⟩
     · intros; rfl
   · rw [h2]
     refine' Finset.sum_bij_ne_zero _ (fun _ _ _ => Finset.mem_univ _) _ _ _
     · rintro i - hi; refine' ⟨i, _⟩; contrapose! hi; rw [hi, norm_zero, MulZeroClass.mul_zero]
-    · dsimp; rintro i j - hi - hj; simp only [imp_self]
+    · dsimp; rintro i j - hi - hj; simp only [Subtype.mk.injEq, imp_self]
     · rintro ⟨i, hi⟩ -; dsimp; intro H; refine' ⟨i, Finset.mem_univ _, H, rfl⟩
     · intros; rfl
 
@@ -141,8 +140,10 @@ initialize_simps_projections PolyhedralLatticeHom (toFun → apply)
 theorem coe_inj (H : (⇑f : Λ₁ → Λ₂) = g) : f = g := by
   cases f <;> cases g <;> congr <;> exact funext H
 
-theorem coe_injective : @Function.Injective (PolyhedralLatticeHom Λ₁ Λ₂) (Λ₁ → Λ₂) coeFn := by
-  apply coe_inj
+-- Porting note: Lean 4 has no `coe_fn`; the coercion is written as a lambda
+theorem coe_injective :
+    @Function.Injective (PolyhedralLatticeHom Λ₁ Λ₂) (Λ₁ → Λ₂) (fun f => (f : Λ₁ → Λ₂)) :=
+  fun _ _ => coe_inj
 
 theorem coe_inj_iff : f = g ↔ (⇑f : Λ₁ → Λ₂) = g :=
   ⟨congr_arg _, coe_inj⟩

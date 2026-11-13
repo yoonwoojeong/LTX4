@@ -21,7 +21,8 @@ attribute [local instance] typePow
 class ComphausFilteredPseudoNormedGroupWithTinv (r' : outParam <| ℝ≥0) (M : Type _) extends
     ComphausFilteredPseudoNormedGroup M where
   tinv : ComphausFilteredPseudoNormedGroupHom M M
-  tinv_mem_filtration : ∀ c x, x ∈ filtration c → Tinv x ∈ filtration (r'⁻¹ * c)
+  -- Porting note: Lean 3's `filtration c` / `Tinv` (the parent's and this class's fields)
+  tinv_mem_filtration : ∀ c x, x ∈ filtration M c → tinv x ∈ filtration M (r'⁻¹ * c)
 
 /-- A *profinitely filtered pseudo-normed topological group with action by `T⁻¹`* is
 a profinitely filtered pseudo-normed topological group `M` together with a
@@ -31,7 +32,8 @@ nonnegative real `r'` and homomorphism `Tinv : M → M` such that
 class ProfinitelyFilteredPseudoNormedGroupWithTinv (r' : outParam <| ℝ≥0) (M : Type _) extends
     ProfinitelyFilteredPseudoNormedGroup M where
   tinv : ComphausFilteredPseudoNormedGroupHom M M
-  tinv_mem_filtration : ∀ c x, x ∈ filtration c → Tinv x ∈ filtration (r'⁻¹ * c)
+  -- Porting note: Lean 3's `filtration c` / `Tinv` (the parent's and this class's fields)
+  tinv_mem_filtration : ∀ c x, x ∈ filtration M c → tinv x ∈ filtration M (r'⁻¹ * c)
 
 namespace ProfinitelyFilteredPseudoNormedGroupWithTinv
 
@@ -83,8 +85,6 @@ structure ComphausFilteredPseudoNormedGroupWithTinvHom (r' : ℝ≥0) (M₁ M₂
 
 end
 
-attribute [nolint doc_blame] ComphausFilteredPseudoNormedGroupWithTinvHom.mk
-  ComphausFilteredPseudoNormedGroupWithTinvHom.toAddMonoidHom
 
 namespace ComphausFilteredPseudoNormedGroupWithTinvHom
 
@@ -103,18 +103,25 @@ variable [ComphausFilteredPseudoNormedGroupWithTinv r' M₃]
 variable (f g : ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂)
 
 instance : CoeFun (ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂) fun _ => M₁ → M₂ :=
-  ⟨ComphausFilteredPseudoNormedGroupWithTinvHom.toFun⟩
+  -- Porting note: Lean 4 has no projection constant for the inherited field `toFun`
+  ⟨fun f => f.toFun⟩
+
+-- Porting note: a custom `simps` projection for the coercion; without it `@[simps]` loops
+/-- See Note [custom simps projection]. -/
+def Simps.apply (f : ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂) : M₁ → M₂ := f
+
+initialize_simps_projections ComphausFilteredPseudoNormedGroupWithTinvHom (toFun → apply)
 
 @[simp]
 theorem coe_mk (f) (h₁) (h₂) (h₃) (h₄) (h₅) :
-    ⇑(⟨f, h₁, h₂, h₃, h₄, h₅⟩ : ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂) = f :=
+    ⇑(⟨⟨⟨f, h₁⟩, h₂⟩, h₃, h₄, h₅⟩ : ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂) = f :=
   rfl
 
 @[simp]
 theorem mk_to_monoid_hom (f) (h₁) (h₂) (h₃) (h₄) (h₅) :
-    (⟨f, h₁, h₂, h₃, h₄, h₅⟩ :
+    (⟨⟨⟨f, h₁⟩, h₂⟩, h₃, h₄, h₅⟩ :
           ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂).toAddMonoidHom =
-      ⟨f, h₁, h₂⟩ :=
+      ⟨⟨f, h₁⟩, h₂⟩ :=
   rfl
 
 @[simp]
@@ -150,7 +157,8 @@ theorem strict : ∀ ⦃c x⦄, x ∈ filtration M₁ c → f x ∈ filtration M
 
 /-- `f.level c` is the function `filtration M₁ c → filtration M₂ c`
 induced by a `comphaus_filtered_pseudo_normed_group_with_Tinv_hom M₁ M₂`. -/
-@[simps]
+-- Porting note: `rhsMd := .default` as in Lean 3, where `simps` unfolded the definition
+@[simps (config := { rhsMd := .default })]
 def level : ∀ c : ℝ≥0, filtration M₁ c → filtration M₂ c :=
   PseudoNormedGroup.level f f.strict
 
@@ -163,36 +171,38 @@ theorem map_tinv (x : M₁) : f (tinv x) = tinv (f x) :=
 variable {f g}
 
 @[ext]
-theorem ext (H : ∀ x, f x = g x) : f = g := by cases f <;> cases g <;> congr <;> exact funext H
+-- Porting note: Lean 4 does not flatten the `AddMonoidHom` parent, so use its `ext`
+theorem ext (H : ∀ x, f x = g x) : f = g := by
+  cases f; cases g; congr; exact AddMonoidHom.ext H
 
 instance : Zero (ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂) :=
-  ⟨{ (0 : M₁ →+ M₂) with
-      strict' := fun c x h => zero_mem_filtration _
-      continuous' := fun c => @continuous_const _ (filtration M₂ c) _ _ 0
-      map_Tinv' := fun x => show 0 = tinv (0 : M₂) from tinv.map_zero.symm }⟩
+  -- Porting note: the `AddMonoidHom` parent is given by name instead of as a `with` source
+  ⟨{ toAddMonoidHom := 0
+     strict' := fun c x h => zero_mem_filtration _
+     continuous' := fun c => @continuous_const _ (filtration M₂ c) _ _ 0
+     map_Tinv' := fun x => show 0 = tinv (0 : M₂) from tinv.map_zero.symm }⟩
 
 instance : Inhabited (ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂) :=
   ⟨0⟩
 
 theorem coe_inj ⦃f g : ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂⦄
-    (h : (f : M₁ → M₂) = g) : f = g := by cases f <;> cases g <;> cases h <;> rfl
+    (h : (f : M₁ → M₂) = g) : f = g :=
+  ext (congrFun h)
 
 /-- The identity function as `comphaus_filtered_pseudo_normed_group_with_Tinv_hom`. -/
 @[simps]
 def id : ComphausFilteredPseudoNormedGroupWithTinvHom r' M M :=
-  { AddMonoidHom.id _ with
-    strict' := fun c x => id
-    continuous' := fun c => by convert continuous_id; ext; rfl
+  { toAddMonoidHom := AddMonoidHom.id _
+    strict' := fun c x => _root_.id
+    continuous' := fun c => by convert continuous_id
     map_Tinv' := fun x => rfl }
 
 /-- The composition of `comphaus_filtered_pseudo_normed_group_with_Tinv_hom`s. -/
-@[simps]
+@[simps (config := { rhsMd := .default })]
 def comp (g : ComphausFilteredPseudoNormedGroupWithTinvHom r' M₂ M₃)
     (f : ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂) :
     ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₃ :=
-  {
-    g.toAddMonoidHom.comp
-      f.toAddMonoidHom with
+  { toAddMonoidHom := g.toAddMonoidHom.comp f.toAddMonoidHom
     strict' := fun c x hx => g.strict (f.strict hx)
     continuous' := fun c => (g.level_continuous c).comp (f.level_continuous c)
     map_Tinv' := fun x =>
@@ -209,12 +219,14 @@ def toComphausFilteredPseudoNormedGroupHom : ComphausFilteredPseudoNormedGroupHo
     ⟨fun x h => f.strict h, f.level_continuous c⟩
 
 theorem toProfinitelyFilteredPseudoNormedGroupHomStrict :
-    f.toComphausFilteredPseudoNormedGroupHom.strict :=
+    f.toComphausFilteredPseudoNormedGroupHom.Strict :=
   ComphausFilteredPseudoNormedGroupHom.mkOfStrictStrict _ _
 
 variable {f}
 
-def mk' (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) (hf1 : f.BoundBy 1) (hfT) :
+-- Porting note: the type of `hfT` (inferred in Lean 3) is stated
+def mk' (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) (hf1 : f.BoundBy 1)
+    (hfT : ∀ x, f (tinv x) = tinv (f x)) :
     ComphausFilteredPseudoNormedGroupWithTinvHom r' M₁ M₂ :=
   { f with
     toFun := f
@@ -223,7 +235,8 @@ def mk' (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) (hf1 : f.BoundBy 1)
     map_Tinv' := hfT }
 
 @[simp]
-theorem mk'_apply (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) (hf1) (hfT) (x : M₁) :
+theorem mk'_apply (f : ComphausFilteredPseudoNormedGroupHom M₁ M₂) (hf1 : f.BoundBy 1)
+    (hfT : ∀ x, f (tinv x) = tinv (f x)) (x : M₁) :
     @mk' r' _ _ _ _ f hf1 hfT x = f x :=
   rfl
 
@@ -245,11 +258,13 @@ def invOfEquivOfStrict (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
       rw [continuous_iff_isClosed]
       intro U hU
       rw [← g.image_eq_preimage]
-      exact (hcont.closedEmbedding g.injective).IsClosedMap U hU
+      exact (hcont.closedEmbedding g.injective).isClosedMap U hU
     map_Tinv' := fun x => by
       apply e.injective
       simp only [AddEquiv.coe_toAddMonoidHom, AddMonoidHom.toFun_eq_coe]
-      rw [e.apply_symm_apply, ← he, map_Tinv, he, e.apply_symm_apply] }
+      -- Porting note: `erw` because the coercions are unfolded differently after `simp only`
+      erw [e.apply_symm_apply, ← he, map_tinv, he, e.apply_symm_apply]
+      rfl }
 
 @[simp]
 theorem invOfEquivOfStrict.apply (x : M₁) (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
@@ -265,7 +280,9 @@ end ComphausFilteredPseudoNormedGroupWithTinvHom
 
 namespace PUnit
 
-instance profinitelyFilteredPseudoNormedGroupWithTinv (r' : ℝ≥0) :
+-- Porting note: Lean 4 rejects this as an instance because the out-parameter `r'` is not
+-- determined by `PUnit`; it is only ever used by name, so it is a `def`.
+def profinitelyFilteredPseudoNormedGroupWithTinv (r' : ℝ≥0) :
     ProfinitelyFilteredPseudoNormedGroupWithTinv r' PUnit :=
   {
     PUnit.profinitelyFilteredPseudoNormedGroup with
@@ -334,10 +351,12 @@ def piLift {N : Type _} [ProfinitelyFilteredPseudoNormedGroupWithTinv r' N]
       exact (f i).continuous' c
     map_Tinv' := fun x => by ext i; exact (f i).map_tinv x }
 
-@[simps (config := { fullyApplied := false })]
+@[simps (config := { fullyApplied := false, rhsMd := .default })]
 def piMap (f : ∀ i, ComphausFilteredPseudoNormedGroupWithTinvHom r' (M₁ i) (M₂ i)) :
     ComphausFilteredPseudoNormedGroupWithTinvHom r' (∀ i, M₁ i) (∀ i, M₂ i) :=
   piLift r' _ fun i => (f i).comp (piProj r' _ i)
+
+end
 
 end
 
