@@ -56,7 +56,7 @@ variable (M : ProFiltPseuNormGrpWithTinv.{u} r') (c : ℝ≥0)
 `V-hat(M_{≤c})^{T⁻¹} ⟶ V-hat(M_{≤c_1c}^2)^{T⁻¹} ⟶ …` -/
 def complex₂X (a b : ℕ → ℝ≥0) [∀ i, Fact (b i ≤ r' * a i)] (i : ℕ) :
     (ProFiltPseuNormGrpWithTinv r')ᵒᵖ ⥤ SemiNormedGroupCat :=
-  cLCFPTinv₂ r V r' (a i) (b i) (BD.pt i)
+  cLCFPTinv₂ r V r' (a i) (b i) (BD.X i)
 
 /-- The object for the complex of seminormed groups
 `V-hat(M_{≤c})^{T⁻¹} ⟶ V-hat(M_{≤c_1c}^2)^{T⁻¹} ⟶ …` -/
@@ -100,23 +100,31 @@ def complex₂ (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact 
     [BD.Suitable b] : (ProFiltPseuNormGrpWithTinv.{u} r')ᵒᵖ ⥤ CochainComplex SemiNormedGroupCat ℕ
     where
   obj M :=
-    { pt := fun i => (BD.complex₂X r V r' a b i).obj M
+    { X := fun i => (BD.complex₂X r V r' a b i).obj M
       d := fun i j => (BD.complex₂D r V r' a b i j).app M
       d_comp_d' := fun i j k _ _ => by
         rw [← NatTrans.comp_app]
-        simp only [complex₂_d, ← UniversalMap.evalCLCFPTinv₂_comp, BD.d_comp_d,
+        simp only [complex₂D, ← UniversalMap.evalCLCFPTinv₂_comp, BD.d_comp_d,
           UniversalMap.evalCLCFPTinv₂_zero]
         rfl
-      shape' := fun i j hij =>
+      shape := fun i j hij =>
         by
-        simp only [complex₂_d, ← UniversalMap.evalCLCFPTinv₂_comp, BD.shape _ _ hij,
+        simp only [complex₂D, ← UniversalMap.evalCLCFPTinv₂_comp, BD.shape _ _ hij,
           UniversalMap.evalCLCFPTinv₂_zero]
         rfl }
-  map M₁ M₂ f :=
-    { f := fun i => ((cLCFPTinv₂ r V r' (a i) (b i) (BD.pt i)).map f : _)
-      comm' := fun i j _ => NatTrans.naturality _ _ }
-  map_id M := by ext i : 2; apply CategoryTheory.Functor.map_id
-  map_comp M₁ M₂ M₃ f g := by ext i : 2; apply CategoryTheory.Functor.map_comp
+  map f :=
+    { f := fun i => ((cLCFPTinv₂ r V r' (a i) (b i) (BD.X i)).map f : _)
+      comm' := fun i j _ => NatTrans.naturality (BD.complex₂D r V r' a b i j) f }
+  map_id M := by
+    -- Porting note: Lean 3 `ext` was recursive
+    apply HomologicalComplex.Hom.ext
+    funext i
+    exact CategoryTheory.Functor.map_id (cLCFPTinv₂ r V r' (a i) (b i) (BD.X i)) M
+  map_comp f g := by
+    -- Porting note: Lean 3 `ext` was recursive
+    apply HomologicalComplex.Hom.ext
+    funext i
+    exact CategoryTheory.Functor.map_comp (cLCFPTinv₂ r V r' (a i) (b i) (BD.X i)) f g
 
 /-- The complex of seminormed groups `V-hat(M_{≤c})^{T⁻¹} ⟶ V-hat(M_{≤c_1c}^2)^{T⁻¹} ⟶ …` -/
 def complex (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)] (r' : ℝ≥0)
@@ -124,17 +132,17 @@ def complex (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 
     (ProFiltPseuNormGrpWithTinv.{u} r')ᵒᵖ ⥤ CochainComplex SemiNormedGroupCat ℕ :=
   BD.complex₂ r V r' (fun i => c * κ i) fun i => r' * (c * κ i)
 
-namespace Complex
+namespace complex
 
 theorem map_normNoninc {M₁ M₂} (f : M₁ ⟶ M₂) (n : ℕ) :
-    (((BD.Complex κ r V r' c).map f).f n).NormNoninc :=
-  cLCFPTinv.map_normNoninc _ _ _ _ _ _
+    (((BD.complex κ r V r' c).map f).f n).NormNoninc :=
+  cLCFPTinv.map_normNoninc r V r' (c * κ n) (BD.X n) f
 
-end Complex
+end complex
 
 theorem complex_obj_d (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)]
     (r' : ℝ≥0) [Fact (0 < r')] [Fact (r' ≤ 1)] (c : ℝ≥0) (i j : ℕ) (M) :
-    ((BD.Complex κ r V r' c).obj M).d i j = ((BD.d j i).evalCLCFPTinv r V r' _ _).app M :=
+    ((BD.complex κ r V r' c).obj M).d i j = ((BD.d j i).evalCLCFPTinv r V r' (c * κ i) (c * κ j)).app M :=
   rfl
 
 theorem comm_sq_app {C D} [Category C] [Category D] {X₁ X₂ Y₁ Y₂ : C ⥤ D} {f₁ : X₁ ⟶ Y₁}
@@ -149,30 +157,66 @@ occurring in Theorems 9.4 and 9.5 of [Analytic], as a functor in `M`. -/
 def system (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)] (r' : ℝ≥0)
     [Fact (0 < r')] [Fact (r' ≤ 1)] : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ ⥤ SystemOfComplexes :=
   Functor.flip
-    { obj := fun c => BD.Complex κ r V r' (unop c)
-      map := fun c₂ c₁ h =>
-        { app := fun M =>
-            by
+    ({ obj := fun c => BD.complex κ r V r' (unop c)
+       map := fun {c₂ c₁} h =>
+        { app := fun M => by
             haveI : Fact ((unop c₁ : ℝ≥0) ≤ (unop c₂ : ℝ≥0)) := ⟨h.unop.down.down⟩
             refine'
-              { f := fun i => (cLCFPTinv₂.res r V r' _ _ _ _ (BD.X i)).app _
+              { f := fun i =>
+                  (cLCFPTinv₂.res r V r' (unop c₂ * κ i) (r' * (unop c₂ * κ i)) (unop c₁ * κ i)
+                    (r' * (unop c₁ * κ i)) (BD.X i)).app M
                 comm' := _ }
-            · intro i j _; apply comm_sq_app
-              apply UniversalMap.res_comp_evalCLCFPTinv₂
+            · intro i j _
+              have key := UniversalMap.res_comp_evalCLCFPTinv₂ r V r' (unop c₂ * κ i)
+                  (r' * (unop c₂ * κ i)) (unop c₁ * κ i) (r' * (unop c₁ * κ i))
+                  (unop c₂ * κ j) (r' * (unop c₂ * κ j)) (unop c₁ * κ j)
+                  (r' * (unop c₁ * κ j)) (BD.d j i)
+              dsimp only [complex, complex₂_obj_d, complex₂_obj_X, complex₂D, complex₂X]
+              have key2 := comm_sq_app key M
+              exact key2
           naturality := fun M N f => by
-            ext i : 2
-            erw [comp_f, comp_f]
-            apply NatTrans.naturality }
-      map_id := by
-        intro c; ext M i : 4
-        refine' NatTrans.congr_app (cLCFPTinv₂.res_refl r V r' _ _ _) M
-      map_comp := by
+            -- Porting note: Lean 3 `ext` was recursive
+            haveI : Fact ((unop c₁ : ℝ≥0) ≤ (unop c₂ : ℝ≥0)) := ⟨h.unop.down.down⟩
+            dsimp only
+            apply HomologicalComplex.Hom.ext
+            funext i
+            dsimp only [HomologicalComplex.comp_f, complex, complex₂_map_f, complex₂_obj_X, complex₂X]
+            have h := NatTrans.naturality
+              (cLCFPTinv₂.res r V r' (unop c₂ * κ i) (r' * (unop c₂ * κ i)) (unop c₁ * κ i)
+                (r' * (unop c₁ * κ i)) (BD.X i)) f
+            exact h }
+       map_id := by
+        intro c
+        -- Porting note: Lean 3 `ext` was recursive
+        apply NatTrans.ext
+        funext M
+        dsimp only
+        apply HomologicalComplex.Hom.ext
+        funext i
+        dsimp only [HomologicalComplex.id_f, NatTrans.id_app, complex, complex₂_map_f, complex₂_obj_X,
+          complex₂X]
+        have h := NatTrans.congr_app
+          (cLCFPTinv₂.res_refl r V r' (unop c * κ i) (r' * (unop c * κ i)) (BD.X i)) M
+        exact h
+       map_comp := by
         intro c₃ c₂ c₁ h h'
         haveI H' : Fact ((unop c₁ : ℝ≥0) ≤ (unop c₂ : ℝ≥0)) := ⟨h'.unop.down.down⟩
         haveI H : Fact ((unop c₂ : ℝ≥0) ≤ (unop c₃ : ℝ≥0)) := ⟨h.unop.down.down⟩
         haveI : Fact ((unop c₁ : ℝ≥0) ≤ (unop c₃ : ℝ≥0)) := ⟨H'.out.trans H.out⟩
-        ext M i : 4; symm
-        exact NatTrans.congr_app (cLCFPTinv₂.res_comp_res r V r' _ _ _ _ _ _ _) _ }
+        -- Porting note: Lean 3 `ext` was recursive
+        apply NatTrans.ext
+        funext M
+        dsimp only
+        apply HomologicalComplex.Hom.ext
+        funext i
+        dsimp only [HomologicalComplex.comp_f, NatTrans.comp_app, complex, complex₂_map_f,
+          complex₂_obj_X, complex₂X]
+        symm
+        have h := NatTrans.congr_app (cLCFPTinv₂.res_comp_res r V r' (unop c₃ * κ i)
+          (r' * (unop c₃ * κ i)) (unop c₂ * κ i) (r' * (unop c₂ * κ i)) (unop c₁ * κ i)
+          (r' * (unop c₁ * κ i)) (BD.X i)) M
+        exact h } :
+      ℝ≥0ᵒᵖ ⥤ (ProFiltPseuNormGrpWithTinv r')ᵒᵖ ⥤ CochainComplex SemiNormedGroupCat ℕ)
 
 -- move this
 instance fact_unop_op {c₁ c₂ : ℝ≥0} [Fact (c₂ ≤ c₁)] : Fact (unop (op c₂) ≤ unop (op c₁)) := by
@@ -181,17 +225,21 @@ instance fact_unop_op {c₁ c₂ : ℝ≥0} [Fact (c₂ ≤ c₁)] : Fact (unop 
 theorem system_res_def (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)]
     (r' : ℝ≥0) [Fact (0 < r')] [Fact (r' ≤ 1)] {M} {c₁ c₂ : ℝ≥0} {i : ℕ} [h : Fact (c₂ ≤ c₁)] :
     @SystemOfComplexes.res ((BD.system κ r V r').obj M) c₁ c₂ i _ =
-      (cLCFPTinv.res r V r' _ _ _).app M :=
+      (cLCFPTinv.res r V r' (c₁ * κ i) (c₂ * κ i) (BD.X i)).app M :=
   rfl
 
 theorem system_obj_d (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)]
     (r' : ℝ≥0) [Fact (0 < r')] [Fact (r' ≤ 1)] {M} (c : ℝ≥0) (i j : ℕ) :
     @SystemOfComplexes.d ((BD.system κ r V r').obj M) c i j =
-      ((BD.d j i).evalCLCFPTinv r V r' _ _).app M :=
+      ((BD.d j i).evalCLCFPTinv r V r' (c * κ i) (c * κ j)).app M :=
   rfl
 
+-- Porting note: the types `α` and `β` of `Isometry` are given explicitly, since otherwise
+-- instance search fails on `(forget SemiNormedGroupCat).obj _`.
 theorem system_mapIso_isometry {M₁ M₂ : (ProFiltPseuNormGrpWithTinv r')ᵒᵖ} (f : M₁ ≅ M₂) (i : ℕ) :
-    Isometry ((((BD.system κ r V r').mapIso f).hom.app (op c)).f i) :=
+    Isometry (α := ↥((((BD.system κ r V r').obj M₁).obj (op c)).X i))
+      (β := ↥((((BD.system κ r V r').obj M₂).obj (op c)).X i))
+      ((((BD.system κ r V r').mapIso f).hom.app (op c)).f i) :=
   by
   simp only [← Iso.app_hom, ← HomologicalComplex.Hom.isoApp_hom]
   apply SemiNormedGroupCat.iso_isometry_of_normNoninc <;> apply complex.map_normNoninc
@@ -222,7 +270,7 @@ theorem systemAdmissible {M} : ((BD.system κ r V r').obj M).Admissible :=
   { d_norm_noninc' := fun c i j hij =>
       haveI : UniversalMap.VerySuitable (BD.d j i) r r' (unop (op c) * κ j) (unop (op c) * κ i) :=
         by dsimp only [unop_op]; infer_instance
-      universal_map.evalCLCFPTinv_normNoninc _ _ _ _ _ _ _
+      UniversalMap.evalCLCFPTinv_normNoninc _ _ _ _ _ _ _
     res_normNoninc := fun c₁ c₂ i h => cLCFPTinv.res_normNoninc _ _ _ _ _ _ _ }
 
 end
