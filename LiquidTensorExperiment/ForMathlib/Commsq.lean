@@ -144,7 +144,7 @@ theorem iso_inv_π (sq₁ sq₂ : Commsq f₁₁ g₁₁ g₁₂ f₂₁) : (sq�
 
 end Iso
 
--- Porting note: Lean 3 declared this data-valued declaration as a `lemma` -/
+-- Porting note: Lean 3 declared this data-valued declaration as a `lemma`
 def ofIso (e₁₁ : A₁₁ ≅ A₃₃) (e₁₂ : A₁₂ ≅ A₃₄) (e₂₁ : A₂₁ ≅ A₄₃) (e₂₂ : A₂₂ ≅ A₄₄)
     (sqa : Commsq f₁₁ e₁₁.hom e₁₂.hom f₃₃) (sqb : Commsq g₁₁ e₁₁.hom e₂₁.hom g₃₃)
     (sqc : Commsq g₁₂ e₁₂.hom e₂₂.hom g₃₄) (sqd : Commsq f₂₁ e₂₁.hom e₂₂.hom f₄₃)

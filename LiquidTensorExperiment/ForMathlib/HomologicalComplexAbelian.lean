@@ -470,8 +470,15 @@ def isKernelOfEval (g : Y ⟶ Z) (w : f ≫ g = 0)
   intro i; exact limit.isoLimitCone ⟨_, h i⟩
   · intro i j r; dsimp; rw [← Iso.comp_inv_eq, Category.assoc, ← Iso.eq_inv_comp]; ext; simp
   · rintro (_ | _)
-    · ext; dsimp; rw [← Iso.inv_comp_eq]; simp
-    · ext; dsimp; simp [show f.f x ≫ g.f x = _ from congr_f w x]
+    · apply HomologicalComplex.hom_ext
+      intro x
+      dsimp
+      rw [← Iso.inv_comp_eq]
+      simp
+    · apply HomologicalComplex.hom_ext
+      intro x
+      dsimp
+      simp [show f.f x ≫ g.f x = _ from congr_f w x]
 
 def isCokernelOfEval (g : Y ⟶ Z) (w : f ≫ g = 0)
     (h : ∀ i, IsColimit (CokernelCofork.ofπ (g.f i) (congr_f w i))) :
@@ -481,10 +488,19 @@ def isCokernelOfEval (g : Y ⟶ Z) (w : f ≫ g = 0)
   fapply Cocones.ext
   fapply Hom.isoOfComponents
   intro i; exact colimit.isoColimitCocone ⟨_, h i⟩
-  · intro i j r; ext; dsimp; simp
+  · intro i j r
+    apply coequalizer.hom_ext
+    dsimp
+    simp
   · rintro (_ | _)
-    · ext; dsimp; simpa using (congr_arg (fun f => hom.f f x) w).symm
-    · ext; dsimp; simp
+    · apply HomologicalComplex.hom_ext
+      intro x
+      dsimp
+      simpa using (congr_f w x).symm
+    · apply HomologicalComplex.hom_ext
+      intro x
+      dsimp
+      simp
 
 instance [Mono f] (i : ι) : Mono (f.f i) :=
   by

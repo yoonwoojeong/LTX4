@@ -23,7 +23,7 @@ theorem controlled_exactness {M M₁ M₂ : Type _} [SeminormedAddCommGroup M]
     [SeminormedAddCommGroup M₁] [SeminormedAddCommGroup M₂] {f : NormedAddGroupHom M₁ M} {C : ℝ}
     (hC : 0 < C) {D : ℝ} {g : NormedAddGroupHom M M₂} (h : f.SurjectiveOnWith g.ker C)
     (h' : g.SurjectiveOnWith g.range D) :
-    ∀ ε > 0, f.Completion.SurjectiveOnWith g.Completion.ker (C + ε) :=
+    ∀ ε > 0, f.completion.SurjectiveOnWith g.completion.ker (C + ε) :=
   by
   intro ε ε_pos hatm hatm_in
   by_cases H : hatm = 0

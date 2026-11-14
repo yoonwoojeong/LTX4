@@ -24,7 +24,7 @@ theorem Int.sum_units_toNat_smul (n : ℤ) : ∑ i : Units ℤ, Int.toNat (i * n
 
 instance Int.polyhedralLattice : PolyhedralLattice ℤ where
   polyhedral' := by
-    refine' ⟨Units ℤ, inferInstance, coe, _⟩
+    refine' ⟨Units ℤ, inferInstance, (fun u => (u : ℤ)), _⟩
     intro n
     refine' ⟨fun e => Int.toNat (e * n), (Int.sum_units_toNat_smul _).symm, _⟩
     simp only [Int.norm_coe_units, mul_one, Nat.cast_one, one_mul, UnitsInt.univ]

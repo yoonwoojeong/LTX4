@@ -16,7 +16,7 @@ variable (C)
 /- TODO : define the subcategory of complexes with 3 objects, and consider
 functor to this category, etc. -/
 structure ComposableMorphisms where
-  {pt y z : C}
+  {X Y Z : C}
   f : X ⟶ Y
   g : Y ⟶ Z
 
@@ -29,13 +29,22 @@ namespace ComposableMorphisms
 
 @[ext]
 structure Hom (S₁ S₂ : ComposableMorphisms C) where
-  τ₁ : S₁.pt ⟶ S₂.pt
-  τ₂ : S₁.y ⟶ S₂.y
-  τ₃ : S₁.z ⟶ S₂.z
+  τ₁ : S₁.X ⟶ S₂.X
+  τ₂ : S₁.Y ⟶ S₂.Y
+  τ₃ : S₁.Z ⟶ S₂.Z
   comm₁₂' : S₁.f ≫ τ₂ = τ₁ ≫ S₂.f
   comm₂₃' : S₁.g ≫ τ₃ = τ₂ ≫ S₂.g
 
 namespace Hom
+
+-- Porting note: `restate_axiom` does not exist in Lean 4; the restated lemmas are written by hand.
+theorem comm₁₂ {S₁ S₂ : ComposableMorphisms C} (self : Hom S₁ S₂) :
+    S₁.f ≫ self.τ₂ = self.τ₁ ≫ S₂.f :=
+  self.comm₁₂'
+
+theorem comm₂₃ {S₁ S₂ : ComposableMorphisms C} (self : Hom S₁ S₂) :
+    S₁.g ≫ self.τ₃ = self.τ₂ ≫ S₂.g :=
+  self.comm₂₃'
 
 attribute [reassoc] comm₁₂
 
@@ -68,9 +77,9 @@ end Hom
 
 instance : Category (ComposableMorphisms C)
     where
-  Hom S₁ S₂ := Hom S₁ S₂
+  Hom := fun S₁ S₂ => Hom S₁ S₂
   id := Hom.id
-  comp S₁ S₂ S₃ := Hom.comp
+  comp := Hom.comp
 
 @[simp]
 theorem id_τ₁ (S : ComposableMorphisms C) : Hom.τ₁ (𝟙 S) = 𝟙 _ :=
@@ -112,18 +121,22 @@ def mapComposableMorphisms (F : C ⥤ D) : ComposableMorphisms C ⥤ ComposableM
   obj S :=
     { f := F.map S.f
       g := F.map S.g }
-  map S₁ S₂ φ :=
+  map φ :=
     { τ₁ := F.map φ.τ₁
       τ₂ := F.map φ.τ₂
       τ₃ := F.map φ.τ₃
-      comm₁₂' := by dsimp; simp only [← F.map_comp, φ.comm₁₂]
-      comm₂₃' := by dsimp; simp only [← F.map_comp, φ.comm₂₃] }
+      comm₁₂' := by
+        dsimp
+        simp only [← F.map_comp, φ.comm₁₂]
+      comm₂₃' := by
+        dsimp
+        simp only [← F.map_comp, φ.comm₂₃] }
 
 end Functor
 
 namespace ComposableMorphisms
 
-@[simps]
+@[simps!]
 def applyFunctor (S : ComposableMorphisms C) (F : C ⥤ D) :=
   F.mapComposableMorphisms.obj S
 

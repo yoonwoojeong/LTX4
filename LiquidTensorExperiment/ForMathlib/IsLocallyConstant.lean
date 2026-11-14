@@ -31,8 +31,7 @@ variable {Y : Type _}
 def IndexedPartition.discreteQuotient {ι : Type _} {s : ι → Set X} (h_part : IndexedPartition s)
     (h_cl : ∀ i, IsClopen <| s i) : DiscreteQuotient X
     where
-  Rel := h_part.Setoid.Rel
-  Equiv := h_part.Setoid.iseqv
+  toSetoid := h_part.setoid
   clopen := by
     intro x
     rw [h_part.class_of]

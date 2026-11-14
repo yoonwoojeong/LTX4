@@ -9,12 +9,12 @@ protected class StrictIso {A B : SemiNormedGroupCat} (f : A ≅ B) where
   strict_hom' : ∀ a : A, ‖f.hom a‖₊ = ‖a‖₊
 
 @[simp]
-theorem strictIso_hom {A B : SemiNormedGroupCat} (f : A ≅ B) [StrictIso f] (a : A) :
+theorem strictIso_hom {A B : SemiNormedGroupCat} (f : A ≅ B) [SemiNormedGroupCat.StrictIso f] (a : A) :
     ‖f.hom a‖₊ = ‖a‖₊ :=
   StrictIso.strict_hom' _
 
 @[simp]
-theorem strictIso_inv {A B : SemiNormedGroupCat} (f : A ≅ B) [StrictIso f] (b : B) :
+theorem strictIso_inv {A B : SemiNormedGroupCat} (f : A ≅ B) [SemiNormedGroupCat.StrictIso f] (b : B) :
     ‖f.inv b‖₊ = ‖b‖₊ :=
   by
   have : b = f.hom (f.inv b) := by change b = (f.inv ≫ f.hom) b; simp
