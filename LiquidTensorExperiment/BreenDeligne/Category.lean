@@ -73,13 +73,17 @@ def toFreeAbMat : FreeMat ⥤ FreeAb Mat
   obj n := FreeAb.of n
   map f := f
   map_id m := rfl
-  map_comp f g :=
-    by
-    induction f using FreeAbelianGroup.induction_on <;>
-      try simp only [Limits.zero_comp, Preadditive.add_comp, Preadditive.neg_comp, *]
-    induction g using FreeAbelianGroup.induction_on <;>
-      try simp only [Limits.comp_zero, Preadditive.comp_add, Preadditive.comp_neg, *]
-    rfl
+  -- Porting note: the Lean 3 proof (induction on `f` and `g`) is replaced by a two-variable
+  -- extensionality argument, since `simp` does not see through the two category structures.
+  map_comp {X Y Z} f g :=
+    FunLike.congr_fun
+      (FunLike.congr_fun
+        (freeAbelianGroup_ext₂
+          (α := BasicUniversalMap X Y) (β := BasicUniversalMap Y Z) (γ := UniversalMap X Z)
+          (UniversalMap.comp (l := X) (m := Y) (n := Z)).flip
+          (FreeAb.comp (X := FreeAb.of (C := Mat) X) (Y := FreeAb.of (C := Mat) Y)
+            (Z := FreeAb.of (C := Mat) Z))
+          (fun a b => (UniversalMap.comp_of b a).trans (FreeAb.comp_of_of Mat a b).symm)) f) g
 
 open UniversalMap
 
@@ -120,23 +124,26 @@ def oneMulIso : mulFunctor 1 ≅ 𝟭 _ :=
       intro m n f
       dsimp
       show UniversalMap.comp _ _ = UniversalMap.comp _ _
-      rw [← AddMonoidHom.comp_apply, ← AddMonoidHom.compHom_apply_apply, ←
-        AddMonoidHom.flip_apply _ f]
-      congr 1; clear f; ext1 f
-      have :
-        f =
-          Matrix.reindexLinearEquiv ℕ _
-            ((fin_one_equiv.prod_congr <| Equiv.refl _).trans <| Equiv.punitProd _)
-            ((fin_one_equiv.prod_congr <| Equiv.refl _).trans <| Equiv.punitProd _) (1 ⊗ₖ f) :=
-        by
-        ext i j; dsimp [Matrix.kronecker, Matrix.one_apply]
-        simp only [one_mul, if_true, eq_iff_true_of_subsingleton]
-      conv_rhs => rw [this]
-      simp only [comp_of, hMul_of, BasicUniversalMap.comp, AddMonoidHom.mk'_apply,
-        BasicUniversalMap.mul, BasicUniversalMap.oneMulHom, AddMonoidHom.compHom_apply_apply,
-        AddMonoidHom.comp_apply, AddMonoidHom.flip_apply, BreenDeligne.FreeMat.isoMk'_hom]
-      rw [Matrix.reindexLinearEquiv_mul, Matrix.reindexLinearEquiv_mul, Matrix.one_mul,
-        Matrix.mul_one])
+      -- Porting note: the Lean 3 proof rewrote with `add_monoid_hom.flip_apply` and used `ext1`;
+      -- here we argue by induction on `f` instead.
+      induction f using FreeAbelianGroup.induction_on with
+      | C0 => simp only [map_zero, AddMonoidHom.zero_apply]
+      | C1 f =>
+        have :
+          f =
+            Matrix.reindexLinearEquiv ℕ _
+              ((finOneEquiv.prodCongr <| Equiv.refl _).trans <| Equiv.punitProd _)
+              ((finOneEquiv.prodCongr <| Equiv.refl _).trans <| Equiv.punitProd _) (1 ⊗ₖ f) := by
+          ext i j; dsimp [Matrix.kroneckerMap, Matrix.one_apply]
+          simp only [one_mul, if_true, eq_iff_true_of_subsingleton]
+        conv_rhs => rw [this]
+        simp only [comp_of, hMul_of, BasicUniversalMap.comp, AddMonoidHom.mk'_apply,
+          BasicUniversalMap.mul, BasicUniversalMap.oneMulHom, AddMonoidHom.compHom_apply_apply,
+          AddMonoidHom.comp_apply, AddMonoidHom.flip_apply, BreenDeligne.FreeMat.isoMk'_hom]
+        rw [Matrix.reindexLinearEquiv_mul, Matrix.reindexLinearEquiv_mul, Matrix.one_mul,
+          Matrix.mul_one]
+      | Cn f ih => simp only [map_neg, AddMonoidHom.neg_apply, ih]
+      | Cp f₁ f₂ ih₁ ih₂ => simp only [map_add, AddMonoidHom.add_apply, ih₁, ih₂])
 
 /-
 Should `kronecker_reindex_left` and `kronecker_reindex_right` land into `mathlib`?
@@ -174,7 +181,7 @@ theorem hMul_hMul_iso_aux (m n i j : ℕ) (f : BasicUniversalMap i j) :
   simp only [Matrix.reindexLinearEquiv_apply]
   rw [kroneckerMap_reindex_left, kroneckerMap_reindex_right, ← Matrix.kronecker_assoc]
   simp only [← Equiv.trans_apply, Matrix.reindex_trans, Matrix.one_kronecker_one, Equiv.trans_refl]
-  congr 3; pick_goal 3; · infer_instance
+  congr 3
   · ext ⟨⟨a, b⟩, c⟩
     simp only [Equiv.trans_apply, Equiv.symm_apply_apply, Equiv.apply_symm_apply,
       Equiv.prodAssoc_apply, Equiv.prodAssoc_symm_apply, Equiv.prodCongr_apply, Prod.map_def,
@@ -194,10 +201,13 @@ def mulMulIso (m n : ℕ) : mulFunctor n ⋙ mulFunctor m ≅ mulFunctor (m * n)
       intro i j f
       dsimp
       show UniversalMap.comp _ _ = UniversalMap.comp _ _
-      rw [← AddMonoidHom.comp_apply, ← AddMonoidHom.comp_apply, ←
-        AddMonoidHom.flip_apply _ (mul (m * n) f), ← AddMonoidHom.comp_apply]
-      congr 1; clear f; ext1 f
-      apply BreenDeligne.FreeMat.hMul_hMul_iso_aux)
+      -- Porting note: the Lean 3 proof rewrote with `add_monoid_hom.flip_apply` and used `ext1`;
+      -- here we argue by induction on `f` instead.
+      induction f using FreeAbelianGroup.induction_on with
+      | C0 => simp only [map_zero, AddMonoidHom.zero_apply]
+      | C1 f => exact BreenDeligne.FreeMat.hMul_hMul_iso_aux _ _ _ _ f
+      | Cn f ih => simp only [map_neg, AddMonoidHom.neg_apply, ih]
+      | Cp f₁ f₂ ih₁ ih₂ => simp only [map_add, AddMonoidHom.add_apply, ih₁, ih₂])
 
 end FreeMat
 
@@ -260,15 +270,29 @@ def homPow' {BD : Data} (f : (mul 2).obj BD ⟶ BD) : ∀ N, BD.pow' N ⟶ BD
 
 open scoped ZeroObject
 
+-- Porting note: in Lean 4, `2 ^ (N + 1)` is not definitionally equal to `2 * 2 ^ N`, so the
+-- iso `(mul (2 * 2 ^ N)).obj BD ≅ (mul (2 ^ (N + 1))).obj BD` is inserted explicitly.
+def mulCongr {a b : ℕ} (h : a = b) : (mul a).obj BD ≅ (mul b).obj BD :=
+  eqToIso (congrArg (fun k => (mul k).obj BD) h)
+
+theorem mulCongr_hom_sum {a b : ℕ} (h : a = b) : (BD.mulCongr h).hom ≫ BD.sum b = BD.sum a := by
+  subst h
+  simp [mulCongr]
+
+theorem mulCongr_hom_proj {a b : ℕ} (h : a = b) : (BD.mulCongr h).hom ≫ BD.proj b = BD.proj a := by
+  subst h
+  simp [mulCongr]
+
 def pow'IsoMul : ∀ N, BD.pow' N ≅ (mul (2 ^ N)).obj BD
   | 0 => BD.mulOneIso.symm
   | N + 1 =>
-    show (mul 2).obj (BD.pow' N) ≅ (mul (2 * 2 ^ N)).obj BD from
-      (mul 2).mapIso (pow'IsoMul N) ≪≫ mulMulIso _ _ _
+    show (mul 2).obj (BD.pow' N) ≅ (mul (2 ^ (N + 1))).obj BD from
+      (mul 2).mapIso (pow'IsoMul N) ≪≫ mulMulIso _ _ _ ≪≫ BD.mulCongr (pow_succ 2 N).symm
 
 theorem homPow'_sum : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.sum 2) N = BD.sum (2 ^ N)
   | 0 => by
-    ext n : 2
+    apply HomologicalComplex.hom_ext
+    intro n
     simp only [BreenDeligne.Data.homPow', Category.comp_id]
     show (BD.pow'IsoMul 0).inv.f n = (BD.sum 1).f n
     dsimp only [sum_f, UniversalMap.sum]
@@ -277,9 +301,10 @@ theorem homPow'_sum : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.sum 2) N = BD
     apply BasicUniversalMap.oneMulHom_eq_proj
   | N + 1 => by
     dsimp [pow'IsoMul, BreenDeligne.Data.homPow']
-    slice_lhs 2 3 => rw [← Functor.map_comp, BreenDeligne.Data.homPow'_sum]
-    rw [Iso.inv_comp_eq]
-    ext i : 2
+    slice_lhs 3 4 => rw [← Functor.map_comp, BreenDeligne.Data.homPow'_sum]
+    rw [Category.assoc, Iso.inv_comp_eq, BD.mulCongr_hom_sum]
+    apply HomologicalComplex.hom_ext
+    intro i
     iterate 2 erw [HomologicalComplex.comp_f]
     dsimp [mul_mul_iso, FreeMat.mulMulIso, UniversalMap.sum]
     rw [UniversalMap.hMul_of]
@@ -295,7 +320,8 @@ theorem homPow'_sum' (N : ℕ) : homPow' (BD.sum 2) N = (BD.pow'IsoMul N).hom �
 
 theorem homPow'_proj : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.proj 2) N = BD.proj (2 ^ N)
   | 0 => by
-    ext n : 2
+    apply HomologicalComplex.hom_ext
+    intro n
     simp only [BreenDeligne.Data.homPow', Category.comp_id]
     show (BD.pow'IsoMul 0).inv.f n = (BD.proj 1).f n
     dsimp only [proj_f, UniversalMap.proj]
@@ -303,9 +329,10 @@ theorem homPow'_proj : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.proj 2) N = 
     apply BasicUniversalMap.oneMulHom_eq_proj
   | N + 1 => by
     dsimp [pow'IsoMul, BreenDeligne.Data.homPow']
-    slice_lhs 2 3 => rw [← Functor.map_comp, BreenDeligne.Data.homPow'_proj]
+    slice_lhs 3 4 => rw [← Functor.map_comp, BreenDeligne.Data.homPow'_proj]
     rw [Iso.inv_comp_eq]
-    ext i : 2
+    apply HomologicalComplex.hom_ext
+    intro i
     iterate 2 erw [HomologicalComplex.comp_f]
     dsimp [mul_mul_iso, FreeMat.mulMulIso, UniversalMap.proj]
     simp only [AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply, Preadditive.comp_sum,
