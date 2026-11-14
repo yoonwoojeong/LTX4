@@ -119,8 +119,10 @@ theorem suitable_comp {g : BasicUniversalMap m n} {f : BasicUniversalMap l m} {c
 
 instance (priority := 1001) zero_suitable : (0 : BasicUniversalMap m n).Suitable c₁ c₂ :=
   ⟨fun i => by
-  simp only [Nat.cast_zero, MulZeroClass.zero_mul, zero_le', Finset.sum_const_zero,
-    DMatrix.zero_apply, Int.natAbs_zero]⟩
+    -- Porting note: `show` is needed to see `0 i j` as a matrix entry
+    show (∑ _j : Fin m, (((0 : ℤ).natAbs : ℕ) : ℝ≥0)) * c₁ ≤ c₂
+    simp only [Nat.cast_zero, MulZeroClass.zero_mul, zero_le', Finset.sum_const_zero,
+      Int.natAbs_zero]⟩
 
 instance suitable_zero_left (f : BasicUniversalMap m n) (c : ℝ≥0) : f.Suitable 0 c :=
   ⟨fun _ => by
@@ -184,8 +186,8 @@ instance proj_suitable (N : ℕ) (k : Fin N) (c : ℝ≥0) : (proj n k).Suitable
   dsimp [proj, Matrix.kronecker, BreenDeligne.BasicUniversalMap.projAux, -finProdFinEquiv_symm_apply]
   rw [Finset.sum_eq_single (finProdFinEquiv (k, i))]
   ·
-    simp only [Equiv.symm_apply_apply, if_pos rfl, Matrix.one_apply_eq, Nat.cast_one,
-      Int.natAbs_one, one_mul]
+    simp only [Equiv.symm_apply_apply, if_true, Matrix.one_apply_eq, Nat.cast_one,
+      Int.natAbs_one, one_mul, mul_one]
   · rintro j - hj
     generalize hj' : finProdFinEquiv.symm j = j'
     rw [Equiv.symm_apply_eq] at hj' ; subst j
@@ -244,24 +246,33 @@ This definition is tailored in such a way that we get a sensible
 if `f.suitable c₁ c₂`.
 
 See Lemma 9.11 of [Analytic]. -/
-def Suitable (c₁ c₂ : ℝ≥0) (f : UniversalMap m n) : Prop :=
-  ∀ g ∈ f.support, BasicUniversalMap.Suitable g c₁ c₂
-
-attribute [class] Suitable
+-- Porting note: in Lean 4 `attribute [class]` is not allowed on a `def`, so `Suitable` is
+-- declared as a class with a single field `out` (the original body).
+class Suitable (c₁ c₂ : ℝ≥0) (f : UniversalMap m n) : Prop where
+  out : ∀ g ∈ f.support, BasicUniversalMap.Suitable g c₁ c₂
 
 theorem suitable_of_mem_support (f : UniversalMap m n) (c₁ c₂ : ℝ≥0) (g : BasicUniversalMap m n)
     (hg : g ∈ f.support) [h : f.Suitable c₁ c₂] : g.Suitable c₁ c₂ :=
-  h g hg
+  h.out g hg
 
 theorem suitable_freePredicate (c₁ c₂ : ℝ≥0) : FreePredicate (@Suitable m n c₁ c₂) := by
   intro x
-  simp only [suitable, forall_eq, Finset.mem_singleton, support_of]
+  constructor
+  · intro h g hg
+    refine ⟨fun g' hg' => ?_⟩
+    rw [support_of, Finset.mem_singleton] at hg'
+    rw [hg']
+    exact h.out g hg
+  · intro h
+    refine ⟨fun g hg => ?_⟩
+    exact (h g hg).out g (by simp only [support_of, Finset.mem_singleton])
 
 theorem suitable_congr (f g : UniversalMap m n) (c₁ c₂ : ℝ≥0) (h : f = g) :
-    f.Suitable c₁ c₂ ↔ g.Suitable c₁ c₂ := by subst h
+    f.Suitable c₁ c₂ ↔ g.Suitable c₁ c₂ := by subst h; exact Iff.rfl
 
 theorem Suitable.le {f : UniversalMap m n} (hf : f.Suitable c₂ c₃) (h1 : c₁ ≤ c₂) (h2 : c₃ ≤ c₄) :
-    f.Suitable c₁ c₄ := fun g hg => (suitable_of_mem_support f _ _ _ hg).le _ _ _ _ _ h1 h2
+    f.Suitable c₁ c₄ :=
+  ⟨fun g hg => have := hf.out g hg; this.le _ _ _ _ _ h1 h2⟩
 
 theorem suitable_of_le (f : UniversalMap m n) [hf : f.Suitable c₂ c₃] (h1 : c₁ ≤ c₂)
     (h2 : c₃ ≤ c₄) : f.Suitable c₁ c₄ :=
@@ -276,16 +287,14 @@ noncomputable def factor (f : UniversalMap m n) : ℝ≥0 :=
 theorem le_factor (f : UniversalMap m n) (g : BasicUniversalMap m n) (hg : g ∈ f.support)
     (i : Fin n) : ∑ j, ↑(g i j).natAbs ≤ f.factor :=
   by
-  trans; swap
-  refine'
-    @Finset.le_sup _ _ _ _ (f.support.product (Finset.univ : Finset (Fin n)))
-      (fun gi => ∑ j, ↑(gi.1 gi.2 j).natAbs) (g, i) _
-  · simp only [and_true_iff, Finset.mem_univ, Finset.mem_product, hg]
-  · exact le_rfl
+  unfold factor
+  exact
+    Finset.le_sup (f := fun gi : BasicUniversalMap m n × Fin n => ∑ j, ((gi.1 gi.2 j).natAbs : ℝ≥0))
+      (b := (g, i)) (Finset.mem_product.2 ⟨hg, Finset.mem_univ _⟩)
 
 theorem suitable_of_factor_le (f : UniversalMap m n) (hf : f.factor ≤ c₂ * c₁⁻¹) :
     f.Suitable c₁ c₂ := by
-  intro g hg i
+  refine ⟨fun g hg => ⟨fun i => ?_⟩⟩
   by_cases h : c₁ = 0
   · simp only [h, zero_le', MulZeroClass.mul_zero]
   rw [mul_comm, NNReal.mul_le_iff_le_inv h, mul_comm]
@@ -294,10 +303,10 @@ theorem suitable_of_factor_le (f : UniversalMap m n) (hf : f.factor ≤ c₂ * c
 theorem factor_le_of_suitable (f : UniversalMap m n) [hf : f.Suitable c₁ c₂] [h : Fact (0 < c₁)] :
     f.factor ≤ c₂ * c₁⁻¹ := by
   refine' Finset.sup_le _
-  simp only [and_true_iff, Finset.mem_univ, Finset.mem_product]
   rintro ⟨g, i⟩ hg
+  replace hg : g ∈ support f := (Finset.mem_product.1 hg).1
   rw [mul_comm, ← NNReal.mul_le_iff_le_inv h.1.ne', mul_comm]
-  apply hf _ hg
+  exact (hf.out g hg).out i
 
 @[simp]
 theorem factor_neg (f : UniversalMap m n) : (-f).factor = f.factor := by
@@ -306,11 +315,12 @@ theorem factor_neg (f : UniversalMap m n) : (-f).factor = f.factor := by
 theorem factor_add (f₁ f₂ : UniversalMap m n) : factor (f₁ + f₂) ≤ max f₁.factor f₂.factor :=
   by
   refine' Finset.sup_le _
-  simp only [Prod.forall, and_true_iff, Finset.mem_univ, Finset.mem_product, le_max_iff]
+  simp only [Prod.forall, and_true_iff, Finset.mem_univ, le_max_iff]
   intro g i hg
-  replace hg := support_add f₁ f₂ hg
-  simp only [Finset.mem_union] at hg 
-  refine' hg.imp _ _ <;> · intro h; apply le_factor; exact h
+  replace hg := support_add f₁ f₂ (Finset.mem_product.1 hg).1
+  -- Porting note: the `DecidableEq` instances on the two sides differ, so we use `convert`
+  have hg' : g ∈ support f₁ ∨ g ∈ support f₂ := Finset.mem_union.1 (by convert hg)
+  exact hg'.imp (fun h => le_factor _ _ h _) (fun h => le_factor _ _ h _)
 
 theorem factor_sub (f₁ f₂ : UniversalMap m n) : factor (f₁ - f₂) ≤ max f₁.factor f₂.factor := by
   simpa only [factor_neg, sub_eq_add_neg] using factor_add f₁ (-f₂)
@@ -323,7 +333,7 @@ open FreeAbelianGroup
 
 theorem suitable_of_suitable_of (f : BasicUniversalMap m n) (c₁ c₂ : ℝ≥0)
     [h : UniversalMap.Suitable c₁ c₂ (of f)] : f.Suitable c₁ c₂ :=
-  h f <| by simp only [Finset.mem_singleton, support_of]
+  h.out f <| by simp only [Finset.mem_singleton, support_of]
 
 end BasicUniversalMap
 
@@ -333,7 +343,7 @@ open FreeAbelianGroup
 
 instance suitable_of (f : BasicUniversalMap m n) (c₁ c₂ : ℝ≥0) [f.Suitable c₁ c₂] :
     Suitable c₁ c₂ (of f) := by
-  intro g hg
+  refine ⟨fun g hg => ?_⟩
   rw [support_of, Finset.mem_singleton] at hg 
   rwa [hg]
 
@@ -345,8 +355,8 @@ theorem suitable_of_iff (f : BasicUniversalMap m n) (c₁ c₂ : ℝ≥0) :
 instance suitable_zero : (0 : UniversalMap m n).Suitable c₁ c₂ :=
   (suitable_freePredicate c₁ c₂).zero
 
-instance suitable_zero_left (f : UniversalMap m n) (c : ℝ≥0) : f.Suitable 0 c := fun g hg => by
-  infer_instance
+instance suitable_zero_left (f : UniversalMap m n) (c : ℝ≥0) : f.Suitable 0 c :=
+  ⟨fun g _ => by infer_instance⟩
 
 instance suitable_neg (f : UniversalMap m n) (c₁ c₂ : ℝ≥0) [h : f.Suitable c₁ c₂] :
     Suitable c₁ c₂ (-f) :=
@@ -364,10 +374,13 @@ instance suitable_add {f g : UniversalMap m n} {c₁ c₂ : ℝ≥0} [hf : f.Sui
 instance suitable_sum {ι : Type _} (s : Finset ι) (f : ι → UniversalMap m n) {c₁ c₂ : ℝ≥0}
     [hf : ∀ i, (f i).Suitable c₁ c₂] : (∑ i in s, f i).Suitable c₁ c₂ := by
   classical
-  apply Finset.induction_on s
-  · simp only [Finset.sum_empty]; infer_instance
-  · intro i s his IH
-    simp only [Finset.sum_insert his]; skip; infer_instance
+  induction s using Finset.induction_on with
+  | empty =>
+    simp only [Finset.sum_empty]
+    infer_instance
+  | @insert i s his IH =>
+    simp only [Finset.sum_insert his]
+    infer_instance
 
 instance suitable_sub {f g : UniversalMap m n} {c₁ c₂ : ℝ≥0} [hf : f.Suitable c₁ c₂]
     [hg : g.Suitable c₁ c₂] : Suitable c₁ c₂ (f - g) := by rw [sub_eq_add_neg] <;> infer_instance
@@ -377,8 +390,8 @@ theorem suitable_smul_iff (k : ℤ) (hk : k ≠ 0) (f : UniversalMap m n) (c₁ 
   (suitable_freePredicate c₁ c₂).smul_iff k hk
 
 instance suitable_hMul_left (f : UniversalMap m n) [h : f.Suitable c₁ c₂] :
-    f.Suitable (c * c₁) (c * c₂) := fun g hg =>
-  @BasicUniversalMap.suitable_hMul_left _ _ _ _ _ _ (h g hg)
+    f.Suitable (c * c₁) (c * c₂) :=
+  ⟨fun g hg => @BasicUniversalMap.suitable_hMul_left _ _ _ _ _ _ (h.out g hg)⟩
 
 instance suitable_hMul_right (f : UniversalMap m n) [h : f.Suitable c₁ c₂] :
     f.Suitable (c₁ * c) (c₂ * c) := by
@@ -401,66 +414,66 @@ instance suitable_hMul_right_le_one (f : UniversalMap m n) [h : f.Suitable c₁ 
     f.Suitable (c₁ * c) c₂ :=
   h.le _ _ _ _ Fact.out le_rfl
 
-instance suitable_id : (id n).Suitable c c := fun g hg => by
-  simp only [id, Finset.mem_singleton, support_of] at hg ; subst g; infer_instance
+instance suitable_id : (id n).Suitable c c :=
+  ⟨fun g hg => by
+    simp only [id, Finset.mem_singleton, support_of] at hg
+    subst hg
+    infer_instance⟩
 
 -- this cannot be an instance, because c₂ cannot be inferred
 theorem Suitable.comp {g : UniversalMap m n} {f : UniversalMap l m} {c₁ : ℝ≥0} (c₂ : ℝ≥0) {c₃ : ℝ≥0}
     [hg : g.Suitable c₂ c₃] [hf : f.Suitable c₁ c₂] : (comp g f).Suitable c₁ c₃ :=
   by
-  apply
-      FreeAbelianGroup.induction_on_freePredicate (suitable c₂ c₃) (BreenDeligne.UniversalMap.suitable_freePredicate c₂ c₃) g
-        hg <;>
-    clear! g
-  ·
-    simpa only [Pi.zero_apply, AddMonoidHom.zero_apply, AddMonoidHom.map_zero] using
+  refine
+    FreeAbelianGroup.induction_on_freePredicate
+      (P := fun g => Suitable c₁ c₃ (UniversalMap.comp g f))
+      (Suitable c₂ c₃) (suitable_freePredicate c₂ c₃) g hg ?_ ?_ ?_ ?_
+  · simpa only [Pi.zero_apply, AddMonoidHom.zero_apply, AddMonoidHom.map_zero] using
       BreenDeligne.UniversalMap.suitable_zero _ _
   · intro g hg
-    apply
-        FreeAbelianGroup.induction_on_freePredicate (suitable c₁ c₂) (BreenDeligne.UniversalMap.suitable_freePredicate c₁ c₂)
-          f hf <;>
-      clear! f
-    · simp only [AddMonoidHom.map_zero]; infer_instance
+    refine
+      FreeAbelianGroup.induction_on_freePredicate (P := fun f => Suitable c₁ c₃ (UniversalMap.comp (of g) f))
+        (Suitable c₁ c₂) (suitable_freePredicate c₁ c₂) f hf ?_ ?_ ?_ ?_
+    · simp only [AddMonoidHom.map_zero]
+      infer_instance
     · intro f hf
       rw [comp_of]
       rw [suitable_of_iff] at hf hg ⊢
-      skip
       exact BreenDeligne.BasicUniversalMap.suitable_comp c₂
-    · intro g hg H; simpa only [AddMonoidHom.map_neg, suitable_neg_iff]
+    · intro g hg H
+      simpa only [AddMonoidHom.map_neg, suitable_neg_iff]
     · intro g₁ g₂ hg₁ hg₂ H₁ H₂
       simp only [AddMonoidHom.map_add]
-      skip; infer_instance
+      infer_instance
   · intro f hf H
     simpa only [Pi.neg_apply, AddMonoidHom.map_neg, suitable_neg_iff, AddMonoidHom.neg_apply]
   · intro f₁ f₂ hf₁ hf₂ H₁ H₂
     simp only [AddMonoidHom.add_apply, AddMonoidHom.map_add, Pi.add_apply]
-    skip; infer_instance
+    infer_instance
 
-instance sum_suitable (c : ℝ≥0) (n N : ℕ) : (sum n N).Suitable (c * N⁻¹) c :=
+-- Porting note: `N⁻¹` needs the explicit cast `(N : ℝ≥0)⁻¹` (Lean 3 elaborated it as `(↑N)⁻¹`)
+instance sum_suitable (c : ℝ≥0) (n N : ℕ) : (sum n N).Suitable (c * (N : ℝ≥0)⁻¹) c :=
   by
   by_cases hN : N = 0
   · subst N; simp only [Nat.cast_zero, inv_zero, MulZeroClass.mul_zero]; infer_instance
   refine' @UniversalMap.suitable_of _ _ _ _ _ (_root_.id _)
-  suffices c = ∑ i : Fin N, c * N⁻¹
-    by
-    conv =>
-      congr
-      skip
-      skip
-      rw [this]
-    infer_instance
-  rw [Finset.sum_const, Finset.card_fin, nsmul_eq_mul, mul_left_comm, mul_inv_cancel, mul_one]
-  exact_mod_cast hN
+  have key : (∑ i : Fin N, c * (N : ℝ≥0)⁻¹) = c := by
+    rw [Finset.sum_const, Finset.card_fin, nsmul_eq_mul, mul_left_comm, mul_inv_cancel, mul_one]
+    exact_mod_cast hN
+  -- Porting note: the Lean 3 `conv { congr, skip, skip, rw this }` is replaced by `rwa ... at`
+  have := (inferInstance : BasicUniversalMap.Suitable (∑ i : Fin N, BasicUniversalMap.proj n i)
+    (c * (N : ℝ≥0)⁻¹) (∑ i : Fin N, c * (N : ℝ≥0)⁻¹))
+  rwa [key] at this
 
-instance sum_two_suitable (c : ℝ≥0) (n : ℕ) : (sum n 2).Suitable (c * 2⁻¹) c := by
-  convert UniversalMap.sum_suitable c n 2; norm_num
+instance sum_two_suitable (c : ℝ≥0) (n : ℕ) : (sum n 2).Suitable (c * (2 : ℝ≥0)⁻¹) c := by
+  convert UniversalMap.sum_suitable c n 2
 
 instance proj_suitable (c : ℝ≥0) (n N : ℕ) : (proj n N).Suitable c c :=
   UniversalMap.suitable_sum _ _
 
 instance hMul_suitable (f : UniversalMap m n) [h : f.Suitable c₁ c₂] (N : ℕ) [hN : Fact (0 < N)] :
     (mul N f).Suitable c₁ c₂ := by
-  intro g hg
+  refine ⟨fun g hg => ?_⟩
   rw [UniversalMap.mem_support_hMul N hN.out] at hg 
   rcases hg with ⟨g, hg, rfl⟩
   haveI := UniversalMap.suitable_of_mem_support f c₁ c₂ g hg
@@ -511,8 +524,9 @@ instance mulObjSuitable [BD.Suitable κ] (N : ℕ) [Fact (0 < N)] : ((mul N).obj
   dsimp [mul_obj_d]
   infer_instance
 
-instance sum_suitable (i N : ℕ) (N' : ℝ≥0) [hN' : Fact (N'⁻¹ ≤ N⁻¹)] :
-    UniversalMap.Suitable (rescaleConstants κ N' i) (κ i) ((BD.Sum N).f i) :=
+-- Porting note: explicit cast `(N : ℝ≥0)⁻¹`, as in Lean 3 (`(↑N)⁻¹`)
+instance sum_suitable (i N : ℕ) (N' : ℝ≥0) [hN' : Fact (N'⁻¹ ≤ (N : ℝ≥0)⁻¹)] :
+    UniversalMap.Suitable (rescaleConstants κ N' i) (κ i) ((BD.sum N).f i) :=
   (UniversalMap.sum_suitable _ _ _).le _ _ _ _ (mul_le_mul' le_rfl hN'.1) le_rfl
 
 instance proj_suitable_strict (i N : ℕ) : UniversalMap.Suitable c c ((BD.proj N).f i) :=
@@ -532,10 +546,11 @@ instance homPow'_suitable_strict (f : (mul 2).obj BD ⟶ BD) (i : ℕ)
     dsimp [BreenDeligne.Data.homPow']
     refine' @UniversalMap.Suitable.comp _ _ _ _ _ _ c _ _ (id _)
     refine' @UniversalMap.hMul_suitable _ _ _ _ _ (id _) _ ⟨two_pos⟩
-    apply_assumption
+    -- Porting note: `apply_assumption` replaced by the explicit recursive call
+    apply homPow'_suitable_strict
 
 instance homPow'_sum_suitable (i N : ℕ) :
-    ((Data.homPow' (BD.Sum 2) N).f i).Suitable (c * (2 ^ N)⁻¹) c :=
+    ((Data.homPow' (BD.sum 2) N).f i).Suitable (c * (2 ^ N)⁻¹) c :=
   by
   induction' N with N ih
   · simp only [BreenDeligne.Data.homPow', rescaleConstants, pow_zero, inv_one, mul_one]
@@ -562,10 +577,10 @@ This predicate records the conditions that make sure that the resulting composit
 is norm-nonincreasing: In addition to `f` being `suitable c₁ κ` we require
 that `κ ≤ c₂` leaves enough room to apply the restriction map `b` times,
 where `b` satisfies `r ^ b * N ≤ 1` and `κ ≤ r' ^ b * c₂`. -/
-def VerySuitable (f : UniversalMap m n) (r r' : outParam ℝ≥0) (c₁ c₂ : ℝ≥0) : Prop :=
-  ∃ (N b : ℕ) (κ : ℝ≥0), f.BoundBy N ∧ f.Suitable c₁ κ ∧ r ^ b * N ≤ 1 ∧ κ ≤ r' ^ b * c₂
-
-attribute [class] VerySuitable
+-- Porting note: in Lean 4 `attribute [class]` is not allowed on a `def`, so `VerySuitable` is
+-- declared as a class with a single field `out` (the original body).
+class VerySuitable (f : UniversalMap m n) (r r' : outParam ℝ≥0) (c₁ c₂ : ℝ≥0) : Prop where
+  out : ∃ (N b : ℕ) (κ : ℝ≥0), f.BoundBy N ∧ f.Suitable c₁ κ ∧ r ^ b * N ≤ 1 ∧ κ ≤ r' ^ b * c₂
 
 namespace VerySuitable
 
@@ -573,14 +588,14 @@ variable (f : UniversalMap m n)
 
 instance (priority := 100) suitable [hr' : Fact (r' ≤ 1)] [hf : f.VerySuitable r r' c₁ c₂] :
     f.Suitable c₁ c₂ := by
-  rcases hf with ⟨N, b, κ, hN, hf, hr, H⟩
+  rcases hf.out with ⟨N, b, κ, hN, hf, hr, H⟩
   exact hf.le _ _ _ _ le_rfl (H.trans <| Fact.out)
 
 instance hMul_left (f : UniversalMap m n) [h : f.VerySuitable r r' c₁ c₂] :
     f.VerySuitable r r' (c * c₁) (c * c₂) :=
   by
-  rcases h with ⟨N, b, κ, hN, hf, hr, H⟩
-  refine' ⟨N, b, c * κ, hN, inferInstance, hr, _⟩
+  rcases h.out with ⟨N, b, κ, hN, hf, hr, H⟩
+  refine' ⟨⟨N, b, c * κ, hN, inferInstance, hr, _⟩⟩
   rw [mul_left_comm]
   exact mul_le_mul' le_rfl H
 
@@ -591,9 +606,9 @@ instance hMul_right (f : UniversalMap m n) [h : f.VerySuitable r r' c₁ c₂] :
 
 theorem zero : (0 : UniversalMap m n).VerySuitable r r' c₁ c₂ :=
   by
-  refine' ⟨0, 0, c₂, zero_bound_by 0, inferInstance, _, _⟩
+  refine' ⟨⟨0, 0, c₂, zero_boundBy 0, inferInstance, _, _⟩⟩
   · simp only [Nat.cast_zero, zero_le', MulZeroClass.mul_zero]
-  · simp only [one_mul, pow_zero]
+  · simp only [one_mul, pow_zero, le_refl]
 
 end VerySuitable
 
@@ -605,7 +620,8 @@ namespace Data
 if every pair of constants is `very_suitable` for the corresponding differential in `BD`. -/
 class VerySuitable (BD : Data) (r r' : outParam ℝ≥0) (κ : ℕ → ℝ≥0) : Prop where
   universal_verySuitable : ∀ i j, (BD.d i j).VerySuitable r r' (κ i) (κ j)
-  Pos : ∀ i, 0 < κ i
+  -- Porting note: field renamed from mathport's `Pos` to `pos`, as in Lean 3
+  pos : ∀ i, 0 < κ i
 
 theorem pos (BD : Data) {r r' : ℝ≥0} (κ : ℕ → ℝ≥0) [BD.VerySuitable r r' κ] (i : ℕ) : 0 < κ i :=
   VerySuitable.pos BD i
@@ -627,7 +643,7 @@ theorem ofSucc (h1 : ∀ i, UniversalMap.VerySuitable (BD.d (i + 1) i) r r' (κ 
       · rw [hij]; exact h1 _
       · rw [BD.shape]; swap; exact Ne.symm hij
         exact UniversalMap.VerySuitable.zero r r' (κ i) (κ j)
-    Pos := h2 }
+    pos := h2 }
 
 end VerySuitable
 
