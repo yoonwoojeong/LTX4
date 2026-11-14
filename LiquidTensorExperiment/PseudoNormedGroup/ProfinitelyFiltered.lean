@@ -1085,6 +1085,11 @@ noncomputable def piMap {N : ι → Type _} [∀ i, ComphausFilteredPseudoNormed
       have := ComphausFilteredPseudoNormedGroup.piProjBoundBy i hx
       rwa [one_mul] at this )
 
+-- Porting note: see `PseudoNormedGroup.instPseudoNormedGroupPow`.
+instance instComphausFilteredPseudoNormedGroupPow {M : Type _} [ComphausFilteredPseudoNormedGroup M]
+    {n : ℕ} : ComphausFilteredPseudoNormedGroup (M ^ n) :=
+  ComphausFilteredPseudoNormedGroup.pi fun _ => M
+
 end Pi
 
 end ComphausFilteredPseudoNormedGroup
@@ -1108,6 +1113,12 @@ instance pi_td (c : ℝ≥0) : TotallyDisconnectedSpace (filtration (∀ i, M i)
 
 instance pi : ProfinitelyFilteredPseudoNormedGroup (∀ i, M i) :=
   { (inferInstance : ComphausFilteredPseudoNormedGroup _) with }
+
+-- Porting note: see `PseudoNormedGroup.instPseudoNormedGroupPow`.
+instance instProfinitelyFilteredPseudoNormedGroupPow {M : Type _}
+    [ProfinitelyFilteredPseudoNormedGroup M] {n : ℕ} :
+    ProfinitelyFilteredPseudoNormedGroup (M ^ n) :=
+  ProfinitelyFilteredPseudoNormedGroup.pi fun _ => M
 
 end Pi
 

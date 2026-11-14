@@ -49,18 +49,6 @@ open ComphausFilteredPseudoNormedGroupHom ComphausFilteredPseudoNormedGroup
 
 variable [ProfinitelyFilteredPseudoNormedGroup M]
 
--- Porting note: Lean 4's instance search does not see through `M ^ m = Fin m → M`
--- (Lean 3 did), so the instances on the power are registered explicitly.
-instance instPseudoNormedGroupPow : PseudoNormedGroup (M ^ m) :=
-  PseudoNormedGroup.pi fun _ => M
-
-instance instComphausFilteredPseudoNormedGroupPow : ComphausFilteredPseudoNormedGroup (M ^ m) :=
-  ComphausFilteredPseudoNormedGroup.pi fun _ => M
-
-instance instProfinitelyFilteredPseudoNormedGroupPow :
-    ProfinitelyFilteredPseudoNormedGroup (M ^ m) :=
-  ProfinitelyFilteredPseudoNormedGroup.pi fun _ => M
-
 -- Porting note: helper lemmas replacing the long `simp only` chains of the Lean 3 proofs
 -- (which no longer work verbatim in Lean 4).
 theorem sum_smul_piProj_apply (a : Fin m → ℤ) (x : M ^ m) :

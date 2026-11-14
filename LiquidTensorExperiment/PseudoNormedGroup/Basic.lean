@@ -223,6 +223,12 @@ instance pi {ι : Type _} (M : ι → Type _) [∀ i, PseudoNormedGroup (M i)] :
   neg_mem_filtration' c x h i := neg_mem_filtration (h i)
   add_mem_filtration' c₁ c₂ x₁ x₂ h₁ h₂ i := add_mem_filtration (h₁ i) (h₂ i)
 
+-- Porting note: Lean 4's instance search does not see through `M ^ n = Fin n → M` (Lean 3 did,
+-- as the `Pow` instance on types is reducible there), so the instance on powers is registered.
+instance instPseudoNormedGroupPow {M : Type _} [PseudoNormedGroup M] {n : ℕ} :
+    PseudoNormedGroup (M ^ n) :=
+  PseudoNormedGroup.pi fun _ => M
+
 theorem mem_filtration_pi {ι : Type _} (M : ι → Type _) [∀ i, PseudoNormedGroup (M i)] (c : ℝ≥0)
     (x : ∀ i, M i) : x ∈ filtration (∀ i, M i) c ↔ ∀ i, x i ∈ filtration (M i) c :=
   Iff.rfl

@@ -9,63 +9,77 @@ namespace Triangulated
 -- Porting note: mathlib4's triangles live in `CategoryTheory.Pretriangulated`
 open CategoryTheory.Pretriangulated CategoryTheory.Pretriangulated.TriangleMorphism
 
-variable {C : Type _} [Category C] [HasShift C ℤ] {T₁ T₂ : Triangle C} (f : T₁ ⟶ T₂)
+variable {C : Type _} [Category C] [HasShift C ℤ]
 
-theorem triangle_morphism_isIso [IsIso f.hom₁] [IsIso f.hom₂] [IsIso f.hom₃] : IsIso f := by
-  refine' ⟨⟨⟨inv f.hom₁, inv f.hom₂, inv f.hom₃, _, _, _⟩, _, _⟩⟩ <;> aesop_cat
+variable {T₁ T₂ : Triangle C} (f : T₁ ⟶ T₂)
 
-instance [IsIso f] : IsIso f.hom₁ := by
-  refine' ⟨⟨(inv f).hom₁, _, _⟩⟩ <;>
-    simpa only [← comp_hom₁, ← CategoryTheory.Pretriangulated.triangleCategory_comp, IsIso.hom_inv_id, IsIso.inv_hom_id]
+theorem triangle_morphism_isIso [IsIso f.hom₁] [IsIso f.hom₂] [IsIso f.hom₃] : IsIso f :=
+  -- Porting note: `tidy` replaced by the corresponding mathlib lemma
+  Triangle.isIso_of_isIsos f ‹_› ‹_› ‹_›
 
-instance [IsIso f] : IsIso f.hom₂ := by
-  refine' ⟨⟨(inv f).hom₂, _, _⟩⟩ <;>
-    simpa only [← comp_hom₂, ← CategoryTheory.Pretriangulated.triangleCategory_comp, IsIso.hom_inv_id, IsIso.inv_hom_id]
+instance [IsIso f] : IsIso f.hom₁ :=
+  -- Porting note: proof rewritten using `congrArg`
+  ⟨⟨(inv f).hom₁, congrArg TriangleMorphism.hom₁ (IsIso.hom_inv_id f),
+    congrArg TriangleMorphism.hom₁ (IsIso.inv_hom_id f)⟩⟩
 
-instance [IsIso f] : IsIso f.hom₃ := by
-  refine' ⟨⟨(inv f).hom₃, _, _⟩⟩ <;>
-    simpa only [← comp_hom₃, ← CategoryTheory.Pretriangulated.triangleCategory_comp, IsIso.hom_inv_id, IsIso.inv_hom_id]
+instance [IsIso f] : IsIso f.hom₂ :=
+  ⟨⟨(inv f).hom₂, congrArg TriangleMorphism.hom₂ (IsIso.hom_inv_id f),
+    congrArg TriangleMorphism.hom₂ (IsIso.inv_hom_id f)⟩⟩
 
-@[simp]
-theorem inv_hom₁ [IsIso f] : (inv f).hom₁ = inv f.hom₁ := by
-  ext; change (f ≫ inv f).hom₁ = _
-  rw [IsIso.hom_inv_id]; rfl
-
-@[simp]
-theorem inv_hom₂ [IsIso f] : (inv f).hom₂ = inv f.hom₂ := by
-  ext; change (f ≫ inv f).hom₂ = _
-  rw [IsIso.hom_inv_id]; rfl
+instance [IsIso f] : IsIso f.hom₃ :=
+  ⟨⟨(inv f).hom₃, congrArg TriangleMorphism.hom₃ (IsIso.hom_inv_id f),
+    congrArg TriangleMorphism.hom₃ (IsIso.inv_hom_id f)⟩⟩
 
 @[simp]
-theorem inv_hom₃ [IsIso f] : (inv f).hom₃ = inv f.hom₃ := by
-  ext; change (f ≫ inv f).hom₃ = _
-  rw [IsIso.hom_inv_id]; rfl
+theorem inv_hom₁ [IsIso f] : (inv f).hom₁ = inv f.hom₁ :=
+  -- Porting note: `ext` replaced by `IsIso.eq_inv_of_hom_inv_id`
+  IsIso.eq_inv_of_hom_inv_id (congrArg TriangleMorphism.hom₁ (IsIso.hom_inv_id f))
 
-theorem triangle_morphism_isIso_iff : IsIso f ↔ IsIso f.hom₁ ∧ IsIso f.hom₂ ∧ IsIso f.hom₃ :=
-  by
+@[simp]
+theorem inv_hom₂ [IsIso f] : (inv f).hom₂ = inv f.hom₂ :=
+  IsIso.eq_inv_of_hom_inv_id (congrArg TriangleMorphism.hom₂ (IsIso.hom_inv_id f))
+
+@[simp]
+theorem inv_hom₃ [IsIso f] : (inv f).hom₃ = inv f.hom₃ :=
+  IsIso.eq_inv_of_hom_inv_id (congrArg TriangleMorphism.hom₃ (IsIso.hom_inv_id f))
+
+theorem triangle_morphism_isIso_iff : IsIso f ↔ IsIso f.hom₁ ∧ IsIso f.hom₂ ∧ IsIso f.hom₃ := by
   constructor
-  · intro; refine' ⟨_, _, _⟩ <;> exact inferInstance
-  · rintro ⟨_, _, _⟩; exact CategoryTheory.Triangulated.triangle_morphism_isIso f
+  · intro h
+    refine' ⟨_, _, _⟩ <;> exact inferInstance
+  · rintro ⟨h₁, h₂, h₃⟩
+    exact CategoryTheory.Triangulated.triangle_morphism_isIso f
 
 @[simps]
 def mkTriangleIso (e₁ : T₁.obj₁ ≅ T₂.obj₁) (e₂ : T₁.obj₂ ≅ T₂.obj₂) (e₃ : T₁.obj₃ ≅ T₂.obj₃)
     (comm₁ : T₁.mor₁ ≫ e₂.hom = e₁.hom ≫ T₂.mor₁) (comm₂ : T₁.mor₂ ≫ e₃.hom = e₂.hom ≫ T₂.mor₂)
     (comm₃ : T₁.mor₃ ≫ e₁.hom⟦1⟧' = e₃.hom ≫ T₂.mor₃) : T₁ ≅ T₂ :=
   ⟨⟨_, _, _, comm₁, comm₂, comm₃⟩,
-    ⟨e₁.inv, e₂.inv, e₃.inv, by rw [e₂.comp_inv_eq]; simp [comm₁], by rw [e₃.comp_inv_eq];
-      simp [comm₂], by rw [e₃.eq_inv_comp, ← Category.assoc, ← comm₃]; simp [← Functor.map_comp]⟩,
+    ⟨e₁.inv, e₂.inv, e₃.inv,
+      by
+        rw [e₂.comp_inv_eq]
+        simp [comm₁],
+      by
+        rw [e₃.comp_inv_eq]
+        simp [comm₂],
+      by
+        rw [e₃.eq_inv_comp, ← Category.assoc, ← comm₃]
+        simp [← Functor.map_comp]⟩,
     by ext <;> simp, by ext <;> simp⟩
 
 @[simps]
-noncomputable def Triangle.nonnegInvRotate (T : Triangle C) : Triangle C :=
+noncomputable def _root_.CategoryTheory.Pretriangulated.Triangle.nonnegInvRotate (T : Triangle C) : Triangle C :=
   Triangle.mk (T.mor₃⟦(-1 : ℤ)⟧' ≫ (shiftShiftNeg _ _).hom) T.mor₁
     (T.mor₂ ≫ (shiftNegShift _ _).inv)
 
 @[simps]
-def Triangle.nonnegRotate {C : Type _} [Category C] [HasShift C ℤ] (T : Triangle C) : Triangle C :=
+def _root_.CategoryTheory.Pretriangulated.Triangle.nonnegRotate (T : Triangle C) : Triangle C :=
   Triangle.mk T.mor₂ T.mor₃ (T.mor₁⟦1⟧')
 
-variable (C) [Preadditive C]
+variable (C)
+
+-- Porting note: split into two `variable` commands
+variable [Preadditive C]
 
 @[simps]
 def neg₃Functor : Triangle C ⥤ Triangle C
@@ -81,7 +95,7 @@ def neg₃UnitIso : neg₃Functor C ⋙ neg₃Functor C ≅ 𝟭 _ :=
   by
   refine'
     NatIso.ofComponents (fun X => ⟨⟨𝟙 _, 𝟙 _, 𝟙 _, _, _, _⟩, ⟨𝟙 _, 𝟙 _, 𝟙 _, _, _, _⟩, _, _⟩)
-      fun X Y f => _
+      fun f => _
   any_goals ext
   all_goals
     dsimp
@@ -111,7 +125,7 @@ theorem neg_iso_inv {C : Type _} [Category C] [Preadditive C] {X Y : C} {e : X �
 
 --move this
 @[simps]
-def CategoryTheory.Equivalence.isoEquiv {C D : Type _} [Category C] [Category D] (e : C ≌ D) (X : C)
+def _root_.CategoryTheory.Equivalence.isoEquiv {C D : Type _} [Category C] [Category D] (e : C ≌ D) (X : C)
     (Y : D) : (e.functor.obj X ≅ Y) ≃ (X ≅ e.inverse.obj Y)
     where
   toFun f := e.unitIso.app X ≪≫ e.inverse.mapIso f
@@ -121,9 +135,12 @@ def CategoryTheory.Equivalence.isoEquiv {C D : Type _} [Category C] [Category D]
     rw [reassoc_of% e.functor_unitIso_comp]; dsimp; simp
   right_inv f := by ext; dsimp; simp
 
-variable {C} (T : Triangle C)
+variable {C}
 
-noncomputable def Triangle.nonnegInvRotateNeg₃ [(shiftFunctor C (1 : ℤ)).Additive] :
+-- Porting note: split into two `variable` commands
+variable (T : Triangle C)
+
+noncomputable def _root_.CategoryTheory.Pretriangulated.Triangle.nonnegInvRotateNeg₃ [(shiftFunctor C (1 : ℤ)).Additive] :
     (neg₃Functor C).obj T.nonnegInvRotate ≅ T.invRotate :=
   by
   fapply CategoryTheory.Triangulated.mkTriangleIso
@@ -132,7 +149,7 @@ noncomputable def Triangle.nonnegInvRotateNeg₃ [(shiftFunctor C (1 : ℤ)).Add
   exact Iso.refl _
   all_goals dsimp; simp
 
-noncomputable def Triangle.nonnegInvRotateIso [(shiftFunctor C (1 : ℤ)).Additive] :
+noncomputable def _root_.CategoryTheory.Pretriangulated.Triangle.nonnegInvRotateIso [(shiftFunctor C (1 : ℤ)).Additive] :
     T.nonnegInvRotate ≅ (neg₃Functor C).obj T.invRotate :=
   (neg₃Equiv C).isoEquiv _ _ T.nonnegInvRotateNeg₃
 
@@ -142,38 +159,40 @@ def neg₃Rotate : neg₃Functor C ⋙ rotate C ≅ rotate C ⋙ neg₃Functor C
     (fun X =>
       mkTriangleIso (Iso.refl _) (Iso.refl _) (-Iso.refl _) (by dsimp; simp) (by dsimp; simp)
         (by dsimp; simp))
-    fun X Y f => by dsimp; ext <;> dsimp <;> simp
+    fun f => by dsimp; ext <;> dsimp <;> simp
 
-theorem Triangle.nonnegRotate_neg₃ : (neg₃Functor C).obj T.nonnegRotate = T.rotate :=
+theorem _root_.CategoryTheory.Pretriangulated.Triangle.nonnegRotate_neg₃ : (neg₃Functor C).obj T.nonnegRotate = T.rotate :=
   rfl
 
-def Triangle.nonnegRotateIso : T.nonnegRotate ≅ (neg₃Functor C).obj T.rotate :=
+def _root_.CategoryTheory.Pretriangulated.Triangle.nonnegRotateIso : T.nonnegRotate ≅ (neg₃Functor C).obj T.rotate :=
   (neg₃Equiv C).isoEquiv _ _ (Iso.refl _)
 
 --
+-- Porting note: the `[Preadditive C]` binder is written explicitly (Lean 3 included the section
+-- variable `[preadditive C]` in these declarations)
 @[simps]
-def Triangle.obj₁Functor : Triangle C ⥤ C
+def _root_.CategoryTheory.Pretriangulated.Triangle.obj₁Functor [Preadditive C] : Triangle C ⥤ C
     where
   obj T := T.obj₁
-  map S T f := f.hom₁
+  map f := f.hom₁
   map_id _ := rfl
-  map_comp A B C f g := rfl
+  map_comp f g := rfl
 
 @[simps]
-def Triangle.obj₂Functor : Triangle C ⥤ C
+def _root_.CategoryTheory.Pretriangulated.Triangle.obj₂Functor [Preadditive C] : Triangle C ⥤ C
     where
   obj T := T.obj₂
-  map S T f := f.hom₂
+  map f := f.hom₂
   map_id _ := rfl
-  map_comp A B C f g := rfl
+  map_comp f g := rfl
 
 @[simps]
-def Triangle.obj₃Functor : Triangle C ⥤ C
+def _root_.CategoryTheory.Pretriangulated.Triangle.obj₃Functor [Preadditive C] : Triangle C ⥤ C
     where
   obj T := T.obj₃
-  map S T f := f.hom₃
+  map f := f.hom₃
   map_id _ := rfl
-  map_comp A B C f g := rfl
+  map_comp f g := rfl
 
 end Triangulated
 

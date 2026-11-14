@@ -17,7 +17,7 @@ variable {ι : Type u'} {c : ComplexShape ι}
 --move this
 theorem congr_f [HasZeroMorphisms V] {X Y : HomologicalComplex V c} {f g : X ⟶ Y} (h : f = g)
     (x : ι) : f.f x = g.f x :=
-  congr_arg _ h
+  congr_arg (fun f => f.f x) h
 
 section Limits
 
@@ -43,35 +43,53 @@ def liftOfIsLimitEval (t : Cone F) (h : ∀ i, IsLimit <| (eval V c i).mapCone t
 def isLimitOfIsLimitEval (t : Cone F) (h : ∀ i, IsLimit <| (eval V c i).mapCone t) : IsLimit t
     where
   lift := liftOfIsLimitEval F t h
-  fac := by intro s j; ext; dsimp; exact (h x).fac _ j
+  fac := by
+    intro s j
+    apply HomologicalComplex.hom_ext
+    intro x
+    dsimp
+    exact (h x).fac _ j
   uniq := by
-    intro s m w; ext; apply (h x).hom_ext
+    intro s m w
+    apply HomologicalComplex.hom_ext
+    intro x
+    apply (h x).hom_ext
     intro j; dsimp; erw [(h x).fac _ j]; exact congr_f (w j) x
 
 variable [∀ i : ι, HasLimit (F ⋙ eval V c i)]
 
 @[simps]
-def limitComplex : HomologicalComplex V c :=
-  by
-  refine' ⟨fun i => limit (F ⋙ eval V c i), fun i j => limit.lift _ ⟨_, _⟩, _, _⟩
-  refine' ⟨fun k => limit.π (F ⋙ eval V c i) k ≫ (F.obj k).d i j, _⟩
-  · intro x y f
-    dsimp
-    rw [CategoryTheory.Category.id_comp, Category.assoc, ← hom.comm, ← Category.assoc]
-    congr 1
-    exact (limit.w _ _).symm
-  · intro i j r
+def limitComplex : HomologicalComplex V c where
+  X i := limit (F ⋙ eval V c i)
+  d i j :=
+    limit.lift (F ⋙ eval V c j)
+      { pt := limit (F ⋙ eval V c i)
+        π :=
+          { app := fun k => limit.π (F ⋙ eval V c i) k ≫ (F.obj k).d i j
+            naturality := by
+              intro x y f
+              dsimp
+              rw [Category.id_comp, Category.assoc, ← Hom.comm, ← Category.assoc]
+              congr 1
+              exact (limit.w _ _).symm } }
+  shape := by
+    intro i j r
     ext k
     rw [limit.lift_π, zero_comp]
     dsimp only
     rw [(F.obj k).shape _ _ r, comp_zero]
-  · intro i j k r r'; ext; simp
+  d_comp_d' := by
+    intro i j k _ _
+    ext
+    simp
 
 @[simps]
 def limitComplexCone : Cone F where
   pt := limitComplex F
   π :=
-    { app := fun x => { f := fun i => limit.π (F ⋙ eval V c i) x }
+    { app := fun x =>
+        { f := fun i => limit.π (F ⋙ eval V c i) x
+          comm' := by intros; simp }
       naturality := fun X Y f => by ext; dsimp; rw [Category.id_comp]; exact (limit.w _ _).symm }
 
 def limitComplexConeIsLimit : IsLimit (limitComplexCone F) :=
@@ -79,11 +97,11 @@ def limitComplexConeIsLimit : IsLimit (limitComplexCone F) :=
     (by
       intro i
       apply (limit.isLimit _).ofIsoLimit
-      exact Cones.ext (iso.refl _) fun _ => (Category.id_comp _).symm)
+      exact Cones.ext (Iso.refl _) fun _ => (Category.id_comp _).symm)
 
 def evalMapLimitComplexCone (i : ι) :
     (eval V c i).mapCone (limitComplexCone F) ≅ (getLimitCone (F ⋙ eval V c i)).1 :=
-  Cones.ext (Iso.refl _) fun j => by dsimp; simpa
+  Cones.ext (Iso.refl _) fun j => by dsimp; rw [Category.id_comp]; rfl
 
 instance (i : ι) : PreservesLimit F (eval V c i) :=
   preservesLimitOfPreservesLimitCone (limitComplexConeIsLimit F)
@@ -95,11 +113,13 @@ instance : HasLimit F :=
 instance [HasLimitsOfShape J V] : HasLimitsOfShape J (HomologicalComplex V c) where
 
 instance [HasLimitsOfSize.{w', w} V] : HasLimitsOfSize.{w', w} (HomologicalComplex V c) :=
-  ⟨⟩
+  ⟨fun _ _ => inferInstance⟩
 
 instance [HasLimitsOfShape J V] (i : ι) : PreservesLimitsOfShape J (eval V c i) where
 
 instance [HasLimitsOfSize.{w', w} V] (i : ι) : PreservesLimitsOfSize.{w', w} (eval V c i) where
+
+end
 
 end Limits
 
@@ -126,9 +146,17 @@ def descOfIsColimitEval (t : Cocone F) (h : ∀ i, IsColimit <| (eval V c i).map
 def isColimitOfIsColimitEval (t : Cocone F) (h : ∀ i, IsColimit <| (eval V c i).mapCocone t) :
     IsColimit t where
   desc := descOfIsColimitEval F t h
-  fac := by intro s j; ext; dsimp; exact (h x).fac _ j
+  fac := by
+    intro s j
+    apply HomologicalComplex.hom_ext
+    intro x
+    dsimp
+    exact (h x).fac _ j
   uniq := by
-    intro s m w; ext; apply (h x).hom_ext
+    intro s m w
+    apply HomologicalComplex.hom_ext
+    intro x
+    apply (h x).hom_ext
     intro j; dsimp; erw [(h x).fac _ j]; exact congr_f (w j) x
 
 variable [∀ i : ι, HasColimit (F ⋙ eval V c i)]
@@ -155,8 +183,14 @@ def colimitComplexCocone : Cocone F
     where
   pt := colimitComplex F
   ι :=
-    { app := fun x => { f := fun i => colimit.ι (F ⋙ eval V c i) x }
-      naturality := fun X Y f => by ext; dsimp; rw [Category.comp_id];
+    { app := fun x =>
+        { f := fun i => colimit.ι (F ⋙ eval V c i) x
+          comm' := by intros; simp }
+      naturality := fun X Y f => by
+        apply HomologicalComplex.hom_ext
+        intro x
+        dsimp
+        rw [Category.comp_id]
         exact colimit.w (F ⋙ eval V c x) _ }
 
 def colimitComplexCoconeIsColimit : IsColimit (colimitComplexCocone F) :=
@@ -164,11 +198,11 @@ def colimitComplexCoconeIsColimit : IsColimit (colimitComplexCocone F) :=
     (by
       intro i
       apply (colimit.isColimit _).ofIsoColimit
-      exact Cocones.ext (iso.refl _) fun _ => Category.comp_id _)
+      exact Cocones.ext (Iso.refl _) fun _ => Category.comp_id _)
 
 def evalMapColimitComplexCocone (i : ι) :
     (eval V c i).mapCocone (colimitComplexCocone F) ≅ (getColimitCocone (F ⋙ eval V c i)).1 :=
-  Cocones.ext (Iso.refl _) fun j => by dsimp; simpa
+  Cocones.ext (Iso.refl _) fun j => by dsimp; rw [Category.comp_id]; rfl
 
 instance (i : ι) : PreservesColimit F (eval V c i) :=
   preservesColimitOfPreservesColimitCocone (colimitComplexCoconeIsColimit F)
@@ -185,18 +219,22 @@ instance [HasColimitsOfShape J V] (i : ι) : PreservesColimitsOfShape J (eval V 
 
 instance [HasColimitsOfSize.{w', w} V] (i : ι) : PreservesColimitsOfSize.{w', w} (eval V c i) where
 
+end
+
 end Colimits
 
 section Biproduct
+
+noncomputable section
 
 variable [HasZeroMorphisms V] [HasBinaryBiproducts V] {X Y Z : HomologicalComplex V c}
 
 @[simps]
 def biproduct (X Y : HomologicalComplex V c) : HomologicalComplex V c
     where
-  X i := X.pt i ⊞ Y.pt i
+  X i := X.X i ⊞ Y.X i
   d i j := biprod.map (X.d i j) (Y.d i j)
-  shape' i j r := by ext <;> simp [X.shape _ _ r, Y.shape _ _ r]
+  shape i j r := by ext <;> simp [X.shape _ _ r, Y.shape _ _ r]
 
 @[simps]
 def biproduct.inl : X ⟶ biproduct X Y where f i := biprod.inl
@@ -229,17 +267,42 @@ def biproductBicone : BinaryBicone X Y
   inl := biproduct.inl
   inr := biproduct.inr
 
-attribute [local tidy] tactic.case_bash
+-- Porting note: Lean 3 `local attribute [tidy] tactic.case_bash` is not available; the case analysis
+-- on `WalkingPair` is done explicitly in the proofs below.
 
 def biproductBiconeIsProd : IsLimit (biproductBicone X Y).toCone
     where
   lift := fun Z : BinaryFan _ _ => biproduct.lift Z.fst Z.snd
-  uniq := by intros; delta CategoryTheory.Limits.BinaryFan.fst CategoryTheory.Limits.BinaryFan.snd; ext <;> simp [← w]
+  fac := by
+    -- Porting note: explicit case analysis on `WalkingPair` instead of `tidy` with `case_bash`
+    rintro s ⟨⟨_ | _⟩⟩ <;>
+    · apply HomologicalComplex.hom_ext
+      intro i
+      simp
+  uniq := by
+    intro s m w
+    apply HomologicalComplex.hom_ext
+    intro i
+    apply biprod.hom_ext
+    · simpa using congr_f (w ⟨WalkingPair.left⟩) i
+    · simpa using congr_f (w ⟨WalkingPair.right⟩) i
 
 def biproductBiconeIsCoprod : IsColimit (biproductBicone X Y).toCocone
     where
   desc := fun Z : BinaryCofan _ _ => biproduct.desc Z.inl Z.inr
-  uniq := by intros; delta CategoryTheory.Limits.BinaryCofan.inl CategoryTheory.Limits.BinaryCofan.inr; ext <;> simp [← w]
+  fac := by
+    -- Porting note: explicit case analysis on `WalkingPair` instead of `tidy` with `case_bash`
+    rintro s ⟨⟨_ | _⟩⟩ <;>
+    · apply HomologicalComplex.hom_ext
+      intro i
+      simp
+  uniq := by
+    intro s m w
+    apply HomologicalComplex.hom_ext
+    intro i
+    apply biprod.hom_ext'
+    · simpa using congr_f (w ⟨WalkingPair.left⟩) i
+    · simpa using congr_f (w ⟨WalkingPair.right⟩) i
 
 def biproductIsBiprod : BinaryBiproductData X Y
     where
@@ -249,10 +312,13 @@ def biproductIsBiprod : BinaryBiproductData X Y
 instance : HasBinaryBiproducts (HomologicalComplex V c) :=
   ⟨fun X Y => ⟨⟨biproductIsBiprod X Y⟩⟩⟩
 
+end
+
 end Biproduct
 
 instance [HasZeroMorphisms V] [HasFiniteProducts V] : HasFiniteProducts (HomologicalComplex V c) :=
-  ⟨fun J _ => inferInstance⟩
+  -- Porting note: `HasFiniteProducts` takes `n : ℕ` and `Fin n` in Lean 4
+  ⟨fun n => inferInstance⟩
 
 -- instance [has_zero_morphisms V] [has_kernels V] : has_kernels (homological_complex V c) :=
 -- begin
@@ -285,6 +351,8 @@ instance [HasZeroMorphisms V] [HasFiniteProducts V] : HasFiniteProducts (Homolog
 -- end
 section Kernel
 
+noncomputable section
+
 variable [HasZeroMorphisms V] {X Y : HomologicalComplex V c}
 
 variable (f : X ⟶ Y) [∀ i, HasKernel (f.f i)]
@@ -294,7 +362,7 @@ def kernelComplex : HomologicalComplex V c
     where
   X i := kernel (f.f i)
   d i j := kernel.map _ _ _ _ (f.comm i j)
-  shape' := by introv r; ext; simp [X.shape _ _ r]
+  shape := by introv r; ext; simp [X.shape _ _ r]
 
 @[simps]
 def kernelComplexι : kernelComplex f ⟶ X where f i := kernel.ι (f.f i)
@@ -310,18 +378,32 @@ def kernelComplexLift (s : KernelFork f) : s.pt ⟶ kernelComplex f where
 def kernelComplexIsKernel : IsLimit (kernelComplexFork f) :=
   by
   apply isLimitAux (HomologicalComplex.kernelComplexFork f) (HomologicalComplex.kernelComplexLift f)
-  · intro s; ext; delta fork.ι; dsimp; simp only [kernel.lift_ι]
-  · intro s m h; ext; apply_fun fun f => hom.f f x at h 
-    delta fork.ι at h ; dsimp at h ⊢; simp [h, kernel.lift_ι]
+  · intro s
+    apply HomologicalComplex.hom_ext
+    intro i
+    rw [comp_f]
+    exact kernel.lift_ι _ _ _
+  · intro s m h
+    apply HomologicalComplex.hom_ext
+    intro i
+    replace h := congr_f h i
+    rw [comp_f] at h
+    apply (cancel_mono (kernel.ι (f.f i))).1
+    erw [kernel.lift_ι]
+    exact h
 
 instance : HasKernel f :=
   ⟨⟨⟨_, kernelComplexIsKernel f⟩⟩⟩
 
 instance [HasKernels V] : HasKernels (HomologicalComplex V c) where
 
+end
+
 end Kernel
 
 section Cokernel
+
+noncomputable section
 
 variable [HasZeroMorphisms V] {X Y : HomologicalComplex V c}
 
@@ -332,7 +414,7 @@ def cokernelComplex : HomologicalComplex V c
     where
   X i := cokernel (f.f i)
   d i j := cokernel.map _ _ _ _ (f.comm i j)
-  shape' := by introv r; ext; simp [Y.shape _ _ r]
+  shape := by introv r; ext; simp [Y.shape _ _ r]
 
 @[simps]
 def cokernelComplexπ : Y ⟶ cokernelComplex f where f i := cokernel.π (f.f i)
@@ -348,18 +430,32 @@ def cokernelComplexDesc (s : CokernelCofork f) : cokernelComplex f ⟶ s.pt wher
 def cokernelComplexIsCokernel : IsColimit (cokernelComplexCofork f) :=
   by
   apply isColimitAux (HomologicalComplex.cokernelComplexCofork f) (HomologicalComplex.cokernelComplexDesc f)
-  · intro s; ext; delta cofork.π; dsimp; simp only [cokernel.π_desc]
-  · intro s m h; ext; apply_fun fun f => hom.f f x at h 
-    delta cofork.π at h ; dsimp at h ⊢; simp only [h, cokernel.π_desc]
+  · intro s
+    apply HomologicalComplex.hom_ext
+    intro i
+    rw [comp_f]
+    exact cokernel.π_desc _ _ _
+  · intro s m h
+    apply HomologicalComplex.hom_ext
+    intro i
+    replace h := congr_f h i
+    rw [comp_f] at h
+    apply (cancel_epi (cokernel.π (f.f i))).1
+    erw [cokernel.π_desc]
+    exact h
 
 instance : HasCokernel f :=
   ⟨⟨⟨_, cokernelComplexIsCokernel f⟩⟩⟩
 
 instance [HasCokernels V] : HasCokernels (HomologicalComplex V c) where
 
+end
+
 end Cokernel
 
 section NormalMono
+
+noncomputable section
 
 variable [Abelian V] {X Y Z : HomologicalComplex V c}
 
@@ -433,7 +529,7 @@ def normalMono [Mono f] : NormalMono f
     exact Abelian.monoIsKernelOfCokernel _ (colimit.isColimit _)
 
 def normalEpi [Epi f] : NormalEpi f where
-  w := kernelComplex f
+  W := kernelComplex f
   g := kernelComplexι f
   w := by ext; simp
   isColimit := by
@@ -441,12 +537,14 @@ def normalEpi [Epi f] : NormalEpi f where
     intro i
     exact Abelian.epiIsCokernelOfKernel _ (limit.isLimit _)
 
+end
+
 end NormalMono
 
-instance [Abelian V] : Abelian (HomologicalComplex V c)
+noncomputable instance [Abelian V] : Abelian (HomologicalComplex V c)
     where
-  normalMonoOfMono _ _ := normalMono
-  normalEpiOfEpi _ _ := normalEpi
+  normalMonoOfMono f := normalMono f
+  normalEpiOfEpi f := normalEpi f
 
 end HomologicalComplex
 
