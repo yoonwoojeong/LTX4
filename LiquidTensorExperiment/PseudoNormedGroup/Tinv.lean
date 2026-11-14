@@ -48,7 +48,7 @@ namespace SemiNormedGroupCat
 def equalizer {V W : SemiNormedGroupCat} (f g : V ⟶ W) :=
   of (f.equalizer g)
 
-namespace Equalizer
+namespace equalizer
 
 def ι {V W : SemiNormedGroupCat} (f g : V ⟶ W) : equalizer f g ⟶ V :=
   NormedAddGroupHom.Equalizer.ι _ _
@@ -57,25 +57,27 @@ def ι {V W : SemiNormedGroupCat} (f g : V ⟶ W) : equalizer f g ⟶ V :=
 theorem condition {V W : SemiNormedGroupCat} (f g : V ⟶ W) : ι f g ≫ f = ι f g ≫ g :=
   NormedAddGroupHom.Equalizer.comp_ι_eq _ _
 
-theorem ι_range {V W : SemiNormedGroupCat} (f g : V ⟶ W) : (ι f g).range = (f - g).ker :=
+theorem ι_range {V W : SemiNormedGroupCat} (f g : V ⟶ W) :
+    NormedAddGroupHom.range (ι f g) = NormedAddGroupHom.ker (f - g) :=
   by
-  ext; rw [NormedAddGroupHom.mem_range, NormedAddGroupHom.mem_ker]
+  ext x; rw [NormedAddGroupHom.mem_range, NormedAddGroupHom.mem_ker]
   constructor
   · rintro ⟨x, rfl⟩; rw [NormedAddGroupHom.sub_apply]; exact x.2
   · intro h; refine' ⟨⟨x, h⟩, rfl⟩
 
-theorem ι_range' {V W : SemiNormedGroupCat} (f g : V ⟶ W) : (ι f g).range = (g - f).ker :=
+theorem ι_range' {V W : SemiNormedGroupCat} (f g : V ⟶ W) :
+    NormedAddGroupHom.range (ι f g) = NormedAddGroupHom.ker (g - f) :=
   by
   rw [ι_range]; ext x
-  simp only [NormedAddGroupHom.mem_ker, NormedAddGroupHom.sub_apply, sub_eq_zero]
-  rw [eq_comm]
+  rw [NormedAddGroupHom.mem_ker, NormedAddGroupHom.mem_ker, NormedAddGroupHom.sub_apply, NormedAddGroupHom.sub_apply, sub_eq_zero, sub_eq_zero]
+  exact eq_comm
 
 def map {V₁ V₂ W₁ W₂ : SemiNormedGroupCat} {f₁ f₂ g₁ g₂} (φ : V₁ ⟶ V₂) (ψ : W₁ ⟶ W₂)
     (hf : φ ≫ f₂ = f₁ ≫ ψ) (hg : φ ≫ g₂ = g₁ ≫ ψ) : equalizer f₁ g₁ ⟶ equalizer f₂ g₂ :=
   NormedAddGroupHom.Equalizer.map _ _ hf.symm hg.symm
 
 theorem map_comp_ι {V₁ V₂ W₁ W₂ : SemiNormedGroupCat} {f₁ f₂ g₁ g₂} (φ : V₁ ⟶ V₂) (ψ : W₁ ⟶ W₂)
-    (hf : φ ≫ f₂ = f₁ ≫ ψ) (hg : φ ≫ g₂ = g₁ ≫ ψ) : map φ ψ hf hg ≫ ι _ _ = ι _ _ ≫ φ :=
+    (hf : φ ≫ f₂ = f₁ ≫ ψ) (hg : φ ≫ g₂ = g₁ ≫ ψ) : map φ ψ hf hg ≫ ι f₂ g₂ = ι f₁ g₁ ≫ φ :=
   rfl
 
 theorem map_congr {V₁ V₂ W₁ W₂ : SemiNormedGroupCat} {f₁ f₂ g₁ g₂} {φ : V₁ ⟶ V₂} {ψ : W₁ ⟶ W₂}
@@ -84,8 +86,14 @@ theorem map_congr {V₁ V₂ W₁ W₂ : SemiNormedGroupCat} {f₁ f₂ g₁ g�
     {hg' : φ' ≫ g₂' = g₁' ≫ ψ'} (Hφ : Arrow.mk φ = Arrow.mk φ') (Hψ : Arrow.mk ψ = Arrow.mk ψ')
     (Hf₁ : Arrow.mk f₁ = Arrow.mk f₁') (Hf₂ : Arrow.mk f₂ = Arrow.mk f₂')
     (Hg₁ : Arrow.mk g₁ = Arrow.mk g₁') (Hg₂ : Arrow.mk g₂ = Arrow.mk g₂') :
-    Arrow.mk (map φ ψ hf hg) = Arrow.mk (map φ' ψ' hf' hg') := by cases Hφ; cases Hψ; cases Hf₁;
-  cases Hf₂; cases Hg₁; cases Hg₂; rfl
+    Arrow.mk (map φ ψ hf hg) = Arrow.mk (map φ' ψ' hf' hg') := by
+  cases Hφ
+  cases Hψ
+  cases Hf₁
+  cases Hf₂
+  cases Hg₁
+  cases Hg₂
+  rfl
 
 theorem map_comp_map {V₁ V₂ V₃ W₁ W₂ W₃ : SemiNormedGroupCat} {f₁ f₂ f₃ g₁ g₂ g₃} {φ : V₁ ⟶ V₂}
     {ψ : W₁ ⟶ W₂} {φ' : V₂ ⟶ V₃} {ψ' : W₂ ⟶ W₃} (hf : φ ≫ f₂ = f₁ ≫ ψ) (hg : φ ≫ g₂ = g₁ ≫ ψ)
@@ -106,11 +114,11 @@ theorem norm_map_le {V₁ V₂ W₁ W₂ : SemiNormedGroupCat} {f₁ f₂ g₁ g
 protected def f {J} [Category J] {V W : J ⥤ SemiNormedGroupCat} (f g : V ⟶ W) :
     J ⥤ SemiNormedGroupCat
     where
-  obj X := of ((f.app X).equalizer (g.app X))
-  map X Y φ := equalizer.map (V.map φ) (W.map φ) (f.naturality _) (g.naturality _)
+  obj X := of (NormedAddGroupHom.equalizer (f.app X) (g.app X))
+  map φ := equalizer.map (V.map φ) (W.map φ) (f.naturality _) (g.naturality _)
   map_id X := by
     simp only [CategoryTheory.Functor.map_id] <;> exact NormedAddGroupHom.Equalizer.map_id
-  map_comp X Y Z φ ψ := by
+  map_comp φ ψ := by
     simp only [Functor.map_comp]
     exact (map_comp_map _ _ _ _).symm
 
@@ -130,13 +138,21 @@ theorem mapNat_comp_mapNat {J} [Category J] {V₁ V₂ V₃ W₁ W₂ W₃ : J �
     (hg' : φ' ≫ g₃ = g₂ ≫ ψ') :
     mapNat φ ψ hf hg ≫ mapNat φ' ψ' hf' hg' =
       mapNat (φ ≫ φ') (ψ ≫ ψ') (comm_sq₂ hf hf') (comm_sq₂ hg hg') :=
-  by ext; rfl
+  by
+  -- Porting note: Lean 3 `ext` was recursive
+  apply NatTrans.ext
+  funext X
+  exact map_comp_map (NatTrans.congr_app hf X) (NatTrans.congr_app hg X)
+    (NatTrans.congr_app hf' X) (NatTrans.congr_app hg' X)
 
 theorem mapNat_id {J} [Category J] {V W : J ⥤ SemiNormedGroupCat} (f g : V ⟶ W) :
     mapNat (𝟙 V) (𝟙 W) (show 𝟙 V ≫ f = f ≫ 𝟙 W by simp) (show 𝟙 V ≫ g = g ≫ 𝟙 W by simp) = 𝟙 _ := by
-  ext; rfl
+  -- Porting note: Lean 3 `ext` was recursive
+  apply NatTrans.ext
+  funext X
+  exact NormedAddGroupHom.Equalizer.map_id
 
-end Equalizer
+end equalizer
 
 end SemiNormedGroupCat
 
@@ -165,13 +181,13 @@ def ι (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)]
 
 theorem ι_range (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)]
     {A B : Profiniteᵒᵖ} (f g : A ⟶ B) :
-    (ι r V f g).range =
+    NormedAddGroupHom.range (ι r V f g) =
       NormedAddGroupHom.ker ((cLC V).map f - (cLC V).map g ≫ (cLC.tInv r V).app B) :=
   SemiNormedGroupCat.equalizer.ι_range _ _
 
 theorem ι_range' (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)]
     {A B : Profiniteᵒᵖ} (f g : A ⟶ B) :
-    (ι r V f g).range =
+    NormedAddGroupHom.range (ι r V f g) =
       NormedAddGroupHom.ker ((cLC V).map g ≫ (cLC.tInv r V).app B - (cLC V).map f) :=
   SemiNormedGroupCat.equalizer.ι_range' _ _
 
@@ -185,12 +201,15 @@ def map {A₁ B₁ A₂ B₂ : Profiniteᵒᵖ} (f₁ g₁ : A₁ ⟶ B₁) (f�
 
 theorem map_comp_ι {A₁ B₁ A₂ B₂ : Profiniteᵒᵖ} (f₁ g₁ : A₁ ⟶ B₁) (f₂ g₂ : A₂ ⟶ B₂) (ϕ : A₁ ⟶ A₂)
     (ψ : B₁ ⟶ B₂) (h₁ : ϕ ≫ f₂ = f₁ ≫ ψ) (h₂ : ϕ ≫ g₂ = g₁ ≫ ψ) :
-    map r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂ ≫ ι r V _ _ = ι _ _ _ _ ≫ (cLC V).map ϕ :=
-  NormedAddGroupHom.Equalizer.ι_comp_map _ _
+    map r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂ ≫ ι r V f₂ g₂ = ι r V f₁ g₁ ≫ (cLC V).map ϕ :=
+  SemiNormedGroupCat.equalizer.map_comp_ι _ _ _ _
 
 theorem map_normNoninc {A₁ B₁ A₂ B₂ : Profiniteᵒᵖ} (f₁ g₁ : A₁ ⟶ B₁) (f₂ g₂ : A₂ ⟶ B₂) (ϕ : A₁ ⟶ A₂)
-    (ψ : B₁ ⟶ B₂) (h₁ h₂) : (cLCTinv.map r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂).NormNoninc :=
-  Equalizer.map_normNoninc _ _ <| cLC.map_normNoninc _ _
+    (ψ : B₁ ⟶ B₂) (h₁ h₂) :
+    NormedAddGroupHom.NormNoninc (cLCTinv.map r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂) :=
+  by
+  dsimp only [map, SemiNormedGroupCat.equalizer.map]
+  exact NormedAddGroupHom.Equalizer.map_normNoninc _ _ (cLC.map_normNoninc _ _)
 
 theorem norm_map_le {A₁ B₁ A₂ B₂ : Profiniteᵒᵖ} (f₁ g₁ : A₁ ⟶ B₁) (f₂ g₂ : A₂ ⟶ B₂) (ϕ : A₁ ⟶ A₂)
     (ψ : B₁ ⟶ B₂) (h₁ h₂) (C : ℝ≥0)
@@ -206,7 +225,7 @@ theorem norm_map_le {A₁ B₁ A₂ B₂ : Profiniteᵒᵖ} (f₁ g₁ : A₁ �
 theorem map_id {A B : Profiniteᵒᵖ} (f g : A ⟶ B) : map r V f g f g (𝟙 A) (𝟙 B) rfl rfl = 𝟙 _ :=
   by
   simp only [map, SemiNormedGroupCat.equalizer.map, CategoryTheory.Functor.map_id]
-  exact equalizer.map_id
+  exact NormedAddGroupHom.Equalizer.map_id
 
 theorem map_comp {A₁ A₂ A₃ B₁ B₂ B₃ : Profiniteᵒᵖ} {f₁ g₁ : A₁ ⟶ B₁} {f₂ g₂ : A₂ ⟶ B₂}
     {f₃ g₃ : A₃ ⟶ B₃} (ϕ₁ : A₁ ⟶ A₂) (ϕ₂ : A₂ ⟶ A₃) (ψ₁ : B₁ ⟶ B₂) (ψ₂ : B₂ ⟶ B₃)
@@ -214,8 +233,8 @@ theorem map_comp {A₁ A₂ A₃ B₁ B₂ B₃ : Profiniteᵒᵖ} {f₁ g₁ : 
     cLCTinv.map r V f₁ g₁ f₃ g₃ (ϕ₁ ≫ ϕ₂) (ψ₁ ≫ ψ₂) h1 h2 =
       cLCTinv.map r V f₁ g₁ f₂ g₂ ϕ₁ ψ₁ h3 h4 ≫ cLCTinv.map r V f₂ g₂ f₃ g₃ ϕ₂ ψ₂ h5 h6 :=
   by
-  simp only [map, SemiNormedGroupCat.equalizer.map, CategoryTheory.Functor.map_comp]
-  exact (equalizer.map_comp_map _ _ _ _).symm
+  simp only [map, CategoryTheory.Functor.map_comp]
+  exact (SemiNormedGroupCat.equalizer.map_comp_map _ _ _ _).symm
 
 theorem map_comp_map {A₁ A₂ A₃ B₁ B₂ B₃ : Profiniteᵒᵖ} {f₁ g₁ : A₁ ⟶ B₁} {f₂ g₂ : A₂ ⟶ B₂}
     {f₃ g₃ : A₃ ⟶ B₃} (ϕ₁ : A₁ ⟶ A₂) (ϕ₂ : A₂ ⟶ A₃) (ψ₁ : B₁ ⟶ B₂) (ψ₂ : B₂ ⟶ B₃) (h₁ h₂ h₃ h₄) :
@@ -235,19 +254,26 @@ def mapIso {A₁ B₁ A₂ B₂ : Profiniteᵒᵖ} (f₁ g₁ : A₁ ⟶ B₁) (
   hom_inv_id := by simp only [map_comp_map, Iso.hom_inv_id]; apply map_id
   inv_hom_id := by simp only [map_comp_map, Iso.inv_hom_id]; apply map_id
 
+-- Porting note: the types `α` and `β` of `Isometry` are given explicitly, since otherwise
+-- instance search fails on `(forget SemiNormedGroupCat).obj (cLCTinv r V f₁ g₁)`.
 theorem mapIso_isometry {A₁ B₁ A₂ B₂ : Profiniteᵒᵖ} (f₁ g₁ : A₁ ⟶ B₁) (f₂ g₂ : A₂ ⟶ B₂)
     (ϕ : A₁ ≅ A₂) (ψ : B₁ ≅ B₂) (h₁ : ϕ.hom ≫ f₂ = f₁ ≫ ψ.hom) (h₂ : ϕ.hom ≫ g₂ = g₁ ≫ ψ.hom) :
-    Isometry (mapIso r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂).hom := by
-  apply SemiNormedGroupCat.iso_isometry_of_normNoninc <;> apply map_norm_noninc
+    Isometry (α := ↥(cLCTinv r V f₁ g₁)) (β := ↥(cLCTinv r V f₂ g₂))
+      (mapIso r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂).hom := by
+  refine' SemiNormedGroupCat.iso_isometry_of_normNoninc (mapIso r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂) _ _
+  · exact map_normNoninc r V f₁ g₁ f₂ g₂ ϕ.hom ψ.hom h₁ h₂
+  · exact map_normNoninc r V f₂ g₂ f₁ g₁ ϕ.inv ψ.inv
+      (by rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv, h₁])
+      (by rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv, h₂])
 
 @[simps]
 protected def f {J} [Category J] (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V]
     [Fact (0 < r)] {A B : J ⥤ Profiniteᵒᵖ} (f g : A ⟶ B) : J ⥤ SemiNormedGroupCat
     where
   obj X := cLCTinv r V (f.app X) (g.app X)
-  map X Y φ := map _ _ _ _ _ _ (A.map φ) (B.map φ) (f.naturality _) (g.naturality _)
+  map φ := map _ _ _ _ _ _ (A.map φ) (B.map φ) (f.naturality _) (g.naturality _)
   map_id X := by simp only [CategoryTheory.Functor.map_id] <;> apply map_id
-  map_comp X Y Z φ ψ := by simp only [Functor.map_comp] <;> apply map_comp
+  map_comp φ ψ := by simp only [Functor.map_comp] <;> apply map_comp
 
 theorem f_def {J} [Category J] (r : ℝ≥0) (V : SemiNormedGroupCat) [NormedWithAut r V] [Fact (0 < r)]
     {A B : J ⥤ Profiniteᵒᵖ} (f g : A ⟶ B) :
@@ -262,22 +288,31 @@ def mapNat {J} [Category J] {A₁ B₁ A₂ B₂ : J ⥤ Profiniteᵒᵖ} (f₁ 
     cLCTinv.f r V f₁ g₁ ⟶ cLCTinv.f r V f₂ g₂
     where
   app X :=
-    map _ _ _ _ _ _ (ϕ.app X) (ψ.app X) (by rw [← NatTrans.comp_app, h₁, NatTrans.comp_app])
+    map r V (f₁.app X) (g₁.app X) (f₂.app X) (g₂.app X) (ϕ.app X) (ψ.app X)
+      (by rw [← NatTrans.comp_app, h₁, NatTrans.comp_app])
       (by rw [← NatTrans.comp_app, h₂, NatTrans.comp_app])
   naturality X Y α := by simp only [cLCTinv.f_map, map_comp_map, ϕ.naturality, ψ.naturality]
 
+-- Porting note: in Lean 3 the right hand side was given by a tactic block ending in `ext; simp`;
+-- we write down the resulting term explicitly (the cast along `f_def` is a definitional unfolding),
+-- and give the implicit arguments of `equalizer.mapNat` explicitly to avoid a timeout.
 theorem mapNat_def {J} [Category J] {A₁ B₁ A₂ B₂ : J ⥤ Profiniteᵒᵖ} (f₁ g₁ : A₁ ⟶ B₁)
     (f₂ g₂ : A₂ ⟶ B₂) (ϕ : A₁ ⟶ A₂) (ψ : B₁ ⟶ B₂) (h₁ : ϕ ≫ f₂ = f₁ ≫ ψ) (h₂ : ϕ ≫ g₂ = g₁ ≫ ψ) :
-    mapNat r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂ = by
-      dsimp only [F_def]
-      refine'
-        SemiNormedGroupCat.equalizer.mapNat (whisker_right ϕ (cLC V)) (whisker_right ψ (cLC V))
-          (by rw [← whisker_right_comp, ← whisker_right_comp, h₁]) (comm_sq₂ _ _).symm
-      · exact whisker_right ψ _
-      · rw [← whisker_right_comp, ← whisker_right_comp, h₂]
-      ext x : 2
-      simp only [NatTrans.comp_app, CategoryTheory.whiskerLeft_app, CategoryTheory.whiskerRight_app,
-        (cLC.tInv _ _).naturality] :=
+    mapNat r V f₁ g₁ f₂ g₂ ϕ ψ h₁ h₂ =
+      (SemiNormedGroupCat.equalizer.mapNat
+        (f₁ := whiskerRight f₁ (cLC V)) (f₂ := whiskerRight f₂ (cLC V))
+        (g₁ := whiskerRight g₁ (cLC V) ≫ whiskerLeft B₁ (cLC.tInv r V))
+        (g₂ := whiskerRight g₂ (cLC V) ≫ whiskerLeft B₂ (cLC.tInv r V))
+        (whiskerRight ϕ (cLC V)) (whiskerRight ψ (cLC V))
+        (by rw [← CategoryTheory.whiskerRight_comp, ← CategoryTheory.whiskerRight_comp, h₁])
+        (by
+          apply NatTrans.ext
+          funext x
+          simp only [NatTrans.comp_app, CategoryTheory.whiskerLeft_app,
+            CategoryTheory.whiskerRight_app]
+          rw [Category.assoc, ← (cLC.tInv r V).naturality, ← Category.assoc, ← Category.assoc,
+            ← Functor.map_comp, ← Functor.map_comp, ← NatTrans.comp_app, ← NatTrans.comp_app, h₂]) :
+        cLCTinv.f r V f₁ g₁ ⟶ cLCTinv.f r V f₂ g₂) :=
   rfl
 
 -- @[simps]
@@ -293,12 +328,12 @@ def mapNatIso {J} [Category J] {A₁ B₁ A₂ B₂ : J ⥤ Profiniteᵒᵖ} (f�
   hom_inv_id :=
     by
     simp only [cLCTinv.mapNat_def, _root_.id, SemiNormedGroupCat.equalizer.mapNat_comp_mapNat, ←
-      whisker_right_comp, Iso.hom_inv_id, whisker_right_id', SemiNormedGroupCat.equalizer.mapNat_id]
+      CategoryTheory.whiskerRight_comp, Iso.hom_inv_id, CategoryTheory.whiskerRight_id', SemiNormedGroupCat.equalizer.mapNat_id]
     rfl
   inv_hom_id :=
     by
     simp only [cLCTinv.mapNat_def, _root_.id, SemiNormedGroupCat.equalizer.mapNat_comp_mapNat, ←
-      whisker_right_comp, Iso.inv_hom_id, whisker_right_id', SemiNormedGroupCat.equalizer.mapNat_id]
+      CategoryTheory.whiskerRight_comp, Iso.inv_hom_id, CategoryTheory.whiskerRight_id', SemiNormedGroupCat.equalizer.mapNat_id]
     rfl
 
 end cLCTinv
@@ -324,10 +359,9 @@ theorem cLCFPTinv₂_def (r : ℝ≥0) (V : SemiNormedGroupCat) (r' : ℝ≥0) [
 instance cLCFPTinv₂.separatedSpace [Fact (c₂ ≤ r' * c₁)] (M) :
     SeparatedSpace ((cLCFPTinv₂ r V r' c₁ c₂ n).obj M) :=
   by
-  rw [separated_iff_t2]
-  refine' @Subtype.t2Space _ _ (id _) (id _)
-  rw [← separated_iff_t2]
-  apply UniformSpace.Completion.separatedSpace
+  -- Porting note: Lean 3 went through `separated_iff_t2` and `subtype.t2_space`; here the
+  -- instance for subtypes of separated uniform spaces applies directly.
+  exact Subtype.separatedSpace _
 
 instance cLCFPTinv₂.completeSpace [Fact (c₂ ≤ r' * c₁)] (M) :
     CompleteSpace ((cLCFPTinv₂ r V r' c₁ c₂ n).obj M) :=
@@ -335,6 +369,8 @@ instance cLCFPTinv₂.completeSpace [Fact (c₂ ≤ r' * c₁)] (M) :
   refine' @IsClosed.completeSpace_coe _ (id _) (id _) _ _
   · apply UniformSpace.Completion.completeSpace
   · refine' isClosed_eq _ continuous_const
+    -- Porting note: the function is displayed through `toAddMonoidHom`
+    simp only [NormedAddGroupHom.coe_toAddMonoidHom]
     apply NormedAddGroupHom.continuous
 
 /-- The functor that sends `M` and `c` to `V-hat((filtration M c)^n)^{T⁻¹}`,
@@ -355,7 +391,13 @@ namespace cLCFPTinv₂
 
 theorem map_normNoninc [Fact (c₂ ≤ r' * c)] [Fact (c₂ ≤ c)] {M₁ M₂} (f : M₁ ⟶ M₂) :
     ((cLCFPTinv₂ r V r' c c₂ n).map f).NormNoninc :=
-  cLCTinv.map_normNoninc _ _ _ _ _ _ _ _ _ _
+  -- Porting note: the arguments are given explicitly since unification does not find them
+  cLCTinv.map_normNoninc r V ((NatTrans.op (filtrationPow.tinv r' c₂ c n)).app M₁)
+    ((NatTrans.op (filtrationPow.castLe r' c₂ c n)).app M₁)
+    ((NatTrans.op (filtrationPow.tinv r' c₂ c n)).app M₂)
+    ((NatTrans.op (filtrationPow.castLe r' c₂ c n)).app M₂)
+    ((filtrationPow r' c n).op.map f) ((filtrationPow r' c₂ n).op.map f)
+    (NatTrans.naturality _ _) (NatTrans.naturality _ _)
 
 def res [Fact (c₂ ≤ r' * c₁)] [Fact (c₂ ≤ c₁)] [Fact (c₄ ≤ r' * c₃)] [Fact (c₄ ≤ c₃)]
     [Fact (c₃ ≤ c₁)] [Fact (c₄ ≤ c₂)] : cLCFPTinv₂ r V r' c₁ c₂ n ⟶ cLCFPTinv₂ r V r' c₃ c₄ n :=
@@ -372,28 +414,43 @@ theorem res_comp_res [Fact (c₂ ≤ r' * c₁)] [Fact (c₂ ≤ c₁)] [Fact (c
     res r V r' c₁ c₂ c₃ c₄ n ≫ res r V r' c₃ c₄ c₅ c₆ n = res r V r' c₁ c₂ c₅ c₆ n :=
   by
   ext x : 2; simp only [res, NatTrans.comp_app]
-  exact (cLCTinv.map_comp _ _ _ _ _ _ _ _ _ _ _ _).symm
+  -- Porting note: the morphisms are given explicitly since unification does not find them
+  exact (cLCTinv.map_comp r V ((NatTrans.op (filtrationPow.castLe r' c₃ c₁ n)).app x)
+    ((NatTrans.op (filtrationPow.castLe r' c₅ c₃ n)).app x)
+    ((NatTrans.op (filtrationPow.castLe r' c₄ c₂ n)).app x)
+    ((NatTrans.op (filtrationPow.castLe r' c₆ c₄ n)).app x) rfl rfl rfl rfl rfl rfl).symm
 
 theorem res_normNoninc {_ : Fact (c₂ ≤ r' * c₁)} {_ : Fact (c₂ ≤ c₁)} {_ : Fact (c₄ ≤ r' * c₃)}
     {_ : Fact (c₄ ≤ c₃)} {_ : Fact (c₃ ≤ c₁)} {_ : Fact (c₄ ≤ c₂)} (M) :
     ((res r V r' c₁ c₂ c₃ c₄ n).app M).NormNoninc :=
-  cLCTinv.map_normNoninc _ _ _ _ _ _ _ _ _ _
+  -- Porting note: the arguments are given explicitly since unification does not find them
+  cLCTinv.map_normNoninc r V ((NatTrans.op (filtrationPow.tinv r' c₂ c₁ n)).app M)
+    ((NatTrans.op (filtrationPow.castLe r' c₂ c₁ n)).app M)
+    ((NatTrans.op (filtrationPow.tinv r' c₄ c₃ n)).app M)
+    ((NatTrans.op (filtrationPow.castLe r' c₄ c₃ n)).app M)
+    ((NatTrans.op (filtrationPow.castLe r' c₃ c₁ n)).app M)
+    ((NatTrans.op (filtrationPow.castLe r' c₄ c₂ n)).app M) rfl rfl
 
 theorem norm_res_le [Fact (c₂ ≤ r' * c₁)] [Fact (c₂ ≤ c₁)] [Fact (c₄ ≤ r' * c₃)] [Fact (c₄ ≤ c₃)]
     [Fact (c₃ ≤ c₁)] [Fact (c₄ ≤ c₂)] (h₂₃ : c₂ = c₃) (M) :
-    ‖((res r V r' c₁ c₂ c₃ c₄ n).app M)‖ ≤ r :=
-  by
-  apply cLCTinv.norm_map_le
+    ‖((res r V r' c₁ c₂ c₃ c₄ n).app M)‖ ≤ r := by
+  -- Porting note: the arguments are given explicitly since unification does not find them
+  refine' cLCTinv.norm_map_le r V ((NatTrans.op (filtrationPow.tinv r' c₂ c₁ n)).app M)
+    ((NatTrans.op (filtrationPow.castLe r' c₂ c₁ n)).app M)
+    ((NatTrans.op (filtrationPow.tinv r' c₄ c₃ n)).app M)
+    ((NatTrans.op (filtrationPow.castLe r' c₄ c₃ n)).app M)
+    ((NatTrans.op (filtrationPow.castLe r' c₃ c₁ n)).app M)
+    ((NatTrans.op (filtrationPow.castLe r' c₄ c₂ n)).app M) rfl rfl r _
   rw [← Category.comp_id ((cLC V).map ((NatTrans.op (filtrationPow.castLe r' c₃ c₁ n)).app M))]
   have := NatTrans.congr_app (cLC.t r V).inv_hom_id ((filtrationPow r' c₃ n).op.obj M)
-  dsimp only [NatTrans.id_app] at this 
+  dsimp only [NatTrans.id_app] at this
   rw [← this, cLC.tInv_eq, NatTrans.comp_app, ← Category.assoc ((cLC V).map _)]
   subst c₃
   rw [← SemiNormedGroupCat.equalizer.condition_assoc, ← Category.assoc]
   refine' NormedAddGroupHom.norm_comp_le_of_le' 1 r r (mul_one ↑r).symm _ _
   · apply cLC.norm_t_le
-  · apply NormNoninc.normNoninc_iff_norm_le_one.1
-    exact (cLC.map_normNoninc V _).comp equalizer.ι_norm_noninc
+  · apply NormedAddGroupHom.NormNoninc.normNoninc_iff_norm_le_one.1
+    exact (cLC.map_normNoninc V _).comp NormedAddGroupHom.Equalizer.ι_normNoninc
 
 end cLCFPTinv₂
 
@@ -422,16 +479,16 @@ theorem norm_res_le [Fact (c₂ ≤ c₁)] [Fact (c₂ ≤ r' * c₁)] (M) :
   rw [← res_comp_res r V r' c₁ (r' * c₁) c₂]
   refine'
     norm_comp_le_of_le' _ _ _ (one_mul ↑r).symm _ (cLCFPTinv₂.norm_res_le r V r' _ _ _ _ n rfl M)
-  apply NormNoninc.normNoninc_iff_norm_le_one.1
-  exact cLCTinv.map_normNoninc r V _ _ _ _ _ _ _ _
+  apply NormedAddGroupHom.NormNoninc.normNoninc_iff_norm_le_one.1
+  exact res_normNoninc r V r' (r' * c₁) c₂ n M
 
 theorem norm_res_le_pow (N : ℕ) [Fact (c₂ ≤ c₁)] [h : Fact (c₂ ≤ r' ^ N * c₁)] (M) :
     ‖((res r V r' c₁ c₂ n).app M)‖ ≤ r ^ N :=
   by
   induction' N with N ih generalizing c₁ c₂
   · rw [pow_zero]
-    apply NormNoninc.normNoninc_iff_norm_le_one.1
-    exact cLCTinv.map_normNoninc r V _ _ _ _ _ _ _ _
+    apply NormedAddGroupHom.NormNoninc.normNoninc_iff_norm_le_one.1
+    exact res_normNoninc r V r' c₁ c₂ n M
   haveI : Fact (c₂ ≤ r' ^ N * c₁) := NNReal.fact_le_pow_hMul_of_le_pow_succ_hMul _ _ _
   rw [pow_succ, mul_assoc] at h ; skip
   rw [← res_comp_res r V r' c₁ (r' ^ N * c₁) c₂]
