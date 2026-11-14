@@ -409,10 +409,12 @@ theorem tinv_mem_filtration [h0r : Fact (0 < r')] :
   refine' le_add_of_nonneg_of_le zero_le' _
   apply tsum_le_tsum
   · rintro (_ | i)
-    · simp only [Nat.cast_zero, MulZeroClass.zero_mul, Lbar.coeff_zero, Int.natAbs_zero];
-      exact zero_le'
+    · -- Porting note: `Nat.zero_eq` is needed because `rintro` produces `Nat.zero`
+      simp only [Nat.zero_eq, Nat.cast_zero, MulZeroClass.zero_mul, tinvAux_zero, Int.natAbs_zero]
+      exact zero_le _
     · simp only [tinvAux_succ, mul_assoc, coe_mk, pow_succ']
-  · exact (tinvAux_summable F s).mulRight _
+      exact le_rfl
+  · exact (tinvAux_summable F s).mul_right _
   · exact (NNReal.summable_nat_add_iff 1).mpr (F.summable s)
 
 end Tinv
@@ -453,6 +455,7 @@ def geom [hr' : Fact (r' < 1)] : Lbar r' S
     apply NNReal.summable_of_le _ this
     intro n
     refine' (mul_le_mul' _ le_rfl).trans (one_mul _).le
+    dsimp only
     split_ifs <;> simp
 
 section Map
@@ -483,7 +486,7 @@ def map : Lbar r' S → Lbar r' T := fun F =>
       haveI :
         ∀ n : ℕ,
           ↑(∑ s : S in Finset.univ.filter fun s' : S => f s' = t, F s n).natAbs * r' ^ n ≤
-            (∑ s : S, (F s n).natAbs) * r' ^ n :=
+            (∑ s : S, ↑(F s n).natAbs) * r' ^ n :=
         by
         intro n
         refine' mul_le_mul _ (le_refl _) zero_le' zero_le'
@@ -497,7 +500,7 @@ def map : Lbar r' S → Lbar r' T := fun F =>
         apply Finset.sum_le_sum_of_subset
         · intro t ht; simp
         · infer_instance
-      NNReal.summable_of_le this (HasSum.summable (Lbar.hasSum_aux _)) }
+      NNReal.summable_of_le this (HasSum.summable (Lbar.hasSum_aux F)) }
 
 theorem map_id (F : Lbar r' S) : F.map id = F :=
   by

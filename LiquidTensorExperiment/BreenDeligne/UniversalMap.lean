@@ -124,7 +124,8 @@ def preEval : BasicUniversalMap m n →+ A ^ m → A ^ n :=
     (by
       intro f₁ f₂
       ext x i
-      simp only [Pi.add_apply, DMatrix.add_apply, add_smul, Finset.sum_add_distrib])
+      simp only [Pi.add_apply, DMatrix.add_apply, Matrix.add_apply, add_smul,
+        Finset.sum_add_distrib])
 
 theorem preEval_apply : preEval A g = fun x i => ∑ j, g i j • (x : Fin _ → A) j :=
   rfl
@@ -140,8 +141,8 @@ theorem eval_of (x : A ^ m) : g.eval A (of x) = (of <| preEval A g x) :=
 /-- The composition of basic universal maps,
 defined as matrix multiplication. -/
 def comp : BasicUniversalMap m n →+ BasicUniversalMap l m →+ BasicUniversalMap l n :=
-  AddMonoidHom.mk' (fun g => (AddMonoidHom.mk' fun f => HMul.hMul g f) <| Matrix.mul_add _)
-    fun g₁ g₂ => by ext1 f; apply Matrix.add_mul
+  AddMonoidHom.mk' (fun g => (AddMonoidHom.mk' fun f => (g * f : Matrix (Fin n) (Fin l) ℤ)) <| Matrix.mul_add _)
+    fun g₁ g₂ => by ext1 f; exact Matrix.add_mul _ _ _
 
 theorem eval_comp : (comp g f).eval A = (g.eval A).comp (f.eval A) :=
   by
@@ -149,7 +150,7 @@ theorem eval_comp : (comp g f).eval A = (g.eval A).comp (f.eval A) :=
   simp only [AddMonoidHom.coe_comp, Function.comp_apply, eval_of, BreenDeligne.BasicUniversalMap.preEval, comp, Finset.smul_sum,
     Matrix.mul_apply, Finset.sum_smul, mul_smul, AddMonoidHom.mk'_apply]
   congr 1
-  ext1 i
+  funext i
   exact Finset.sum_comm
 
 theorem comp_assoc (h : BasicUniversalMap m n) (g : BasicUniversalMap l m)
@@ -173,7 +174,8 @@ def mul (N : ℕ) : BasicUniversalMap m n →+ BasicUniversalMap (N * m) (N * n)
     (by
       intro f g
       simp only [Matrix.kronecker_add, Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply,
-        Matrix.submatrix_add, DMatrix.add_apply])
+        Matrix.submatrix_add]
+      rfl)
 
 theorem hMul_apply (N : ℕ) (f : BasicUniversalMap m n) :
     mul N f = Matrix.reindexLinearEquiv ℕ _ finProdFinEquiv finProdFinEquiv (1 ⊗ₖ f) :=
@@ -182,7 +184,7 @@ theorem hMul_apply (N : ℕ) (f : BasicUniversalMap m n) :
 theorem hMul_injective (N : ℕ) (hN : 0 < N) : Function.Injective (@mul m n N) :=
   by
   intro f g H
-  ext i j
+  refine Matrix.ext fun i j => ?_
   rw [Function.funext_iff] at H 
   specialize H (finProdFinEquiv (⟨0, hN⟩, i))
   rw [Function.funext_iff] at H 
@@ -194,7 +196,6 @@ theorem hMul_injective (N : ℕ) (hN : 0 < N) : Function.Injective (@mul m n N) 
 theorem hMul_comp (N : ℕ) (g : BasicUniversalMap m n) (f : BasicUniversalMap l m) :
     mul N (comp g f) = comp (mul N g) (mul N f) :=
   by
-  ext1 i j
   dsimp only [mul, comp, AddMonoidHom.mk'_apply]
   rw [Matrix.reindexLinearEquiv_mul, ← Matrix.mul_kronecker_mul, Matrix.one_mul]
 
@@ -209,12 +210,12 @@ def oneMulInv (n) : BasicUniversalMap n (1 * n) :=
 
 theorem oneMulHom_inv : comp (oneMulHom n) (oneMulInv n) = id n :=
   by
-  dsimp only [comp, one_mul_hom, BreenDeligne.BasicUniversalMap.oneMulInv, AddMonoidHom.mk'_apply, id]
+  dsimp only [comp, oneMulHom, BreenDeligne.BasicUniversalMap.oneMulInv, AddMonoidHom.mk'_apply, id]
   rw [Matrix.reindexLinearEquiv_mul, Matrix.one_mul, Matrix.reindexLinearEquiv_one]
 
 theorem oneMulInv_hom : comp (oneMulInv n) (oneMulHom n) = id _ :=
   by
-  dsimp only [comp, one_mul_hom, BreenDeligne.BasicUniversalMap.oneMulInv, AddMonoidHom.mk'_apply, id]
+  dsimp only [comp, oneMulHom, BreenDeligne.BasicUniversalMap.oneMulInv, AddMonoidHom.mk'_apply, id]
   rw [Matrix.reindexLinearEquiv_mul, Matrix.one_mul, Matrix.reindexLinearEquiv_one]
 
 def mulMulHom (m n i : ℕ) : BasicUniversalMap (m * (n * i)) (m * n * i) :=
@@ -297,7 +298,7 @@ theorem comp_proj_hMul_proj (n N : ℕ) (j : Fin (2 * 2 ^ N)) :
     (comp (proj n (finProdFinEquiv.symm j).fst)) (mul 2 (proj n (finProdFinEquiv.symm j).snd)) =
       (comp (proj n j)) (mulMulHom 2 (2 ^ N) n) :=
   by
-  dsimp only [mulMulHom, proj, comp, mul_apply, AddMonoidHom.mk'_apply]
+  dsimp only [mulMulHom, proj, comp, hMul_apply, AddMonoidHom.mk'_apply]
   rw [Matrix.reindexLinearEquiv_mul, ← Matrix.mul_kronecker_mul, Matrix.one_mul, Matrix.mul_one,
     Matrix.mul_reindexLinearEquiv_one]
   simp only [Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply, Function.comp.right_id,
