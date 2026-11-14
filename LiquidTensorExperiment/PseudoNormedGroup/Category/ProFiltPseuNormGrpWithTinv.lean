@@ -40,8 +40,6 @@ def bundled_hom :
 
 attribute [local instance] bundled_hom
 
-/- ./././Mathport/Syntax/Translate/Command.lean:43:9: unsupported derive handler λ α,
-has_coe_to_sort[has_coe_to_sort] α (Sort*) -/
 /-
 instance bundled_hom : bundled_hom (@comphaus_filtered_pseudo_normed_group_with_Tinv_hom r') :=
 ⟨@comphaus_filtered_pseudo_normed_group_with_Tinv_hom.toFun r',
@@ -49,10 +47,25 @@ instance bundled_hom : bundled_hom (@comphaus_filtered_pseudo_normed_group_with_
  @comphaus_filtered_pseudo_normed_group_with_Tinv_hom.comp r',
  @comphaus_filtered_pseudo_normed_group_with_Tinv_hom.coe_inj r'⟩
 -/
-deriving instance
-  «./././Mathport/Syntax/Translate/Command.lean:43:9: unsupported derive handler λ α,
-  CoeSort[CoeSort] α (Sort*)», LargeCategory, ConcreteCategory for
-  ProFiltPseuNormGrpWithTinv
+-- Porting note: Lean 3 used `attribute [derive [λ α, has_coe_to_sort α (Sort*), large_category,
+-- concrete_category]]`; the instances it derived are written out (with the names Lean 3 gave
+-- them)
+instance largeCategory (r : ℝ≥0) : LargeCategory (ProFiltPseuNormGrpWithTinv r) := by
+  dsimp only [ProFiltPseuNormGrpWithTinv]; infer_instance
+
+instance concreteCategory (r : ℝ≥0) : ConcreteCategory (ProFiltPseuNormGrpWithTinv r) := by
+  dsimp only [ProFiltPseuNormGrpWithTinv]; infer_instance
+
+instance (r : ℝ≥0) : CoeSort (ProFiltPseuNormGrpWithTinv r) (Type _) where
+  coe X := X.α
+
+instance (r : ℝ≥0) (M : ProFiltPseuNormGrpWithTinv r) : ProfinitelyFilteredPseudoNormedGroupWithTinv r M :=
+  M.str
+
+-- Porting note: in Lean 3 morphisms unfolded to the structure and used its coercion; in Lean 4
+-- the coercion to functions is declared explicitly
+instance {r : ℝ≥0} {A B : ProFiltPseuNormGrpWithTinv r} : CoeFun (A ⟶ B) fun _ => A → B where
+  coe (f : ComphausFilteredPseudoNormedGroupWithTinvHom r A B) := f
 
 /-- Construct a bundled `ProFiltPseuNormGrpWithTinv` from the underlying type and typeclass. -/
 def of (r' : ℝ≥0) (M : Type u) [ProfinitelyFilteredPseudoNormedGroupWithTinv r' M] :
@@ -65,9 +78,6 @@ instance : Zero (ProFiltPseuNormGrpWithTinv r') :=
 
 instance : Inhabited (ProFiltPseuNormGrpWithTinv r') :=
   ⟨0⟩
-
-instance (M : ProFiltPseuNormGrpWithTinv r') : ProfinitelyFilteredPseudoNormedGroupWithTinv r' M :=
-  M.str
 
 @[simp]
 theorem coe_of (V : Type u) [ProfinitelyFilteredPseudoNormedGroupWithTinv r' V] :
@@ -120,6 +130,9 @@ variable {M M₁ M₂ : ProFiltPseuNormGrpWithTinv.{u} r'}
 
 variable {f : M₁ ⟶ M₂}
 
+-- Porting note: Lean 3's recursive `ext` is replaced by the explicit `ext` lemma of
+-- `ComphausFilteredPseudoNormedGroupWithTinvHom` (here and in `pow`, `powPowX`, `powMul`), and
+-- by `funext i j` for the nested function types
 /-- The isomorphism induced by a bijective `comphaus_filtered_pseudo_normed_group_with_Tinv_hom`
 whose inverse is strict. -/
 def isoOfEquivOfStrict (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
@@ -127,8 +140,14 @@ def isoOfEquivOfStrict (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
     where
   hom := f
   inv := invOfEquivOfStrict e he strict
-  hom_inv_id := by ext x; simp [ComphausFilteredPseudoNormedGroupWithTinvHom.invOfEquivOfStrict, he]
-  inv_hom_id := by ext x; simp [ComphausFilteredPseudoNormedGroupWithTinvHom.invOfEquivOfStrict, he]
+  hom_inv_id := by
+    apply ComphausFilteredPseudoNormedGroupWithTinvHom.ext
+    intro x
+    simp [ComphausFilteredPseudoNormedGroupWithTinvHom.invOfEquivOfStrict, he]
+  inv_hom_id := by
+    apply ComphausFilteredPseudoNormedGroupWithTinvHom.ext
+    intro x
+    simp [ComphausFilteredPseudoNormedGroupWithTinvHom.invOfEquivOfStrict, he]
 
 @[simp]
 theorem isoOfEquivOfStrict.apply (e : M₁ ≃+ M₂) (he : ∀ x, f x = e x)
@@ -176,9 +195,16 @@ variable (r')
 def pow (n : ℕ) : ProFiltPseuNormGrpWithTinv.{u} r' ⥤ ProFiltPseuNormGrpWithTinv.{u} r'
     where
   obj M := of r' <| M ^ n
-  map M₁ M₂ f := ProfinitelyFilteredPseudoNormedGroupWithTinv.piMap r' _ _ fun i => f
-  map_id M := by ext; rfl
-  map_comp := by intros; ext; rfl
+  map f := ProfinitelyFilteredPseudoNormedGroupWithTinv.piMap r' _ _ fun _ => f
+  map_id M := by
+    apply ComphausFilteredPseudoNormedGroupWithTinvHom.ext
+    intro x
+    rfl
+  map_comp := by
+    intros
+    apply ComphausFilteredPseudoNormedGroupWithTinvHom.ext
+    intro x
+    rfl
 
 @[simps]
 def powPowXEquiv (N n : ℕ) : M ^ (N * n) ≃+ (M ^ N) ^ n :=
@@ -190,7 +216,9 @@ def powPowXEquiv (N n : ℕ) : M ^ (N * n) ≃+ (M ^ N) ^ n :=
     toFun :=
       ((Equiv.curry _ _ _).symm.trans
           (((Equiv.prodComm _ _).trans finProdFinEquiv).arrowCongr (Equiv.refl _))).symm
-    map_add' := fun x y => by ext; rfl }
+    map_add' := fun x y => by
+      funext i j
+      rfl }
 
 open ProfinitelyFilteredPseudoNormedGroup
 
@@ -207,7 +235,7 @@ def powPowX (N n : ℕ) (M : ProFiltPseuNormGrpWithTinv.{u} r') :
         constructor <;> intro h
         · intro i j; exact h (finProdFinEquiv (j, i))
         · intro ij
-          have := h (fin_prod_fin_equiv.symm ij).2 (fin_prod_fin_equiv.symm ij).1
+          have := h (finProdFinEquiv.symm ij).2 (finProdFinEquiv.symm ij).1
           dsimp [-finProdFinEquiv_symm_apply] at this 
           simpa only [Prod.mk.eta, Equiv.apply_symm_apply] using this)
       (by
@@ -222,14 +250,19 @@ def powPowX (N n : ℕ) (M : ProFiltPseuNormGrpWithTinv.{u} r') :
         have := @continuous_apply _ (fun _ => filtration M c) _ (finProdFinEquiv (j, i))
         dsimp [Function.comp] at this ⊢
         simpa only [Subtype.coe_eta])
-      (by intros; ext; rfl)
+      (by
+        intros
+        funext i j
+        rfl)
 
-@[simps Hom inv]
+@[simps hom inv]
 def powMul (N n : ℕ) : pow r' (N * n) ≅ pow r' N ⋙ pow r' n :=
   NatIso.ofComponents (fun M => (powPowX r' N n M).symm)
     (by
       intro X Y f
-      ext x i j
+      apply ComphausFilteredPseudoNormedGroupWithTinvHom.ext
+      intro x
+      funext i j
       rfl)
 
 end ProFiltPseuNormGrpWithTinv
