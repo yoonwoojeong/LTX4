@@ -54,9 +54,14 @@ def locallyConstant : SemiNormedGroupCat ⥤ Profiniteᵒᵖ ⥤ SemiNormedGroup
     { app := fun S => mapHom f
       naturality := fun S₁ S₂ g => by
         dsimp; ext s
-        trace_state
-        simp only [LocallyConstant.mapHom_apply, LocallyConstant.comapHom_apply, CategoryTheory.coe_comp, Function.comp_apply,
-          LocallyConstant.map_apply, LocallyConstant.coe_comap, g.unop.continuous] }
+        simp only [SemiNormedGroupCat.coe_comp, NormedAddGroupHom.coe_comp, Function.comp_apply]
+        -- Porting note: `ext` does not see through the bundled carrier, and `simp` lemmas do not
+        -- match it, so the pointwise computation is given by explicit terms.
+        refine LocallyConstant.ext fun t => ?_
+        exact (congrArg (⇑f) (LocallyConstant.coe_comap_apply (⇑g.unop) s
+          (ContinuousMap.continuous g.unop) t)).trans
+          (LocallyConstant.coe_comap_apply (⇑g.unop) (LocallyConstant.map (⇑f) s)
+            (ContinuousMap.continuous g.unop) t).symm }
   map_id := by intros; ext; rfl
   map_comp := by intros; ext; rfl
 
