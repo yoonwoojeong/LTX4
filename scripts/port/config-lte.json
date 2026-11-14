@@ -1,0 +1,81 @@
+{
+  "pathConfig": {
+    "outRoot": "Outputs",
+    "packages": {
+      "Leanbin": "sources/lean/library",
+      "Mathbin": "sources/mathlib/src",
+      "Oneshot": "Oneshot/lean3-in",
+      "LiquidTensorExperiment": "../lean-liquid/src"
+    },
+    "leanPath": [
+      "./.lake/packages/mathlib/.lake/build/lib",
+      "./.lake/packages/Qq/.lake/build/lib",
+      "./.lake/packages/std/.lake/build/lib",
+      "./.lake/packages/aesop/.lake/build/lib",
+      "./.lake/packages/proofwidgets/.lake/build/lib",
+      "./.lake/packages/Cli/.lake/build/lib",
+      "./Oneshot/lean4-in/.lake/build/lib",
+      "./Outputs/oleans/leanbin",
+      "./Outputs/oleans/mathbin",
+      "./Outputs/oleans/oneshot",
+      "./Outputs/oleans/liquidTensorExperiment",
+      "./Outputs/oleans/lteextra"
+    ]
+  },
+  "baseModules": [
+    "Mathlib"
+  ],
+  "extraModules": [
+    "LteAligns"
+  ],
+  "stringsToKeep": [
+    "_sunfold",
+    "equations",
+    "private",
+    "below",
+    "ibelow"
+  ],
+  "forceAbbrevs": [
+    "lift",
+    "lift_t",
+    "coe_b",
+    "coe_t",
+    "coe_fn_b"
+  ],
+  "defEqConstructions": [],
+  "defEqConstructions-disabled-because-sometimes-different-in-lean4": [
+    "casesOn",
+    "noConfusion",
+    "ibelow",
+    "brecOn",
+    "bInductionOn"
+  ],
+  "disabledInstances": [
+    "bool.decidable_eq",
+    "nat.decidable_eq",
+    "and.decidable",
+    "or.decidable",
+    "iff.decidable",
+    "not.decidable",
+    "implies.decidable",
+    "decidable.true",
+    "decidable.false",
+    "exists_prop_decidable",
+    "forall_prop_decidable",
+    "int.decidable_eq",
+    "nat.decidable_lt",
+    "nat.decidable_le"
+  ],
+  "neverSorries": [
+    "of_as_true"
+  ],
+  "sorries": [],
+  "skipProofs": true,
+  "skipDefEq": true,
+  "replacementStyle": "comment",
+  "redundantAlign": false,
+  "error2warning": true,
+  "dubiousMsg": false,
+  "dubiousMsgMaxDepth": 30,
+  "dubiousMsgMaxSize": 10000
+}
