@@ -54,14 +54,6 @@ instance : CategoryStruct (FreeAb C) where
 protected theorem comp_apply {X Y Z : FreeAb C} (f : X ⟶ Y) (g : Y ⟶ Z) : FreeAb.comp f g = f ≫ g :=
   rfl
 
--- Porting note: a helper lemma for the basis case of `map_comp` below; the `erw` is needed
--- because `simp` does not fire `FreeAbelianGroup.lift.of` on these hom-types.
-protected theorem comp_of_of {X Y Z : FreeAb C} (a : X.as ⟶ Y.as) (b : Y.as ⟶ Z.as) :
-    FreeAb.comp (X := X) (Y := Y) (Z := Z) (FreeAbelianGroup.of a) (FreeAbelianGroup.of b) =
-      FreeAbelianGroup.of (a ≫ b) := by
-  simp only [FreeAb.comp]
-  erw [FreeAbelianGroup.lift.of, FreeAbelianGroup.lift.of]
-
 instance : Category (FreeAb C)
     where
   id_comp := by
@@ -71,11 +63,8 @@ instance : Category (FreeAb C)
     clear f
     apply FreeAbelianGroup.lift.ext
     intro f
-    simp only [FreeAb.comp, FreeAb.id]
-    -- Porting note: `simp` does not fire `FreeAbelianGroup.lift.of` on these hom-types
-    -- (instance mismatch), so `erw` is used for the rewrites.
-    erw [FreeAbelianGroup.lift.of, FreeAbelianGroup.lift.of, AddMonoidHom.id_apply]
-    simp only [Category.id_comp]
+    simp only [AddMonoidHom.id_apply, FreeAb.comp, FreeAbelianGroup.lift.of, FreeAb.id,
+      Category.id_comp]
   comp_id := by
     intro X Y f
     show FreeAb.comp f Y.id = AddMonoidHom.id _ f
@@ -84,10 +73,8 @@ instance : Category (FreeAb C)
     clear f
     apply FreeAbelianGroup.lift.ext
     intro f
-    simp only [FreeAb.comp, FreeAb.id]
-    -- Porting note: `erw` is needed for `FreeAbelianGroup.lift.of`, see `id_comp` above.
-    erw [AddMonoidHom.flip_apply, FreeAbelianGroup.lift.of, FreeAbelianGroup.lift.of,
-      AddMonoidHom.id_apply, Category.comp_id]
+    simp only [AddMonoidHom.id_apply, FreeAb.comp, FreeAbelianGroup.lift.of, FreeAb.id,
+      Category.comp_id, AddMonoidHom.flip_apply]
   assoc := by
     intro W X Y Z f g h
     show FreeAb.comp.comp (FreeAb.comp f) g h = (FreeAb.comp f).comp (FreeAb.comp g) h
@@ -107,10 +94,7 @@ instance : Category (FreeAb C)
     apply FreeAbelianGroup.lift.ext
     intro h
     simp only [AddMonoidHom.comp_apply, AddMonoidHom.compHom_apply_apply, AddMonoidHom.flip_apply,
-      FreeAb.comp]
-    -- Porting note: `erw` is needed for `FreeAbelianGroup.lift.of`, see `id_comp` above.
-    repeat' erw [FreeAbelianGroup.lift.of]
-    simp only [Category.assoc]
+      FreeAb.comp, FreeAbelianGroup.lift.of, Category.assoc]
 
 instance : Preadditive (FreeAb C)
     where
@@ -143,11 +127,8 @@ def eval [Preadditive C] : FreeAb C ⥤ C
         intro a b
         show FreeAbelianGroup.lift id (FreeAb.comp (FreeAbelianGroup.of a) (FreeAbelianGroup.of b)) =
           FreeAbelianGroup.lift id (FreeAbelianGroup.of a) ≫ FreeAbelianGroup.lift id (FreeAbelianGroup.of b)
-        simp only [FreeAb.comp]
-        -- Porting note: `erw` is needed for `FreeAbelianGroup.lift.of`, see `id_comp` above.
-        repeat' erw [FreeAbelianGroup.lift.of]
-        rfl)
-    exact FunLike.congr_fun (FunLike.congr_fun key f) g
+        simp only [FreeAb.comp, FreeAbelianGroup.lift.of, id_eq])
+    exact DFunLike.congr_fun (DFunLike.congr_fun key f) g
 
 instance eval_additive [Preadditive C] : (eval C).Additive where
   map_add := by
@@ -178,15 +159,9 @@ def mapFreeAb (F : C ⥤ D) : FreeAb C ⥤ FreeAb D
           (Z := FreeAb.of (F.obj Z.as))).comp (FreeAbelianGroup.map (fun h => F.map h))))
       (by
         intro a b
-        -- Porting note: `erw` is needed for the `AddMonoidHom` unfoldings and the basis
-        -- computation: `simp` does not fire these lemmas on the hom-types, see `id_comp`.
-        repeat' erw [AddMonoidHom.comp_apply, AddMonoidHom.compHom_apply_apply,
-          AddMonoidHom.compHom'_apply_apply]
-        erw [FreeAbelianGroup.map_of_apply, FreeAb.comp_of_of, FreeAbelianGroup.map_of_apply,
+        simp only [FreeAb.comp, FreeAbelianGroup.lift.of, FreeAbelianGroup.map_of_apply,
           F.map_comp])
-    have h2 := FunLike.congr_fun (FunLike.congr_fun key f) g
-    trace_state
-    sorry
+    exact DFunLike.congr_fun (DFunLike.congr_fun key f) g
 
 instance mapFreeAb_additive (F : C ⥤ D) : F.mapFreeAb.Additive where
   map_add := by
