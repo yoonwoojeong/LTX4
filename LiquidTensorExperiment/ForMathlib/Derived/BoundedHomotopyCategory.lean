@@ -225,7 +225,7 @@ variable (A)
 
 -- Move this
 @[simps]
-def HomotopyCategory.single (i : ℤ) : A ⥤ HomotopyCategory A (ComplexShape.up ℤ) :=
+def _root_.HomotopyCategory.single (i : ℤ) : A ⥤ HomotopyCategory A (ComplexShape.up ℤ) :=
   HomologicalComplex.single _ _ i ⋙ HomotopyCategory.quotient _ _
 
 def single (i : ℤ) : A ⥤ BoundedHomotopyCategory A

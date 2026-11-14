@@ -297,7 +297,7 @@ theorem HomologicalComplex.dFrom_eq_d_comp_xNextIso_inv {ι V : Type _} [Categor
 
 --- move
 @[reassoc (attr := simp)]
-theorem CategoryTheory.Limits.EqToHomCompImage.ι {C : Type _} [Category C] {X Y : C} {f f' : X ⟶ Y}
+theorem _root_.CategoryTheory.Limits.EqToHomCompImage.ι {C : Type _} [Category C] {X Y : C} {f f' : X ⟶ Y}
     [HasImage f] [HasImage f'] [HasEqualizers C] (h : f = f') :
     eqToHom (by simp_rw [h]) ≫ image.ι f' = image.ι f :=
   by
@@ -306,7 +306,7 @@ theorem CategoryTheory.Limits.EqToHomCompImage.ι {C : Type _} [Category C] {X Y
 
 --- move
 @[reassoc (attr := simp)]
-theorem CategoryTheory.Limits.EqToHomCompKernel.ι {C : Type _} [Category C] [Abelian C] {X Y : C}
+theorem _root_.CategoryTheory.Limits.EqToHomCompKernel.ι {C : Type _} [Category C] [Abelian C] {X Y : C}
     {f f' : X ⟶ Y} (h : f = f') : eqToHom (by simp_rw [h]) ≫ kernel.ι f' = kernel.ι f :=
   by
   subst h
