@@ -174,7 +174,7 @@ def radonPngFunctor : Profinite.{0} ⥤ CompHausFiltPseuNormGrp₁
   map_id X := by
     ext; dsimp [map_Radon_png, WeakDual.comap]; congr 1
     ext; rfl
-  map_comp X Y Z f g := by ext; rfl
+  map_comp {X Y Z} f g := by ext; rfl
 
 /-- The cone exhibiting `X.Radon_png p` as a limit of `T.Radon_png p` as
 `T` varies over the discrete quotients of `X`. -/

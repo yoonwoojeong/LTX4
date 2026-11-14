@@ -332,9 +332,9 @@ end MkFunctor
 
 def mkFunctor : SnakeDiagram ⥤ C where
   obj := Function.uncurry F
-  map x y h := MkFunctor.map' F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 x y h.le
+  map {x y} h := MkFunctor.map' F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 x y h.le
   map_id x := MkFunctor.map'_id F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 x
-  map_comp x y z hxy hyz := by rw [MkFunctor.map'_comp] <;> assumption
+  map_comp {x y z} hxy hyz := by rw [MkFunctor.map'_comp] <;> assumption
 
 @[simp]
 theorem mkFunctor_map_f0 : mk_functor.map (hom (0, 0) (0, 1)) = f0 := by

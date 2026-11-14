@@ -185,12 +185,12 @@ theorem Int.nnnorm_hMul (m n : ℤ) : ‖m * n‖₊ = ‖m‖₊ * ‖n‖₊ :
 
 -- move me
 @[simp]
-theorem Nat.norm_coe_int (n : ℕ) : ‖n : ℤ‖ = n := by
+theorem Nat.norm_coe_int (n : ℕ) : ‖(n : ℤ)‖ = n := by
   simp only [Int.norm_eq_abs, Int.cast_ofNat, Nat.abs_cast]
 
 -- move me
 @[simp]
-theorem Nat.nnnorm_coe_int (n : ℕ) : ‖n : ℤ‖₊ = n := by
+theorem Nat.nnnorm_coe_int (n : ℕ) : ‖(n : ℤ)‖₊ = n := by
   ext <;> simp only [coe_nnnorm, Nat.norm_coe_int, NNReal.coe_nat_cast]
 
 instance : AddCommMonoid (ℒ S) :=
@@ -252,7 +252,7 @@ theorem nnnorm_def (F : ℒ S) : ‖F‖₊ = ∑ s, ∑' n, ‖F s n‖₊ * r 
   rfl
 
 @[simp]
-theorem coe_nnnorm (F : ℒ S) : (‖F‖₊ : ℝ) = ‖F‖ := by
+theorem coe_nnnorm (F : ℒ S) : (‖F‖(₊ : ℝ) = )‖F‖ := by
   simp only [nnnorm_def, norm_def, NNReal.coe_sum, NNReal.coe_tsum, Nonneg.coe_mul, coe_nnnorm,
     NNReal.coe_zpow]
 
@@ -306,7 +306,7 @@ theorem map_bound (f : S ⟶ S') (F : ℒ S) : ‖map f F‖₊ ≤ ‖F‖₊ :
         summable_sum fun s _ => F.nnreal_summable s
       have h2 :
         ∀ b : ℤ,
-          ‖∑ s : S.α in univ.filter fun t => f t = s', F s b‖₊ * r ^ b ≤
+          ‖(∑ s : S.α in univ.filter fun t => f t = s', F s b)‖₊ * r ^ b ≤
             ∑ s : S.α in univ.filter fun t => f t = s', ‖F s b‖₊ * r ^ b :=
         by intro b; rw [← sum_mul]; exact mul_le_mul' (nnnorm_sum_le _ _) le_rfl
       apply tsum_le_tsum h2 (NNReal.summable_of_le h2 h1) h1
@@ -566,7 +566,7 @@ open CategoryTheory
 def laurentMeasuresBddFunctor (c : ℝ≥0) [Fact (0 < r)] : (AsSmall (Finset ℤ))ᵒᵖ ⥤ FintypeCat
     where
   obj A := FintypeCat.of <| LaurentMeasuresBdd r S (ULift.down A.unop) c
-  map A B f := transition (leOfHom <| ULift.down f.unop)
+  map {A B} f := transition (leOfHom <| ULift.down f.unop)
 
 /-- The `equiv` between Laurent measures with norm at most `c` and the projective limit
 over `T : finset ℤ` of the finite types `laurent_measures_bdd r S T c`. -/

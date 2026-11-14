@@ -1,6 +1,7 @@
 import Mathlib.CategoryTheory.Functor.Category
 
-#align_import for_mathlib.natTrans
+#align_import for_mathlib.nat_trans
 
-attribute [reassoc] CategoryTheory.NatTrans.comp_app
+/-! Porting note: Lean 3 LTE had `attribute [reassoc] category_theory.nat_trans.comp_app` here.
+mathlib4 already provides `CategoryTheory.NatTrans.comp_app_assoc`, so nothing is needed. -/
 

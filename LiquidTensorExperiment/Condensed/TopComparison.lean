@@ -69,9 +69,9 @@ def Profinite.toCondensed (T : Profinite.{u}) : CondensedSet
 def profiniteToCondensed : Profinite ⥤ CondensedSet
     where
   obj X := X.toCondensed
-  map X Y f := ⟨whiskerRight (yoneda.map f) _⟩
+  map {X Y} f := ⟨whiskerRight (yoneda.map f) _⟩
   map_id X := by ext1; dsimp; erw [yoneda.map_id, whisker_right_id]; rfl
-  map_comp X Y Z f g := by
+  map_comp {X Y Z} f g := by
     ext1; dsimp
     erw [yoneda.map_comp, whisker_right_comp]
 
@@ -129,7 +129,7 @@ def TopCat.toCondensed (T : TopCat.{u}) : CondensedSet
 def topToCondensed : TopCat ⥤ CondensedSet
     where
   obj X := X.toCondensed
-  map X Y f := ⟨whiskerLeft _ <| whiskerRight (yoneda.map f) _⟩
+  map {X Y} f := ⟨whiskerLeft _ <| whiskerRight (yoneda.map f) _⟩
   map_id := by
     intro X
     ext1

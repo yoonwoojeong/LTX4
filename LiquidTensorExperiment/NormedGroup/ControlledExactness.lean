@@ -1,4 +1,6 @@
 import Mathlib.Analysis.Normed.Group.HomCompletion
+-- Porting note: `controlled_closure_range_of_complete` is in a separate file in mathlib4
+import Mathlib.Analysis.Normed.Group.ControlledClosure
 
 #align_import normed_group.controlled_exactness
 
@@ -32,15 +34,15 @@ theorem controlled_exactness {M M₁ M₂ : Type _} [SeminormedAddCommGroup M]
       map_zero]
   set hatf := f.completion
   set i := incl g.ker
-  have norm_j_comp_i : ∀ x, ‖to_compl.comp i x‖ = ‖x‖ :=
+  have norm_j_comp_i : ∀ x, ‖toCompl.comp i x‖ = ‖x‖ :=
     by
     intro x
     erw [NormedAddCommGroup.norm_toCompl, norm_incl]
-  have hatm_in : hatm ∈ closure ((to_compl.comp i).range : Set <| completion M) := by
+  have hatm_in : hatm ∈ closure ((toCompl.comp i).range : Set <| Completion M) := by
     rwa [← NormedAddGroupHom.ker_completion h']
   have :
     ∀ k : g.ker,
-      ∃ m' : completion M₁, hatf m' = (to_compl.comp i) k ∧ ‖m'‖ ≤ C * ‖k‖ :=
+      ∃ m' : Completion M₁, hatf m' = (toCompl.comp i) k ∧ ‖m'‖ ≤ C * ‖k‖ :=
     by
     rintro ⟨k, k_in⟩
     rcases h k k_in with ⟨m₁, hm₁, hm₁'⟩

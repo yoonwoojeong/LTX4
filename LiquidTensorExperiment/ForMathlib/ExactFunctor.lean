@@ -8,6 +8,10 @@ import LiquidTensorExperiment.ForMathlib.Derived.Defs
 
 #align_import for_mathlib.exact_functor
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace CategoryTheory
 
 universe v u u'
@@ -44,8 +48,6 @@ open CategoryTheory.Limits
 
 def Exact : Prop :=
   ∀ ⦃X Y Z : A⦄ (f : X ⟶ Y) (g : Y ⟶ Z), Exact f g → Exact (F.map f) (F.map g)
-
-noncomputable section
 
 -- Sanity check
 example : PreservesZeroMorphisms F :=

@@ -28,7 +28,7 @@ Its fields `nnn_zero, nnn_neg, nnn_add_le` assert that
 
 The class only assumes that `α` has `0, +, -`. -/
 class NnnormAddClass [Zero α] [Add α] [Neg α] : Prop where
-  nnn_zero : ‖0 : α‖₊ = 0
+  nnn_zero : ‖(0 : α)‖₊ = 0
   nnn_neg : ∀ ⦃x : α⦄, ‖-x‖₊ = ‖x‖₊
   nnn_add_le : ∀ ⦃x y : α⦄, ‖x + y‖₊ ≤ ‖x‖₊ + ‖y‖₊
 
@@ -41,7 +41,7 @@ section DefLemmas
 variable [Zero α] [Add α] [Neg α] [NnnormAddClass α]
 
 @[simp]
-theorem nnnorm_zero : ‖0 : α‖₊ = 0 :=
+theorem nnnorm_zero : ‖(0 : α)‖₊ = 0 :=
   nnn_zero
 
 @[simp]

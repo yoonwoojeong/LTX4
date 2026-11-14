@@ -28,9 +28,9 @@ variable (A)
 noncomputable def sigmaFunctor [HasCoproducts.{v} A] (α : Type v) : (α → A) ⥤ A
     where
   obj X := sigmaObj X
-  map X Y f := Sigma.desc fun a => f a ≫ Sigma.ι _ a
+  map {X Y} f := Sigma.desc fun a => f a ≫ Sigma.ι _ a
   map_id X := by ext ⟨j⟩; simp
-  map_comp X Y Z f j := by ext ⟨j⟩; simp
+  map_comp {X Y Z} f j := by ext ⟨j⟩; simp
 
 variable {A}
 
@@ -131,9 +131,9 @@ noncomputable def evalNext (A : Type u) [Category.{v} A] [Abelian A] {M : Type _
     (S : ComplexShape M) (i : M) : HomologicalComplex A S ⥤ A
     where
   obj X := X.xNext i
-  map X Y f := f.next i
+  map {X Y} f := f.next i
   map_id X := rfl
-  map_comp X Y Z f g := rfl
+  map_comp {X Y Z} f g := rfl
 
 open scoped ZeroObject
 
@@ -173,9 +173,9 @@ noncomputable def evalPrev (A : Type u) [Category.{v} A] [Abelian A] {M : Type _
     (S : ComplexShape M) (i : M) : HomologicalComplex A S ⥤ A
     where
   obj X := X.xPrev i
-  map X Y f := f.prev i
+  map {X Y} f := f.prev i
   map_id X := rfl
-  map_comp X Y Z f g := rfl
+  map_comp {X Y Z} f g := rfl
 
 noncomputable def evalPrevIso (M : Type _) (S : ComplexShape M) [Abelian A] (i : M) :
     evalPrev A S i ≅ HomologicalComplex.eval _ _ (S.prev i) :=

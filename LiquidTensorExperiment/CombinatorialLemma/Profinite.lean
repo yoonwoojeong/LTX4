@@ -111,7 +111,7 @@ def level : ℝ≥0 ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r' ⥤ Profinite.{u}
       map := fun X Y f => ⟨f.level _, f.continuous' _⟩
       map_id := fun M => by ext; rfl
       map_comp := fun M₁ M₂ M₃ f g => by ext; rfl }
-  map c₁ c₂ h :=
+  map {c₁ c₂} h :=
     { app := fun X =>
         ⟨PseudoNormedGroup.castLe' h.le,
           by
@@ -119,7 +119,7 @@ def level : ℝ≥0 ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r' ⥤ Profinite.{u}
           apply ComphausFilteredPseudoNormedGroup.continuous_castLe⟩
       naturality := fun M₁ M₂ f => by ext; rfl }
   map_id c := by ext; rfl
-  map_comp c₁ c₂ c₃ h₁₂ h₂₃ := by ext; rfl
+  map_comp {c₁ c₂ c₃} h₁₂ h₂₃ := by ext; rfl
 
 instance (c) : PreservesLimits ((level r').obj c) :=
   by
@@ -216,9 +216,9 @@ def gadgetDiagram {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrpWi
     J ⥤ Profinite.{u}
     where
   obj j := (K.obj j).gadget N c d (t ≫ ProFiltPseuNormGrpWithTinv₁.mapLvl (C.π.app _) c)
-  map i j f := ProFiltPseuNormGrpWithTinv₁.mapGadget (K.map f) _ _ _ _ _ (by rw [Category.assoc, ProFiltPseuNormGrpWithTinv₁.mapLvl_comp, Cone.w])
+  map {i j} f := ProFiltPseuNormGrpWithTinv₁.mapGadget (K.map f) _ _ _ _ _ (by rw [Category.assoc, ProFiltPseuNormGrpWithTinv₁.mapLvl_comp, Cone.w])
   map_id i := by simp only [K.map_id]; ext <;> rfl
-  map_comp i j k h₁ h₂ := by simp only [K.map_comp]; ext <;> rfl
+  map_comp {i j k} h₁ h₂ := by simp only [K.map_comp]; ext <;> rfl
 
 @[simps]
 def gadgetDiagramFstSnd {J : Type u} [SmallCategory J] {K : J ⥤ ProFiltPseuNormGrpWithTinv₁ r'}

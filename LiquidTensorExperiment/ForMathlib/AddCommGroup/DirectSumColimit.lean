@@ -6,6 +6,10 @@ open CategoryTheory
 
 open CategoryTheory.Limits
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace AddCommGroupCat
 
 universe u
@@ -13,8 +17,6 @@ universe u
 variable {J : Type u} [SmallCategory J] (F : J ⥤ AddCommGroupCat.{u})
 
 open scoped Classical
-
-noncomputable section
 
 def explicitCoconePointKernel : AddSubgroup (DirectSum J fun i => F.obj i) :=
   AddSubgroup.closure

@@ -11,5 +11,6 @@ theorem pi_induced_induced {ι : Sort _} {X Y : ι → Type _} [t : ∀ i : ι, 
   by
   dsimp [Pi.topologicalSpace]
   rw [induced_iInf]
-  simp [induced_compose]
+  simp only [induced_compose]
+  rfl
 

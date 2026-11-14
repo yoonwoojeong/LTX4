@@ -4,7 +4,7 @@ import LiquidTensorExperiment.PseudoNormedGroup.WithTinv
 import Mathlib.Topology.Connected.Basic
 import LiquidTensorExperiment.Facts.Default
 
-#align_import polyhedral_lattice.pseudoNormedGroup
+#align_import polyhedral_lattice.pseudo_normed_group
 
 /-!
 

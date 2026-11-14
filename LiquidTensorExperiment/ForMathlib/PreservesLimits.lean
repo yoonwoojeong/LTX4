@@ -3,7 +3,7 @@ import Mathlib.CategoryTheory.Limits.Preserves.Finite
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Kernels
 import LiquidTensorExperiment.ForMathlib.Homology
 
-#align_import for_mathlib.preservesLimits
+#align_import for_mathlib.preserves_limits
 
 open CategoryTheory CategoryTheory.Limits
 

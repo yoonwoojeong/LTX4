@@ -129,7 +129,7 @@ theorem nnnorm_def (F : ℤ[T⁻¹] S) :
   rfl
 
 @[simp]
-theorem coe_nnnorm (F : ℤ[T⁻¹] S) : (‖F‖₊ : ℝ) = ‖F‖ := by
+theorem coe_nnnorm (F : ℤ[T⁻¹] S) : (‖F‖(₊ : ℝ) = )‖F‖ := by
   simp only [nnnorm_def, norm_def, NNReal.coe_sum, NNReal.coe_tsum, Nonneg.coe_mul, coe_nnnorm,
     NNReal.coe_zpow]
 

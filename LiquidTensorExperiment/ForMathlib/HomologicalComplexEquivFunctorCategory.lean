@@ -120,7 +120,7 @@ theorem complexToFunctorMap_d (h : HomologicalComplex V c) {i j : WalkingComplex
 def complexToFunctor (h : HomologicalComplex V c) : WalkingComplex c ⥤ V
     where
   obj := h.X
-  map i j f := complexToFunctorMap h f
+  map {i j} f := complexToFunctorMap h f
 
 variable [DecidableRel c.Rel]
 
@@ -141,7 +141,7 @@ def complexToFunctorFunctor :
       FullSubcategory fun F : WalkingComplex c ⥤ V => ∀ i j, F.map (0 : i ⟶ j) = 0
     where
   obj X := ⟨complexToFunctor X, fun _ _ => rfl⟩
-  map X Y f := { app := f.f }
+  map {X Y} f := { app := f.f }
 
 @[simps]
 def functorToComplexFunctor :
@@ -149,7 +149,7 @@ def functorToComplexFunctor :
       HomologicalComplex V c
     where
   obj F := functorToComplex F.1 F.2
-  map F G f :=
+  map {F G} f :=
     { f := f.app
       comm' := by intro i j r; simp [dif_pos r] }
 

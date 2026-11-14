@@ -1,7 +1,7 @@
 import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
 import LiquidTensorExperiment.SystemOfComplexes.Basic
 
-#align_import SystemOfComplexes.truncate
+#align_import system_of_complexes.truncate
 
 /-!
 
@@ -61,7 +61,7 @@ def obj : CochainComplex SemiNormedGroupCat ℕ
     where
   pt := x C
   d := d C
-  shape' := d_eq_zero C
+  shape := d_eq_zero C
   d_comp_d' := d_comp_d C
 
 theorem obj_d_add_one (C : CochainComplex SemiNormedGroupCat ℕ) (i j : ℕ) :
@@ -89,9 +89,9 @@ end Truncate
 def truncate : CochainComplex SemiNormedGroupCat.{u} ℕ ⥤ CochainComplex SemiNormedGroupCat.{u} ℕ
     where
   obj C := Truncate.obj C
-  map C₁ C₂ f := Truncate.map f
+  map {C₁ C₂} f := Truncate.map f
   map_id C := by ext (n | n) ⟨x⟩ <;> rfl
-  map_comp C₁ C₂ C₃ f g := by ext (n | n) ⟨x⟩ <;> rfl
+  map_comp {C₁ C₂ C₃} f g := by ext (n | n) ⟨x⟩ <;> rfl
 
 instance truncate.additive : truncate.Additive where
   map_add' := by intros;

@@ -2,6 +2,10 @@ import Mathlib.CategoryTheory.Sites.Sheafification
 
 #align_import for_mathlib.SheafOfTypes_sheafification
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace CategoryTheory
 
 open CategoryTheory
@@ -9,8 +13,6 @@ open CategoryTheory
 universe v u
 
 variable {C : Type u} [Category.{v} C] (J : GrothendieckTopology C)
-
-noncomputable section
 
 @[simps]
 def presheafToSheafOfTypes : (Cᵒᵖ ⥤ Type max v u) ⥤ SheafOfTypes J

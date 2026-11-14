@@ -20,7 +20,7 @@ namespace SemiNormedGroupCat
 def ulift : SemiNormedGroupCat.{u} ⥤ SemiNormedGroupCat.{max u v}
     where
   obj V := of (ULift.{v} V)
-  map V W f :=
+  map {V W} f :=
     { toFun := fun v => ⟨f v.down⟩
       map_add' := by rintro ⟨x⟩ ⟨y⟩; congr; apply f.map_add'
       bound' := by obtain ⟨C, h1, h2⟩ := f.bound; refine' ⟨C, _⟩; rintro ⟨x⟩; apply h2 }

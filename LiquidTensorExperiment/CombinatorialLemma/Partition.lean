@@ -7,7 +7,7 @@ import Mathlib.Topology.Algebra.InfiniteSum.Ring
 import Mathlib.Topology.Instances.ENNReal
 import Mathlib.Topology.Algebra.Monoid
 
-#align_import CombinatorialLemma.partition
+#align_import combinatorial_lemma.partition
 
 open scoped NNReal BigOperators
 

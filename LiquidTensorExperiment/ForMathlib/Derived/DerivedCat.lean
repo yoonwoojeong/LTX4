@@ -26,17 +26,17 @@ instance : Category (BoundedDerivedCategory A)
     where
   Hom X Y := BoundedDerivedCategoryHom X Y
   id X := ⟨𝟙 X.val⟩
-  comp X Y Z f g := ⟨f.val ≫ g.val⟩
-  id_comp X Y f := by ext1; apply Category.id_comp _
-  comp_id X Y f := by ext1; apply Category.comp_id _
-  assoc X Y Z W f g h := by ext1; apply Category.assoc _ _ _
+  comp {X Y Z} f g := ⟨f.val ≫ g.val⟩
+  id_comp {X Y} f := by ext1; apply Category.id_comp _
+  comp_id {X Y} f := by ext1; apply Category.comp_id _
+  assoc {X Y Z W} f g h := by ext1; apply Category.assoc _ _ _
 
 variable (A)
 
 def forget : BoundedDerivedCategory A ⥤ BoundedHomotopyCategory A
     where
   obj X := X.val
-  map X Y f := f.val
+  map {X Y} f := f.val
 
 variable {A}
 
@@ -74,7 +74,7 @@ variable (A)
 noncomputable def localizationFunctor : BoundedHomotopyCategory A ⥤ BoundedDerivedCategory A
     where
   obj X := of <| X.replace
-  map X Y f := ⟨BoundedHomotopyCategory.lift (X.π ≫ f) Y.π⟩
+  map {X Y} f := ⟨BoundedHomotopyCategory.lift (X.π ≫ f) Y.π⟩
   map_id := by
     intro X; symm; ext1; apply BoundedHomotopyCategory.lift_unique
     dsimp; simp only [Category.id_comp, Category.comp_id]
@@ -137,9 +137,9 @@ def hasShiftFunctor (i : ℤ) : BoundedDerivedCategory A ⥤ BoundedDerivedCateg
   obj X :=
     { val := X.val⟦i⟧
       proj := by dsimp; infer_instance }
-  map X Y f := ⟨f.val⟦i⟧'⟩
+  map {X Y} f := ⟨f.val⟦i⟧'⟩
   map_id X := by ext1; dsimp; apply CategoryTheory.Functor.map_id
-  map_comp X Y Z f g := by ext1; dsimp; apply CategoryTheory.Functor.map_comp
+  map_comp {X Y Z} f g := by ext1; dsimp; apply CategoryTheory.Functor.map_comp
 
 @[simps]
 def hasShiftFunctorForget (m : ℤ) :
@@ -237,9 +237,9 @@ variable {A}
 def lift {C : Type _} [Category C] (F : BoundedHomotopyCategory A ⥤ C) :
     BoundedDerivedCategory A ⥤ C where
   obj X := F.obj X.val
-  map X Y f := F.map f.val
+  map {X Y} f := F.map f.val
   map_id X := F.map_id _
-  map_comp X Y Z f g := F.map_comp _ _
+  map_comp {X Y Z} f g := F.map_comp _ _
 
 noncomputable def localizeLift {C : Type _} [Category C] (F : BoundedHomotopyCategory A ⥤ C)
     [∀ (X Y : BoundedHomotopyCategory A) (f : X ⟶ Y) [h : IsQuasiIso f], IsIso (F.map f)] :
@@ -328,9 +328,9 @@ noncomputable def replaceTriangle' :
     triangle (BoundedHomotopyCategory A) ⥤ triangle (BoundedDerivedCategory A)
     where
   obj := replaceTriangle
-  map S T f := replaceTriangleMap f
+  map {S T} f := replaceTriangleMap f
   map_id := replaceTriangleMap_id
-  map_comp X Y Z f g := replaceTriangleMap_comp f g
+  map_comp {X Y Z} f g := replaceTriangleMap_comp f g
 
 attribute [simps obj_obj₁ obj_obj₂ obj_obj₃ obj_mor₁ obj_mor₂ obj_mor₃] BoundedDerivedCategory.replaceTriangle'
 

@@ -54,10 +54,10 @@ section StdFltLemmas
 variable (α : Type _) [NNNorm α]
 
 theorem std_flt_mono ⦃c d : ℝ≥0⦄ (cd : c ≤ d) :
-    {z : α | ‖z‖₊ ≤ c} ⊆ {z : α | ‖z‖₊ ≤ d} := fun x (hx : ‖x‖₊ ≤ c) =>
+    {z : α | ‖z‖(₊ ≤ c} ⊆ {z : α | )‖z‖₊ ≤ d} := fun x (hx : ‖x‖₊ ≤ c) =>
   hx.trans cd
 
-theorem std_flt_zero_mem [Zero α] (n0 : ‖0 : α‖₊ = 0) (c : ℝ≥0) :
+theorem std_flt_zero_mem [Zero α] (n0 : ‖(0 : α)‖₊ = 0) (c : ℝ≥0) :
     (0 : α) ∈ {z : α | ‖z‖₊ ≤ c} := by simp only [n0, Set.mem_setOf_eq, zero_le']
 
 theorem std_flt_neg_mem [Neg α] (nn : ∀ {x : α}, ‖-x‖₊ = ‖x‖₊) ⦃c : ℝ≥0⦄ ⦃x : α⦄
@@ -105,7 +105,7 @@ instance (r : ℝ≥0) : NNNorm r.Normed :=
   ⟨fun F => ∑ x in F.support, ‖F x‖₊ * r⁻¹ ^ x⟩
 
 @[simp]
-theorem nnnorm_zero : ‖0 : r.Normed‖₊ = 0 := by
+theorem nnnorm_zero : ‖(0 : r.Normed)‖₊ = 0 := by
   simp only [NNNorm.nnnorm, support_zero, sum_empty]
 
 @[simp]

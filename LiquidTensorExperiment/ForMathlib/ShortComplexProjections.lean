@@ -15,17 +15,17 @@ variable {C : Type _} [Category C] [HasZeroMorphisms C]
 @[simps]
 def π₁ : ShortComplex C ⥤ C where
   obj S := S.1.pt
-  map S₁ S₂ f := f.τ₁
+  map {S₁ S₂} f := f.τ₁
 
 @[simps]
 def π₂ : ShortComplex C ⥤ C where
   obj S := S.1.y
-  map S₁ S₂ f := f.τ₂
+  map {S₁ S₂} f := f.τ₂
 
 @[simps]
 def π₃ : ShortComplex C ⥤ C where
   obj S := S.1.z
-  map S₁ S₂ f := f.τ₃
+  map {S₁ S₂} f := f.τ₃
 
 @[simps]
 def φ₁₂ : (π₁ : ShortComplex C ⥤ C) ⟶ π₂

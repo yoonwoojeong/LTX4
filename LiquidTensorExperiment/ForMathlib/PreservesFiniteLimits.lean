@@ -2,7 +2,7 @@ import LiquidTensorExperiment.ForMathlib.SplitExact
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Biproducts
 import Mathlib.CategoryTheory.Limits.Constructions.FiniteProductsOfBinaryProducts
 
-#align_import for_mathlib.preservesFiniteLimits
+#align_import for_mathlib.preserves_finite_limits
 
 noncomputable section
 

@@ -2,7 +2,7 @@ import Mathlib.Analysis.NormedSpace.lpSpace
 import Mathlib.Topology.Instances.Real
 import LiquidTensorExperiment.Banach
 
-#align_import PBanachCat.lp
+#align_import pBanach.lp
 
 open scoped NNReal BigOperators uniformity TopologicalSpace
 

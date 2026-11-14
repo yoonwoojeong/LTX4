@@ -32,7 +32,7 @@ instance : Category PseuNormGrp₁.{u}
     where
   Hom A B := StrictPseudoNormedGroupHom A B
   id A := StrictPseudoNormedGroupHom.id A
-  comp A B C f g := f.comp g
+  comp {A B C} f g := f.comp g
 
 @[simp]
 theorem id_apply (M : PseuNormGrp₁) (x : M) : (𝟙 M : M ⟶ M) x = x :=
@@ -45,7 +45,7 @@ theorem comp_apply {A B C : PseuNormGrp₁} (f : A ⟶ B) (g : B ⟶ C) (a : A) 
 def toAb : PseuNormGrp₁.{u} ⥤ Ab.{u}
     where
   obj M := AddCommGroupCat.of M
-  map M N f := f.toAddMonoidHom
+  map {M N} f := f.toAddMonoidHom
 
 variable {K : J ⥤ PseuNormGrp₁.{u}}
 
@@ -219,7 +219,7 @@ def level : NNReal ⥤ PseuNormGrp₁.{u} ⥤ Type u
       map := fun X Y f => f.level _
       map_id := fun M => StrictPseudoNormedGroupHom.level_id M _
       map_comp := fun M N L f g => f.level_comp g c }
-  map c₁ c₂ h := { app := fun M => PseudoNormedGroup.castLe' h.le }
+  map {c₁ c₂} h := { app := fun M => PseudoNormedGroup.castLe' h.le }
 
 theorem level_map {X Y : PseuNormGrp₁} (f : X ⟶ Y) (c) : (level.obj c).map f = f.level _ :=
   rfl
@@ -325,7 +325,7 @@ def toPNG₁ : CompHausFiltPseuNormGrp₁.{u} ⥤ PseuNormGrp₁.{u}
   obj M :=
     { carrier := M
       exhaustive' := M.exhaustive }
-  map X Y f := { f.toAddMonoidHom with strict' := fun c x h => f.Strict h }
+  map {X Y} f := { f.toAddMonoidHom with strict' := fun c x h => f.Strict h }
 
 instance : Faithful toPNG₁.{u} :=
   Faithful.mk <| by
@@ -583,7 +583,7 @@ def toPNG₁ : ProFiltPseuNormGrp₁.{u} ⥤ PseuNormGrp₁.{u}
   obj M :=
     { carrier := M
       exhaustive' := M.exhaustive }
-  map X Y f := { f.toAddMonoidHom with strict' := fun c x h => f.Strict h }
+  map {X Y} f := { f.toAddMonoidHom with strict' := fun c x h => f.Strict h }
 
 instance : Faithful toPNG₁.{u} :=
   Faithful.mk <| by

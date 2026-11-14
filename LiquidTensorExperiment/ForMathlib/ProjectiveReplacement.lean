@@ -110,7 +110,7 @@ noncomputable def replacement : CochainComplex V ℤ
               all_goals linarith) ≫
           (replacementAux X a H ((a - j).natAbs + 1)).fst.hom ≫ eqToHom (dif_neg h₂).symm
     else 0
-  shape' _ _ e := dif_neg e
+  shape _ _ e := dif_neg e
   d_comp_d' := by
     rintro i j k (rfl : i + 1 = j) (rfl : i + 1 + 1 = k)
     simp only [dif_pos, dif_ctx_congr]
@@ -615,7 +615,7 @@ def CochainComplex.asNatChainComplex (X : CochainComplex V ℤ) (a : ℤ) : Chai
     where
   pt i := X.pt (a - i)
   d i j := X.d _ _
-  shape' i j r := by
+  shape i j r := by
     refine' X.shape _ _ fun e => r _; dsimp at e ⊢
     apply Int.ofNat.inj; push_cast; linarith
   d_comp_d' i j k _ _ := X.d_comp_d _ _ _
@@ -624,7 +624,7 @@ def CochainComplex.asNatChainComplex (X : CochainComplex V ℤ) (a : ℤ) : Chai
 def CochainComplex.toNatChainComplex (a : ℤ) : CochainComplex V ℤ ⥤ ChainComplex V ℕ
     where
   obj X := X.asNatChainComplex a
-  map X Y f := { f := fun i => f.f _ }
+  map {X Y} f := { f := fun i => f.f _ }
 
 theorem isZero_iff_iso_zero (X : V) : IsZero X ↔ Nonempty (X ≅ 0) :=
   ⟨fun e => ⟨e.isoZero⟩, fun ⟨e⟩ => isZero_of_iso_of_zero (isZero_zero _) e.symm⟩

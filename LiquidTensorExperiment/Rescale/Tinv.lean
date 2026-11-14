@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.PseudoNormedGroup.Tinv
 import LiquidTensorExperiment.Rescale.CLC
 
-#align_import Rescale.tinv
+#align_import rescale.Tinv
 
 open scoped Classical NNReal
 

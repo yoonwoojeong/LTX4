@@ -49,7 +49,7 @@ protected theorem nnnorm_def (f : NormedFreePfpng p S) :
   rfl
 
 @[simp]
-theorem nnnorm_zero [Fact (0 < p)] : ‖0 : NormedFreePfpng p S‖₊ = 0 :=
+theorem nnnorm_zero [Fact (0 < p)] : ‖(0 : NormedFreePfpng p S)‖₊ = 0 :=
   by
   change ∑ _, _ = _;
   simp only [Pi.zero_apply, nnnorm_zero, Finset.sum_const, nsmul_eq_mul, mul_eq_zero,
@@ -215,9 +215,9 @@ def normedFreePfpngFunctor : FintypeCat ⥤ ProFiltPseuNormGrp₁
   obj S :=
     { M := NormedFreePfpng p S
       exhaustive' := fun f => ⟨‖f‖₊, le_refl _⟩ }
-  map S₁ S₂ f := NormedFreePfpng.map p f
+  map {S₁ S₂} f := NormedFreePfpng.map p f
   map_id S := NormedFreePfpng.map_id p S
-  map_comp _ _ _ g₁ g₂ := NormedFreePfpng.map_comp p g₁ g₂
+  map_comp {_ _ _} g₁ g₂ := NormedFreePfpng.map_comp p g₁ g₂
 
 def FintypeCat.normedFreePfpng (T : FintypeCat) : ProFiltPseuNormGrp₁ :=
   (normedFreePfpngFunctor p).obj T

@@ -27,7 +27,7 @@ open ProFiltPseuNormGrpWithTinv₁
 def fintypeInvpoly : FintypeCat.{u} ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r
     where
   obj S := ⟨Invpoly r S, fun F => ⟨‖F‖₊, le_rfl⟩⟩
-  map S T f := mapHom f
+  map {S T} f := mapHom f
   map_id S := by ext1; simp only [map_hom, map_id]; rfl
-  map_comp S S' S'' f g := by ext1; simp only [map_hom, map_comp]; rfl
+  map_comp {S S' S''} f g := by ext1; simp only [map_hom, map_comp]; rfl
 

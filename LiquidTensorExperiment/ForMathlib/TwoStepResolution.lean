@@ -60,7 +60,7 @@ def twoStepResolution : ChainComplex (ModuleCat.{max v u} R) ℕ
     where
   pt := twoStepResolutionX R M
   d := twoStepResolutionD R M
-  shape' := by
+  shape := by
     simp
     rintro i j hij
     by_cases h : i = 1 ∧ j = 0
@@ -100,7 +100,7 @@ def twoStepResolutionAb (M : Type v) [AddCommGroup M] : ChainComplex AddCommGrou
     where
   pt := twoStepResolutionAbX M
   d := twoStepResolutionAbD M
-  shape' := by
+  shape := by
     simp
     rintro i j hij
     by_cases h : i = 1 ∧ j = 0

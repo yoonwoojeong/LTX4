@@ -51,7 +51,7 @@ def fintypeLbar : FintypeCat ⥤ ProFiltPseuNormGrpWithTinv₁ r'
   obj S :=
     { M := Lbar r' S
       exhaustive' := fun x => ⟨‖x‖₊, by rw [Lbar.mem_filtration_iff]⟩ }
-  map S₁ S₂ f :=
+  map {S₁ S₂} f :=
     { toFun := map f
       map_zero' := map_zero r' f
       map_add' := map_add r' f

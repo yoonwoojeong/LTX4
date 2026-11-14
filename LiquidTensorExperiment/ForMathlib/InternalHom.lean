@@ -2,7 +2,7 @@ import Mathlib.CategoryTheory.Closed.Monoidal
 import Mathlib.CategoryTheory.Monoidal.Braided
 import Mathlib.Tactic
 
-#align_import for_mathlib.internalHom
+#align_import for_mathlib.internal_hom
 
 namespace CategoryTheory.Monoidal
 
@@ -126,7 +126,7 @@ def internalHomFunctor : Cᵒᵖ ⥤ C ⥤ C
   obj X :=
     { obj := fun Y => internalHom X.unop Y
       map := fun Y₁ Y₂ => internalHomPostcompose _ }
-  map X₁ X₂ f := { app := fun Y => internalHomPrecompose f.unop _ }
+  map {X₁ X₂} f := { app := fun Y => internalHomPrecompose f.unop _ }
 
 end CategoryTheory.Monoidal
 

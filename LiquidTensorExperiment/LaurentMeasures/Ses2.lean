@@ -69,7 +69,7 @@ theorem psi_bound (S : FintypeCat) (c' : ℝ≥0) ⦃F : LaurentMeasures r S⦄ 
                   (F s (n - 1 - l) : ℝ) * 2 ^ l)
                 0)‖₊ *
             r ^ n ≤
-        (2 - r⁻¹)⁻¹ * ∑' n, ‖F s n : ℝ‖₊ * r ^ n :=
+        (2 - r⁻¹)⁻¹ * ∑' n, ‖(F s n : ℝ)‖₊ * r ^ n :=
     fun s => by
     convert
       PsiAuxLemma.key_tsum_lemma (fun n => (F s n : ℝ)) r r_lt_one half_lt_r F.d

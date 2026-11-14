@@ -26,7 +26,7 @@ variable {F : Cᵒᵖ ⥤ Ab.{u + 1}} {G : Sheaf J Ab.{u + 1}}
 def kernelForkPoint (η : F ⟶ G.val) : Cᵒᵖ ⥤ Ab.{u + 1}
     where
   obj X := AddCommGroupCat.of (η.app X).ker
-  map X Y f :=
+  map {X Y} f :=
     { toFun := fun t =>
         ⟨F.map f t.1, by
           change (_ ≫ η.app Y) _ = 0; rw [NatTrans.naturality]
@@ -35,7 +35,7 @@ def kernelForkPoint (η : F ⟶ G.val) : Cᵒᵖ ⥤ Ab.{u + 1}
       map_zero' := by ext; apply AddMonoidHom.map_zero
       map_add' := by intros; ext; apply AddMonoidHom.map_add }
   map_id X := by ext; simp
-  map_comp X Y Z f g := by ext; simp
+  map_comp {X Y Z} f g := by ext; simp
 
 @[simps]
 def kernelForkι (η : F ⟶ G.val) : kernelForkPoint J η ⟶ F

@@ -9,7 +9,7 @@ import LiquidTensorExperiment.Thm95.DoubleComplex
 import LiquidTensorExperiment.Thm95.ColExactPrep
 import LiquidTensorExperiment.Thm95.PfpngIso
 
-#align_import Thm95.colExact
+#align_import thm95.col_exact
 
 noncomputable section
 

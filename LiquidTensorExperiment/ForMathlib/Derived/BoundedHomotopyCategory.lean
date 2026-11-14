@@ -29,10 +29,10 @@ instance : Category (BoundedHomotopyCategory A)
     where
   Hom X Y := X.val ⟶ Y.val
   id X := 𝟙 X.val
-  comp X Y Z f g := f ≫ g
-  id_comp _ _ _ := Category.id_comp _
-  comp_id _ _ _ := Category.comp_id _
-  assoc _ _ _ _ _ _ _ := Category.assoc _ _ _
+  comp {X Y Z} f g := f ≫ g
+  id_comp {_ _} _ := Category.id_comp _
+  comp_id {_ _} _ := Category.comp_id _
+  assoc {_ _ _ _} _ _ _ := Category.assoc _ _ _
 
 attribute [local instance] HasZeroObject.zero'
 
@@ -239,9 +239,9 @@ def single (i : ℤ) : A ⥤ BoundedHomotopyCategory A
         erw [if_neg]
         · apply Limits.isZero_zero
         · exact ((i.lt_iff_add_one_le j).mpr hj).ne' }
-  map X Y f := (HomotopyCategory.single A i).map f
+  map {X Y} f := (HomotopyCategory.single A i).map f
   map_id X := (HomotopyCategory.single A i).map_id _
-  map_comp X Y Z f g := (HomotopyCategory.single A i).map_comp f g
+  map_comp {X Y Z} f g := (HomotopyCategory.single A i).map_comp f g
 
 def forget : BoundedHomotopyCategory A ⥤ HomotopyCategory A (ComplexShape.up ℤ)
     where
@@ -315,9 +315,9 @@ instance isBoundedAboveMapHomotopyCategoryObj (X : BoundedHomotopyCategory A) :
 def mapBoundedHomotopyCategory : BoundedHomotopyCategory A ⥤ BoundedHomotopyCategory B
     where
   obj X := BoundedHomotopyCategory.of <| (F.mapHomotopyCategory _).obj X.val
-  map X Y f := (F.mapHomotopyCategory _).map f
+  map {X Y} f := (F.mapHomotopyCategory _).map f
   map_id X := (F.mapHomotopyCategory _).map_id _
-  map_comp X Y Z f g := (F.mapHomotopyCategory _).map_comp _ _
+  map_comp {X Y Z} f g := (F.mapHomotopyCategory _).map_comp _ _
 
 end CategoryTheory.Functor
 

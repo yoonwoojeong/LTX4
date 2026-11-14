@@ -25,7 +25,7 @@ def fintypeArrowDiagram : DiscreteQuotient F.left ⥤ Arrow FintypeCat.{u}
     { left := FintypeCat.of S
       right := FintypeCat.of <| S.make F.Hom surj
       hom := DiscreteQuotient.map (S.makeLeComap _ _) }
-  map S T f :=
+  map {S T} f :=
     { left := ofLE <| leOfHom f
       right := ofLE <| make_right_mono F.Hom surj S T <| leOfHom f }
 

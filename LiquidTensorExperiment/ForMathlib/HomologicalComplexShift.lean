@@ -143,13 +143,16 @@ def homotopyShift {X Y : CochainComplex V ℤ} {f g : X ⟶ Y} (h : Homotopy f g
   hom i j := n.negOnePow • h.hom _ _
   zero i j r := by rw [← ComplexShape.up_add_right_cancel n] at r ; simp [h.zero _ _ r]
   comm i := by
+    -- Porting note: reproved using `dNext_eq` and `prevD_eq` (the `delta` approach of Lean 3 does not work)
     dsimp
     rw [h.comm (i + n)]
     have e1 : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
-    have e2 : (ComplexShape.up ℤ).Rel (i + n) (i + n + 1) := rfl
+    have e2 : (ComplexShape.up ℤ).Rel (i + n) (i + 1 + n) := by dsimp; ring
     have e3 : (ComplexShape.up ℤ).Rel (i - 1) i := by dsimp; ring
-    have e4 : (ComplexShape.up ℤ).Rel (i + n - 1) (i + n) := by dsimp; ring
-    rw [dNext_eq _ e1, dNext_eq _ e2, prevD_eq _ e3, prevD_eq _ e4]
+    have e4 : (ComplexShape.up ℤ).Rel (i - 1 + n) (i + n) := by dsimp; ring
+    rw [dNext_eq _ e2, prevD_eq _ e4]
+    -- Porting note: `erw` is needed to see through the shifted complex
+    erw [dNext_eq _ e1, prevD_eq _ e3]
     simp [smul_smul]
 
 variable (V)
@@ -183,7 +186,7 @@ def HomotopyCategory.shiftFunctorAdd (n m : ℤ) :
   · rintro ⟨X⟩
     refine' (HomotopyCategory.quotient _ _).mapIso (Hom.isoOfComponents _ _)
     exact fun i => X.xEqToIso (by rw [add_comm n m, add_assoc])
-    · introv r; dsimp [HomotopyCategory.shiftFunctor]; simp [smul_smul, mul_comm]
+    · introv r; dsimp [HomotopyCategory.shiftFunctor, CategoryTheory.Quotient.lift]; simp [smul_smul, mul_comm, HomotopyCategory.quotient_obj_as]
   · rintro ⟨X⟩ ⟨Y⟩ f; dsimp
     rw [← HomotopyCategory.quotient_map_out f]
     erw [Quotient.lift_map_functor_map]
@@ -204,7 +207,10 @@ theorem HomotopyCategory.shiftFunctor_map_quotient (n : ℤ) {X Y : CochainCompl
 
 theorem quotient_eqToHom {X Y : HomotopyCategory V (ComplexShape.up ℤ)} (h : X = Y) :
     eqToHom h = (HomotopyCategory.quotient V (ComplexShape.up ℤ)).map (eqToHom (by rw [h])) := by
-  subst h; simpa
+  subst h
+  simp
+  -- Porting note: the remaining goal holds by eta for structures
+  rfl
 
 theorem HomotopyCategory.has_shift_associativity_aux :
     ∀ (m₁ m₂ m₃ : ℤ) (X : HomotopyCategory V (ComplexShape.up ℤ)),
@@ -250,13 +256,33 @@ instance HomotopyCategory.hasShift : HasShift (HomotopyCategory V (ComplexShape.
       add := fun n m => (HomotopyCategory.shiftFunctorAdd V n m).symm
       assoc_hom_app := fun m₁ m₂ m₃ X => by
         have h := HomotopyCategory.has_shift_associativity_aux V m₁ m₂ m₃ X
-        simpa using h.symm
+        have h2 : (HomotopyCategory.shiftFunctor V m₃).map
+            ((HomotopyCategory.shiftFunctorAdd V m₁ m₂).hom.app X) ≫
+              (HomotopyCategory.shiftFunctorAdd V (m₁ + m₂) m₃).hom.app X =
+            (HomotopyCategory.shiftFunctorAdd V m₂ m₃).hom.app
+                ((HomotopyCategory.shiftFunctor V m₁).obj X) ≫
+              (HomotopyCategory.shiftFunctorAdd V m₁ (m₂ + m₃)).hom.app X ≫
+                eqToHom (by rw [add_assoc]) := by
+          rw [← Category.assoc, ← h]
+          simp
+        rw [← cancel_epi ((HomotopyCategory.shiftFunctor V m₃).map
+            ((HomotopyCategory.shiftFunctorAdd V m₁ m₂).hom.app X) ≫
+              (HomotopyCategory.shiftFunctorAdd V (m₁ + m₂) m₃).hom.app X)]
+        conv_rhs => rw [h2]
+        simp only [Iso.symm_hom, Category.assoc, Iso.hom_inv_id_app_assoc, eqToHom_trans_assoc,
+          eqToHom_refl, Category.id_comp, Iso.hom_inv_id_app]
+        rw [← Functor.map_comp, Iso.hom_inv_id_app]
+        exact CategoryTheory.Functor.map_id _ _
       zero_add_hom_app := fun n X => by
         have h := HomotopyCategory.has_shift_left_unitality_aux V n X
-        simpa using h
+        simp only [Iso.symm_hom, Iso.symm_inv]
+        rw [← cancel_mono ((HomotopyCategory.shiftFunctorAdd V 0 n).hom.app X),
+          Iso.inv_hom_id_app, Category.assoc, h, eqToHom_trans, eqToHom_refl]
       add_zero_hom_app := fun n X => by
         have h := HomotopyCategory.has_shift_right_unitality_aux V n X
-        simpa using h }
+        simp only [Iso.symm_hom, Iso.symm_inv]
+        rw [← cancel_mono ((HomotopyCategory.shiftFunctorAdd V n 0).hom.app X),
+          Iso.inv_hom_id_app, Category.assoc, h, eqToHom_trans, eqToHom_refl] }
 
 @[simp]
 theorem HomotopyCategory.quotient_obj_shift (X : CochainComplex V ℤ) (n : ℤ) :
@@ -305,7 +331,8 @@ theorem shift_μ_inv_app (i j : ℤ) (X : CochainComplex V ℤ) :
     μ_inv_hom_app, shift_μ_app, ← Functor.map_comp, μ_inv_hom_app]
   rfl
 
-attribute [local reducible] Discrete.addMonoidal
+-- Porting note: `reducible` cannot be a `local` attribute in Lean 4
+-- attribute [local reducible] Discrete.addMonoidal
 
 @[simp]
 theorem shift_μ_hom_app_f (A : CochainComplex V ℤ) (i j k : ℤ) :
@@ -320,7 +347,9 @@ theorem shift_μ_inv_app_f (A : CochainComplex V ℤ) (i j k : ℤ) :
   generalize_proofs h
   rw [← cancel_epi (A.xEqToIso h.symm).hom]
   conv_lhs => rw [← shift_μ_hom_app_f, ← comp_f]
-  simpa [-comp_f]
+  simp [-comp_f]
+  -- Porting note: remaining goal is closed by `rfl`
+  rfl
 
 @[simp]
 theorem shift_ε_hom_app_f (A : CochainComplex V ℤ) (i : ℤ) :
@@ -331,11 +360,12 @@ theorem shift_ε_hom_app_f (A : CochainComplex V ℤ) (i : ℤ) :
 theorem shift_ε_inv_app_f (A : CochainComplex V ℤ) (i : ℤ) :
     Hom.f ((shiftMonoidalFunctor _ ℤ).εIso.inv.app A) i = (A.xEqToIso <| by dsimp; ring).hom :=
   by
-  have : epi (Hom.f ((CategoryTheory.shiftMonoidalFunctor _ ℤ).ε.app A) i) := by rw [shift_ε_hom_app_f];
+  have : Epi (Hom.f ((CategoryTheory.shiftMonoidalFunctor _ ℤ).ε.app A) i) := by
+    rw [shift_ε_hom_app_f]
     infer_instance
   rw [← cancel_epi (Hom.f ((CategoryTheory.shiftMonoidalFunctor _ ℤ).ε.app A) i), ← comp_f,
     CategoryTheory.ε_hom_inv_app, HomologicalComplex.id_f]
-  dsimp; simpa
+  dsimp; simp
 
 open CategoryTheory.Abelian
 
@@ -345,8 +375,8 @@ noncomputable def homologyShiftObjIso (X : CochainComplex A ℤ) (i j : ℤ) :
     (homology'Functor _ _ j).obj (X⟦i⟧) ≅ (homology'Functor _ _ (j + i)).obj X :=
   by
   refine'
-    homology_iso _ (j - 1) j (j + 1) _ _ ≪≫
-      _ ≪≫ (homology_iso _ (j - 1 + i) (j + i) (j + 1 + i) _ _).symm
+    homologyIso _ (j - 1) j (j + 1) _ _ ≪≫
+      _ ≪≫ (homologyIso _ (j - 1 + i) (j + i) (j + 1 + i) _ _).symm
   · simp
   · simp
   ·
@@ -390,8 +420,10 @@ noncomputable def homologyShiftIso (i j : ℤ) :
   NatIso.ofComponents (fun X => homologyShiftObjIso X i j : _)
     (by
       intro X Y f
-      ext
-      dsimp [HomologicalComplex.homologyShiftObjIso, homology_iso, homology'.mapIso]
+      -- Porting note: Lean 3's recursive `ext` replaced by explicit ext lemmas
+      apply homology'.hom_from_ext
+      apply homology'.hom_to_ext
+      dsimp [HomologicalComplex.homologyShiftObjIso, homologyIso, homology'.mapIso]
       simp)
 
 end HomologicalComplex

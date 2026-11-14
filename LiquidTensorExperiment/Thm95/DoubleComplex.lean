@@ -8,7 +8,7 @@ import LiquidTensorExperiment.NormedSpectral
 import LiquidTensorExperiment.Thm95.ModifyComplex
 import LiquidTensorExperiment.Thm95.PolyhedralIso
 
-#align_import Thm95.doubleComplex
+#align_import thm95.double_complex
 
 /-!
 # The double complex that is the protagonist in the proof of Theorem 9.5

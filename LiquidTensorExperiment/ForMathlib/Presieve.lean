@@ -8,6 +8,10 @@ universe w v u v' u'
 
 variable {C : Type u} [Category.{v} C]
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace CategoryTheory.Presieve
 
 theorem mem_ofArrows_iff {ι} {B Y} (X : ι → C) (f : ∀ i, X i ⟶ B) (g : Y ⟶ B) :
@@ -19,8 +23,6 @@ theorem mem_ofArrows_iff {ι} {B Y} (X : ι → C) (f : ∀ i, X i ⟶ B) (g : Y
     simp
   · rintro ⟨i, rfl, rfl⟩
     simp [ofArrows.mk i]
-
-noncomputable section
 
 def indexOfArrows {ι} {B Y} {X : ι → C} {f : ∀ i, X i ⟶ B} {g : Y ⟶ B} (h : ofArrows X f g) : ι :=
   ((mem_ofArrows_iff X f g).mp h).some

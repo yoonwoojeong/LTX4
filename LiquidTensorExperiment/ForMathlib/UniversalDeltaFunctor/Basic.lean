@@ -138,10 +138,10 @@ instance Effacement.category (F : A ⥤δ B) (X : A) (n : ℕ) : Category (Effac
     where
   Hom e₁ e₂ := e₁.hom _ _ _ e₂
   id e := ⟨𝟙 _, Category.comp_id _⟩
-  comp a b c f g := ⟨f.t ≫ g.t, by simp [reassoc_of f.w, g.w]⟩
-  id_comp a b f := Effacement.Hom.ext _ _ <| Category.id_comp _
-  comp_id a b f := Effacement.Hom.ext _ _ <| Category.comp_id _
-  assoc a b c d f g h := Effacement.Hom.ext _ _ <| Category.assoc _ _ _
+  comp {a b c} f g := ⟨f.t ≫ g.t, by simp [reassoc_of f.w, g.w]⟩
+  id_comp {a b} f := Effacement.Hom.ext _ _ <| Category.id_comp _
+  comp_id {a b} f := Effacement.Hom.ext _ _ <| Category.comp_id _
+  assoc {a b c d} f g h := Effacement.Hom.ext _ _ <| Category.assoc _ _ _
 
 instance effacement_mono (F : A ⥤δ B) (X : A) (n : ℕ) (e : Effacement F X n) :
     CategoryTheory.Mono e.ι :=

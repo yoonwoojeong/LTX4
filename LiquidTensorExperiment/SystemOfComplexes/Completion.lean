@@ -2,7 +2,7 @@ import Mathlib.Analysis.SpecificLimits.Basic
 import LiquidTensorExperiment.SystemOfComplexes.Basic
 import LiquidTensorExperiment.LocallyConstant.Vhat
 
-#align_import SystemOfComplexes.completion
+#align_import system_of_complexes.completion
 
 /-!
 

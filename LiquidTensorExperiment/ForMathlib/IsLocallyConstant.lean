@@ -3,7 +3,7 @@ import Mathlib.Topology.LocallyConstant.Basic
 import Mathlib.Topology.DiscreteQuotient
 import Mathlib.Data.Setoid.Partition
 
-#align_import for_mathlib.isLocallyConstant
+#align_import for_mathlib.is_locally_constant
 
 noncomputable section
 
@@ -32,10 +32,12 @@ def IndexedPartition.discreteQuotient {ι : Type _} {s : ι → Set X} (h_part :
     (h_cl : ∀ i, IsClopen <| s i) : DiscreteQuotient X
     where
   toSetoid := h_part.setoid
-  clopen := by
+  -- Porting note: the Lean 3 field `clopen` is `isOpen_setOf_rel` in mathlib4 (only openness is
+  -- required).
+  isOpen_setOf_rel := by
     intro x
     rw [h_part.class_of]
-    apply h_cl
+    exact (h_cl _).1
 
 variable {ι : Type _} {s : ι → Set X} (h_cl : ∀ i, IsClopen <| s i) (h_part : IndexedPartition s)
 

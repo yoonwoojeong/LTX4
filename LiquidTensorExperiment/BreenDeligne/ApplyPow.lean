@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.BreenDeligne.Eval1half
 import LiquidTensorExperiment.ForMathlib.NatIsoMapHomologicalComplex
 
-#align_import breen_deligne.applyPow
+#align_import breen_deligne.apply_Pow
 
 noncomputable section
 

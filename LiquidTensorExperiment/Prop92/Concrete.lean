@@ -223,7 +223,7 @@ theorem LocallyConstant.norm_const [h : Nonempty X] (g : G) :
     LocallyConstant.coe_mk]
 
 @[simp]
-theorem LocallyConstant.norm_zero : ‖0 : LocallyConstant X G‖ = 0 := by
+theorem LocallyConstant.norm_zero : ‖(0 : LocallyConstant X G)‖ = 0 := by
   simp only [LocallyConstant.norm_def, norm_zero, Real.iSup_zero, LocallyConstant.zero_apply]
 
 @[simp]
@@ -289,7 +289,7 @@ theorem Embedding.norm_extend (f : LocallyConstant X G) :
   · rw [f.norm_of_isEmpty]
     dsimp [Embedding.locallyConstantExtend, Embedding.extend]
     have hX : ¬Nonempty X := by rwa [not_nonempty_iff]
-    suffices (⨆ y : Y, ‖0 : G‖) = 0 by
+    suffices (⨆ y : Y, ‖(0 : G)‖) = 0 by
       simpa only [hX, dif_neg, not_false_iff, and_false_iff]
     simp only [norm_zero, Real.iSup_zero]
   · change (⨆ y : Y, _) = ⨆ x : X, _

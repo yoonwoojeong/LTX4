@@ -13,13 +13,15 @@ open CategoryTheory.Limits
 
 open Opposite
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace Condensed
 
 universe u
 
 variable (F : AsSmall.{u + 1} ℕ ⥤ Condensed.{u} Ab.{u + 1})
-
-noncomputable section
 
 def coproductToColimit : ∐ F.obj ⟶ colimit F :=
   Sigma.desc fun i => colimit.ι _ i

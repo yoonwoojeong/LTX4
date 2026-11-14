@@ -75,12 +75,12 @@ def homFunctor : ProFiltPseuNormGrpWithTinv₁.{u} r ⥤ ProFiltPseuNormGrpWithT
     { M := Λ →+ M
       str := inferInstance
       exhaustive' := by apply polyhedral_exhaustive; apply M.exhaustive r }
-  map M N f := polyhedralPostcompose _ _ f
+  map {M N} f := polyhedralPostcompose _ _ f
   map_id M := by
     ext
     dsimp [polyhedralPostcompose]
     simp
-  map_comp M N L f g := by
+  map_comp {M N L} f g := by
     ext
     dsimp [polyhedralPostcompose]
     simp
@@ -107,9 +107,9 @@ def homFunctor' : PseuNormGrp₁.{u} ⥤ PseuNormGrp₁.{u}
   obj M :=
     { carrier := Λ →+ M
       exhaustive' := by apply polyhedral_exhaustive; apply M.exhaustive }
-  map M N f := polyhedralPostcompose' _ f
+  map {M N} f := polyhedralPostcompose' _ f
   map_id X := by ext; rfl
-  map_comp X Y Z f g := by ext; rfl
+  map_comp {X Y Z} f g := by ext; rfl
 
 open CategoryTheory.Limits PseuNormGrp₁
 
@@ -259,7 +259,7 @@ def ProFiltPseuNormGrpWithTinv₁.toPNG₁ : ProFiltPseuNormGrpWithTinv₁ r ⥤
   obj M :=
     { carrier := M
       exhaustive' := M.exhaustive r }
-  map X Y f := { f.toAddMonoidHom with strict' := fun c x h => f.Strict h }
+  map {X Y} f := { f.toAddMonoidHom with strict' := fun c x h => f.Strict h }
 
 def dropProfiniteDropTinv :
     pFPNGT₁ToPFPNG₁ₑₗ r ⋙ ProFiltPseuNormGrp₁.toPNG₁ ≅ ProFiltPseuNormGrpWithTinv₁.toPNG₁ r :=

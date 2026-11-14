@@ -244,7 +244,7 @@ def Embed.obj (X : HomologicalComplex 𝒞 cι) : HomologicalComplex 𝒞 cι'
     where
   pt i := Embed.x X (e.R i)
   d i j := Embed.d X (e.R i) (e.R j)
-  shape' i j hij :=
+  shape i j hij :=
     Embed.shape X _ _
       (by
         simp only [e.eq_some]
@@ -303,7 +303,7 @@ of `𝒞`-valued homological complexes of shape `ι₁` along an embedding `ι�
 def embed : HomologicalComplex 𝒞 cι ⥤ HomologicalComplex 𝒞 cι'
     where
   obj := Embed.obj e
-  map X Y f := Embed.map e f
+  map {X Y} f := Embed.map e f
   map_id X := by ext i; exact Embed.f_id _
   map_comp := by intros; ext i; exact Embed.f_comp f g _
 

@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.ForMathlib.HomologicalComplexOp
 import LiquidTensorExperiment.ForMathlib.HasHomology
 
-#align_import for_mathlib.homologyMap
+#align_import for_mathlib.homology_map
 
 noncomputable section
 

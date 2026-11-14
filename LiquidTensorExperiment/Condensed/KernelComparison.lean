@@ -1,10 +1,14 @@
 import LiquidTensorExperiment.Condensed.ProjectiveResolution
 
-#align_import condensed.kernelComparison
+#align_import condensed.kernel_comparison
 
 open CategoryTheory.Limits
 
 open CategoryTheory
+
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
 
 namespace Condensed
 
@@ -12,8 +16,6 @@ namespace Condensed
 universe u
 
 variable {A B : Condensed.{u} Ab.{u + 1}} (f : A ⟶ B)
-
-noncomputable section
 
 def kernelDiagramIso {A B : Condensed.{u} Ab.{u + 1}} (S : ExtrDisc) (f : A ⟶ B) :
     parallelPair f 0 ⋙ Condensed.evaluation Ab S.val ≅

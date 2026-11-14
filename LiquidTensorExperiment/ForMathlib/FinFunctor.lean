@@ -48,16 +48,16 @@ def map' : ∀ (i j : Fin 3) (hij : i ≤ j), F i ⟶ F j
   | ⟨0, hi⟩, ⟨1, hj⟩, _ => a
   | ⟨1, hi⟩, ⟨2, hj⟩, _ => b
   | ⟨0, hi⟩, ⟨2, hj⟩, _ => a ≫ b
-  | ⟨i + 3, hi⟩, _, _ => by exfalso; revert hi; decide
-  | _, ⟨j + 3, hj⟩, _ => by exfalso; revert hj; decide
-  | ⟨i + 1, hi⟩, ⟨0, hj⟩, H => by exfalso; revert H; decide
-  | ⟨i + 2, hi⟩, ⟨1, hj⟩, H => by exfalso; revert H; decide
+  | ⟨i + 3, hi⟩, _, _ => by exfalso; exact absurd hi (by simp)
+  | _, ⟨j + 3, hj⟩, _ => by exfalso; exact absurd hj (by simp)
+  | ⟨i + 1, hi⟩, ⟨0, hj⟩, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | ⟨i + 2, hi⟩, ⟨1, hj⟩, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
 
 theorem map'_id : ∀ i : Fin 3, map' F a b i i le_rfl = 𝟙 _
   | ⟨0, hi⟩ => rfl
   | ⟨1, hi⟩ => rfl
   | ⟨2, hi⟩ => rfl
-  | ⟨i + 3, hi⟩ => by exfalso; revert hi; decide
+  | ⟨i + 3, hi⟩ => by exfalso; exact absurd hi (by simp)
 
 theorem map'_comp :
     ∀ (i j k : Fin 3) (hij : i ≤ j) (hjk : j ≤ k),
@@ -67,22 +67,22 @@ theorem map'_comp :
   | i, ⟨1, _⟩, ⟨1, _⟩, _, _ => Category.comp_id _
   | i, ⟨2, _⟩, ⟨2, _⟩, _, _ => Category.comp_id _
   | ⟨0, _⟩, ⟨1, _⟩, ⟨2, _⟩, _, _ => rfl
-  | ⟨i + 3, hi⟩, _, _, _, _ => by exfalso; revert hi; decide
-  | _, ⟨j + 3, hj⟩, _, _, _ => by exfalso; revert hj; decide
-  | _, _, ⟨k + 3, hk⟩, _, _ => by exfalso; revert hk; decide
-  | ⟨i + 1, hi⟩, ⟨0, hj⟩, _, H, _ => by exfalso; revert H; decide
-  | ⟨i + 2, hi⟩, ⟨1, hj⟩, _, H, _ => by exfalso; revert H; decide
-  | _, ⟨i + 1, hi⟩, ⟨0, hj⟩, _, H => by exfalso; revert H; decide
-  | _, ⟨i + 2, hi⟩, ⟨1, hj⟩, _, H => by exfalso; revert H; decide
+  | ⟨i + 3, hi⟩, _, _, _, _ => by exfalso; exact absurd hi (by simp)
+  | _, ⟨j + 3, hj⟩, _, _, _ => by exfalso; exact absurd hj (by simp)
+  | _, _, ⟨k + 3, hk⟩, _, _ => by exfalso; exact absurd hk (by simp)
+  | ⟨i + 1, hi⟩, ⟨0, hj⟩, _, H, _ => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | ⟨i + 2, hi⟩, ⟨1, hj⟩, _, H, _ => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | _, ⟨i + 1, hi⟩, ⟨0, hj⟩, _, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | _, ⟨i + 2, hi⟩, ⟨1, hj⟩, _, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
 
 end Fin3FunctorMk
 
 def fin3FunctorMk (F : Fin 3 → C) (a : F 0 ⟶ F 1) (b : F 1 ⟶ F 2) : Fin 3 ⥤ C
     where
   obj := F
-  map i j hij := Fin3FunctorMk.map' F a b i j hij.le
+  map {i j} hij := Fin3FunctorMk.map' F a b i j hij.le
   map_id i := Fin3FunctorMk.map'_id F a b i
-  map_comp i j k hij hjk := by rw [Fin3FunctorMk.map'_comp F a b i j k hij.le hjk.le]
+  map_comp {i j k} hij hjk := by rw [Fin3FunctorMk.map'_comp F a b i j k hij.le hjk.le]
 
 namespace Fin4FunctorMk
 
@@ -99,18 +99,18 @@ def map' : ∀ (i j : Fin 4) (hij : i ≤ j), F i ⟶ F j
   | ⟨0, hi⟩, ⟨2, hj⟩, _ => a ≫ b
   | ⟨1, hi⟩, ⟨3, hj⟩, _ => b ≫ c
   | ⟨0, hi⟩, ⟨3, hj⟩, _ => a ≫ b ≫ c
-  | ⟨i + 4, hi⟩, _, _ => by exfalso; revert hi; decide
-  | _, ⟨j + 4, hj⟩, _ => by exfalso; revert hj; decide
-  | ⟨i + 1, hi⟩, ⟨0, hj⟩, H => by exfalso; revert H; decide
-  | ⟨i + 2, hi⟩, ⟨1, hj⟩, H => by exfalso; revert H; decide
-  | ⟨3, hi⟩, ⟨2, hj⟩, H => by exfalso; revert H; decide
+  | ⟨i + 4, hi⟩, _, _ => by exfalso; exact absurd hi (by simp)
+  | _, ⟨j + 4, hj⟩, _ => by exfalso; exact absurd hj (by simp)
+  | ⟨i + 1, hi⟩, ⟨0, hj⟩, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | ⟨i + 2, hi⟩, ⟨1, hj⟩, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | ⟨3, hi⟩, ⟨2, hj⟩, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
 
 theorem map'_id : ∀ i : Fin 4, map' F a b c i i le_rfl = 𝟙 _
   | ⟨0, hi⟩ => rfl
   | ⟨1, hi⟩ => rfl
   | ⟨2, hi⟩ => rfl
   | ⟨3, hi⟩ => rfl
-  | ⟨i + 4, hi⟩ => by exfalso; revert hi; decide
+  | ⟨i + 4, hi⟩ => by exfalso; exact absurd hi (by simp)
 
 theorem map'_comp :
     ∀ (i j k : Fin 4) (hij : i ≤ j) (hjk : j ≤ k),
@@ -125,24 +125,24 @@ theorem map'_comp :
   | ⟨0, _⟩, ⟨1, _⟩, ⟨3, _⟩, _, _ => rfl
   | ⟨0, _⟩, ⟨2, _⟩, ⟨3, _⟩, _, _ => Category.assoc a b c
   | ⟨1, _⟩, ⟨2, _⟩, ⟨3, _⟩, _, _ => rfl
-  | ⟨i + 4, hi⟩, _, _, _, _ => by exfalso; revert hi; decide
-  | _, ⟨j + 4, hj⟩, _, _, _ => by exfalso; revert hj; decide
-  | _, _, ⟨k + 4, hk⟩, _, _ => by exfalso; revert hk; decide
-  | ⟨i + 1, hi⟩, ⟨0, hj⟩, _, H, _ => by exfalso; revert H; decide
-  | ⟨i + 2, hi⟩, ⟨1, hj⟩, _, H, _ => by exfalso; revert H; decide
-  | ⟨3, hi⟩, ⟨2, hj⟩, _, H, _ => by exfalso; revert H; decide
-  | _, ⟨i + 1, hi⟩, ⟨0, hj⟩, _, H => by exfalso; revert H; decide
-  | _, ⟨i + 2, hi⟩, ⟨1, hj⟩, _, H => by exfalso; revert H; decide
-  | _, ⟨3, hi⟩, ⟨2, hj⟩, _, H => by exfalso; revert H; decide
+  | ⟨i + 4, hi⟩, _, _, _, _ => by exfalso; exact absurd hi (by simp)
+  | _, ⟨j + 4, hj⟩, _, _, _ => by exfalso; exact absurd hj (by simp)
+  | _, _, ⟨k + 4, hk⟩, _, _ => by exfalso; exact absurd hk (by simp)
+  | ⟨i + 1, hi⟩, ⟨0, hj⟩, _, H, _ => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | ⟨i + 2, hi⟩, ⟨1, hj⟩, _, H, _ => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | ⟨3, hi⟩, ⟨2, hj⟩, _, H, _ => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | _, ⟨i + 1, hi⟩, ⟨0, hj⟩, _, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | _, ⟨i + 2, hi⟩, ⟨1, hj⟩, _, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
+  | _, ⟨3, hi⟩, ⟨2, hj⟩, _, H => by exfalso; exact absurd (Fin.le_def.1 H) (by simp)
 
 end Fin4FunctorMk
 
 def fin4FunctorMk (F : Fin 4 → C) (a : F 0 ⟶ F 1) (b : F 1 ⟶ F 2) (c : F 2 ⟶ F 3) : Fin 4 ⥤ C
     where
   obj := F
-  map i j hij := Fin4FunctorMk.map' F a b c i j hij.le
+  map {i j} hij := Fin4FunctorMk.map' F a b c i j hij.le
   map_id i := Fin4FunctorMk.map'_id F a b c i
-  map_comp i j k hij hjk := by rw [Fin4FunctorMk.map'_comp F a b c i j k hij.le hjk.le]
+  map_comp {i j k} hij hjk := by rw [Fin4FunctorMk.map'_comp F a b c i j k hij.le hjk.le]
 
 end CategoryTheory
 

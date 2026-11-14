@@ -40,7 +40,7 @@ instance : NNNorm (FreePfpng S) :=
 namespace FreePfpng
 
 @[simp]
-theorem nnnorm_zero : ‖0 : FreePfpng S‖₊ = 0 := by change ∑ _, _ = _; simp
+theorem nnnorm_zero : ‖(0 : FreePfpng S)‖₊ = 0 := by change ∑ _, _ = _; simp
 
 @[simp]
 theorem nnnorm_neg (f : FreePfpng S) : ‖-f‖₊ = ‖f‖₊ := by change ∑ _, _ = _; simpa
@@ -186,9 +186,9 @@ def freePfpngFunctor : FintypeCat ⥤ ProFiltPseuNormGrp₁
   obj S :=
     { M := FreePfpng S
       exhaustive' := fun f => ⟨‖f‖₊, le_refl _⟩ }
-  map S₁ S₂ f := FreePfpng.map f
+  map {S₁ S₂} f := FreePfpng.map f
   map_id := FreePfpng.map_id
-  map_comp _ _ _ g₁ g₂ := FreePfpng.map_comp g₁ g₂
+  map_comp {_ _ _} g₁ g₂ := FreePfpng.map_comp g₁ g₂
 
 def FintypeCat.freePfpng (T : FintypeCat) : ProFiltPseuNormGrp₁ :=
   freePfpngFunctor.obj T

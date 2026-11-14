@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.PseudoNormedGroup.Category.Default
 import LiquidTensorExperiment.Rescale.Basic
 
-#align_import Rescale.pseudoNormedGroup
+#align_import rescale.pseudo_normed_group
 
 noncomputable section
 
@@ -218,7 +218,7 @@ variable (r' : ℝ≥0) [Fact (0 < r')]
 def rescale (N : ℝ≥0) : ProFiltPseuNormGrpWithTinv r' ⥤ ProFiltPseuNormGrpWithTinv r'
     where
   obj M := of r' <| Rescale N M
-  map M₁ M₂ f := Rescale.mapComphausFilteredPseudoNormedGroupWithTinvHom _ _ f
+  map {M₁ M₂} f := Rescale.mapComphausFilteredPseudoNormedGroupWithTinvHom _ _ f
 
 end ProFiltPseuNormGrpWithTinv
 
@@ -239,7 +239,7 @@ def rescale (N : ℝ≥0) [Fact (0 < N)] :
         rw [Rescale.mem_filtration]
         rwa [mul_inv_cancel_right₀]
         exact (Fact.out _ : 0 < N).ne' }
-  map M₁ M₂ f := Rescale.mapComphausFilteredPseudoNormedGroupWithTinvHom _ _ f
+  map {M₁ M₂} f := Rescale.mapComphausFilteredPseudoNormedGroupWithTinvHom _ _ f
 
 @[simps]
 def rescaleOut (N : ℝ≥0) [Fact (1 ≤ N)] : rescale r' N ⟶ 𝟭 _ where

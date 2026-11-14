@@ -5,6 +5,10 @@ import Mathlib.CategoryTheory.Limits.Types
 
 #align_import for_mathlib.wide_pullback_iso
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace CategoryTheory
 
 open CategoryTheory.Limits
@@ -17,8 +21,6 @@ variable {C : Type (u + 1)} [Category.{u} C] [HasWidePullbacks.{0} C]
 set_option pp.universes true
 
 open Opposite
-
-noncomputable section
 
 def uliftWidePullbackIsoHomAux (i : ℕ) (T B X : C) (f : X ⟶ B) :
     uliftFunctor.{u + 1}.obj (T ⟶ widePullback B (fun _ : Fin i => X) fun _ => f) ⟶

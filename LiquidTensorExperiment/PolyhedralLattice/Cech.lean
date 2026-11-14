@@ -367,9 +367,9 @@ open CechConerve
 def cechConerve : CosimplicialObject PolyhedralLatticeCat
     where
   obj n := obj f n.len
-  map n m g := Conerve.map f g.toOrderHom
+  map {n m} g := Conerve.map f g.toOrderHom
   map_id _ := Conerve.map_id f
-  map_comp _ _ _ _ _ := Conerve.map_comp f _ _
+  map_comp {_ _ _} _ _ := Conerve.map_comp f _ _
 
 @[simps]
 def cechAugmentationMap : Λ ⟶ (cechConerve f).obj (mk 0) :=

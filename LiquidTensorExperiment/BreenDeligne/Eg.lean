@@ -1,8 +1,12 @@
 import LiquidTensorExperiment.BreenDeligne.Constants
 
-#align_import BreenDeligne.eg
+#align_import breen_deligne.eg
 
 open scoped NNReal
+
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
 
 namespace BreenDeligne
 
@@ -55,7 +59,7 @@ theorem is_complex_succ (n : ℕ) (ih : (comp (map n)) (map (n + 1)) = 0) :
 def bD : Data where
   pt := rank
   d i j := if h : j + 1 = i then by subst h <;> exact map j else 0
-  shape' i j h := dif_neg h
+  shape i j h := dif_neg h
   d_comp_d' := by
     rintro i j k (rfl : j + 1 = i) (rfl : k + 1 = j)
     simp only [dif_pos rfl]
@@ -99,8 +103,6 @@ def eg : Package :=
   ⟨Eg.bD, Eg.h⟩
 
 namespace Eg
-
-noncomputable section
 
 variable (r r' : ℝ≥0) [Fact (r < 1)]
 

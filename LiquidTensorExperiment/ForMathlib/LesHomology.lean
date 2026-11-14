@@ -35,12 +35,12 @@ def modBoundariesMap {A B : HomologicalComplex C c} (f : A ⟶ B) (j : ι) :
 def modBoundariesFunctor (j : ι) : HomologicalComplex C c ⥤ C
     where
   obj A := A.modBoundaries j
-  map A B f := modBoundariesMap f j
+  map {A B} f := modBoundariesMap f j
   map_id A := by
     delta HomologicalComplex.modBoundaries HomologicalComplex.modBoundariesMap cokernel.map; ext
     show cokernel.π (A.boundaries j).arrow ≫ _ = cokernel.π (A.boundaries j).arrow ≫ _
     simp only [cokernel.π_desc, Category.id_comp, id_f, Category.comp_id]
-  map_comp X Y Z f g :=
+  map_comp {X Y Z} f g :=
     by
     delta HomologicalComplex.modBoundaries HomologicalComplex.modBoundariesMap cokernel.map; ext
     show cokernel.π (X.boundaries j).arrow ≫ _ = cokernel.π (X.boundaries j).arrow ≫ _

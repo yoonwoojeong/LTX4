@@ -5,6 +5,10 @@ import LiquidTensorExperiment.ForMathlib.Derived.Example
 
 open CategoryTheory
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace homology'
 
 universe v u
@@ -39,8 +43,6 @@ universe v u
 variable {A : Type u} [Category.{v} A] [Abelian A]
 
 variable {X : A} (P : ProjectiveResolution X)
-
-noncomputable section
 
 def bhc : BoundedHomotopyCategory A :=
   ChainComplex.toBoundedHomotopyCategory.obj P.complex

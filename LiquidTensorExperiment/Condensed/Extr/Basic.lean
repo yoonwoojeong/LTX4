@@ -31,14 +31,14 @@ theorem of_val (X : Profinite) [Projective X] : (of X).val = X :=
 instance : Category ExtrDisc where
   hom := Hom
   id X := ⟨𝟙 _⟩
-  comp X Y Z f g := ⟨f.val ≫ g.val⟩
+  comp {X Y Z} f g := ⟨f.val ≫ g.val⟩
 
 @[simps]
 -- Porting note: `_root_` as in Lean 3 (mathport dropped it)
 def _root_.extrDiscToProfinite : ExtrDisc ⥤ Profinite
     where
   obj := val
-  map X Y f := f.val
+  map {X Y} f := f.val
 
 instance : Full extrDiscToProfinite where preimage X Y f := ⟨f⟩
 

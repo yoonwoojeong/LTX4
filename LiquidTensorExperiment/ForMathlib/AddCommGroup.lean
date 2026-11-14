@@ -18,30 +18,39 @@ open CategoryTheory
 
 universe v u
 
-namespace AddCommGroupCat
-
 noncomputable section
+
+namespace AddCommGroupCat
 
 @[simps]
 def free' : Type u ⥤ AddCommGroupCat.{u}
     where
   obj X := AddCommGroupCat.of <| X →₀ ℤ
-  map X Y f := Finsupp.mapDomain.addMonoidHom f
-  map_id := by intro X; ext; dsimp; simp
-  map_comp := by intro X Y Z f g; ext; dsimp; simp
+  map f := Finsupp.mapDomain.addMonoidHom f
+  map_id := by intro X; ext x; exact Finsupp.mapDomain_id
+  map_comp := by intro X Y Z f g; ext x; exact Finsupp.mapDomain_comp
 
 @[simps]
 def ofIso {A B : Type u} [AddCommGroup A] [AddCommGroup B] (e : A ≃+ B) : of A ≅ of B
     where
   hom := e.toAddMonoidHom
   inv := e.symm.toAddMonoidHom
-  hom_inv_id := by ext; dsimp; simp
-  inv_hom_id := by ext; dsimp; simp
+  hom_inv_id := by ext x; exact e.symm_apply_apply x
+  inv_hom_id := by ext x; exact e.apply_symm_apply x
 
 @[simps]
 def freeIsoFree' : free.{u} ≅ free'.{u} :=
   CategoryTheory.NatIso.ofComponents (fun X => ofIso (FreeAbelianGroup.equivFinsupp X))
-    (by intro X Y f; ext; dsimp; simp)
+    (by
+      intro X Y f; ext x
+      -- Porting note: `ext; dsimp; simp` no longer works; compare the two additive homs by hand
+      have : (FreeAbelianGroup.equivFinsupp Y).toAddMonoidHom.comp (FreeAbelianGroup.map f) =
+          (Finsupp.mapDomain.addMonoidHom f).comp
+            (FreeAbelianGroup.equivFinsupp X).toAddMonoidHom := by
+        apply FreeAbelianGroup.lift.ext
+        intro x
+        simp [FreeAbelianGroup.equivFinsupp]
+      exact FunLike.congr_fun this x)
 
 def adj' : free'.{u} ⊣ forget AddCommGroupCat.{u} :=
   AddCommGroupCat.adj.ofNatIsoLeft <| freeIsoFree'.{u}
@@ -60,11 +69,12 @@ namespace AddCommGroupCat
 def tunit : AddCommGroupCat.{u} :=
   AddCommGroupCat.free'.obj (⊤_ _)
 
-def tunit.lift {A : AddCommGroupCat.{u}} (e : ⊤_ _ ⟶ (forget _).obj A) : tunit ⟶ A :=
+def tunit.lift {A : AddCommGroupCat.{u}} (e : ⊤_ (Type u) ⟶ (forget AddCommGroupCat.{u}).obj A) :
+    tunit ⟶ A :=
   (AddCommGroupCat.adj'.homEquiv _ _).symm e
 
 -- Do we really not have this?!
-def Finsupp.punitAddEquiv (M : Type _) [AddMonoid M] : ((PUnit : Type u) →₀ M) ≃+ M
+def _root_.Finsupp.punitAddEquiv (M : Type _) [AddMonoid M] : ((PUnit : Type u) →₀ M) ≃+ M
     where
   toFun f := f PUnit.unit
   invFun m := Finsupp.single PUnit.unit m
@@ -77,16 +87,21 @@ def addEquivOfIso (A B : AddCommGroupCat.{u}) (e : A ≅ B) : A ≃+ B
     where
   toFun := e.hom
   invFun := e.inv
-  left_inv x := by simp
-  right_inv x := by simp
+  left_inv x := FunLike.congr_fun e.hom_inv_id x
+  right_inv x := FunLike.congr_fun e.inv_hom_id x
   map_add' x y := e.hom.map_add _ _
 
 def tunitAddEquiv : tunit.{u} ≃+ ℤ :=
   AddEquiv.trans (addEquivOfIso _ _ <| AddCommGroupCat.free'.mapIso Types.punitIso.symm)
     (Finsupp.punitAddEquiv ℤ)
 
+-- Porting note: helper lemma (not in the Lean 3 source) replacing a `simp` call of the Lean 3 proofs
+theorem tunitAddEquiv_single (x : ⊤_ (Type u)) (y : ℤ) : tunitAddEquiv (Finsupp.single x y) = y := by
+  show Finsupp.mapDomain (fun _ => PUnit.unit) (Finsupp.single x y) PUnit.unit = y
+  rw [Finsupp.mapDomain_single, Finsupp.single_eq_same]
+
 def tunit.gen : tunit.{u} :=
-  AddCommGroupCat.adj'.Unit.app _ <|
+  AddCommGroupCat.adj'.unit.app _ <|
     (Limits.terminal.from (PUnit : Type u) : PUnit → ⊤_ Type u) PUnit.unit
 
 open scoped Classical
@@ -107,17 +122,32 @@ def coproductCoconeOfBasisIsColimit {ι : Type v} {A : AddCommGroupCat.{u}} (�
     rintro s ⟨j⟩
     apply Finsupp.addHom_ext
     intro x y
-    dsimp [AddCommGroupCat.coproductCoconeOfBasis]
-    simp [← map_zsmul]
+    -- Porting note: `dsimp; simp` no longer closes the goal; compute by hand
+    have hx : (Finsupp.single x y : tunit.{u}) = tunitAddEquiv.symm y := by
+      exact (tunitAddEquiv.symm_apply_eq.2 (tunitAddEquiv_single x y).symm).symm
+    have hy : tunitAddEquiv.symm y = y • tunitAddEquiv.symm 1 := by
+      rw [← map_zsmul, smul_eq_mul, mul_one]
+    show Finsupp.total ι s.pt.α ℤ (fun i => s.ι.app ⟨i⟩ (tunitAddEquiv.symm 1))
+        (𝓑.repr (zmultiplesAddHom A.α (𝓑 j) (tunitAddEquiv (Finsupp.single x y)))) =
+      s.ι.app ⟨j⟩ (Finsupp.single x y)
+    rw [tunitAddEquiv_single, zmultiplesAddHom_apply, map_smul, 𝓑.repr_self, map_smul,
+      Finsupp.total_single, one_smul, hx, hy, map_zsmul]
   uniq := by
     intro s m e
     apply (addMonoidHomLequivInt ℤ).injective
-    swap; · infer_instance
     apply 𝓑.ext
     intro i
-    convert ConcreteCategory.congr_hom (e ⟨i⟩) (tunit_add_equiv.symm 1) using 1
-    · dsimp [AddCommGroupCat.coproductCoconeOfBasis]; simp
-    · dsimp; simp
+    -- Porting note: `convert … using 1; simp` replaced by an explicit computation
+    have h := ConcreteCategory.congr_hom (e ⟨i⟩) (tunitAddEquiv.symm 1)
+    have h2 : ((coproductCoconeOfBasis 𝓑).ι.app ⟨i⟩ ≫ m) (tunitAddEquiv.symm 1) = m (𝓑 i) := by
+      show m (zmultiplesAddHom A.α (𝓑 i) (tunitAddEquiv (tunitAddEquiv.symm 1))) = _
+      rw [AddEquiv.apply_symm_apply, zmultiplesAddHom_apply, one_smul]
+    refine Eq.trans ?_ (Eq.trans (h2.symm.trans h) ?_)
+    · rfl
+    · show _ = Finsupp.total ι s.pt.α ℤ (fun i => s.ι.app ⟨i⟩ (tunitAddEquiv.symm 1))
+        (𝓑.repr (𝓑 i))
+      rw [𝓑.repr_self, Finsupp.total_single, one_smul]
+      rfl
 
 -- set_option pp.universes true
 -- Of course this is true without the fintype assumption...
@@ -155,7 +185,10 @@ def isoOfBasis {ι : Type v} [Limits.HasCoproduct fun i : ι => tunit.{u}] {A : 
 -- end
 def IndexCat (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] : Type u :=
   { H : AddSubgroup A // H.FG }
-deriving PartialOrder
+
+-- Porting note: `deriving PartialOrder` is not supported for this def in Lean 4; give the instance
+instance (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] : PartialOrder A.IndexCat :=
+  inferInstanceAs (PartialOrder { H : AddSubgroup A // H.FG })
 
 -- Is this the condition we want?
 instance nonempty_indexCat (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] :
@@ -177,52 +210,62 @@ instance semilatticeSupIndexCat (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors �
         simp only [Finset.coe_union, AddSubgroup.closure_union]⟩
     le_sup_left := fun I J => @le_sup_left (AddSubgroup A) _ _ _
     le_sup_right := fun I J => @le_sup_right (AddSubgroup A) _ _ _
-    sup_le := fun I J K h1 h2 => @sup_le (AddSubgroup A) _ _ _ _ h1 h2 }
+    sup_le := fun I J K h1 h2 => sup_le (α := AddSubgroup A) h1 h2 }
 
 def diagram (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] : A.IndexCat ⥤ AddCommGroupCat.{u}
     where
   obj I := AddCommGroupCat.of I.1
-  map I J h := AddSubgroup.inclusion h.le
+  map {I J} h := AddSubgroup.inclusion (leOfHom h)
 
 def cocone (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] : Limits.Cocone A.diagram
     where
   pt := A
-  ι := { app := fun I => I.1.Subtype }
+  ι := { app := fun I => I.1.subtype }
 
-def isColimitCocone (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] : Limits.IsColimit A.Cocone
+def isColimitCocone (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] : Limits.IsColimit A.cocone
     where
   desc S :=
     { toFun := fun a =>
         S.ι.app ⟨AddSubgroup.closure {a}, {a}, by simp⟩ ⟨a, AddSubgroup.subset_closure rfl⟩
       map_zero' := AddMonoidHom.map_zero _
-      map_add' := fun x y =>
-        by
-        let I : A.index_cat := ⟨AddSubgroup.closure {x}, {x}, by simp⟩
-        let J : A.index_cat := ⟨AddSubgroup.closure {y}, {y}, by simp⟩
-        let K : A.index_cat := ⟨AddSubgroup.closure {x + y}, {x + y}, by simp⟩
-        let IJ : A.index_cat := ⟨AddSubgroup.closure {x, y}, {x, y}, by simp⟩
-        let iI : I ⟶ IJ := hom_of_le (AddSubgroup.closure_mono <| by simp)
-        let iJ : J ⟶ IJ := hom_of_le (AddSubgroup.closure_mono <| by simp)
-        let iK : K ⟶ IJ := hom_of_le ((AddSubgroup.closure_le _).2 _)
-        swap
-        · rintro a (rfl : a = _); change x + y ∈ IJ.1; apply IJ.1.add_mem
+      map_add' := fun x y => by
+        let I : A.IndexCat := ⟨AddSubgroup.closure {x}, {x}, by simp⟩
+        let J : A.IndexCat := ⟨AddSubgroup.closure {y}, {y}, by simp⟩
+        let K : A.IndexCat := ⟨AddSubgroup.closure {x + y}, {x + y}, by simp⟩
+        let IJ : A.IndexCat := ⟨AddSubgroup.closure {x, y}, {x, y}, by simp⟩
+        -- Porting note: Lean 3 used `swap` to postpone this proof; made an explicit `have`
+        have hK : AddSubgroup.closure {x + y} ≤ AddSubgroup.closure {x, y} := by
+          refine (AddSubgroup.closure_le _).2 ?_
+          rintro a (rfl : a = _)
+          change x + y ∈ IJ.1
+          apply IJ.1.add_mem
           · apply AddSubgroup.subset_closure; simp
           · apply AddSubgroup.subset_closure; simp
-        rw [← S.w iI, ← S.w iJ, ← S.w iK, comp_apply, comp_apply, comp_apply, ←
-          AddMonoidHom.map_add]
-        rfl }
+        let iI : I ⟶ IJ := homOfLE (AddSubgroup.closure_mono <| by simp)
+        let iJ : J ⟶ IJ := homOfLE (AddSubgroup.closure_mono <| by simp)
+        let iK : K ⟶ IJ := homOfLE hK
+        -- Porting note: `rw [← S.w iI, …, comp_apply, …]` replaced by explicit `congr_fun`s
+        have hI := FunLike.congr_fun (S.w iI) ⟨x, AddSubgroup.subset_closure rfl⟩
+        have hJ := FunLike.congr_fun (S.w iJ) ⟨y, AddSubgroup.subset_closure rfl⟩
+        have hK' := FunLike.congr_fun (S.w iK) ⟨x + y, AddSubgroup.subset_closure rfl⟩
+        refine hK'.symm.trans (Eq.trans ?_ (congrArg₂ (· + ·) hI hJ))
+        exact AddMonoidHom.map_add (S.ι.app IJ) (⟨x, _⟩ : IJ.1) ⟨y, _⟩ }
   fac := by
-    rintro S J; ext ⟨x, hx⟩
-    let I : A.index_cat := ⟨AddSubgroup.closure {x}, {x}, by simp⟩
-    let e : I ⟶ J := hom_of_le ((AddSubgroup.closure_le _).2 _)
-    · rw [comp_apply]; dsimp [cocone]; rw [← S.w e]; rfl
-    rintro x (rfl : x = _); exact hx
+    rintro S J
+    ext ⟨x, hx⟩
+    let I : A.IndexCat := ⟨AddSubgroup.closure {x}, {x}, by simp⟩
+    have hIJ : AddSubgroup.closure {x} ≤ J.1 := by
+      refine (AddSubgroup.closure_le _).2 ?_
+      rintro t (rfl : t = _)
+      exact hx
+    let e : I ⟶ J := homOfLE hIJ
+    -- Porting note: `rw [comp_apply]; dsimp [cocone]; rw [← S.w e]; rfl` replaced by `congr_fun`
+    exact (FunLike.congr_fun (S.w e) ⟨x, AddSubgroup.subset_closure rfl⟩).symm
   uniq := by
-    intro S m hm; ext x; dsimp [cocone] at x ⊢
-    let I : A.index_cat := ⟨AddSubgroup.closure {x}, {x}, by simp⟩
-    specialize hm I
-    let y : I.1 := ⟨x, AddSubgroup.subset_closure rfl⟩
-    apply_fun fun e => e y at hm ; exact hm
+    intro S m hm
+    ext x
+    let I : A.IndexCat := ⟨AddSubgroup.closure {x}, {x}, by simp⟩
+    exact FunLike.congr_fun (hm I) ⟨x, AddSubgroup.subset_closure rfl⟩
 
 def colimitComparison (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ A] :
     Limits.colimit A.diagram ≅ A :=
@@ -232,8 +275,13 @@ theorem exists_basis_of_index (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ 
     ∃ (ι : Type v) (_ : Fintype ι) (𝓑 : Basis ι ℤ (AddCommGroupCat.of I.1)), True :=
   by
   obtain ⟨S, hS⟩ := I.2
-  let e : S → I.1 := fun s => ⟨s, _⟩
-  swap; · rw [← hS]; apply AddSubgroup.subset_closure; exact s.2
+  -- Porting note: Lean 3 used `swap` to postpone this proof; made an explicit `have`
+  have hSI : ∀ s : S, (s : A) ∈ I.1 := by
+    intro s
+    rw [← hS]
+    apply AddSubgroup.subset_closure
+    exact s.2
+  let e : S → I.1 := fun s => ⟨s, hSI s⟩
   have : NoZeroSMulDivisors ℤ I.1 := by
     constructor; rintro c ⟨x, hx⟩ h; apply_fun fun e => e.val at h 
     dsimp at h 
@@ -249,7 +297,7 @@ theorem exists_basis_of_index (A : AddCommGroupCat.{u}) [NoZeroSMulDivisors ℤ 
     rintro ⟨x, hx⟩ -
     let J := (Submodule.span ℤ (Set.range e)).toAddSubgroup
     change _ ∈ J
-    have hJ : J = (J.map I.1.Subtype).comap I.1.Subtype :=
+    have hJ : J = (J.map I.1.subtype).comap I.1.subtype :=
       by
       -- is this not a lemma?!
       apply le_antisymm

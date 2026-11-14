@@ -455,7 +455,7 @@ theorem psi_def_aux_3 {S : FintypeCat} [Fact (0 < p)] [Fact (p < 1)] (F : ℒ S)
   by
   -- get rid of factor of -2⁻¹
   simp_rw [_root_.nnnorm_neg, zpow_sub₀ (two_ne_zero : (2 : ℝ) ≠ 0), nnnorm_div, zpow_one,
-    div_eq_mul_inv _ (‖2 : ℝ‖₊), mul_comm _ (‖2 : ℝ‖₊)⁻¹, mul_assoc]
+    div_eq_mul_inv _ (‖(2 : ℝ)‖₊), mul_comm _ (‖(2 : ℝ)‖₊)⁻¹, mul_assoc]
   apply Summable.mul_left
   have hinj : Function.Injective fun m : ℕ => F.d + m :=
     by

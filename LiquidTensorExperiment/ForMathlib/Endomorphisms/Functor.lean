@@ -18,9 +18,9 @@ namespace Functor
 def mapEndomorphisms (F : C ⥤ D) : Endomorphisms C ⥤ Endomorphisms D
     where
   obj X := ⟨F.obj X.pt, F.map X.e⟩
-  map X Y f := ⟨F.map f.f, by rw [← F.map_comp, ← F.map_comp, f.comm]⟩
+  map {X Y} f := ⟨F.map f.f, by rw [← F.map_comp, ← F.map_comp, f.comm]⟩
   map_id X := by ext; exact F.map_id _
-  map_comp X Y Z f g := by ext; exact F.map_comp _ _
+  map_comp {X Y Z} f g := by ext; exact F.map_comp _ _
 
 end Functor
 

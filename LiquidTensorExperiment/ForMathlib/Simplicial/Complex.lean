@@ -99,7 +99,7 @@ def toCocomplex : CochainComplex C ℕ :=
 def cocomplex : CosimplicialObject C ⥤ CochainComplex C ℕ
     where
   obj := toCocomplex
-  map M N f :=
+  map {M N} f :=
     { f := fun i => f.app _
       comm' := by
         rintro i j (rfl : i + 1 = j)
@@ -137,7 +137,7 @@ def toCocomplex (M : Augmented C) : CochainComplex C ℕ :=
 def cocomplex : Augmented C ⥤ CochainComplex C ℕ
     where
   obj := toCocomplex
-  map M N f :=
+  map {M N} f :=
     { f := fun i =>
         match i with
         | 0 => point.map f
@@ -157,7 +157,7 @@ def cocomplex : Augmented C ⥤ CochainComplex C ℕ
           erw [(drop.map f).naturality]
           rfl }
   map_id M := by ext (_ | _); tidy
-  map_comp M N K f g := by ext (_ | _); tidy
+  map_comp {M N K} f g := by ext (_ | _); tidy
 
 end Augmented
 
@@ -204,7 +204,7 @@ def toComplex : ChainComplex C ℕ :=
 def complex : SimplicialObject C ⥤ ChainComplex C ℕ
     where
   obj := toComplex
-  map M N f :=
+  map {M N} f :=
     { f := fun i => f.app _
       comm' := by
         rintro i j (rfl : j + 1 = i)
@@ -240,7 +240,7 @@ def toComplex (M : Augmented C) : ChainComplex C ℕ :=
 def complex : Augmented C ⥤ ChainComplex C ℕ
     where
   obj := toComplex
-  map M N f :=
+  map {M N} f :=
     { f := fun i =>
         match i with
         | 0 => point.map f
@@ -260,7 +260,7 @@ def complex : Augmented C ⥤ ChainComplex C ℕ
           erw [(drop.map f).naturality]
           rfl }
   map_id M := by ext (_ | _); tidy
-  map_comp M N K f g := by ext (_ | _); tidy
+  map_comp {M N K} f g := by ext (_ | _); tidy
 
 end Augmented
 

@@ -3,6 +3,10 @@ import Mathlib.CategoryTheory.Limits.Shapes.Pullbacks
 
 #align_import for_mathlib.pullbacks
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace CategoryTheory
 
 open CategoryTheory.Limits
@@ -24,8 +28,6 @@ theorem Equivalence.hom_eq_map {X Y : C} (f : e.functor.obj X ⟶ e.functor.obj 
   simp_rw [← CategoryTheory.Category.assoc]
   congr 1
   simp
-
-noncomputable section
 
 /-
 I would like to do something for more general shapes, but universes make this difficult

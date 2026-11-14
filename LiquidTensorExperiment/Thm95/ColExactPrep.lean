@@ -68,7 +68,7 @@ theorem weakExactOfFactorExact (k : ℝ≥0) [Fact (1 ≤ k)] (m : ℕ) (c₀ : 
       _ = gx' := by rw [← _root_.map_sub, hdy, sub_sub_cancel]
     rw [gdy_dgy, ← comp_apply, ← HomologicalComplex.comp_f, hfg _ hc.1]; rfl
   rw [hxdgy]
-  change (‖gx'‖₊ : ℝ) ≤ ‖dx‖₊ + ε
+  change (‖gx'‖(₊ : ℝ) ≤ )‖dx‖₊ + ε
   simp only [← NNReal.coe_add, NNReal.coe_le_coe]
   calc
     ‖gx'‖₊ ≤ ‖x'‖₊ := hg _ _ _
@@ -119,7 +119,7 @@ open ProfinitelyFilteredPseudoNormedGroup ComphausFilteredPseudoNormedGroup
 def fLCComplex : SystemOfComplexes
     where
   obj c := (fLCFunctor V).obj (op <| fLCComplexArrow f hf c.unop)
-  map c₁ c₂ h :=
+  map {c₁ c₂} h :=
     (fLCFunctor V).map <|
       Quiver.Hom.op <|
         @Arrow.homMk _ _ (fLCComplexArrow f hf c₂.unop) (fLCComplexArrow f hf c₁.unop)
@@ -129,7 +129,7 @@ def fLCComplex : SystemOfComplexes
     convert (fLCFunctor V).map_id _
     simp only [unop_id, ← op_id, quiver.hom.op_inj.eq_iff, NatTrans.id_app]
     ext <;> rfl
-  map_comp c₁ c₂ c₃ h1 h2 := by
+  map_comp {c₁ c₂ c₃} h1 h2 := by
     convert (fLCFunctor V).map_comp _ _
     simp only [← op_comp, quiver.hom.op_inj.eq_iff, NatTrans.comp_app]
     ext <;> rfl

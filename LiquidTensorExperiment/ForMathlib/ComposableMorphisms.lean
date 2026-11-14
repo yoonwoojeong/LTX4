@@ -1,7 +1,7 @@
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Zero
 import Mathlib.CategoryTheory.Abelian.Homology
 
-#align_import for_mathlib.ComposableMorphisms
+#align_import for_mathlib.composable_morphisms
 
 noncomputable section
 

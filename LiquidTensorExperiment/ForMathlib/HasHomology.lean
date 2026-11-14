@@ -3,7 +3,7 @@ import Mathlib.CategoryTheory.Abelian.Homology
 import LiquidTensorExperiment.ForMathlib.Commsq
 import LiquidTensorExperiment.ForMathlib.ExactLiftDesc
 
-#align_import for_mathlib.hasHomology
+#align_import for_mathlib.has_homology
 
 /-!
 

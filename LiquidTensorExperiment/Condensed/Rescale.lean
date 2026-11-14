@@ -60,7 +60,7 @@ namespace CompHausFiltPseuNormGrp
 def rescale (r : ℝ≥0) : CompHausFiltPseuNormGrp ⥤ CompHausFiltPseuNormGrp
     where
   obj M := of (Rescale r M)
-  map M₁ M₂ f := Rescale.mapComphausFilteredPseudoNormedGroupHom r f
+  map {M₁ M₂} f := Rescale.mapComphausFilteredPseudoNormedGroupHom r f
   map_id := by intros; ext; rfl
   map_comp := by intros; ext; rfl
 
@@ -127,7 +127,7 @@ def rescale (r : ℝ≥0) [Fact (0 < r)] : CompHausFiltPseuNormGrp₁ ⥤ CompHa
         simp only [Rescale.mem_filtration]
         refine' ⟨c * r, PseudoNormedGroup.filtration_mono _ hc⟩
         rw [mul_inv_cancel_right₀]; exact ne_of_gt (Fact.out _) }
-  map M₁ M₂ f := Rescale.mapStrictComphausFilteredPseudoNormedGroupHom r f
+  map {M₁ M₂} f := Rescale.mapStrictComphausFilteredPseudoNormedGroupHom r f
   map_id := by intros; ext; rfl
   map_comp := by intros; ext; rfl
 

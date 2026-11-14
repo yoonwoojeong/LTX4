@@ -1,7 +1,7 @@
 import Mathlib.Algebra.Homology.Homology
 import Mathlib.CategoryTheory.Abelian.Homology
 
-#align_import for_mathlib.homologyIso
+#align_import for_mathlib.homology_iso
 
 namespace CategoryTheory
 

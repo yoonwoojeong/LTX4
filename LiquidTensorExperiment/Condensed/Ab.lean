@@ -28,7 +28,7 @@ universe v u
 def Ab.ulift : Ab.{u} ⥤ Ab.{max v u}
     where
   obj M := AddCommGroupCat.of <| ULift.{v} M
-  map M N f :=
+  map {M N} f :=
     { toFun := fun x => ⟨f x.down⟩
       map_zero' := by ext1; apply f.map_zero
       map_add' := fun x y => by ext1; apply f.map_add }
@@ -77,10 +77,13 @@ theorem Ab.exact_ulift_map {A B C : Ab} (f : A ⟶ B) (g : B ⟶ C) :
       ext
       exact hy
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace Condensed
 
 --instance : preadditive (Condensed Ab.{u+1}) := by admit
-noncomputable section
 
 -- Sanity check
 example {J : Type (u + 1)} [SmallCategory J] [IsFiltered J] :
@@ -101,7 +104,7 @@ def forgetToCondensedType : Condensed Ab.{u + 1} ⥤ CondensedSet
       cases' F with F hF
       rwa [Presheaf.isSheaf_iff_isSheaf_forget _ _ (forget Ab)] at hF 
       infer_instance⟩
-  map A B f := ⟨whiskerRight f.val _⟩
+  map {A B} f := ⟨whiskerRight f.val _⟩
 
 instance : IsRightAdjoint forgetToCondensedType
     where
@@ -115,7 +118,7 @@ variable (A : Type u) [AddCommGroup A] [TopologicalSpace A] [TopologicalAddGroup
 def OfTopAb.presheaf : Profinite.{u}ᵒᵖ ⥤ Ab.{u}
     where
   obj S := ⟨C(S.unop, A)⟩
-  map S₁ S₂ f := AddMonoidHom.mk' (fun g => g.comp f.unop) fun g₁ g₂ => rfl
+  map {S₁ S₂} f := AddMonoidHom.mk' (fun g => g.comp f.unop) fun g₁ g₂ => rfl
   map_id := by intros; ext; rfl
   map_comp := by intros; ext; rfl
 
@@ -377,9 +380,9 @@ def toCondensed : CompHausFiltPseuNormGrp.{u} ⥤ Condensed.{u} Ab.{u + 1}
   obj A :=
     { val := presheaf A ⋙ Ab.ulift.{u + 1}
       cond := presheaf_comp_ulift_isSheaf _ }
-  map A B f := ⟨whiskerRight (presheaf.map f) _⟩
+  map {A B} f := ⟨whiskerRight (presheaf.map f) _⟩
   map_id X := by ext : 2; dsimp; simp
-  map_comp X Y Z f g := by ext : 2; dsimp; simp
+  map_comp {X Y Z} f g := by ext : 2; dsimp; simp
 
 section
 
@@ -390,13 +393,13 @@ variable (A : CompHausFiltPseuNormGrp.{u})
 def level : ℝ≥0 ⥤ CompHaus.{u}
     where
   obj r := CompHaus.of <| filtration A r
-  map r s h :=
+  map {r s} h :=
     { toFun := castLe' h.le
       continuous_toFun :=
         letI : Fact (r ≤ s) := ⟨h.le⟩
         continuous_cast_le _ _ }
   map_id r := by ext; rfl
-  map_comp r s t h1 h2 := by ext; rfl
+  map_comp {r s t} h1 h2 := by ext; rfl
 
 @[simps]
 def levelCondensedDiagram : ℝ≥0 ⥤ CondensedSet.{u} :=

@@ -4,7 +4,7 @@ import Mathlib.CategoryTheory.Abelian.Exact
 import Mathlib.CategoryTheory.Limits.Constructions.EpiMono
 import Mathlib.CategoryTheory.Abelian.Pseudoelements
 
-#align_import for_mathlib.exactSeq
+#align_import for_mathlib.exact_seq
 
 noncomputable section
 

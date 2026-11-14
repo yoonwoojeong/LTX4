@@ -6,7 +6,7 @@ import LiquidTensorExperiment.Lbar.Ext
 import LiquidTensorExperiment.FreePfpng.Acyclic
 import LiquidTensorExperiment.ChallengeNotations
 
-#align_import LaurentMeasures.ext
+#align_import laurent_measures.ext
 
 universe u
 

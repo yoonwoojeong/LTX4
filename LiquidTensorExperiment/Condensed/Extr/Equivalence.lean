@@ -325,7 +325,7 @@ structure Hom (X Y : ExtrSheafProd C) where mk ::
 instance : Category (ExtrSheafProd C) where
   hom := Hom C
   id X := ⟨𝟙 _⟩
-  comp X Y Z f g := ⟨f.val ≫ g.val⟩
+  comp {X Y Z} f g := ⟨f.val ≫ g.val⟩
 
 end ExtrSheafProd
 
@@ -388,9 +388,9 @@ def extrSheafProdToPresheaf (C : Type u') [Category.{v'} C] [Limits.HasFinitePro
     ExtrSheafProd.{u} C ⥤ ExtrDisc.{u}ᵒᵖ ⥤ C
     where
   obj F := F.val
-  map F G f := f.val
+  map {F G} f := f.val
   map_id X := rfl
-  map_comp X Y Z f g := rfl
+  map_comp {X Y Z} f g := rfl
 
 instance (C : Type u') [Category.{v'} C] [Limits.HasFiniteProducts C] :
     Full (extrSheafProdToPresheaf C)
@@ -512,7 +512,7 @@ def mapT {i j : J} (f : i ⟶ j) : T i ⟶ T j :=
 --λ a, biproduct.π _ a ≫ (K.map f).val.app _
 def q₀Functor : J ⥤ C where
   obj := Q₀
-  map i j f := map_Q₀ f
+  map {i j} f := map_Q₀ f
   map_id := by
     intro i
     dsimp [map_Q₀]
@@ -526,13 +526,13 @@ def q₀Functor : J ⥤ C where
 
 def qFunctor : J ⥤ C where
   obj := Q
-  map i j f := map_Q f
+  map {i j} f := map_Q f
   map_id := by intro i; dsimp [map_Q]; ext1 ⟨j⟩; simp
   map_comp := by intro i j k f g; dsimp [map_Q]; ext1; simp
 
 def tFunctor : J ⥤ C where
   obj := T
-  map i j f := map_T f
+  map {i j} f := map_T f
   map_id := by
     intro i; dsimp [map_T]
     apply biproduct.hom_ext; intro a; simp; erw [Category.id_comp]

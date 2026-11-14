@@ -3,6 +3,9 @@ import Mathlib.Algebra.Homology.Additive
 
 #align_import prop819.strict_complex_iso
 
+-- Porting note: the notation `≫` is scoped in `CategoryTheory` in Lean 4
+open CategoryTheory
+
 namespace SemiNormedGroupCat
 
 protected class StrictIso {A B : SemiNormedGroupCat} (f : A ≅ B) where
@@ -17,7 +20,9 @@ theorem strictIso_hom {A B : SemiNormedGroupCat} (f : A ≅ B) [SemiNormedGroupC
 theorem strictIso_inv {A B : SemiNormedGroupCat} (f : A ≅ B) [SemiNormedGroupCat.StrictIso f] (b : B) :
     ‖f.inv b‖₊ = ‖b‖₊ :=
   by
-  have : b = f.hom (f.inv b) := by change b = (f.inv ≫ f.hom) b; simp
+  have : b = f.hom (f.inv b) := by
+    show b = (f.inv ≫ f.hom) b
+    simp
   conv_rhs => rw [this]
   rw [SemiNormedGroupCat.strictIso_hom]
 

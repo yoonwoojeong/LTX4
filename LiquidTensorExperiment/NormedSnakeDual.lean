@@ -1,6 +1,6 @@
 import LiquidTensorExperiment.SystemOfComplexes.Basic
 
-#align_import normedSnakeDual
+#align_import normed_snake_dual
 
 /-!
 # The normed snake dual lemma: weak and non-weak

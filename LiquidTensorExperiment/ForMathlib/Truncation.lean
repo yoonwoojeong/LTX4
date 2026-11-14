@@ -38,7 +38,7 @@ def truncation (C : CochainComplex 𝓐 ℤ) (n : ℤ) : CochainComplex 𝓐 ℤ
                 eqToHom (by rw [if_neg hj, if_pos hj_eq])
         else 0
     else 0
-  shape' i j := by
+  shape i j := by
     rintro h : ¬i + 1 = j
     rw [dif_neg h]
   d_comp_d' i j k := by

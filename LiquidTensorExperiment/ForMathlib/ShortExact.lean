@@ -1,6 +1,6 @@
 import LiquidTensorExperiment.ForMathlib.SplitExact
 
-#align_import for_mathlib.shortExact
+#align_import for_mathlib.short_exact
 
 noncomputable section
 

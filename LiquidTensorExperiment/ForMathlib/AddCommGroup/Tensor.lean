@@ -214,7 +214,7 @@ def tensorFunctor : AddCommGroupCat.{u} ⥤ AddCommGroupCat.{u} ⥤ AddCommGroup
       map := fun B B' f => mapTensor (𝟙 _) f
       map_id := fun A => mapTensor_id
       map_comp := fun A B C f g => mapTensor_comp_right _ _ }
-  map A A' f :=
+  map {A A'} f :=
     { app := fun B => mapTensor f (𝟙 _)
       naturality := fun B C g => by
         dsimp

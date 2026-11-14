@@ -3,7 +3,7 @@ import LiquidTensorExperiment.LocallyConstant.Vhat
 import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
 import LiquidTensorExperiment.Facts.Nnreal
 
-#align_import rescale.normedGroup
+#align_import rescale.normed_group
 
 noncomputable section
 
@@ -20,7 +20,7 @@ theorem norm_def [Norm V] (v : Rescale N V) : ‖v‖ = ‖of.symm v‖ / N :=
 
 instance [hN : Fact (0 < N)] [SeminormedAddCommGroup V] : SeminormedAddCommGroup (Rescale N V) :=
   seminormed_add_comm_group.ofCore (Rescale N V)
-    { norm_zero := show ‖0 : V‖ / N = 0 by rw [norm_zero, zero_div]
+    { norm_zero := show ‖(0 : V)‖ / N = 0 by rw [norm_zero, zero_div]
       triangle := fun v w => by
         simp only [norm_def, ← add_div]
         exact div_le_div_of_le hN.out.le (norm_add_le _ _)
@@ -57,7 +57,7 @@ variable (r r₁ r₂ : ℝ≥0) [Fact (0 < r₁)] [Fact (0 < r₂)]
 def rescale (r : ℝ≥0) [hr : Fact (0 < r)] : SemiNormedGroupCat ⥤ SemiNormedGroupCat
     where
   obj V := of <| Rescale r V
-  map V₁ V₂ f :=
+  map {V₁ V₂} f :=
     { toFun := fun v => @Rescale.of r V₂ <| f ((@Rescale.of r V₁).symm v)
       map_add' := f.map_add'
       -- defeq abuse
@@ -70,7 +70,7 @@ def rescale (r : ℝ≥0) [hr : Fact (0 < r)] : SemiNormedGroupCat ⥤ SemiNorme
         exact this }
   map_id V := rfl
   -- defeq abuse
-  map_comp V₁ V₂ V₃ f g := rfl
+  map_comp {V₁ V₂ V₃} f g := rfl
 
 -- defeq abuse
 instance rescale.additive [Fact (0 < r)] : (rescale r).Additive where map_add' V W f g := rfl

@@ -46,7 +46,7 @@ import Mathlib.Data.Matrix.Kronecker
 import LiquidTensorExperiment.HacksAndTricks.TypePow
 import LiquidTensorExperiment.HacksAndTricks.ByExactIHack
 
-#align_import BreenDeligne.UniversalMap
+#align_import breen_deligne.universal_map
 
 /-!
 # Breen-Deligne resolutions

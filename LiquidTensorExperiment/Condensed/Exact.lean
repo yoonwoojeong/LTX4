@@ -32,11 +32,11 @@ def pt {X : CompHaus.{u}} (x : X) : ⊤_ CompHaus ⟶ X :=
 def diagramOfPt (y : cG.pt) : J ⥤ CompHaus.{u}
     where
   obj j := pullback (α.app j) (pt y ≫ cG.π.app j)
-  map i j f :=
+  map {i j} f :=
     pullback.lift (pullback.fst ≫ F.map f) pullback.snd
       (by rw [Category.assoc, α.naturality, pullback.condition_assoc, Category.assoc, cG.w])
   map_id j := by apply pullback.hom_ext <;> dsimp <;> simp
-  map_comp i j k f g := by apply pullback.hom_ext <;> dsimp <;> simp
+  map_comp {i j k} f g := by apply pullback.hom_ext <;> dsimp <;> simp
 
 @[simps]
 def coneOfPt (y : cG.pt) : Cone (diagramOfPt F G α cG y)

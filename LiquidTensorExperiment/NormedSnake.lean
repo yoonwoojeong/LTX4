@@ -20,7 +20,7 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
     (hf : ∀ c i, (f.apply : M c i ⟶ M' c i).NormNoninc)
     (Hf :
       ∀ (c : ℝ≥0) [Fact (c₀ ≤ c)] (i : ℕ) (hi : i ≤ m + 1 + 1) (x : M (k'' * c) i),
-        ‖res x : M c i‖ ≤ K'' * ‖f x‖)
+        ‖(res x : M c i)‖ ≤ K'' * ‖f x‖)
     (hg : ∀ c i, (g.apply : M' c i ⟶ N c i).ker = f.apply.range)
     (hgquot : SystemOfComplexes.IsQuotient g) :
     N.IsWeakBoundedExact (k'' * k * k') (K' * (K * K'' + 1)) m c₀ :=
@@ -98,7 +98,8 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
   have hmnew' : mnew₁' = res m₁'' + f (res m₁ - M.d i (i + 1) m₀) := by
     calc
       mnew₁' = M'.d i (i + 1) (res m' - f m₀) := rfl
-      _ = res (M'.d i (i + 1) m') - f (M.d i (i + 1) m₀) := by rw [_root_.map_sub, d_res _, d_apply]
+      _ = res (M'.d i (i + 1) m') - f (M.d i (i + 1) m₀) := by
+        rw [NormedAddGroupHom.map_sub, d_res _, d_apply]
       _ = res (M'.d i (i + 1) m') - f (res m₁) + (f (res m₁) - f (M.d i (i + 1) m₀)) := by abel
       _ = res m₁'' + f (res m₁ - M.d i (i + 1) m₀) := by
         rw [← SystemOfComplexes.map_sub, ← res_apply, ← _root_.map_sub, ←

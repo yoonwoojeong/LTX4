@@ -1,6 +1,6 @@
 import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
 
-#align_import for_mathlib.isBiprod
+#align_import for_mathlib.is_biprod
 
 open CategoryTheory CategoryTheory.Limits
 

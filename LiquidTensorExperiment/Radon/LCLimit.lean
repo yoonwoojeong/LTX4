@@ -208,7 +208,7 @@ def radonLCCompHausDiagram (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)] [F
     DiscreteQuotient X ⥤ CompHaus.{0}
     where
   obj T := CompHaus.of <| (X.diagram.obj T).radonLC p c
-  map S T e := (radonLCFunctor p c).map <| X.diagram.map e
+  map {S T} e := (radonLCFunctor p c).map <| X.diagram.map e
   map_id := by
     intro T
     rw [X.diagram.map_id]
@@ -239,9 +239,9 @@ instance compactSpace_radonLC (X : Profinite.{0}) (p c : ℝ≥0) [Fact (0 < p)]
 def radonLCCompHausFunctor (p c : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] : Profinite.{0} ⥤ CompHaus.{0}
     where
   obj X := CompHaus.of <| X.radonLC p c
-  map X Y f := (radonLCFunctor p c).map f
+  map {X Y} f := (radonLCFunctor p c).map f
   map_id := (radonLCFunctor p c).map_id
-  map_comp X Y Z f g := (radonLCFunctor p c).map_comp f g
+  map_comp {X Y Z} f g := (radonLCFunctor p c).map_comp f g
 
 /-- This is the cone which will exhibit `X.Radon_LC p c` as the limit of `T.Radon_LC p c`
 where `T` varies over the discrete quotients of `X`.

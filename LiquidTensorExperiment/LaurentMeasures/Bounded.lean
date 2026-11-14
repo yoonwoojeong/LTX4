@@ -51,7 +51,7 @@ def map (f : S ⟶ S') : LaurentMeasuresBdd r S T c → LaurentMeasuresBdd r S' 
     bound' :=
       calc
         ∑ (s : S') (i : T),
-              ‖∑ s : S.α in Finset.univ.filterₓ fun t : S => f t = s, F s i‖₊ *
+              ‖(∑ s : S.α in Finset.univ.filterₓ fun t : S => f t = s, F s i)‖₊ *
                 r ^ (i : ℤ) ≤
             ∑ (s' : S') (i : T),
               ∑ s in Finset.univ.filterₓ fun t => f t = s', ‖F s i‖₊ * r ^ (i : ℤ) :=

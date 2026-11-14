@@ -79,14 +79,14 @@ theorem nnnorm_def (F : ℳ p S) : ‖F‖₊ = ∑ s, ‖F s‖₊ ^ (p : ℝ) 
   rfl
 
 @[simp]
-protected theorem coe_nnnorm (F : ℳ p S) : (‖F‖₊ : ℝ) = ‖F‖ := by
+protected theorem coe_nnnorm (F : ℳ p S) : (‖F‖(₊ : ℝ) = )‖F‖ := by
   simp only [norm_def, nnnorm_def, NNReal.coe_sum, NNReal.coe_rpow, coe_nnnorm]
 
 theorem RealMeasures.norm_nonneg (F : ℳ p S) : 0 ≤ ‖F‖ := by rw [← F.coe_nnnorm];
   exact (‖F‖₊).2
 
 @[simp]
-protected theorem nnnorm_zero [hp : Fact (0 < p)] : ‖0 : ℳ p S‖₊ = 0 :=
+protected theorem nnnorm_zero [hp : Fact (0 < p)] : ‖(0 : ℳ p S)‖₊ = 0 :=
   by
   rw [nnnorm_def, Finset.sum_eq_zero]
   rintro s -
@@ -429,9 +429,9 @@ def mapHom [Fact (0 < p)] (f : S ⟶ S') : StrictComphausFilteredPseudoNormedGro
 def functor (p : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] : FintypeCat.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}
     where
   obj S := ⟨ℳ p S, fun F => ⟨‖F‖₊, (mem_filtration_iff _ _).mpr le_rfl⟩⟩
-  map S T f := mapHom f
+  map {S T} f := mapHom f
   map_id S := by ext1; rw [map_hom_to_fun, map_id]; rfl
-  map_comp S S' S'' f g := by ext1; simp only [map_hom_to_fun, map_comp]; rfl
+  map_comp {S S' S''} f g := by ext1; simp only [map_hom_to_fun, map_comp]; rfl
 
 end RealMeasures
 

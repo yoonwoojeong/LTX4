@@ -1,6 +1,6 @@
 import LiquidTensorExperiment.BreenDeligne.ApplyPow
 
-#align_import BreenDeligne.evalPowFunctor_nat_trans_compatibility
+#align_import breen_deligne.eval_Pow_functor_nat_trans_compatibility
 
 noncomputable section
 

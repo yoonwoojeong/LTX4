@@ -16,9 +16,10 @@ variable [Category V₁] [Category V₂] [Preadditive V₁] [Preadditive V₂]
 def modify (C : HomologicalComplex V₁ c) (F : ι → V₁ ⥤ V₂) (α : ∀ i j, F i ⟶ F j)
     [∀ i, (F i).Additive] : HomologicalComplex V₂ c
     where
-  X i := (F i).obj (C.pt i)
+  X i := (F i).obj (C.X i)
   d i j := (F i).map (C.d i j) ≫ (α i j).app _
-  shape' i j h := by rw [C.shape _ _ h, CategoryTheory.Functor.map_zero, zero_comp]
+  -- Porting note: `dsimp only` beta-reduces the goal first
+  shape i j h := by dsimp only; rw [C.shape _ _ h, CategoryTheory.Functor.map_zero, zero_comp]
   d_comp_d' i j k hij hjk := by
     simp only [NatTrans.naturality_assoc, ← Functor.map_comp_assoc, Category.assoc, C.d_comp_d,
       CategoryTheory.Functor.map_zero, zero_comp, comp_zero]
@@ -29,7 +30,7 @@ def modifyFunctor (F : ι → V₁ ⥤ V₂) (α : ∀ i j, F i ⟶ F j) [∀ i,
     HomologicalComplex V₁ c ⥤ HomologicalComplex V₂ c
     where
   obj C := C.modify F α
-  map C₁ C₂ f :=
+  map {C₁ C₂} f :=
     { f := fun i => (F i).map (f.f i)
       comm' := by
         intro i j hij; dsimp

@@ -33,7 +33,7 @@ theorem filtration_finite (ε : ℝ≥0) : (filtration Λ ε).Finite := by
   simp only [not_le, SeminormedAddCommGroup.mem_filtration_iff, h2]
   have aux : 0 < ‖l i‖₊ := by rw [zero_lt_iff, Ne.def, nnnorm_eq_zero]; exact hl' i
   calc
-    ε ≤ (⌈(ε / ‖l i‖₊ : ℝ)⌉.natAbs : ℝ≥0) * ‖l i‖₊ := _
+    ε ≤ (⌈(ε / ‖l i‖(₊ : ℝ)⌉.natAbs : ℝ≥0) * )‖l i‖₊ := _
     _ < ↑(c i) * ‖l i‖₊ := _
     _ ≤ ∑ i : ι, ↑(c i) * ‖l i‖₊ := _
   · rw [← NNReal.div_le_iff aux.ne', ← NNReal.coe_le_coe]

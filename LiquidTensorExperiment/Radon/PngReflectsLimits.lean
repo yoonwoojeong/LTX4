@@ -13,6 +13,10 @@ universe u
 
 variable {J : Type u} [SmallCategory J] {F : J ⥤ CompHausFiltPseuNormGrp₁.{u}} (C : Cone F)
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace CompHaus
 
 theorem comp_apply {X Y Z : CompHaus} (f : X ⟶ Y) (g : Y ⟶ Z) (x : X) : (f ≫ g) x = g (f x) :=
@@ -47,8 +51,6 @@ theorem injective_of_isIso {X Y : CompHaus} (f : X ⟶ Y) [IsIso f] : Function.I
 end CompHaus
 
 namespace CompHausFiltPseuNormGrp₁
-
-noncomputable section
 
 /-- A choice of level for some element of an exhaustive
 CompHausly filtered pseudo normed group. -/

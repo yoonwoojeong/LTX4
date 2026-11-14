@@ -2,6 +2,10 @@ import Mathlib.CategoryTheory.Limits.Shapes.Terminal
 
 #align_import for_mathlib.is_iso_iota
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace CategoryTheory.Limits
 
 open CategoryTheory
@@ -9,8 +13,6 @@ open CategoryTheory
 universe v u
 
 variable {J : Type v} [SmallCategory J] {C : Type u} [Category.{v} C] (F : J ⥤ C)
-
-noncomputable section
 
 @[simps]
 def IsInitial.colimitCocone {j : J} (hj : IsInitial j) [HasColimit F]
@@ -35,7 +37,7 @@ theorem IsInitial.isIso_ι {j : J} (hj : IsInitial j) [HasColimit F]
     [∀ (a b : J) (f : a ⟶ b), IsIso (F.map f)] : IsIso (colimit.ι F j) :=
   by
   let e := (colimit.isColimit F).coconePointUniqueUpToIso (hj.isColimitColimitCocone F)
-  change is_iso e.inv
+  change IsIso e.inv
   infer_instance
 
 end CategoryTheory.Limits

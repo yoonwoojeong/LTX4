@@ -26,13 +26,15 @@ import LiquidTensorExperiment.ForMathlib.Arrow.Split
 
 #align_import for_mathlib.Cech.split
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace CategoryTheory
 
 universe v u v' u'
 
 namespace Arrow
-
-noncomputable section
 
 open scoped Simplicial
 

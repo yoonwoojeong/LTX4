@@ -39,7 +39,7 @@ def cons (C : CochainComplex 𝓐 ℕ) (A : 𝓐) (d : A ⟶ C.X 0) (h : d ≫ C
     CochainComplex 𝓐 ℕ where
   X := Cons.x C A
   d := Cons.d C A d
-  shape' := Cons.shape C A d
+  shape := Cons.shape C A d
   d_comp_d' := Cons.d_comp_d C A d h
 
 section SimpLemmas

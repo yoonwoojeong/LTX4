@@ -8,13 +8,15 @@ import LiquidTensorExperiment.ForMathlib.Ab5
 
 open CategoryTheory
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace AddCommGroupCat
 
 universe u
 
 variable {J : Type u} [SmallCategory J] [IsFiltered J]
-
-noncomputable section
 
 -- Axiom AB5 for `AddCommGroup`
 theorem exact_colim_of_exact_of_isFiltered (F G H : J ⥤ AddCommGroupCat.{u}) (η : F ⟶ G)

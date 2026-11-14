@@ -1,3 +1,5 @@
+import Mathlib.Mathport.Rename
+
 -- import for_mathlib.exact_seq3
 
 #align_import for_mathlib.bicartesian

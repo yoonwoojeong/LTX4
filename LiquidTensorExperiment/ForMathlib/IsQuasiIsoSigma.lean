@@ -1,6 +1,6 @@
 import LiquidTensorExperiment.ForMathlib.Ab4
 
-#align_import for_mathlib.isQuasiIsoSigma
+#align_import for_mathlib.is_quasi_iso_sigma
 
 open CategoryTheory
 

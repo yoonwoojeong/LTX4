@@ -94,7 +94,7 @@ summability results are in `thm69` so it's simply a case of
 refactoring all of them.
 
 -/
-theorem Real.nnnorm_int (n : ℤ) : ‖n : ℝ‖₊ = ‖n‖₊ :=
+theorem Real.nnnorm_int (n : ℤ) : ‖(n : ℝ)‖₊ = ‖n‖₊ :=
   Subtype.ext <| by simp [coe_nnnorm, Real.norm_eq_abs, Int.norm_eq_abs]
 
 theorem Real.neg_nnnorm_of_neg {r : ℝ} (hr : r < 0) : -(‖r‖₊ : ℝ) = r := by

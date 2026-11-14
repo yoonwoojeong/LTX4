@@ -10,6 +10,10 @@ import LiquidTensorExperiment.ForMathlib.ExactFunctor
 
 open CategoryTheory CategoryTheory.Limits
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace HomologicalComplex
 
 section
@@ -27,7 +31,7 @@ def FunctorEval.obj (x : X) : HomologicalComplex (X ⥤ 𝒜) c ⥤ HomologicalC
 def functorEval : X ⥤ HomologicalComplex (X ⥤ 𝒜) c ⥤ HomologicalComplex 𝒜 c
     where
   obj x := FunctorEval.obj x
-  map x y f :=
+  map {x y} f :=
     { app := fun C =>
         { f := fun i => (C.pt i).map f
           comm' := fun _ _ _ => NatTrans.naturality _ _ }
@@ -43,7 +47,7 @@ def EvalFunctor.obj (F : X ⥤ HomologicalComplex 𝒜 c) : HomologicalComplex (
     whiskerLeft _ <|
       { app := fun T => T.d _ _
         naturality := by intros; dsimp; rw [f.comm] }
-  shape' := by intros; ext; apply shape; assumption
+  shape := by intros; ext; apply shape; assumption
   d_comp_d' := by intros; ext; apply d_comp_d
 
 @[simps]
@@ -81,8 +85,6 @@ universe v u w
 
 variable {ι : Type} {X : Type max u v} {𝒜 : Type w} [Category.{u} X] [Category.{max u v} 𝒜]
   [Abelian 𝒜] {c : ComplexShape ι}
-
-noncomputable section
 
 instance (x : X) : PreservesFiniteLimits ((evaluation X 𝒜).obj x) :=
   ⟨by intro J; intro; intro; apply Limits.evaluationPreservesLimitsOfShape⟩

@@ -2,7 +2,7 @@ import Mathlib.CategoryTheory.Limits.FunctorCategory
 import Mathlib.CategoryTheory.Limits.Preserves.Basic
 import Mathlib.Tactic.ApplyFun
 
-#align_import for_mathlib.colimPreservesColimits
+#align_import for_mathlib.colim_preserves_colimits
 
 open CategoryTheory
 
@@ -37,13 +37,12 @@ noncomputable def isColimitColimMapCocone {K : Type v} [SmallCategory K] (F : K 
             simp }⟩
   fac := by
     intro S k
-    ext j; dsimp
+    apply colimit.hom_ext; intro j; dsimp
     simp only [colimit.map_desc, colimit.ι_desc, Cocones.precompose_obj_ι, NatTrans.comp_app]
     apply (Limits.isColimitOfPreserves ((evaluation J C).obj j) hT).fac
   uniq := by
     intro S m hm
-    ext j
-    simp only [colimit.ι_desc]
+    apply colimit.hom_ext; intro j
     apply (Limits.isColimitOfPreserves ((evaluation J C).obj j) hT).hom_ext; intro k
     dsimp
     specialize hm k

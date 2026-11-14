@@ -6,7 +6,7 @@ import Mathlib.Algebra.Category.GroupCat.FilteredColimits
 import LiquidTensorExperiment.ForMathlib.AbelianCategory
 import LiquidTensorExperiment.ForMathlib.AddCommGroup.Epi
 
-#align_import condensed.complex
+#align_import condensed.projective_resolution
 
 universe u
 

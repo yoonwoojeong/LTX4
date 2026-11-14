@@ -1,6 +1,6 @@
 import Mathlib.CategoryTheory.Monoidal.Functor
 
-#align_import for_mathlib.monoidalCategory
+#align_import for_mathlib.monoidal_category
 
 open CategoryTheory
 

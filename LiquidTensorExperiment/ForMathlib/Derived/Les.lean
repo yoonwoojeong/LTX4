@@ -30,7 +30,7 @@ noncomputable def kernel : CochainComplex A ℤ
     where
   pt i := kernel (f.f i)
   d i j := kernel.map (f.f i) (f.f j) (X.d i j) (Y.d i j) (f.comm i j)
-  shape' i j hij := by ext; simp only [kernel.lift_ι, zero_comp, X.shape i j hij, comp_zero]
+  shape i j hij := by ext; simp only [kernel.lift_ι, zero_comp, X.shape i j hij, comp_zero]
   d_comp_d' i j k hij hjk := by
     ext
     simp only [Category.assoc, kernel.lift_ι, kernel.lift_ι_assoc, zero_comp, comp_zero, d_comp_d]

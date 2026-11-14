@@ -11,13 +11,15 @@ open CategoryTheory
 
 open CategoryTheory.Limits
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace Condensed
 
 open scoped NNReal
 
 open Opposite
-
-noncomputable section
 
 universe u
 

@@ -24,7 +24,7 @@ theorem findNat_spec (r : ℝ≥0) : r ≤ ι (findNat ι hι r) :=
 
 def natToNnreal : ℕ ⥤ ℝ≥0 where
   obj i := ι i
-  map i j h := homOfLE <| ι.Mono h.le
+  map {i j} h := homOfLE <| ι.Mono h.le
 
 universe v u
 

@@ -10,14 +10,16 @@ open CategoryTheory.Limits
 
 open Opposite
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace Condensed
 
 universe u
 
 variable {X Y Z : Condensed.{u} Ab.{u + 1}} (f : X ⟶ Y) (g : Y ⟶ Z) (w : f ≫ g = 0)
   (S : Profinite.{u})
-
-noncomputable section
 
 instance evaluation_additive (S : Profinite.{u}) :
     Functor.Additive (Condensed.evaluation _ S : Condensed.{u} Ab.{u + 1} ⥤ _) :=

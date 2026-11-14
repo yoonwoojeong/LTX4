@@ -5,11 +5,13 @@ import Mathlib.CategoryTheory.Sites.LeftExact
 
 #align_import for_mathlib.abelian_sheaves.main
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace CategoryTheory
 
 namespace Sheaf
-
-noncomputable section
 
 universe w v u
 

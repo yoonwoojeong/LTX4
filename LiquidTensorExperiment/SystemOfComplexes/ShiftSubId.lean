@@ -6,7 +6,7 @@ import LiquidTensorExperiment.ForMathlib.SemiNormedGroup
 import LiquidTensorExperiment.ForMathlib.AddCommGroup.Pt
 import LiquidTensorExperiment.SystemOfComplexes.Basic
 
-#align_import system_of_complexes.shiftSubId
+#align_import system_of_complexes.shift_sub_id
 
 noncomputable section
 

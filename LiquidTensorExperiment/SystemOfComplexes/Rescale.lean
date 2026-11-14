@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.SystemOfComplexes.Basic
 import LiquidTensorExperiment.Rescale.NormedGroup
 
-#align_import SystemOfComplexes.rescale
+#align_import system_of_complexes.rescale
 
 /-!
 
@@ -25,11 +25,11 @@ namespace NNReal
 
 def mulLeft (κ : ℝ≥0) : ℝ≥0 ⥤ ℝ≥0 where
   obj c := κ * c
-  map c₁ c₂ h := homOfLE <| mul_le_mul' le_rfl (leOfHom h)
+  map {c₁ c₂} h := homOfLE <| mul_le_mul' le_rfl (leOfHom h)
 
 def mulRight (κ : ℝ≥0) : ℝ≥0 ⥤ ℝ≥0 where
   obj c := c * κ
-  map c₁ c₂ h := homOfLE <| mul_le_mul' (leOfHom h) le_rfl
+  map {c₁ c₂} h := homOfLE <| mul_le_mul' (leOfHom h) le_rfl
 
 end NNReal
 

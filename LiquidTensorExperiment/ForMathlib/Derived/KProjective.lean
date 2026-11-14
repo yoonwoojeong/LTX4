@@ -245,7 +245,7 @@ theorem distinguished_replaceTriangle (T : triangle 𝒦) (hT : T ∈ (dist_tria
 def ext0 : 𝒦ᵒᵖ ⥤ 𝒦 ⥤ Ab
     where
   obj X := preadditiveYoneda.flip.obj (Opposite.op <| X.unop.replace)
-  map X₁ X₂ f := preadditiveYoneda.flip.map (lift (X₂.unop.π ≫ f.unop) X₁.unop.π).op
+  map {X₁ X₂} f := preadditiveYoneda.flip.map (lift (X₂.unop.π ≫ f.unop) X₁.unop.π).op
   map_id := by
     intro X
     ext Y e

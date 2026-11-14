@@ -3,7 +3,7 @@ import LiquidTensorExperiment.PolyhedralLattice.Int
 import LiquidTensorExperiment.PolyhedralLattice.Category
 import LiquidTensorExperiment.PseudoNormedGroup.Category.Default
 
-#align_import PolyhedralLattice.hom
+#align_import polyhedral_lattice.Hom
 
 /-!
 
@@ -102,10 +102,10 @@ theorem homZMapEquiv_strict (c : ℝ≥0) (f : hom ℤ M) :
 theorem homZMapEquiv_ctu (c : ℝ≥0) :
     Continuous (level (homZMapEquiv M) (fun c x => (homZMapEquiv_strict M c x).1) c) :=
   by
-  haveI : Fact (c * ‖1 : ℤ‖₊ ≤ c) := ⟨by rw [nnnorm_one, mul_one]⟩
+  haveI : Fact (c * ‖(1 : ℤ)‖₊ ≤ c) := ⟨by rw [nnnorm_one, mul_one]⟩
   have aux := AddMonoidHom.incl_continuous ℤ r' M c
   have aux2 := (continuous_apply 1).comp aux
-  rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖1 : ℤ‖₊)
+  rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖(1 : ℤ)‖₊)
         c).continuous_iff] at aux2
 
 /-- The isomorphism `Hom ℤ M ≅ M` for `M` a `profinitely_filtered_pseudo_normed_group_with_Tinv`. -/

@@ -58,7 +58,7 @@ noncomputable def ChainComplex.toBoundedHomotopyCategory :
               HomotopyCategory.quotient C _).obj
           P
       bdd := by apply ChainComplex.isBoundedAbove }
-  map P Q f :=
+  map {P Q} f :=
     (HomologicalComplex.embed ComplexShape.Embedding.natDownIntUp ⋙
           HomotopyCategory.quotient C _).map
       f
@@ -66,7 +66,7 @@ noncomputable def ChainComplex.toBoundedHomotopyCategory :
     (HomologicalComplex.embed ComplexShape.Embedding.natDownIntUp ⋙
           HomotopyCategory.quotient C _).map_id
       P
-  map_comp P Q R f g :=
+  map_comp {P Q R} f g :=
     (HomologicalComplex.embed ComplexShape.Embedding.natDownIntUp ⋙
           HomotopyCategory.quotient C _).map_comp
       f g
@@ -295,6 +295,10 @@ theorem ext'_isZero_of_neg (A : Cᵒᵖ) (B : C) (i : ℤ) (hi : i < 0) :
   intro f g
   ext
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 section
 
 open BoundedHomotopyCategory
@@ -374,8 +378,6 @@ theorem Ext_isZero_of_one_lt (A : AddCommGroupCat.{u}ᵒᵖ) (B : AddCommGroupCa
   refine' AddCommGroupCat.isZero_of_eq _ _
   intro f g
   apply CategoryTheory.Limits.HasZeroObject.from_zero_ext
-
-noncomputable section
 
 variable (n : ℕ)
 

@@ -2,7 +2,7 @@ import LiquidTensorExperiment.ForMathlib.Derived.KProjective
 import LiquidTensorExperiment.ForMathlib.HomologicalComplexOp
 import LiquidTensorExperiment.ForMathlib.HomologyIsoAb
 
-#align_import for_mathlib.homSingleIso
+#align_import for_mathlib.hom_single_iso
 
 noncomputable section
 

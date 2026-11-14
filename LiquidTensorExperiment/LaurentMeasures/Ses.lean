@@ -218,7 +218,7 @@ theorem Nnreal.tsum_geom_arit_inequality (f : ℤ → ℝ) {r' : ℝ} (hr'1 : 0 
 
 theorem aux_bound (F : ℒ S) (s : S) :
     ∀ b : ℤ,
-      ‖F s b : ℝ‖₊ ^ (p : ℝ) * (2⁻¹ ^ (p : ℝ)) ^ (b : ℝ) ≤ ‖F s b‖₊ * r ^ b :=
+      ‖(F s b : ℝ)‖₊ ^ (p : ℝ) * (2⁻¹ ^ (p : ℝ)) ^ (b : ℝ) ≤ ‖F s b‖₊ * r ^ b :=
   by
   intro b
   rw [NNReal.rpow_int_cast]
@@ -462,9 +462,9 @@ theorem reduction_balls {c : ℝ≥0} (f : X → closedBall (0 : ℝ) c)
   exact ⟨preimage_mono hε, H (f x) ε, mem_ball_self h₀⟩
 
 theorem mem_filtration_le_monomial (F : filtration (ℒ ϖ) c) (n : ℕ) :
-    ‖F.1 PUnit.unit n : ℝ‖ ≤ c * r⁻¹ ^ n :=
+    ‖(F.1 PUnit.unit n : ℝ)‖ ≤ c * r⁻¹ ^ n :=
   by
-  have h_le : ∑' n : ℤ, ‖F.1 PUnit.unit n : ℝ‖ * r ^ n ≤ c :=
+  have h_le : ∑' n : ℤ, ‖(F.1 PUnit.unit n : ℝ)‖ * r ^ n ≤ c :=
     by
     have := (LaurentMeasures.mem_filtration_iff F.1 c).mp F.2
     rw [LaurentMeasures.nnnorm_def] at this 
@@ -472,7 +472,7 @@ theorem mem_filtration_le_monomial (F : filtration (ℒ ϖ) c) (n : ℕ) :
       NNReal.coe_mul, NNReal.coe_zpow, LaurentMeasures.coe_nnnorm] at this 
     exact this
   have :=
-    @sum_le_tsum ℝ _ _ _ _ (fun n => ‖F.1 PUnit.unit n : ℝ‖ * r ^ n) {n} _
+    @sum_le_tsum ℝ _ _ _ _ (fun n => ‖(F.1 PUnit.unit n : ℝ)‖ * r ^ n) {n} _
       (F.1.Summable PUnit.unit)
   simp only [Finset.sum_singleton, zpow_ofNat] at this 
   replace h_le := this.trans h_le

@@ -2,7 +2,7 @@ import LiquidTensorExperiment.ForMathlib.Derived.Defs
 import LiquidTensorExperiment.ForMathlib.HomologyMap
 import LiquidTensorExperiment.ForMathlib.HasHomology
 
-#align_import for_mathlib.isQuasiIso
+#align_import for_mathlib.is_quasi_iso
 
 noncomputable section
 

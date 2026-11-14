@@ -24,9 +24,9 @@ variable {𝒜 : Type _} [Category 𝒜] [HasZeroMorphisms 𝒜] [HasFiniteBipro
 @[simps (config := { fullyApplied := false })]
 def pow (n : ℕ) : 𝒜 ⥤ 𝒜 where
   obj A := ⨁ fun i : Fin n => A
-  map A B f := biproduct.map fun i => f
+  map {A B} f := biproduct.map fun i => f
   map_id A := by ext i j; simp only [biproduct.ι_map, Category.id_comp, Category.comp_id]
-  map_comp A B C f g := by ext i j; simp only [biproduct.ι_map_assoc, Category.assoc]
+  map_comp {A B C} f g := by ext i j; simp only [biproduct.ι_map_assoc, Category.assoc]
 
 -- move this
 attribute [simps] comp_hom
@@ -163,7 +163,7 @@ theorem evalPow_comp_app (A : 𝒜) :
 @[simps (config := { fullyApplied := false })]
 def evalPowFunctor : FreeMat ⥤ 𝒜 ⥤ 𝒜 where
   obj n := pow n ⋙ F
-  map m n f := evalPow F f
+  map {m n} f := evalPow F f
   map_id n := by
     refine' (eval_Pow_of F _).trans _
     ext A : 2; dsimp
@@ -174,7 +174,7 @@ def evalPowFunctor : FreeMat ⥤ 𝒜 ⥤ 𝒜 where
     split_ifs with hij
     · cases hij; rw [Matrix.one_apply_eq, one_smul, CategoryTheory.eqToHom_refl]
     · rw [Matrix.one_apply_ne, zero_smul]; dsimp; rintro rfl; exact hij rfl
-  map_comp m n o f g := evalPow_comp F _ _
+  map_comp {m n o} f g := evalPow_comp F _ _
 
 instance evalPowFunctor_additive : (evalPowFunctor F).Additive where
   map_add' m n f g := by dsimp [eval_Pow]; rw [AddMonoidHom.map_add]
@@ -302,10 +302,10 @@ attribute [local instance] CategoryTheory.Limits.hasBinaryBiproducts_of_finite_b
 @[simps]
 def biprod : 𝒜 ⥤ 𝒜 where
   obj A := A ⊞ A
-  map A B f := biprod.map f f
+  map {A B} f := biprod.map f f
   map_id A := by
     ext <;> simp only [biprod.inl_map, biprod.inr_map, Category.id_comp, Category.comp_id]
-  map_comp A B C f g := by
+  map_comp {A B C} f g := by
     ext <;> simp only [biprod.inl_map_assoc, biprod.inr_map_assoc, Category.assoc]
 
 @[simps (config := { fullyApplied := false })]

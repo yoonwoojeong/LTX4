@@ -17,6 +17,10 @@ def DFinsupp.addEquivPiOnFintype {α : Type _} [Fintype α] (X : α → Type _)
     [∀ i, AddCommGroup (X i)] : (Π₀ i, X i) ≃+ ∀ i, X i :=
   { DFinsupp.equivFunOnFintype with map_add' := fun x y => by ext; simp }
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace AddCommGroupCat
 
 universe v u
@@ -152,8 +156,6 @@ def isLimitDirectSumFan {α : Type v} [Fintype α] (X : α → AddCommGroupCat.{
     intro i
     specialize hm ⟨i⟩
     erw [hm, direct_sum_lift_π]
-
-noncomputable section
 
 def toDirectSum {α : Type v} (X : α → AddCommGroupCat.{max v u}) (i : α) :
     X i ⟶ AddCommGroupCat.of (DirectSum α fun i => X i) :=

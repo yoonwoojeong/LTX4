@@ -213,9 +213,9 @@ def radonFunctorIsoRadonLCFunctor (p c : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)
 def radonCompHausFunctor (p c : ℝ≥0) [Fact (0 < p)] [Fact (p ≤ 1)] : Profinite.{0} ⥤ CompHaus.{0}
     where
   obj X := CompHaus.of <| X.radon p c
-  map X Y f := (radonFunctor p c).map f
+  map {X Y} f := (radonFunctor p c).map f
   map_id := (radonFunctor p c).map_id
-  map_comp _ _ _ f g := (radonFunctor p c).map_comp f g
+  map_comp {_ _ _} f g := (radonFunctor p c).map_comp f g
 
 /-- The functor `X ↦ X.Radon p c` is isomorphic to its locally constant variant.
 This is a variant taking values in `CompHaus` as opposed to `Top`. -/

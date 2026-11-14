@@ -112,7 +112,7 @@ def Profinite.pmzToFree' (S : Profinite.{u}) (n : ℕ) :
 def Profinite.pmzFunctor (n : ℕ) : Profinite.{u} ⥤ Profinite.{u}
     where
   obj S := S.pmz n
-  map S T f :=
+  map {S T} f :=
     Profinite.sigma.desc _ fun e =>
       (Profinite.product.lift (fun i : Fin n => T) fun i => Profinite.product.π _ i ≫ f) ≫
         Profinite.sigma.ι _ e
@@ -136,7 +136,7 @@ def Profinite.sigmaFunctor {J : Type u} [SmallCategory J] (F : J ⥤ Profinite.{
     [Fintype α] : J ⥤ Profinite.{u}
     where
   obj j := Profinite.sigma fun a : α => F.obj j
-  map i j e := Profinite.sigma.desc _ fun a => F.map e ≫ Profinite.sigma.ι _ a
+  map {i j} e := Profinite.sigma.desc _ fun a => F.map e ≫ Profinite.sigma.ι _ a
   map_id := by
     intro j; apply Profinite.sigma.hom_ext; intro a
     simp
@@ -269,7 +269,7 @@ def Profinite.pmzToLimit (S : Profinite.{u}) (n : ℕ) :
 def Profinite.powFunctor (n : ℕ) : Profinite.{u} ⥤ Profinite.{u}
     where
   obj S := S.pow n
-  map S T f := Profinite.mapPow f n
+  map {S T} f := Profinite.mapPow f n
   map_id := by intro X; apply Profinite.product.hom_ext; intro i; dsimp [Profinite.mapPow]; simp
   map_comp := by
     intro X Y Z f g
@@ -342,7 +342,7 @@ instance Profinite.discreteTopology_pmz (S : Profinite.{u}) [DiscreteTopology S]
   Sigma.discreteTopology
 
 -- move this
-theorem SignType.nnnorm_coe_int_le_one : ∀ i : SignType, ‖i : ℤ‖₊ ≤ 1
+theorem SignType.nnnorm_coe_int_le_one : ∀ i : SignType, ‖(i : ℤ)‖₊ ≤ 1
   | SignType.zero => by erw [nnnorm_zero]; exact zero_le'
   | SignType.neg => by simp
   | SignType.pos => by erw [nnnorm_one]

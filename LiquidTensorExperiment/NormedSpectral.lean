@@ -9,7 +9,7 @@ import Mathlib.CategoryTheory.ConcreteCategory.ReflectsIso
 import Mathlib.CategoryTheory.ConcreteCategory.UnbundledHom
 import LiquidTensorExperiment.Thm95.Constants.SpectralConstants
 
-#align_import SystemOfDoubleComplexes.normedSpectral
+#align_import normed_spectral
 
 noncomputable section
 

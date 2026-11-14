@@ -33,7 +33,7 @@ def mkEnd (X : HomologicalComplex 𝓐 c) (f : X ⟶ X) : HomologicalComplex (En
     where
   pt i := ⟨X.pt i, f.f i⟩
   d i j := ⟨X.d i j, f.comm i j⟩
-  shape' := by intro i j h; ext; apply X.shape i j h
+  shape := by intro i j h; ext; apply X.shape i j h
   d_comp_d' := by intros; ext; apply X.d_comp_d
 
 end HomologicalComplex
@@ -114,7 +114,7 @@ def mkBoHoCa' (X : CochainComplex 𝓐 ℤ)
       as :=
         { pt := fun i => ⟨X.pt i, f.f i⟩
           d := fun i j => ⟨X.d i j, f.comm _ _⟩
-          shape' := fun i j h => by ext; exact X.shape i j h
+          shape := fun i j h => by ext; exact X.shape i j h
           d_comp_d' := fun i j k hij hjk => by ext; apply HomologicalComplex.d_comp_d } }
   bdd :=
     by

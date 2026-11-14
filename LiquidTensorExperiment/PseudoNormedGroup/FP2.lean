@@ -20,9 +20,9 @@ namespace FreeAb
 def ofFunctor (C : Type _) [Category C] : C ⥤ FreeAb C
     where
   obj := of
-  map X Y f := FreeAbelianGroup.of f
+  map {X Y} f := FreeAbelianGroup.of f
   map_id X := rfl
-  map_comp X Y Z f g := rfl
+  map_comp {X Y Z} f g := rfl
 
 end FreeAb
 
@@ -307,7 +307,7 @@ def fPsystem [hκ : ∀ n, Fact (Monotone (Function.swap κ n))] :
     where
   obj c :=
     ChainComplex.of (FPsystem.x r' BD M κ c) (FPsystem.d r' BD M κ _) (FPsystem.d_comp_d _ _ _ _ _)
-  map c₁ c₂ h :=
+  map {c₁ c₂} h :=
     { f := fun n => by
         refine' (@FP2.res r' _ _ (id _) (BD.X n)).app M
         have := (hκ n).out; refine' ⟨this h.le⟩
@@ -318,7 +318,7 @@ def fPsystem [hκ : ∀ n, Fact (Monotone (Function.swap κ n))] :
         congr 1
         apply UniversalMap.res_comp_evalFP2 }
   map_id c := by ext n; dsimp; rw [Filtration.castLe_refl, (FreeAb.ofFunctor _).map_id]; rfl
-  map_comp c₁ c₂ c₃ h₁₂ h₂₃ := by ext n; dsimp;
+  map_comp {c₁ c₂ c₃} h₁₂ h₂₃ := by ext n; dsimp;
     rw [← (FreeAb.ofFunctor _).map_comp, Filtration.castLe_comp]
 
 def fPsystem.tinv [Fact (0 < r')] (κ₁ κ₂ : ℝ≥0 → ℕ → ℝ≥0) [∀ c, BD.Suitable (κ₁ c)]

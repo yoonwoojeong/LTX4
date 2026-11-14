@@ -59,7 +59,7 @@ def Cone.d : ∀ i j : ℤ, Cone.x A B i ⟶ Cone.x A B j := fun i j =>
 def cone : CochainComplex V ℤ where
   pt := Cone.x A B
   d := Cone.d f
-  shape' i j hij := dif_neg hij
+  shape i j hij := dif_neg hij
   d_comp_d' i j k (hij : _ = _) (hjk : _ = _) :=
     by
     substs hij hjk
@@ -110,7 +110,7 @@ def HomotopyCategory.liftTriangle :
   obj t :=
     triangulated.triangle.mk _ ((HomotopyCategory.quotient _ _).map t.mor₁)
       ((HomotopyCategory.quotient _ _).map t.mor₂) ((HomotopyCategory.quotient _ _).map t.mor₃)
-  map t t' f :=
+  map {t t'} f :=
     { hom₁ := (HomotopyCategory.quotient _ _).map f.hom₁
       hom₂ := (HomotopyCategory.quotient _ _).map f.hom₂
       hom₃ := (HomotopyCategory.quotient _ _).map f.hom₃
@@ -118,7 +118,7 @@ def HomotopyCategory.liftTriangle :
       comm₂' := by dsimp; rw [← Functor.map_comp, ← Functor.map_comp, f.comm₂]
       comm₃' := by dsimp; rw [← Functor.map_comp, ← Functor.map_comp, f.comm₃] }
   map_id X := by ext <;> exact CategoryTheory.Functor.map_id _ _
-  map_comp X Y Z f g := by ext <;> exact CategoryTheory.Functor.map_comp _ _ _
+  map_comp {X Y Z} f g := by ext <;> exact CategoryTheory.Functor.map_comp _ _ _
 
 variable {V}
 
@@ -209,9 +209,9 @@ def cone.triangleFunctorial :
     Arrow (CochainComplex V ℤ) ⥤ triangulated.triangle (CochainComplex V ℤ)
     where
   obj f := cone.triangle f.hom
-  map f g c := cone.triangleMap c.w.symm
+  map {f g} c := cone.triangleMap c.w.symm
   map_id X := cone.triangleMap_id _
-  map_comp X Y Z f g := by ext <;> dsimp [cone.map, cone, cone.X] <;> simp
+  map_comp {X Y Z} f g := by ext <;> dsimp [cone.map, cone, cone.X] <;> simp
 
 -- I suppose this is also not true?
 -- def cone.triangleₕ_functorial :

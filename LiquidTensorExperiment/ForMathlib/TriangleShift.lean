@@ -75,7 +75,7 @@ def triangleShiftMap {T₁ T₂ : triangle C} (f : T₁ ⟶ T₂) (i : ℤ) :
 def triangleShiftFunctor (i : ℤ) : triangle C ⥤ triangle C
     where
   obj T := triangleShiftObj C T i
-  map T₁ T₂ f := triangleShiftMap C f _
+  map {T₁ T₂} f := triangleShiftMap C f _
   map_id := by
     intro T
     ext

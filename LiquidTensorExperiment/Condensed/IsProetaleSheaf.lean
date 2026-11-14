@@ -5,11 +5,15 @@ import LiquidTensorExperiment.ForMathlib.Profinite.DisjointUnion
 import LiquidTensorExperiment.ForMathlib.FintypeInduction
 import Mathlib.Tactic.DeriveFintype
 
-#align_import condensed.IsProetaleSheaf
+#align_import condensed.is_proetale_sheaf
 
 -- for pbool
 -- for pbool
 universe w v u
+
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
 
 namespace CategoryTheory.Functor
 
@@ -674,8 +678,6 @@ theorem equalizerCondition_of_isProetaleSheafOfTypes (h : P.IsProetaleSheafOfTyp
     use t
     ext1
     exact ht1 PUnit.unit
-
-noncomputable section
 
 def sigmaPiEquiv {α : FintypeCat.{w}} (X : α → Profinite.{w}) (h : P.FiniteProductCondition) :
     P.obj (op <| Profinite.sigma X) ≃ ∀ a, P.obj (op <| X a) :=

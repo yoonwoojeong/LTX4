@@ -1,7 +1,7 @@
 import LiquidTensorExperiment.Condensed.Tensor
 import LiquidTensorExperiment.ForMathlib.PreservesFiniteLimits
 
-#align_import condensed.tensor_shortExact
+#align_import condensed.tensor_short_exact
 
 noncomputable section
 

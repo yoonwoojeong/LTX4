@@ -42,7 +42,7 @@ def imker (C : CochainComplex 𝓐 ℤ) (n : ℤ) : CochainComplex 𝓐 ℤ
             (eqToIso (by rw [if_neg, if_pos hj]; linarith)).hom
       else 0
     else 0
-  shape' := by
+  shape := by
     rintro i j (h : _ ≠ _)
     split_ifs with hi
     · rw [dif_neg]

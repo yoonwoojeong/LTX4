@@ -4,7 +4,7 @@ import LiquidTensorExperiment.Condensed.ShortExact
 import LiquidTensorExperiment.Condensed.Acyclic
 import LiquidTensorExperiment.ForMathlib.AddCommGroup.Tensor
 
-#align_import Condensed.tensor
+#align_import condensed.tensor
 
 noncomputable section
 
@@ -75,7 +75,7 @@ def tensorFunctor : ExtrSheafProd.{u} Ab.{u + 1} ⥤ Ab.{u + 1} ⥤ ExtrSheafPro
         by
         nth_rw 1 [← Category.id_comp (𝟙 M)]
         rw [map_tensor_comp] }
-  map M N f :=
+  map {M N} f :=
     { app := fun A => mapTensor f (𝟙 _)
       naturality := fun A B g => by
         dsimp
@@ -83,7 +83,7 @@ def tensorFunctor : ExtrSheafProd.{u} Ab.{u + 1} ⥤ Ab.{u + 1} ⥤ ExtrSheafPro
   map_id M := by
     ext : 2
     simp
-  map_comp M N L f g := by
+  map_comp {M N L} f g := by
     ext x : 2
     dsimp
     nth_rw 1 [← Category.comp_id (𝟙 x)]
@@ -276,7 +276,7 @@ def tensorFunctor : ExtrSheaf.{u} Ab.{u + 1} ⥤ Ab.{u + 1} ⥤ ExtrSheaf.{u} Ab
         by
         nth_rw 1 [← Category.id_comp (𝟙 M)]
         rw [map_tensor_comp] }
-  map M N f :=
+  map {M N} f :=
     { app := fun A => mapTensor f (𝟙 _)
       naturality := fun A B g => by
         dsimp
@@ -284,7 +284,7 @@ def tensorFunctor : ExtrSheaf.{u} Ab.{u + 1} ⥤ Ab.{u + 1} ⥤ ExtrSheaf.{u} Ab
   map_id M := by
     ext : 2
     simp
-  map_comp M N L f g := by
+  map_comp {M N L} f g := by
     ext x : 2
     dsimp
     nth_rw 1 [← Category.comp_id (𝟙 x)]
@@ -347,7 +347,7 @@ def tensorFunctor : Condensed.{u} Ab.{u + 1} ⥤ Ab.{u + 1} ⥤ Condensed.{u} Ab
         by
         nth_rw 1 [← Category.id_comp (𝟙 M)]
         rw [map_tensor_comp] }
-  map M N f :=
+  map {M N} f :=
     { app := fun A => mapTensor f (𝟙 _)
       naturality := fun A B g => by
         dsimp
@@ -355,7 +355,7 @@ def tensorFunctor : Condensed.{u} Ab.{u + 1} ⥤ Ab.{u + 1} ⥤ Condensed.{u} Ab
   map_id M := by
     ext : 2
     simp
-  map_comp M N L f g := by
+  map_comp {M N L} f g := by
     ext x : 2
     dsimp
     nth_rw 1 [← Category.comp_id (𝟙 x)]

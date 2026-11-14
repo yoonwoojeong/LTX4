@@ -2,7 +2,7 @@ import LiquidTensorExperiment.ForMathlib.ComposableMorphisms
 import Mathlib.Algebra.Homology.Additive
 import LiquidTensorExperiment.ForMathlib.HomologicalComplexMapDToDFrom
 
-#align_import for_mathlib.ShortComplex
+#align_import for_mathlib.short_complex
 
 noncomputable section
 
@@ -141,14 +141,14 @@ def functorHomologicalComplex [HasZeroMorphisms C] {M : Type _} (c : ComplexShap
     HomologicalComplex C c ⥤ ShortComplex C
     where
   obj X := mk (X.dTo i) (X.dFrom i) (X.dTo_comp_dFrom i)
-  map X Y f :=
+  map {X Y} f :=
     ComposableMorphisms.Hom.mk (f.prev i) (f.f i) (f.next i) (f.comm_to i).symm (f.comm_from i).symm
   map_id X := by
     ext
     · exact X.prev_id i
     · rfl
     · exact X.next_id i
-  map_comp X Y Z f g := by
+  map_comp {X Y Z} f g := by
     ext
     · exact HomologicalComplex.prev_comp f g i
     · rfl

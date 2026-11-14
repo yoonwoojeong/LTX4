@@ -17,7 +17,7 @@ import LiquidTensorExperiment.ForMathlib.FreeAbelianExact
 import LiquidTensorExperiment.ForMathlib.Unflip
 import LiquidTensorExperiment.BreenDeligne.EvalPowFunctorNatTransCompatibility
 
-#align_import Condensed.bd_lemma
+#align_import condensed.bd_lemma
 
 noncomputable section
 

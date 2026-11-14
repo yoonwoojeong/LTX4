@@ -16,11 +16,13 @@ variable {A : Type u} [Category.{v} A] [Abelian A]
 
 local notation "𝒦" => HomotopyCategory A (ComplexShape.up ℤ)
 
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
 namespace HomologicalComplex
 
 variable {X Y Z : CochainComplex A ℤ} (f : X ⟶ Y) (g : Y ⟶ Z)
-
-noncomputable section
 
 -- The 5-lemma with no instances... I think this is more convenient to apply in practice.
 theorem CategoryTheory.Abelian.isIso_of_isIso_of_isIso_of_isIso_of_is_iso' :

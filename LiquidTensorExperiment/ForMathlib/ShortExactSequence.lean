@@ -27,7 +27,7 @@ import LiquidTensorExperiment.ForMathlib.AbelianCategory
 import LiquidTensorExperiment.ForMathlib.FinFunctor
 import LiquidTensorExperiment.ForMathlib.SplitExact
 
-#align_import for_mathlib.ShortExactSequence
+#align_import for_mathlib.short_exact_sequence
 
 noncomputable section
 
@@ -138,21 +138,21 @@ Case conversion may be inaccurate. Consider using '#align category_theory.short_
 @[simps]
 def fst : ShortExactSequence 𝒞 ⥤ 𝒞 where
   obj := fst
-  map A B f := f.1
+  map {A B} f := f.1
 
 /- warning: category_theory.short_exact_sequence.Snd clashes with category_theory.short_exact_sequence.snd -> CategoryTheory.ShortExactSequence.snd
 Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Snd CategoryTheory.ShortExactSequence.sndₓ'. -/
 @[simps]
 def snd : ShortExactSequence 𝒞 ⥤ 𝒞 where
   obj := snd
-  map A B f := f.2
+  map {A B} f := f.2
 
 /- warning: category_theory.short_exact_sequence.Trd clashes with category_theory.short_exact_sequence.trd -> CategoryTheory.ShortExactSequence.trd
 Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Trd CategoryTheory.ShortExactSequence.trdₓ'. -/
 @[simps]
 def trd : ShortExactSequence 𝒞 ⥤ 𝒞 where
   obj := trd
-  map A B f := f.3
+  map {A B} f := f.3
 
 @[simps]
 def fNat : fst 𝒞 ⟶ snd 𝒞 where
@@ -242,11 +242,11 @@ Case conversion may be inaccurate. Consider using '#align category_theory.short_
 def functor : ShortExactSequence 𝒞 ⥤ Fin 3 ⥤ 𝒞
     where
   obj := ShortExactSequence.functor
-  map A B f :=
+  map {A B} f :=
     { app := functorMap f
       naturality := fun i j hij => (functorMap_naturality f i j hij.le).symm }
   map_id A := by ext i; fin_cases i <;> rfl
-  map_comp A B C f g := by ext i; fin_cases i <;> rfl
+  map_comp {A B C} f g := by ext i; fin_cases i <;> rfl
 
 end ShortExactSequence
 
