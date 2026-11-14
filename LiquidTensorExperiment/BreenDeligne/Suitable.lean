@@ -36,7 +36,8 @@ noncomputable def rescaleConstants (κ : ℕ → ℝ≥0) (N : ℝ≥0) : ℕ �
 namespace rescaleConstants
 
 @[simp]
-theorem one (κ : ℕ → ℝ≥0) : rescaleConstants κ 1 = κ := by ext i;
+theorem one (κ : ℕ → ℝ≥0) : rescaleConstants κ 1 = κ := by
+  funext i
   simp only [rescaleConstants, mul_one, inv_one]
 
 end rescaleConstants
@@ -54,10 +55,10 @@ variable (f : BasicUniversalMap m n)
 /-- Addition goes from `Lbar r' S c` to `Lbar r' S κ` for suitable `κ`.
 This predicate says what *suitable* means for basic universal maps.
 See Lemma 9.11 of [Analytic]. -/
-def Suitable (f : BasicUniversalMap m n) (c₁ c₂ : ℝ≥0) : Prop :=
-  ∀ i, (∑ j, ↑(f i j).natAbs) * c₁ ≤ c₂
-
-attribute [class] suitable
+-- Porting note: in Lean 4 `attribute [class]` is not allowed on a `def`, so `Suitable` is
+-- declared as a class with a single field `out` (the original body).
+class Suitable (f : BasicUniversalMap m n) (c₁ c₂ : ℝ≥0) : Prop where
+  out : ∀ i, (∑ j, ↑(f i j).natAbs) * c₁ ≤ c₂
 
 theorem sup_hMul_le (f : BasicUniversalMap m n) (c₁ c₂ : ℝ≥0) [h : f.Suitable c₁ c₂] :
     (Finset.univ.sup fun i => ∑ j, ↑(f i j).natAbs) * c₁ ≤ c₂ :=
@@ -67,20 +68,22 @@ theorem sup_hMul_le (f : BasicUniversalMap m n) (c₁ c₂ : ℝ≥0) [h : f.Sui
   rw [mul_comm, NNReal.mul_le_iff_le_inv H, Finset.sup_le_iff]
   rintro i -
   rw [← NNReal.mul_le_iff_le_inv H, mul_comm]
-  apply h
+  exact h.out i
 
 instance suitable_hMul_left (f : BasicUniversalMap m n) [h : f.Suitable c₁ c₂] :
-    f.Suitable (c * c₁) (c * c₂) := fun i => by rw [mul_left_comm]; exact mul_le_mul' le_rfl (h i)
+    f.Suitable (c * c₁) (c * c₂) :=
+  ⟨fun i => by
+    rw [mul_left_comm]
+    exact mul_le_mul' le_rfl (h.out i)⟩
 
 instance suitable_hMul_right (f : BasicUniversalMap m n) [h : f.Suitable c₁ c₂] :
-    f.Suitable (c₁ * c) (c₂ * c) := by rw [mul_comm _ c, mul_comm _ c];
+    f.Suitable (c₁ * c) (c₂ * c) := by
+  rw [mul_comm _ c, mul_comm _ c]
   exact BasicUniversalMap.suitable_hMul_left _ _ _ _
 
 instance suitable_id : (id n).Suitable c c := by
-  intro i
-  calc
-    _ ≤ 1 * c := mul_le_mul' (le_of_eq _) le_rfl
-    _ = c := one_mul c
+  refine ⟨fun i => ?_⟩
+  refine (mul_le_mul' (le_of_eq ?_) le_rfl).trans (one_mul c).le
   simp only [id, Int.natAbs]
   rw [Finset.sum_eq_single i]
   · simp only [Matrix.one_apply_eq, Nat.cast_one, Int.natAbs_one]
@@ -92,23 +95,17 @@ instance suitable_id : (id n).Suitable c c := by
 theorem suitable_comp {g : BasicUniversalMap m n} {f : BasicUniversalMap l m} {c₁ : ℝ≥0} (c₂ : ℝ≥0)
     {c₃ : ℝ≥0} [hg : g.Suitable c₂ c₃] [hf : f.Suitable c₁ c₂] : (comp g f).Suitable c₁ c₃ :=
   by
-  intro i
+  refine ⟨fun i => ?_⟩
   simp only [← Nat.coe_castRingHom, ← RingHom.map_sum, comp, Matrix.mul_apply]
   calc
     ↑(∑ k, (∑ j, g i j * f j k).natAbs) * c₁ ≤ ↑(∑ j, (g i j).natAbs * ∑ k, (f j k).natAbs) * c₁ :=
-      _
+      ?_
     -- proof below
-        _ =
-        ∑ j, ↑(g i j).natAbs * ((∑ k, ↑(f j k).natAbs) * c₁) :=
-      _
+    _ = ∑ j, ↑(g i j).natAbs * ((∑ k, ↑(f j k).natAbs) * c₁) := ?_
     -- proof below
-        _ ≤
-        ∑ j, ↑(g i j).natAbs * c₂ :=
-      _
+    _ ≤ ∑ j, ↑(g i j).natAbs * c₂ := ?_
     -- proof below
-        _ ≤
-        c₃ :=
-      by rw [← Finset.sum_mul]; exact hg i
+    _ ≤ c₃ := by rw [← Finset.sum_mul]; exact hg.out i
   · refine' mul_le_mul' _ le_rfl
     rw [Nat.cast_le]
     simp only [Finset.mul_sum]
@@ -118,66 +115,71 @@ theorem suitable_comp {g : BasicUniversalMap m n} {f : BasicUniversalMap l m} {c
     simp only [← Int.natAbs_mul]
     apply nat_abs_sum_le
   · simp only [← Nat.coe_castRingHom, RingHom.map_sum, RingHom.map_mul, Finset.sum_mul, mul_assoc]
-  · apply Finset.sum_le_sum; rintro j -; exact mul_le_mul' le_rfl (hf j)
+  · apply Finset.sum_le_sum; rintro j -; exact mul_le_mul' le_rfl (hf.out j)
 
-instance (priority := 1001) zero_suitable : (0 : BasicUniversalMap m n).Suitable c₁ c₂ := fun i =>
-  by
+instance (priority := 1001) zero_suitable : (0 : BasicUniversalMap m n).Suitable c₁ c₂ :=
+  ⟨fun i => by
   simp only [Nat.cast_zero, MulZeroClass.zero_mul, zero_le', Finset.sum_const_zero,
-    DMatrix.zero_apply, Int.natAbs_zero]
+    DMatrix.zero_apply, Int.natAbs_zero]⟩
 
-instance suitable_zero_left (f : BasicUniversalMap m n) (c : ℝ≥0) : f.Suitable 0 c := fun j => by
-  rw [MulZeroClass.mul_zero]; exact zero_le'
+instance suitable_zero_left (f : BasicUniversalMap m n) (c : ℝ≥0) : f.Suitable 0 c :=
+  ⟨fun _ => by
+    rw [MulZeroClass.mul_zero]
+    exact zero_le'⟩
 
 theorem Suitable.le (hf : f.Suitable c₂ c₃) (h1 : c₁ ≤ c₂) (h2 : c₃ ≤ c₄) : f.Suitable c₁ c₄ :=
-  fun j => (mul_le_mul' le_rfl h1).trans ((hf j).trans h2)
+  ⟨fun j => (mul_le_mul' le_rfl h1).trans ((hf.out j).trans h2)⟩
 
 theorem suitable_of_le [hf : f.Suitable c₂ c₃] (h1 : c₁ ≤ c₂) (h2 : c₃ ≤ c₄) : f.Suitable c₁ c₄ :=
   hf.le _ _ _ _ _ h1 h2
 
 instance suitable_hMul_left_one_le (f : BasicUniversalMap m n) [h : f.Suitable c₁ c₂]
     [Fact (1 ≤ c)] : f.Suitable c₁ (c * c₂) :=
-  h.le _ _ _ _ _ le_rfl <| Fact.out _
+  h.le _ _ _ _ _ le_rfl <| Fact.out
 
 instance suitable_hMul_right_one_le (f : BasicUniversalMap m n) [h : f.Suitable c₁ c₂]
     [Fact (1 ≤ c)] : f.Suitable c₁ (c₂ * c) :=
-  h.le _ _ _ _ _ le_rfl <| Fact.out _
+  h.le _ _ _ _ _ le_rfl <| Fact.out
 
 instance suitable_hMul_left_le_one (f : BasicUniversalMap m n) [h : f.Suitable c₁ c₂]
     [Fact (c ≤ 1)] : f.Suitable (c * c₁) c₂ :=
-  h.le _ _ _ _ _ (Fact.out _) le_rfl
+  h.le _ _ _ _ _ Fact.out le_rfl
 
 instance suitable_hMul_right_le_one (f : BasicUniversalMap m n) [h : f.Suitable c₁ c₂]
     [Fact (c ≤ 1)] : f.Suitable (c₁ * c) c₂ :=
-  h.le _ _ _ _ _ (Fact.out _) le_rfl
+  h.le _ _ _ _ _ Fact.out le_rfl
 
 instance suitable_add (f g : BasicUniversalMap m n) (c cf cg : ℝ≥0) [hf : f.Suitable c cf]
     [hg : g.Suitable c cg] : (f + g).Suitable c (cf + cg) :=
   by
-  intro i
+  refine ⟨fun i => ?_⟩
   calc
     (∑ j : Fin m, ↑((f + g) i j).natAbs) * c ≤
         (∑ j : Fin m, ↑(f i j).natAbs + ∑ j : Fin m, ↑(g i j).natAbs) * c :=
-      _
-    _ ≤ cf + cg := _
+      ?_
+    _ ≤ cf + cg := ?_
   · rw [← Finset.sum_add_distrib]
     refine' mul_le_mul' (Finset.sum_le_sum _) le_rfl
     rintro j -
     rw [← Nat.cast_add, Nat.cast_le]
     apply Int.natAbs_add_le
-  · rw [add_mul]; apply add_le_add (hf i) (hg i)
+  · rw [add_mul]; apply add_le_add (hf.out i) (hg.out i)
 
 instance suitable_sum {ι : Type _} (s : Finset ι) (f : ι → BasicUniversalMap m n) {c : ℝ≥0}
     {κ' : ι → ℝ≥0} [hf : ∀ i, (f i).Suitable c (κ' i)] :
     (∑ i in s, f i).Suitable c (∑ i in s, κ' i) := by
   classical
-  apply Finset.induction_on s
-  · simp only [Finset.sum_empty]; infer_instance
-  · intro i s his IH
-    simp only [Finset.sum_insert his]; skip; infer_instance
+  induction s using Finset.induction_on with
+  | empty =>
+    simp only [Finset.sum_empty]
+    infer_instance
+  | @insert i s his IH =>
+    simp only [Finset.sum_insert his]
+    infer_instance
 
 instance proj_suitable (N : ℕ) (k : Fin N) (c : ℝ≥0) : (proj n k).Suitable c c :=
   by
-  intro i
+  refine ⟨fun i => ?_⟩
   apply le_of_eq
   dsimp [proj, Matrix.kronecker, BreenDeligne.BasicUniversalMap.projAux, -finProdFinEquiv_symm_apply]
   rw [Finset.sum_eq_single (finProdFinEquiv (k, i))]
@@ -185,7 +187,7 @@ instance proj_suitable (N : ℕ) (k : Fin N) (c : ℝ≥0) : (proj n k).Suitable
     simp only [Equiv.symm_apply_apply, if_pos rfl, Matrix.one_apply_eq, Nat.cast_one,
       Int.natAbs_one, one_mul]
   · rintro j - hj
-    generalize hj' : fin_prod_fin_equiv.symm j = j'
+    generalize hj' : finProdFinEquiv.symm j = j'
     rw [Equiv.symm_apply_eq] at hj' ; subst j
     cases' j' with a b
     rw [Matrix.one_apply, boole_mul, ← ite_and]
@@ -196,15 +198,15 @@ instance proj_suitable (N : ℕ) (k : Fin N) (c : ℝ≥0) : (proj n k).Suitable
 instance hMul_suitable (N : ℕ) (f : BasicUniversalMap m n) [hf : f.Suitable c₁ c₂] :
     (BasicUniversalMap.mul N f).Suitable c₁ c₂ :=
   by
-  intro i
-  refine' (le_of_eq _).trans (hf <| (fin_prod_fin_equiv.symm i).2)
+  refine ⟨fun i => ?_⟩
+  refine' (le_of_eq _).trans (hf.out <| (finProdFinEquiv.symm i).2)
   congr 1
-  rw [← fin_prod_fin_equiv.sum_comp, ← Finset.univ_product_univ, Finset.sum_product,
+  rw [← finProdFinEquiv.sum_comp, ← Finset.univ_product_univ, Finset.sum_product,
     Finset.sum_comm]
   apply Fintype.sum_congr
   intro j
   dsimp [mul, Matrix.kronecker, -finProdFinEquiv_symm_apply]
-  rw [Finset.sum_eq_single (fin_prod_fin_equiv.symm i).1]
+  rw [Finset.sum_eq_single (finProdFinEquiv.symm i).1]
   · congr 2
     simp only [one_mul, Equiv.symm_apply_apply, Matrix.one_apply_eq]
   · rintro k - hk
@@ -212,15 +214,14 @@ instance hMul_suitable (N : ℕ) (f : BasicUniversalMap m n) [hf : f.Suitable c�
       Matrix.one_apply_ne' hk, eq_self_iff_true, true_or_iff]
   · intro h; exact (h <| Finset.mem_univ _).elim
 
-instance oneMulHom_suitable : (oneMulHom n).Suitable c c := by rw [BreenDeligne.BasicUniversalMap.oneMulHom_eq_proj];
+instance oneMulHom_suitable : (oneMulHom n).Suitable c c := by
+  rw [BreenDeligne.BasicUniversalMap.oneMulHom_eq_proj]
   infer_instance
 
 instance mulMulInv_suitable (k : ℕ) : (mulMulInv m n k).Suitable c c :=
   by
-  intro i
-  calc
-    _ ≤ 1 * c := mul_le_mul' (le_of_eq _) le_rfl
-    _ = c := one_mul c
+  refine ⟨fun i => ?_⟩
+  refine (mul_le_mul' (le_of_eq ?_) le_rfl).trans (one_mul c).le
   dsimp only [BreenDeligne.BasicUniversalMap.mulMulInv]
   simp only [Matrix.reindexLinearEquiv_apply, Matrix.reindex_apply, Matrix.submatrix_apply,
     Matrix.one_apply, Equiv.eq_symm_apply]
@@ -246,13 +247,14 @@ See Lemma 9.11 of [Analytic]. -/
 def Suitable (c₁ c₂ : ℝ≥0) (f : UniversalMap m n) : Prop :=
   ∀ g ∈ f.support, BasicUniversalMap.Suitable g c₁ c₂
 
-attribute [class] suitable
+attribute [class] Suitable
 
 theorem suitable_of_mem_support (f : UniversalMap m n) (c₁ c₂ : ℝ≥0) (g : BasicUniversalMap m n)
     (hg : g ∈ f.support) [h : f.Suitable c₁ c₂] : g.Suitable c₁ c₂ :=
   h g hg
 
-theorem suitable_freePredicate (c₁ c₂ : ℝ≥0) : FreePredicate (@Suitable m n c₁ c₂) := by intro x;
+theorem suitable_freePredicate (c₁ c₂ : ℝ≥0) : FreePredicate (@Suitable m n c₁ c₂) := by
+  intro x
   simp only [suitable, forall_eq, Finset.mem_singleton, support_of]
 
 theorem suitable_congr (f g : UniversalMap m n) (c₁ c₂ : ℝ≥0) (h : f = g) :
@@ -379,24 +381,25 @@ instance suitable_hMul_left (f : UniversalMap m n) [h : f.Suitable c₁ c₂] :
   @BasicUniversalMap.suitable_hMul_left _ _ _ _ _ _ (h g hg)
 
 instance suitable_hMul_right (f : UniversalMap m n) [h : f.Suitable c₁ c₂] :
-    f.Suitable (c₁ * c) (c₂ * c) := by rw [mul_comm _ c, mul_comm _ c];
+    f.Suitable (c₁ * c) (c₂ * c) := by
+  rw [mul_comm _ c, mul_comm _ c]
   exact UniversalMap.suitable_hMul_left _ _ _ _
 
 instance suitable_hMul_left_one_le (f : UniversalMap m n) [h : f.Suitable c₁ c₂] [Fact (1 ≤ c)] :
     f.Suitable c₁ (c * c₂) :=
-  h.le _ _ _ _ le_rfl <| Fact.out _
+  h.le _ _ _ _ le_rfl <| Fact.out
 
 instance suitable_hMul_right_one_le (f : UniversalMap m n) [h : f.Suitable c₁ c₂] [Fact (1 ≤ c)] :
     f.Suitable c₁ (c₂ * c) :=
-  h.le _ _ _ _ le_rfl <| Fact.out _
+  h.le _ _ _ _ le_rfl <| Fact.out
 
 instance suitable_hMul_left_le_one (f : UniversalMap m n) [h : f.Suitable c₁ c₂] [Fact (c ≤ 1)] :
     f.Suitable (c * c₁) c₂ :=
-  h.le _ _ _ _ (Fact.out _) le_rfl
+  h.le _ _ _ _ Fact.out le_rfl
 
 instance suitable_hMul_right_le_one (f : UniversalMap m n) [h : f.Suitable c₁ c₂] [Fact (c ≤ 1)] :
     f.Suitable (c₁ * c) c₂ :=
-  h.le _ _ _ _ (Fact.out _) le_rfl
+  h.le _ _ _ _ Fact.out le_rfl
 
 instance suitable_id : (id n).Suitable c c := fun g hg => by
   simp only [id, Finset.mem_singleton, support_of] at hg ; subst g; infer_instance
@@ -562,7 +565,7 @@ where `b` satisfies `r ^ b * N ≤ 1` and `κ ≤ r' ^ b * c₂`. -/
 def VerySuitable (f : UniversalMap m n) (r r' : outParam ℝ≥0) (c₁ c₂ : ℝ≥0) : Prop :=
   ∃ (N b : ℕ) (κ : ℝ≥0), f.BoundBy N ∧ f.Suitable c₁ κ ∧ r ^ b * N ≤ 1 ∧ κ ≤ r' ^ b * c₂
 
-attribute [class] very_suitable
+attribute [class] VerySuitable
 
 namespace VerySuitable
 
@@ -571,7 +574,7 @@ variable (f : UniversalMap m n)
 instance (priority := 100) suitable [hr' : Fact (r' ≤ 1)] [hf : f.VerySuitable r r' c₁ c₂] :
     f.Suitable c₁ c₂ := by
   rcases hf with ⟨N, b, κ, hN, hf, hr, H⟩
-  exact hf.le _ _ _ _ le_rfl (H.trans <| Fact.out _)
+  exact hf.le _ _ _ _ le_rfl (H.trans <| Fact.out)
 
 instance hMul_left (f : UniversalMap m n) [h : f.VerySuitable r r' c₁ c₂] :
     f.VerySuitable r r' (c * c₁) (c * c₂) :=
@@ -582,7 +585,8 @@ instance hMul_left (f : UniversalMap m n) [h : f.VerySuitable r r' c₁ c₂] :
   exact mul_le_mul' le_rfl H
 
 instance hMul_right (f : UniversalMap m n) [h : f.VerySuitable r r' c₁ c₂] :
-    f.VerySuitable r r' (c₁ * c) (c₂ * c) := by rw [mul_comm _ c, mul_comm _ c];
+    f.VerySuitable r r' (c₁ * c) (c₂ * c) := by
+  rw [mul_comm _ c, mul_comm _ c]
   apply UniversalMap.VerySuitable.hMul_left
 
 theorem zero : (0 : UniversalMap m n).VerySuitable r r' c₁ c₂ :=
