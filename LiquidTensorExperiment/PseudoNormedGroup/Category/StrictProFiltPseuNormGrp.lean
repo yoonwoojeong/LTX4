@@ -60,7 +60,8 @@ instance : ConcreteCategory ProFiltPseuNormGrp₁.{u}
 
 /-- The forgetful functor from groups filtered by profinite spaces to
 groups filtered by compact Hausdorff spaces. -/
-def pFPNG₁ToCHFPNG₁ₑₗ : ProFiltPseuNormGrp₁.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}
+-- Porting note: `_root_` as in Lean 3 (mathport dropped it)
+def _root_.pFPNG₁ToCHFPNG₁ₑₗ : ProFiltPseuNormGrp₁.{u} ⥤ CompHausFiltPseuNormGrp₁.{u}
     where
   obj M :=
     { M

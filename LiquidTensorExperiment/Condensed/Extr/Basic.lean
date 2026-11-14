@@ -34,7 +34,8 @@ instance : Category ExtrDisc where
   comp X Y Z f g := ⟨f.val ≫ g.val⟩
 
 @[simps]
-def extrDiscToProfinite : ExtrDisc ⥤ Profinite
+-- Porting note: `_root_` as in Lean 3 (mathport dropped it)
+def _root_.extrDiscToProfinite : ExtrDisc ⥤ Profinite
     where
   obj := val
   map X Y f := f.val

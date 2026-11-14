@@ -67,7 +67,8 @@ protected theorem mem_filtration (x : LbarLe r' S c) : x.1 ∈ filtration (Lbar 
 
 /-- The inclusion map `Lbar_le r' S c₁ → Lbar_le r' S c₂` for `c₁ ≤ c₂`. -/
 protected def castLe [hc : Fact (c₁ ≤ c₂)] (x : LbarLe r' S c₁) : LbarLe r' S c₂ :=
-  ⟨⟨⇑x, x.coeff_zero, x.summable⟩, filtration_mono hc.out x.mem_filtration⟩
+  -- Porting note: use `x.1` directly (definitionally the same as rebuilding the `Lbar`)
+  ⟨x.1, filtration_mono hc.out x.mem_filtration⟩
 
 @[simp]
 theorem coe_castLe [hc : Fact (c₁ ≤ c₂)] (x : LbarLe r' S c₁) :
@@ -241,10 +242,10 @@ theorem mkSeq_sum_le {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M}
   refine' le_of_tendsto (LbarLe.mkSeq_tendsto compat) (eventually_of_forall _)
   rintro (_ | n)
   · simp only [Finset.sum_empty, Finset.range_zero, Finset.sum_const_zero, zero_le']
-  · convert (T n).sum_le
-    funext s
-    rw [LbarLe.mkSeq_sum_range_eq T compat s n]
-    rfl
+  · refine' le_trans (le_of_eq _) (T n).sum_le
+    apply Finset.sum_congr rfl
+    intro s _
+    exact LbarLe.mkSeq_sum_range_eq T compat s n
 
 theorem truncate_mkSeq {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) (M : ℕ) :
@@ -321,14 +322,14 @@ instance [Fact (0 < r')] : CompactSpace (LbarLe r' S c) :=
   obtain ⟨h⟩ := (by infer_instance : CompactSpace (LbarBdd.Limit r' (FintypeCat.of S) c))
   exact h
 
-instance : TotallyDisconnectedSpace (LbarLe r' S c)
-    where isTotallyDisconnected_univ := by
-      rintro A - hA
-      suffices subsing : (homeo '' A).Subsingleton
-      · intro x hx y hy; apply_rules [homeo.injective, subsing, Set.mem_image_of_mem]
-      obtain ⟨h⟩ :=
-        (by infer_instance : TotallyDisconnectedSpace (LbarBdd.Limit r' (FintypeCat.of S) c))
-      exact h _ (by tauto) (IsPreconnected.image hA _ homeo.continuous.continuousOn)
+instance : TotallyDisconnectedSpace (LbarLe r' S c) where
+  isTotallyDisconnected_univ := by
+    rintro A - hA
+    suffices subsing : (homeo '' A).Subsingleton
+    · intro x hx y hy; apply_rules [homeo.injective, subsing, Set.mem_image_of_mem]
+    obtain ⟨h⟩ :=
+      (by infer_instance : TotallyDisconnectedSpace (LbarBdd.Limit r' (FintypeCat.of S) c))
+    exact h _ (by tauto) (IsPreconnected.image hA _ homeo.continuous.continuousOn)
 
 theorem continuous_iff {α : Type _} [TopologicalSpace α] (f : α → LbarLe r' S c) :
     Continuous f ↔ ∀ M, Continuous (truncate M ∘ f) :=
@@ -374,7 +375,9 @@ theorem continuous_neg : Continuous (LbarLe.neg : LbarLe r' S c → LbarLe r' S 
   rw [continuous_iff]
   intro M
   change Continuous fun x : LbarLe r' S c => LbarBdd.neg (truncate M x)
-  exact Continuous.comp continuous_of_discreteTopology continuous_truncate
+  exact Continuous.comp
+    (continuous_of_discreteTopology (f := fun F : LbarBdd r' (FintypeCat.of S) c M => LbarBdd.neg F))
+    continuous_truncate
 
 end TopologicalStructure
 
@@ -384,14 +387,21 @@ theorem continuous_castLe (r' : ℝ≥0) (S : Type u) [Fintype S] (c₁ c₂ : �
   rw [continuous_iff]
   intro M
   simp only [Function.comp, LbarLe.truncate_castLe]
-  exact continuous_bot.comp continuous_truncate
+  exact Continuous.comp
+    (continuous_of_discreteTopology
+      (f := fun y : LbarBdd r' (FintypeCat.of S) c₁ M =>
+        (LbarBdd.castLe y : LbarBdd r' (FintypeCat.of S) c₂ M)))
+    continuous_truncate
 
 /-! We now prove some scaffolding lemmas
 in order to prove that the action of `T⁻¹` is continuous. -/
 
 
+-- Porting note: the binder `x` in `h` is annotated `LbarLe r' S c₁` (Lean 3 inferred this from
+-- `g x`; Lean 4 would infer `Lbar r' S`). Lean 3 statement: `∀ x : Lbar_le r' S c₁, ↑(g x) = ⇑f ↑x`.
 theorem continuous_of_normed_group_hom (f : Lbar r' S →+ Lbar r' S)
-    (g : LbarLe r' S c₁ → LbarLe r' S c₂) (h : ∀ x, ↑(g x) = f x)
+    (g : LbarLe r' S c₁ → LbarLe r' S c₂)
+    (h : ∀ x : LbarLe r' S c₁, ((g x : LbarLe r' S c₂) : Lbar r' S) = f (x : Lbar r' S))
     (H :
       ∀ M, ∃ N, ∀ F : Lbar r' S, (∀ s i, i < N + 1 → F s i = 0) → ∀ s i, i < M + 1 → f F s i = 0) :
     Continuous g := by
@@ -407,8 +417,11 @@ theorem continuous_of_normed_group_hom (f : Lbar r' S →+ Lbar r' S)
     rw [this, ← Function.comp.assoc, ← Function.comp.assoc]
     apply continuous_bot.comp continuous_truncate
   ext1 x
-  suffices ∀ s i, i < M + 1 → (g x) s i = (g (φ (truncate N x))) s i by ext s i;
-    dsimp [Function.comp]; apply this; exact i.property
+  suffices ∀ s i, i < M + 1 → (g x) s i = (g (φ (truncate N x))) s i by
+    ext s i
+    dsimp [Function.comp]
+    apply this
+    exact i.isLt
   intro s i hi
   rw [← coe_coe_to_fun, h, ← coe_coe_to_fun, h, ← sub_eq_zero]
   show (f x - f (φ (truncate N x))) s i = 0
@@ -682,19 +695,20 @@ variables {r' c}
 -/
 end LbarLe
 
+-- Porting note: the fields below use `(inferInstance : _)` instead of `show _ by infer_instance`,
+-- as the latter is elaborated too late and leaves metavariables in the later fields.
 instance [Fact (0 < r')] : ProfinitelyFilteredPseudoNormedGroup (Lbar r' S) :=
   {
     Lbar.pseudoNormedGroup with
-    topology := fun c => show TopologicalSpace (LbarLe r' S c) by infer_instance
-    t2 := fun c => show T2Space (LbarLe r' S c) by infer_instance
-    td := fun c => show TotallyDisconnectedSpace (LbarLe r' S c) by infer_instance
-    compact := fun c => show CompactSpace (LbarLe r' S c) by infer_instance
+    topology := fun c => (inferInstance : TopologicalSpace (LbarLe r' S c))
+    t2 := fun c => (inferInstance : T2Space (LbarLe r' S c))
+    td := fun c => (inferInstance : TotallyDisconnectedSpace (LbarLe r' S c))
+    compact := fun c => (inferInstance : CompactSpace (LbarLe r' S c))
     continuous_add' := fun c₁ c₂ => LbarLe.continuous_add'
     continuous_neg' := fun c => LbarLe.continuous_neg
     continuous_castLe := fun c₁ c₂ => by
       intro h
-      rw [show PseudoNormedGroup.castLe = (LbarLe.castLe : LbarLe r' S c₁ → LbarLe r' S c₂) by ext;
-          rfl]
+      -- Porting note: `filtration (Lbar r' S) c` is definitionally `LbarLe r' S c`
       exact LbarLe.continuous_castLe r' S c₁ c₂ }
 
 /-

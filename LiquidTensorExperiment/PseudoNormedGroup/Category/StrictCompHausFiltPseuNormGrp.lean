@@ -46,7 +46,8 @@ instance {A B : CompHausFiltPseuNormGrp₁.{u}} : CoeFun (A ⟶ B) fun _ => A �
   to CompHaus-ly filtered pseudo-normed groups with bounded morphisms, which is the
   identity on objects. -/
 @[simps]
-def cHFPNG₁ToCHFPNGₑₗ : CompHausFiltPseuNormGrp₁ ⥤ CompHausFiltPseuNormGrp
+-- Porting note: `_root_` as in Lean 3 (mathport dropped it)
+def _root_.cHFPNG₁ToCHFPNGₑₗ : CompHausFiltPseuNormGrp₁ ⥤ CompHausFiltPseuNormGrp
     where
   obj M := CompHausFiltPseuNormGrp.of M
   map f := StrictComphausFilteredPseudoNormedGroupHom.toChfpsngHom f
