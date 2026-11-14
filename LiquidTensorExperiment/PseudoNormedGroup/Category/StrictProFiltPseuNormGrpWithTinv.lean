@@ -29,6 +29,9 @@ namespace ProFiltPseuNormGrpWithTinv₁
 
 variable (r : ℝ≥0)
 
+-- Porting note: `pFPNG₁ToCHFPNG₁ₑₗ` lives in the namespace `ProFiltPseuNormGrp₁` (it was `_root_` in Lean 3)
+open ProFiltPseuNormGrp₁ (pFPNG₁ToCHFPNG₁ₑₗ)
+
 instance : CoeSort (ProFiltPseuNormGrpWithTinv₁ r) (Type _) :=
   ⟨fun M => M.M⟩
 
@@ -43,38 +46,48 @@ instance : LargeCategory (ProFiltPseuNormGrpWithTinv₁.{u} r)
     where
   Hom A B := ComphausFilteredPseudoNormedGroupWithTinvHom r A B
   id A := ComphausFilteredPseudoNormedGroupWithTinvHom.id
-  comp A B C f g := g.comp f
+  comp f g := g.comp f
+  -- Porting note: Lean 3 proved the category laws automatically
+  id_comp _ := ComphausFilteredPseudoNormedGroupWithTinvHom.ext fun _ => rfl
+  comp_id _ := ComphausFilteredPseudoNormedGroupWithTinvHom.ext fun _ => rfl
+  assoc _ _ _ := ComphausFilteredPseudoNormedGroupWithTinvHom.ext fun _ => rfl
+
+-- Porting note: in Lean 3 morphisms unfolded to `ComphausFilteredPseudoNormedGroupWithTinvHom` and
+-- used its coercion; in Lean 4 the coercion to functions is declared explicitly
+instance {A B : ProFiltPseuNormGrpWithTinv₁.{u} r} : CoeFun (A ⟶ B) fun _ => A → B where
+  coe (f : ComphausFilteredPseudoNormedGroupWithTinvHom r A B) := f
 
 def pFPNGT₁ToPFPNGTₑₗ : ProFiltPseuNormGrpWithTinv₁.{u} r ⥤ ProFiltPseuNormGrpWithTinv.{u} r
     where
   obj M := ProFiltPseuNormGrpWithTinv.of r M
-  map A B f := f
+  map f := f
 
 instance : ConcreteCategory (ProFiltPseuNormGrpWithTinv₁.{u} r)
     where
   forget :=
     { obj := fun M => M
-      map := fun X Y f => f }
-  forget_faithful := ⟨⟩
+      map := fun f => f }
+  -- Porting note: Lean 3 proved this field automatically
+  forget_faithful := ⟨fun h => ComphausFilteredPseudoNormedGroupWithTinvHom.ext (congrFun h)⟩
 
 /-- The "forget the action of T⁻¹" functor on
   profinitely filtered (exhaustive pseudo-)normed groups. -/
-def pFPNGT₁ToPFPNG₁ₑₗ : ProFiltPseuNormGrpWithTinv₁.{u} r ⥤ ProFiltPseuNormGrp₁.{u}
+def _root_.pFPNGT₁ToPFPNG₁ₑₗ : ProFiltPseuNormGrpWithTinv₁.{u} r ⥤ ProFiltPseuNormGrp₁.{u}
     where
   obj M :=
     { M
       exhaustive' := M.exhaustive' }
-  map A B f :=
+  map f :=
     { toFun := f
       map_zero' := f.map_zero
       map_add' := f.map_add
-      strict' := f.Strict
+      strict' := f.strict
       continuous' := f.continuous' }
 
 /-- The forgetful functor which takes a profinitely filtered normed group with an action of T⁻¹,
 then forgets the action and considered it as a `CompHaus`ly filtered normed group. -/
 @[simps]
-def pFPNGT₁ToCHFPNG₁ₑₗ (r' : ℝ≥0) :
+def _root_.pFPNGT₁ToCHFPNG₁ₑₗ (r' : ℝ≥0) :
     ProFiltPseuNormGrpWithTinv₁.{u} r' ⥤ CompHausFiltPseuNormGrp₁.{u} :=
   pFPNGT₁ToPFPNG₁ₑₗ r' ⋙ pFPNG₁ToCHFPNG₁ₑₗ
 
@@ -101,14 +114,17 @@ def tinvLimitFun' {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWi
       CompHausFiltPseuNormGrp₁.ConePointTypeFilt ((K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r) ⋙ pFPNG₁ToCHFPNG₁ₑₗ)
         c :=
   ⟨r⁻¹ * c, fun j =>
-    ⟨tinv (tinvLimitFunAux r K ⟨c, x⟩ j : K.obj j),
-      tinv_mem_filtration _ _ (tinvLimitFunAux r K ⟨c, x⟩ j).2⟩,
+    -- Porting note: the type and `r` of `tinv` are given explicitly
+    ⟨tinv (r' := r) (M := (K.obj j).M) (tinvLimitFunAux r K ⟨c, x⟩ j : K.obj j),
+      tinv_mem_filtration (r' := r) (M := (K.obj j).M) _ _ (tinvLimitFunAux r K ⟨c, x⟩ j).2⟩,
     by
     intro i j f
-    ext1
-    show (K.map f) (Tinv _) = Tinv _
-    erw [(K.map f).map_tinv]; congr 1
-    simpa only [Functor.comp_map, Subtype.val_eq_coe, Subtype.ext_iff] using x.2 f⟩
+    -- Porting note: Lean 3's `ext1` is `Subtype.ext`
+    apply Subtype.ext
+    show (K.map f) (tinv (r' := r) (M := (K.obj i).M) _) = tinv (r' := r) (M := (K.obj j).M) _
+    erw [(K.map f).map_tinv]
+    congr 1
+    exact congrArg Subtype.val (x.2 f)⟩
 
 def tinvLimitFun {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r) :
     (ProFiltPseuNormGrp₁.limitCone (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r)).pt →
@@ -118,7 +134,7 @@ def tinvLimitFun {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWit
       rintro x y ⟨c, h₁, h₂, h⟩
       refine' ⟨r⁻¹ * c, mul_le_mul' le_rfl h₁, mul_le_mul' le_rfl h₂, _⟩
       ext j
-      show Tinv (Tinv_limit_fun_aux r K x j : K.obj j) = Tinv (Tinv_limit_fun_aux r K y j : K.obj j)
+      show tinv (tinvLimitFunAux r K x j : K.obj j) = tinv (tinvLimitFunAux r K y j : K.obj j)
       congr 1
       rw [Subtype.ext_iff, Function.funext_iff] at h 
       specialize h j; rwa [Subtype.ext_iff] at h )
@@ -139,30 +155,35 @@ def tinvLimitAddMonoidHom {J : Type u} [SmallCategory J]
   map_zero' := by
     apply Quotient.sound'
     dsimp only
-    refine' ⟨0, _, le_rfl, _⟩ <;> dsimp only [Tinv_limit_fun']
+    refine' ⟨0, _, le_rfl, _⟩ <;> dsimp only [tinvLimitFun']
     · rw [MulZeroClass.mul_zero]
-    · ext j; exact Tinv.map_zero
+    · ext j
+      exact (tinv (r' := r) (M := (K.obj j).M)).map_zero
   map_add' := by
     rintro ⟨cx, x⟩ ⟨cy, y⟩
     show
-      Tinv_limit_fun r K (incl cx x + incl cy y) =
-        Tinv_limit_fun r K (incl cx x) + Tinv_limit_fun r K (incl cy y)
-    simp only [incl_add_incl, Tinv_limit_fun_incl]
+      tinvLimitFun r K (incl cx x + incl cy y) =
+        tinvLimitFun r K (incl cx x) + tinvLimitFun r K (incl cy y)
+    simp only [incl_add_incl, tinvLimitFun_incl]
+    -- Porting note: `simp` does not rewrite the right hand side sum (instance mismatch)
+    erw [incl_add_incl]
     apply Quotient.sound'
     dsimp only
-    refine' ⟨_, le_rfl, _, _⟩ <;> simp only [mul_add]
-    ext j; refine' Tinv.map_add _ _
+    refine' ⟨_, le_rfl, _, _⟩
+    · exact (mul_add _ _ _).symm.le
+    · ext j
+      exact (tinv (r' := r) (M := (K.obj j).M)).map_add _ _
 
 open PseudoNormedGroup ProFiltPseuNormGrp₁ CompHausFiltPseuNormGrp₁
 
-theorem Tinv_limit_aux {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r)
+theorem tinvLimit_aux {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r)
     (c : ℝ≥0) (x : (ProFiltPseuNormGrp₁.limitCone (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r)).pt)
     (hx : x ∈ filtration (ProFiltPseuNormGrp₁.limitCone (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r)).pt c) :
     tinvLimitAddMonoidHom r K x ∈
       filtration (ProFiltPseuNormGrp₁.limitCone (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r)).pt (r⁻¹ * c) :=
   by
   obtain ⟨x, rfl⟩ := hx
-  dsimp only [Tinv_limit_add_monoid_hom_apply, Tinv_limit_fun_incl]
+  dsimp only [tinvLimitAddMonoidHom_apply, tinvLimitFun_incl]
   exact ⟨_, rfl⟩
 
 -- TODO: break up this proof into pieces.
@@ -174,20 +195,22 @@ def tinvLimit {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTi
     (by
       intro c
       fconstructor
-      · apply Tinv_limit_aux
+      · apply tinvLimit_aux
       · let X := (ProFiltPseuNormGrp₁.limitCone (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r)).pt
         let F : filtration X c → filtration X (r⁻¹ * c) := fun x =>
-          ⟨Tinv_limit_add_monoid_hom r K x, Tinv_limit_aux _ _ _ _ x.2⟩
+          ⟨tinvLimitAddMonoidHom r K x, tinvLimit_aux _ _ _ _ x.2⟩
         change Continuous F
         let e := CompHausFiltPseuNormGrp₁.ConePointType.filtHomeo (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ)
-        suffices Continuous (e (r⁻¹ * c) ∘ F ∘ (e c).symm) by simpa
-        let I : ∀ j : J, ComphausFilteredPseudoNormedGroupHom (K.obj j) (K.obj j) := fun j => Tinv
+        suffices Continuous (e (r⁻¹ * c) ∘ F ∘ (e c).symm) by
+          -- Porting note: Lean 3's `simpa` replaced by the explicit `Homeomorph` lemmas
+          exact (e c).symm.comp_continuous_iff'.mp ((e (r⁻¹ * c)).comp_continuous_iff.mp this)
+        let I : ∀ j : J, ComphausFilteredPseudoNormedGroupHom (K.obj j) (K.obj j) := fun j => tinv
         let G :
           CompHausFiltPseuNormGrp₁.ConePointTypeFilt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) c →
             CompHausFiltPseuNormGrp₁.ConePointTypeFilt (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ _ ⋙ pFPNG₁ToCHFPNG₁ₑₗ) (r⁻¹ * c) :=
           fun x => ⟨fun j => ⟨I j (x j).1, _⟩, _⟩
         rotate_left
-        · apply Tinv_bound_by; exact (x j).2
+        · apply tinvBoundBy; exact (x j).2
         · intro i j e
           have := x.2 e
           ext
@@ -205,7 +228,7 @@ def tinvLimit {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTi
               filtration (K.obj i) c :=
             fun x => x i
           let G2 : filtration (K.obj i) c → filtration (K.obj i) (r⁻¹ * c) := fun x => ⟨I i x, _⟩
-          swap; · apply Tinv_bound_by; exact x.2
+          swap; · apply tinvBoundBy; exact x.2
           change Continuous (G2 ∘ G1)
           apply Continuous.comp
           · apply ComphausFilteredPseudoNormedGroupHom.continuous; intro x; rfl
@@ -246,10 +269,10 @@ def limitCone {J : Type u} [SmallCategory J] (K : J ⥤ ProFiltPseuNormGrpWithTi
         { (ProFiltPseuNormGrp₁.limitCone (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r)).π.app j with
           map_Tinv' := by
             rintro ⟨⟨c, x⟩⟩
-            dsimp [Tinv, Tinv_limit, Tinv_limit_fun, Tinv_limit_fun', Tinv_limit_fun_aux]
+            dsimp [tinv, tinvLimit, tinvLimitFun, tinvLimitFun', tinvLimitFunAux]
             dsimp [ProFiltPseuNormGrp₁.limitCone, CompHausFiltPseuNormGrp₁.limitCone]
             change proj (K ⋙ pFPNGT₁ToPFPNG₁ₑₗ r ⋙ pFPNG₁ToCHFPNG₁ₑₗ) j (incl _ _) = _
-            change _ = Tinv (proj _ _ (incl _ _))
+            change _ = tinv (proj _ _ (incl _ _))
             dsimp [proj]
             simpa }
       naturality := by
@@ -344,7 +367,7 @@ def product.lift {α : Type u} [Fintype α] (X : α → ProFiltPseuNormGrpWithTi
       change
         (⇑(product.lift (fun i : α => (pFPNGT₁ToPFPNG₁ₑₗ r).obj (X i)) ((pFPNGT₁ToPFPNG₁ₑₗ r).obj M)
                 fun i : α => (pFPNGT₁ToPFPNG₁ₑₗ r).map (f i)))
-            (Tinv x) i =
+            (tinv x) i =
           _
       rw [ProFiltPseuNormGrp₁.product.lift_to_fun]
       erw [(f i).map_tinv]

@@ -39,7 +39,8 @@ def LbarLe (r' : ℝ≥0) (S : Type u) [Fintype S] (c : ℝ≥0) :=
 
 namespace LbarLe
 
-instance hasCoe : Coe (LbarLe r' S c) (Lbar r' S) :=
+-- Porting note: `CoeOut` instead of `Coe`, as `c` is not determined by the target in Lean 4
+instance hasCoe : CoeOut (LbarLe r' S c) (Lbar r' S) :=
   ⟨Subtype.val⟩
 
 instance hasCoeToFun : CoeFun (LbarLe r' S c) fun F => S → ℕ → ℤ :=
@@ -66,26 +67,29 @@ protected theorem mem_filtration (x : LbarLe r' S c) : x.1 ∈ filtration (Lbar 
 
 /-- The inclusion map `Lbar_le r' S c₁ → Lbar_le r' S c₂` for `c₁ ≤ c₂`. -/
 protected def castLe [hc : Fact (c₁ ≤ c₂)] (x : LbarLe r' S c₁) : LbarLe r' S c₂ :=
-  ⟨⟨x, x.coeff_zero, x.Summable⟩, filtration_mono hc.out x.mem_filtration⟩
+  ⟨⟨⇑x, x.coeff_zero, x.summable⟩, filtration_mono hc.out x.mem_filtration⟩
 
 @[simp]
 theorem coe_castLe [hc : Fact (c₁ ≤ c₂)] (x : LbarLe r' S c₁) :
-    ((x.castLEEmb : LbarLe r' S c₂) : Lbar r' S) = x := by ext; rfl
+    ((x.castLe : LbarLe r' S c₂) : Lbar r' S) = x := by ext; rfl
 
 @[simp]
 theorem castLe_apply [hc : Fact (c₁ ≤ c₂)] (x : LbarLe r' S c₁) (s : S) (i : ℕ) :
-    (x.castLEEmb : LbarLe r' S c₂) s i = x s i :=
+    (x.castLe : LbarLe r' S c₂) s i = x s i :=
   rfl
+
+-- Porting note: moved before `injective_castLe`, and the proof is spelled out since Lean 4
+-- `ext` does not see through the `def` `LbarLe`.
+@[ext]
+theorem ext (x y : LbarLe r' S c) (h : (⇑x : S → ℕ → ℤ) = y) : x = y :=
+  Subtype.ext (Lbar.ext _ _ h)
 
 theorem injective_castLe [Fact (c₁ ≤ c₂)] :
     Function.Injective (LbarLe.castLe : LbarLe r' S c₁ → LbarLe r' S c₂) := fun x y h =>
-  by
-  ext s n
-  change x.cast_le s n = y.cast_le s n
-  rw [h]
-
-@[ext]
-theorem ext (x y : LbarLe r' S c) (h : (⇑x : S → ℕ → ℤ) = y) : x = y := by ext : 2; exact h
+  -- Porting note: `h` is beta-expanded, so we use `congrArg` instead of `rw`
+  ext x y
+    (funext fun s => funext fun n =>
+      congrFun (congrFun (congrArg (fun z : LbarLe r' S c₂ => (⇑z : S → ℕ → ℤ)) h) s) n)
 
 instance : Zero (LbarLe r' S c) :=
   ⟨⟨0, zero_mem_filtration _⟩⟩
@@ -120,7 +124,7 @@ namespace LbarLe
 
 /-- The truncation map from Lbar_le to `Lbar_bdd`. -/
 @[simps]
-def truncate (M : ℕ) (F : LbarLe r' S c) : LbarBdd r' ⟨S⟩ c M
+def truncate (M : ℕ) (F : LbarLe r' S c) : LbarBdd r' (FintypeCat.of S) c M
     where
   toFun s n := F s n
   coeff_zero' := by simp
@@ -132,40 +136,47 @@ def truncate (M : ℕ) (F : LbarLe r' S c) : LbarBdd r' ⟨S⟩ c M
     exact sum_le_tsum _ (fun _ _ => Subtype.property (_ : ℝ≥0)) (F.summable s)
 
 theorem truncate_surjective (M : ℕ) :
-    Function.Surjective (truncate M : LbarLe r' S c → LbarBdd r' ⟨S⟩ c M) :=
-  by
+    Function.Surjective (truncate M : LbarLe r' S c → LbarBdd r' (FintypeCat.of S) c M) := by
   intro x
-  have aux : _ := _
-  let F : LbarLe r' S c :=
-    ⟨{  toFun := fun s n => if h : n < M + 1 then x s ⟨n, h⟩ else 0
-        summable' := aux .. }, _⟩
-  · use F; ext s i; simp only [truncate_to_fun]; dsimp
-    rw [dif_pos i.is_lt]; simp only [Fin.eta]
-  · intro s; rw [dif_pos (Nat.zero_lt_succ _)]; exact x.coeff_zero s
-  · apply le_trans _ x.sum_le
+  -- Porting note: the Lean 3 `have aux : _ := _` trick is replaced by explicit `have`s.
+  let f : S → ℕ → ℤ := fun s n => if h : n < M + 1 then x s ⟨n, h⟩ else 0
+  have hf0 : ∀ s, f s 0 = 0 := by
+    intro s
+    simp only [f]
+    rw [dif_pos (Nat.zero_lt_succ _)]
+    exact x.coeff_zero s
+  have aux : ∀ s, Summable fun n => ↑(f s n).natAbs * r' ^ n := by
+    intro s
+    apply @summable_of_ne_finset_zero _ _ _ _ _ (Finset.range (M + 1))
+    intro i hi
+    rw [Finset.mem_range] at hi
+    simp only [f, hi, MulZeroClass.zero_mul, dif_neg, not_false_iff, Nat.cast_zero,
+      Int.natAbs_zero]
+  have hmem : (⟨f, hf0, aux⟩ : Lbar r' S) ∈ filtration (Lbar r' S) c := by
+    apply le_trans _ x.sum_le
     apply Finset.sum_le_sum
     rintro s -
     rw [← NNReal.sum_add_tsum_nat_add' (M + 1), tsum_eq_zero, add_zero]
     · rw [← Fin.sum_univ_eq_sum_range]
       apply Finset.sum_le_sum
       rintro i -
-      simp only [dif_pos i.is_lt, Fin.eta, Lbar.coe_mk]
+      simp only [f, dif_pos i.is_lt, Fin.eta, Lbar.coe_mk]
+      exact le_rfl
     · intro i
       dsimp
       rw [dif_neg, Int.natAbs_zero, Nat.cast_zero, MulZeroClass.zero_mul]
       linarith
-    · dsimp; apply aux
-  · intro s
-    apply @summable_of_ne_finset_zero _ _ _ _ _ (Finset.range (M + 1))
-    intro i hi
-    rw [Finset.mem_range] at hi 
-    simp only [hi, MulZeroClass.zero_mul, dif_neg, not_false_iff, Nat.cast_zero, Int.natAbs_zero]
+    · exact aux s
+  refine' ⟨⟨⟨f, hf0, aux⟩, hmem⟩, _⟩
+  ext s i
+  show f s i = x s i
+  simp only [f, dif_pos i.is_lt, Fin.eta]
 
 /-- Injectivity of the map `Lbar_le` to the limit of the `Lbar_bdd`. -/
 theorem eq_iff_truncate_eq (x y : LbarLe r' S c) (cond : ∀ M, truncate M x = truncate M y) :
     x = y := by
   ext s n
-  change (truncate n x).1 s ⟨n, by linarith⟩ = (truncate n y).1 s ⟨n, _⟩
+  change (truncate n x).1 s ⟨n, Nat.lt_succ_self n⟩ = (truncate n y).1 s ⟨n, Nat.lt_succ_self n⟩
   rw [cond]
 
 theorem truncate_castLe (M : ℕ) [hc : Fact (c₁ ≤ c₂)] (x : LbarLe r' S c₁) :
@@ -174,22 +185,22 @@ theorem truncate_castLe (M : ℕ) [hc : Fact (c₁ ≤ c₂)] (x : LbarLe r' S c
 
 /-- Underlying function of the element of `Lbar_le r' S c` associated to a sequence of
   elements of the truncated Lbars. -/
-def mkSeq (T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M) : S → ℕ → ℤ := fun s n => (T n).1 s ⟨n, lt_add_one n⟩
+def mkSeq (T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M) : S → ℕ → ℤ := fun s n => (T n).1 s ⟨n, lt_add_one n⟩
 
 @[simp]
-theorem mkSeq_zero {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M} (s : S) : mkSeq T s 0 = 0 :=
+theorem mkSeq_zero {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M} (s : S) : mkSeq T s 0 = 0 :=
   (T 0).coeff_zero s
 
-theorem mkSeq_eq_of_compat {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
+theorem mkSeq_eq_of_compat {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) {s : S} {n : ℕ} {M : ℕ}
     (hnM : n < M + 1) : mkSeq T s n = (T M).1 s ⟨n, hnM⟩ :=
   by
-  have hnM : n ≤ M := nat.lt_succ_iff.mp hnM
-  unfold mk_seq
+  have hnM : n ≤ M := Nat.lt_succ_iff.mp hnM
+  unfold mkSeq
   rw [← compat n M hnM]
   apply LbarBdd.transition_eq
 
-theorem mkSeq_sum_range_eq (T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M)
+theorem mkSeq_sum_range_eq (T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M)
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) (s : S) (n) :
     ∑ i in Finset.range (n + 1), ↑(mkSeq T s i).natAbs * r' ^ i =
       ∑ i : Fin (n + 1), ↑((T n).1 s i).natAbs * r' ^ (i : ℕ) :=
@@ -200,7 +211,7 @@ theorem mkSeq_sum_range_eq (T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M)
   congr
   exact LbarLe.mkSeq_eq_of_compat compat _
 
-theorem mkSeq_summable {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
+theorem mkSeq_summable {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) (s : S) :
     Summable fun n : ℕ => ↑(mkSeq T s n).natAbs * r' ^ n :=
   by
@@ -209,19 +220,21 @@ theorem mkSeq_summable {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
   · simp only [Finset.sum_empty, Finset.range_zero, zero_le']
   · rw [LbarLe.mkSeq_sum_range_eq T compat s n]
     refine' le_trans _ (T n).sum_le
-    refine' Finset.single_le_sum (fun _ _ => _) (Finset.mem_univ s)
+    refine' Finset.single_le_sum
+      (f := fun s : S => ∑ i : Fin (n + 1), ↑((T n).1 s i).natAbs * r' ^ (i : ℕ))
+      (fun _ _ => _) (Finset.mem_univ s)
     apply zero_le'
 
 open Filter
 
-theorem mkSeq_tendsto {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
+theorem mkSeq_tendsto {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) :
     Tendsto (fun n : ℕ => ∑ s : S, ∑ i in Finset.range n, ↑(mkSeq T s i).natAbs * r' ^ i) atTop
       (nhds <| ∑ s : S, ∑' n, ↑(mkSeq T s n).natAbs * r' ^ n) :=
   tendsto_finset_sum _ fun s _ =>
     HasSum.tendsto_sum_nat <| Summable.hasSum <| mkSeq_summable compat s
 
-theorem mkSeq_sum_le {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
+theorem mkSeq_sum_le {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) :
     ∑ s, ∑' n : ℕ, ↑(mkSeq T s n).natAbs * r' ^ n ≤ c :=
   by
@@ -229,34 +242,34 @@ theorem mkSeq_sum_le {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
   rintro (_ | n)
   · simp only [Finset.sum_empty, Finset.range_zero, Finset.sum_const_zero, zero_le']
   · convert (T n).sum_le
-    funext
+    funext s
     rw [LbarLe.mkSeq_sum_range_eq T compat s n]
     rfl
 
-theorem truncate_mkSeq {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
+theorem truncate_mkSeq {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) (M : ℕ) :
     truncate M ⟨⟨mkSeq T, mkSeq_zero, mkSeq_summable compat⟩, mkSeq_sum_le compat⟩ = T M :=
   by
   ext s ⟨i, hi⟩
   exact LbarLe.mkSeq_eq_of_compat compat _
 
-/-- `of_compat hT` is the limit of a compatible family `T M : Lbar_bdd r' ⟨S⟩ c M`.
+/-- `of_compat hT` is the limit of a compatible family `T M : Lbar_bdd r' (FintypeCat.of S) c M`.
 This realizes `Lbar_le` as the profinite limit of the spaces `Lbar_bdd`,
 see also `Lbar_le.eqv`. -/
-def ofCompat {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
+def ofCompat {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) : LbarLe r' S c :=
   ⟨⟨mkSeq T, mkSeq_zero, mkSeq_summable compat⟩, mkSeq_sum_le compat⟩
 
 @[simp]
-theorem truncate_ofCompat {T : ∀ M : ℕ, LbarBdd r' ⟨S⟩ c M}
+theorem truncate_ofCompat {T : ∀ M : ℕ, LbarBdd r' (FintypeCat.of S) c M}
     (compat : ∀ (M N : ℕ) (h : M ≤ N), LbarBdd.transition r' h (T N) = T M) (M : ℕ) :
     truncate M (ofCompat compat) = T M := by
   ext s ⟨i, hi⟩
   exact LbarLe.mkSeq_eq_of_compat compat _
 
 /-- The equivalence (as types) between `Lbar_le r' S c`
-and the profinite limit of the spaces `Lbar_bdd r' ⟨S⟩ c M`. -/
-def eqv : LbarLe r' S c ≃ LbarBdd.Limit r' ⟨S⟩ c
+and the profinite limit of the spaces `Lbar_bdd r' (FintypeCat.of S) c M`. -/
+def eqv : LbarLe r' S c ≃ LbarBdd.Limit r' (FintypeCat.of S) c
     where
   toFun F := ⟨fun N => truncate _ F, by intros; rfl⟩
   invFun F := ofCompat F.2
@@ -268,7 +281,7 @@ section TopologicalStructure
 instance : TopologicalSpace (LbarLe r' S c) :=
   TopologicalSpace.induced eqv (by infer_instance)
 
-theorem isOpen_iff {U : Set (LbarBdd.Limit r' ⟨S⟩ c)} : IsOpen (eqv ⁻¹' U) ↔ IsOpen U :=
+theorem isOpen_iff {U : Set (LbarBdd.Limit r' (FintypeCat.of S) c)} : IsOpen (eqv ⁻¹' U) ↔ IsOpen U :=
   by
   rw [isOpen_induced_iff]
   have := Function.Surjective.preimage_injective (Equiv.surjective (eqv : LbarLe r' S c ≃ _))
@@ -276,25 +289,25 @@ theorem isOpen_iff {U : Set (LbarBdd.Limit r' ⟨S⟩ c)} : IsOpen (eqv ⁻¹' U
   simp only [exists_eq_right]
 
 /-- The homeomorphism between `Lbar_le r' S c`
-and the profinite limit of the spaces `Lbar_bdd r' ⟨S⟩ c M`.
+and the profinite limit of the spaces `Lbar_bdd r' (FintypeCat.of S) c M`.
 
 This is `Lbar_le.eqv`, lifted to a homeomorphism by transporting
 the topology from the profinite limit to `Lbar_le`. -/
-def homeo : LbarLe r' S c ≃ₜ LbarBdd.Limit r' ⟨S⟩ c :=
+def homeo : LbarLe r' S c ≃ₜ LbarBdd.Limit r' (FintypeCat.of S) c :=
   {
     eqv with
     continuous_toFun := by
       simp only [Equiv.toFun_as_coe, continuous_def]
       intro U hU
-      rwa [is_open_iff]
+      rwa [isOpen_iff]
     continuous_invFun := by
       simp only [Equiv.toFun_as_coe, continuous_def]
       intro U hU
-      erw [← eqv.image_eq_preimage, ← is_open_iff]
+      erw [← eqv.image_eq_preimage, ← isOpen_iff]
       rwa [eqv.preimage_image U] }
 
 theorem truncate_eq (M : ℕ) :
-    (truncate M : LbarLe r' S c → LbarBdd r' ⟨S⟩ c M) = LbarBdd.proj M ∘ homeo :=
+    (truncate M : LbarLe r' S c → LbarBdd r' (FintypeCat.of S) c M) = LbarBdd.proj M ∘ homeo :=
   rfl
 
 instance : T2Space (LbarLe r' S c) :=
@@ -305,16 +318,17 @@ instance [Fact (0 < r')] : CompactSpace (LbarLe r' S c) :=
   constructor
   rw [homeo.embedding.isCompact_iff]
   simp only [Set.image_univ, Homeomorph.range_coe]
-  obtain ⟨h⟩ := (by infer_instance : CompactSpace (LbarBdd.Limit r' ⟨S⟩ c))
+  obtain ⟨h⟩ := (by infer_instance : CompactSpace (LbarBdd.Limit r' (FintypeCat.of S) c))
   exact h
 
 instance : TotallyDisconnectedSpace (LbarLe r' S c)
     where isTotallyDisconnected_univ := by
-    rintro A - hA
-    suffices subsing : (homeo '' A).Subsingleton
-    · intro x hx y hy; apply_rules [homeo.injective, subsing, Set.mem_image_of_mem]
-    obtain ⟨h⟩ := (by infer_instance : TotallyDisconnectedSpace (LbarBdd.Limit r' ⟨S⟩ c))
-    exact h _ (by tauto) (IsPreconnected.image hA _ homeo.continuous.continuousOn)
+      rintro A - hA
+      suffices subsing : (homeo '' A).Subsingleton
+      · intro x hx y hy; apply_rules [homeo.injective, subsing, Set.mem_image_of_mem]
+      obtain ⟨h⟩ :=
+        (by infer_instance : TotallyDisconnectedSpace (LbarBdd.Limit r' (FintypeCat.of S) c))
+      exact h _ (by tauto) (IsPreconnected.image hA _ homeo.continuous.continuousOn)
 
 theorem continuous_iff {α : Type _} [TopologicalSpace α] (f : α → LbarLe r' S c) :
     Continuous f ↔ ∀ M, Continuous (truncate M ∘ f) :=
@@ -343,11 +357,11 @@ theorem continuous_add' :
       fun x : LbarLe r' S c₁ × LbarLe r' S c₂ => LbarBdd.add (truncate M x.1) (truncate M x.2) :=
     by ext <;> rfl
   erw [this]
-  suffices Continuous fun x : LbarBdd r' ⟨S⟩ c₁ M × LbarBdd r' ⟨S⟩ c₂ M => LbarBdd.add x.1 x.2
+  suffices Continuous fun x : LbarBdd r' (FintypeCat.of S) c₁ M × LbarBdd r' (FintypeCat.of S) c₂ M => LbarBdd.add x.1 x.2
     by
     have claim :
       (fun x : LbarLe r' S c₁ × LbarLe r' S c₂ => LbarBdd.add (truncate M x.1) (truncate M x.2)) =
-        (fun x : LbarBdd r' ⟨S⟩ c₁ M × LbarBdd r' ⟨S⟩ c₂ M => LbarBdd.add x.1 x.2) ∘
+        (fun x : LbarBdd r' (FintypeCat.of S) c₁ M × LbarBdd r' (FintypeCat.of S) c₂ M => LbarBdd.add x.1 x.2) ∘
           fun x : LbarLe r' S c₁ × LbarLe r' S c₂ => (truncate M x.1, truncate M x.2) :=
       by ext; rfl
     rw [claim]
@@ -384,10 +398,10 @@ theorem continuous_of_normed_group_hom (f : Lbar r' S →+ Lbar r' S)
   rw [continuous_iff]
   intro M
   rcases H M with ⟨N, hN⟩
-  let φ : LbarBdd r' ⟨S⟩ c₁ N → LbarLe r' S c₁ :=
-    Classical.choose (truncate_surjective N).HasRightInverse
+  let φ : LbarBdd r' (FintypeCat.of S) c₁ N → LbarLe r' S c₁ :=
+    Classical.choose (truncate_surjective N).hasRightInverse
   have hφ : Function.RightInverse φ (truncate N) :=
-    Classical.choose_spec (truncate_surjective N).HasRightInverse
+    Classical.choose_spec (truncate_surjective N).hasRightInverse
   suffices truncate M ∘ g = truncate M ∘ g ∘ φ ∘ truncate N
     by
     rw [this, ← Function.comp.assoc, ← Function.comp.assoc]
@@ -723,5 +737,5 @@ def precondensed [fact (0 < r')] : Profinite.{u} ⥤ (as_small.{u+1} Profinite.{
 end Lbar
 
 -/
-#lint
+-- Porting note: `#lint` removed (it is a Lean 3 development-time command).
 
