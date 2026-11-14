@@ -77,7 +77,8 @@ theorem piLift_sum_smul_piProj_apply (a : Fin n → Fin m → ℤ) {hh} (x : M ^
     (ComphausFilteredPseudoNormedGroup.piLift
       (fun j => ∑ i, a j i • (ComphausFilteredPseudoNormedGroup.piProj i :
         ComphausFilteredPseudoNormedGroupHom (M ^ m) M)) hh :
-      ComphausFilteredPseudoNormedGroupHom (M ^ m) (M ^ n)) x j = ∑ i, a j i • x i :=
+      ComphausFilteredPseudoNormedGroupHom (M ^ m) (M ^ n)).toAddMonoidHom x j =
+      ∑ i, a j i • x i :=
   sum_smul_piProj_apply M (a j) x
 
 /-- `eval_png M f` is the homomorphism `M^m → M^n` of profinitely filtered pseudo-normed groups
@@ -104,18 +105,17 @@ def evalPng : BasicUniversalMap m n →+ ComphausFilteredPseudoNormedGroupHom (M
     (by
       intro f g
       ext x j
-      simp only [← ComphausFilteredPseudoNormedGroupHom.coe_toAddMonoidHom,
-        ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_add,
-        AddMonoidHom.add_apply, Pi.add_apply]
       -- Porting note: the Lean 3 `simp only` chain is replaced by a helper lemma
-      erw [piLift_sum_smul_piProj_apply, piLift_sum_smul_piProj_apply,
-        piLift_sum_smul_piProj_apply]
+      refine' (piLift_sum_smul_piProj_apply M (f + g) x j).trans _
+      refine' Eq.trans _ (congrArg₂ (· + ·) (piLift_sum_smul_piProj_apply M f x j)
+        (piLift_sum_smul_piProj_apply M g x j)).symm
       refine' (Finset.sum_congr rfl fun i _ => add_smul (f j i) (g j i) (x i)).trans _
       exact Finset.sum_add_distrib)
 
 theorem evalPng_apply (x : M ^ m) : evalPng M f x = fun j => ∑ i, f j i • x i :=
   by
   funext j
+  simp only [evalPng, AddMonoidHom.mk'_apply]
   exact piLift_sum_smul_piProj_apply M f x j
 
 theorem evalPng_mem_filtration :
@@ -154,7 +154,8 @@ def evalPng₀ (c₁ c₂ : ℝ≥0) [h : f.Suitable c₁ c₂] (x : filtration 
 theorem evalPng_comp {l m n} (g : BasicUniversalMap m n) (f : BasicUniversalMap l m) :
     evalPng M (BasicUniversalMap.comp g f) = (evalPng M g).comp (evalPng M f) :=
   by
-  ext x j
+  ext x
+  funext j
   simp only [BreenDeligne.BasicUniversalMap.evalPng_apply, Function.comp_apply, coe_comp, BasicUniversalMap.comp, ComphausFilteredPseudoNormedGroupHom.comp_apply,
     Matrix.mul_apply, Finset.smul_sum, Finset.sum_smul, mul_smul, AddMonoidHom.mk'_apply]
   rw [Finset.sum_comm]
