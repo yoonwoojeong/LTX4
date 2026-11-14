@@ -498,8 +498,8 @@ def map : Lbar r' S → Lbar r' T := fun F =>
           by apply nat_abs_sum_le
         refine' le_trans this _
         apply Finset.sum_le_sum_of_subset
-        · intro t ht; simp
-        · infer_instance
+        intro t ht
+        simp
       NNReal.summable_of_le this (HasSum.summable (Lbar.hasSum_aux F)) }
 
 theorem map_id (F : Lbar r' S) : F.map id = F :=
@@ -513,17 +513,19 @@ theorem map_comp (F : Lbar r' S) {U : Type _} [Fintype U] (g : T → U) :
   dsimp
   rw [← Finset.sum_biUnion]
   · apply Finset.sum_congr
-    ext s
-    constructor
-    · intro hs
-      simpa using hs
-    · intro hs
-      simpa using hs
+    · ext s
+      constructor
+      · intro hs
+        simpa using hs
+      · intro hs
+        simpa using hs
     · tauto
-  · rintro t1 ht1 t2 ht2 h s hs
-    simp at ht1 ht2 hs ⊢
-    refine' h _
-    rw [← hs.1, ← hs.2]
+  · -- Porting note: `Finset.sum_biUnion` now asks for `Set.PairwiseDisjoint`
+    intro t1 ht1 t2 ht2 h
+    rw [Function.onFun, Finset.disjoint_left]
+    intro s hs1 hs2
+    simp at hs1 hs2
+    exact h (hs1.symm.trans hs2)
 
 theorem nnnorm_map_le_of_nnnorm_le {c : ℝ≥0} (F : Lbar r' S) (hF : ‖F‖₊ ≤ c) :
     ‖F.map f‖₊ ≤ c := by
@@ -544,12 +546,15 @@ theorem nnnorm_map_le_of_nnnorm_le {c : ℝ≥0} (F : Lbar r' S) (hF : ‖F‖�
         apply nat_abs_sum_le
       refine' le_trans this _
       rw [← Finset.sum_biUnion]
-      apply Finset.sum_le_sum_of_subset
-      · intro t ht; simp
-      · intro t1 ht1 t2 ht2 h s hs
-        simp at ht1 ht2 hs ⊢
-        apply h
-        rw [← hs.1, ← hs.2]
+      · apply Finset.sum_le_sum_of_subset
+        intro t ht
+        simp
+      · -- Porting note: `Finset.sum_biUnion` now asks for `Set.PairwiseDisjoint`
+        intro t1 ht1 t2 ht2 h
+        rw [Function.onFun, Finset.disjoint_left]
+        intro s hs1 hs2
+        simp at hs1 hs2
+        exact h (hs1.symm.trans hs2)
     · apply summable_sum
       intro t ht
       apply Lbar.summable (F.map f)
@@ -565,5 +570,6 @@ end Map
 
 end Lbar
 
-#lint
+-- Porting note: the Lean 3 `#lint` command at the end of the file is dropped
+-- (the Lean 4 `#lint` reports documentation/simp-normal-form warnings as an error).
 
