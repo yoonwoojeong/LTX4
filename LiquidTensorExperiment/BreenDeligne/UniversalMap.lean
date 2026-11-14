@@ -103,8 +103,9 @@ functorial in the abelian group `A`.
 
 A general such homomorphism is a formal linear combination
 of `basic_universal_map`s, which we aptly call `universal_map`s. -/
--- Porting note: `@[reducible]` so that Lean 4 instance search/`ext` see through the definition,
--- as Lean 3 did.
+-- Porting note: `@[reducible]` so that the `Matrix` API (instances, `ext`) applies directly; the
+-- Lean 3 proofs used it through definitional unfolding. The `AddCommGroup` instance below is
+-- `Matrix`'s, so no instance diamond arises; `*` is matrix multiplication (Lean 3's `⬝`).
 @[reducible]
 def BasicUniversalMap (m n : ℕ) :=
   Matrix (Fin n) (Fin m) ℤ
@@ -140,6 +141,7 @@ theorem eval_of (x : A ^ m) : g.eval A (of x) = (of <| preEval A g x) :=
 
 /-- The composition of basic universal maps,
 defined as matrix multiplication. -/
+-- Porting note: type ascription on the product so that elaboration of `*` is not stuck.
 def comp : BasicUniversalMap m n →+ BasicUniversalMap l m →+ BasicUniversalMap l n :=
   AddMonoidHom.mk' (fun g => (AddMonoidHom.mk' (fun f => (g * f : Matrix (Fin n) (Fin l) ℤ)) fun M N => Matrix.mul_add g M N))
     fun g₁ g₂ => by ext1 f; exact Matrix.add_mul g₁ g₂ f
@@ -181,6 +183,7 @@ theorem hMul_apply (N : ℕ) (f : BasicUniversalMap m n) :
     mul N f = Matrix.reindexLinearEquiv ℕ _ finProdFinEquiv finProdFinEquiv (1 ⊗ₖ f) :=
   rfl
 
+-- Porting note: `ext` replaced by `Matrix.ext`; `Matrix.of_apply` added to `simpa`.
 theorem hMul_injective (N : ℕ) (hN : 0 < N) : Function.Injective (@mul m n N) :=
   by
   intro f g H
@@ -287,6 +290,7 @@ theorem projAux_kronecker_projAux (a : Fin m) (b : Fin n) :
   dsimp [Matrix.reindexLinearEquiv_apply, Matrix.kronecker, BreenDeligne.BasicUniversalMap.projAux]
   simp only [Equiv.apply_eq_iff_eq, boole_mul, Prod.mk.inj_iff, ← ite_and]
 
+-- Porting note: proof rewritten (Lean 3 `finish` is unavailable).
 theorem projAux_apply (a : Fin m) (b : Fin m) : projAux a PUnit.unit b = ite (a = b) 1 0 :=
   by
   by_cases h : a = b
@@ -433,6 +437,7 @@ theorem zero_boundBy (N : ℕ) : (0 : UniversalMap m n).BoundBy N := by
 theorem zero_boundBy_zero : (0 : UniversalMap m n).BoundBy 0 :=
   zero_boundBy _
 
+-- Porting note: `calc` steps proved inline (Lean 3 `calc ... := _` with trailing goals is unsupported).
 theorem BoundBy.random_index {f : UniversalMap m n} {N : ℕ} (hf : f.BoundBy N)
     (s : Finset (BasicUniversalMap m n)) : ∑ g in s, (FreeAbelianGroup.coeff g f).natAbs ≤ N :=
   by
@@ -471,7 +476,8 @@ theorem boundBy_sum {ι : Type _} (s : Finset ι) (f : ι → UniversalMap m n) 
     (h : ∀ i ∈ s, (f i).BoundBy (N i)) : (∑ i in s, f i).BoundBy (∑ i in s, N i) := by
   classical
   revert h
-  apply Finset.induction_on s <;> clear s
+  -- Porting note: `apply <eliminator>` needs an expected type in Lean 4
+  refine Finset.induction_on s ?_ ?_
   · simp only [Finset.not_mem_empty, IsEmpty.forall_iff, Finset.sum_empty, imp_true_iff,
       forall_true_left]
     exact zero_boundBy_zero
@@ -496,17 +502,20 @@ theorem hMul_of (N : ℕ) (f : BasicUniversalMap m n) :
     mul N (of f) = of (BasicUniversalMap.mul N f) :=
   map_of_apply _
 
+-- Porting note: the Lean 3 proofs of this and the following lemmas used `congr; clear; ext` on
+-- partially applied homomorphisms; they are replaced by induction on the free abelian groups.
 theorem hMul_comp (N : ℕ) (g : UniversalMap m n) (f : UniversalMap l m) :
-    mul N (comp g f) = comp (mul N g) (mul N f) :=
-  by
-  simp only [← AddMonoidHom.comp_apply]
-  rw [← AddMonoidHom.compHom_apply_apply, ← AddMonoidHom.compHom_apply_apply, ←
-    AddMonoidHom.compHom_apply_apply, ← AddMonoidHom.flip_apply _ _ (mul N)]
-  simp only [← AddMonoidHom.comp_apply]
-  rw [← AddMonoidHom.compHom_apply_apply, ← AddMonoidHom.compHom_apply_apply]
-  congr 2; clear f g; ext g f
-  show (mul N) ((comp (of g)) (of f)) = (comp ((mul N) (of g))) ((mul N) (of f))
-  simp only [comp_of, mul_of, BasicUniversalMap.hMul_comp]
+    mul N (comp g f) = comp (mul N g) (mul N f) := by
+  induction g using FreeAbelianGroup.induction_on with
+  | C0 => simp
+  | C1 g =>
+    induction f using FreeAbelianGroup.induction_on with
+    | C0 => simp
+    | C1 f => simp only [comp_of, hMul_of, BasicUniversalMap.hMul_comp]
+    | Cn f ih => simp only [map_neg, ih]
+    | Cp f₁ f₂ ih₁ ih₂ => simp only [map_add, ih₁, ih₂]
+  | Cn g ih => simp only [map_neg, ih, AddMonoidHom.neg_apply]
+  | Cp g₁ g₂ ih₁ ih₂ => simp only [map_add, ih₁, ih₂, AddMonoidHom.add_apply]
 
 theorem mem_support_hMul (N : ℕ) (hN : 0 < N) (f : UniversalMap m n) (g) :
     g ∈ (mul N f).support ↔ ∃ g', g' ∈ f.support ∧ g = BasicUniversalMap.mul N g' :=
@@ -516,14 +525,15 @@ theorem mem_support_hMul (N : ℕ) (hN : 0 < N) (f : UniversalMap m n) (g) :
 
 @[simp]
 theorem coeff_hMul (N : ℕ) (hN : 0 < N) (f : UniversalMap m n) (g : BasicUniversalMap m n) :
-    coeff (BasicUniversalMap.mul N g) (mul N f) = coeff g f :=
-  by
-  simp only [← AddMonoidHom.comp_apply]
-  rw [← AddMonoidHom.compHom_apply_apply]
-  congr 1; clear f; ext f
-  simp only [comp_hom_apply_apply, Function.comp_apply, coe_comp, mul, coeff, FreeAbelianGroup.toFinsupp_of,
-    map_of_apply, Finsupp.applyAddHom_apply, Finsupp.single_apply,
-    (BasicUniversalMap.hMul_injective N hN).eq_iff]
+    coeff (BasicUniversalMap.mul N g) (mul N f) = coeff g f := by
+  induction f using FreeAbelianGroup.induction_on with
+  | C0 => simp
+  | C1 f =>
+    simp only [hMul_of, coeff, AddMonoidHom.coe_comp, Function.comp_apply,
+      FreeAbelianGroup.toFinsupp_of, Finsupp.applyAddHom_apply, Finsupp.single_apply,
+      (BasicUniversalMap.hMul_injective N hN).eq_iff]
+  | Cn f ih => simp only [map_neg, ih]
+  | Cp f₁ f₂ ih₁ ih₂ => simp only [map_add, ih₁, ih₂]
 
 end Mul
 
@@ -537,30 +547,33 @@ def proj (n N : ℕ) : UniversalMap (N * n) n :=
   ∑ i, of (BasicUniversalMap.proj n i)
 
 theorem sum_comp_hMul (N : ℕ) (f : UniversalMap m n) :
-    comp (sum n N) (mul N f) = comp f (sum m N) :=
-  by
-  simp only [← AddMonoidHom.comp_apply]
-  rw [← AddMonoidHom.compHom_apply_apply, ← AddMonoidHom.flip_apply _ _ (Sum m N)]
-  simp only [← AddMonoidHom.comp_apply]
-  congr 1; clear f; ext f
-  show (comp (Sum n N)) ((mul N) (of f)) = (comp (of f)) (Sum m N)
-  simp only [Sum, mul_of, comp_of, AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply,
-    BasicUniversalMap.proj_comp_hMul]
+    comp (sum n N) (mul N f) = comp f (sum m N) := by
+  induction f using FreeAbelianGroup.induction_on with
+  | C0 => simp
+  | C1 f =>
+    simp only [sum, hMul_of, comp_of, map_sum, AddMonoidHom.finset_sum_apply,
+      BasicUniversalMap.proj_comp_hMul]
+    congr 1
+    refine (map_sum (BasicUniversalMap.comp.flip (BasicUniversalMap.mul N f))
+      (fun i => BasicUniversalMap.proj n i) Finset.univ).trans ?_
+    simp only [AddMonoidHom.flip_apply, BasicUniversalMap.proj_comp_hMul]
+  | Cn f ih => simp only [map_neg, ih, AddMonoidHom.neg_apply]
+  | Cp f₁ f₂ ih₁ ih₂ => simp only [map_add, ih₁, ih₂, AddMonoidHom.add_apply]
 
 theorem proj_comp_hMul (N : ℕ) (f : UniversalMap m n) :
-    comp (proj n N) (mul N f) = comp f (proj m N) :=
-  by
-  simp only [← AddMonoidHom.comp_apply]
-  rw [← AddMonoidHom.compHom_apply_apply, ← AddMonoidHom.flip_apply _ _ (proj m N)]
-  simp only [← AddMonoidHom.comp_apply]
-  congr 1; clear f; ext f
-  show (comp (proj n N)) ((mul N) (of f)) = (comp (of f)) (proj m N)
-  simp only [proj, mul_of, comp_of, AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply,
-    BasicUniversalMap.proj_comp_hMul]
+    comp (proj n N) (mul N f) = comp f (proj m N) := by
+  induction f using FreeAbelianGroup.induction_on with
+  | C0 => simp
+  | C1 f =>
+    simp only [proj, hMul_of, comp_of, map_sum, AddMonoidHom.finset_sum_apply,
+      BasicUniversalMap.proj_comp_hMul]
+  | Cn f ih => simp only [map_neg, ih, AddMonoidHom.neg_apply]
+  | Cp f₁ f₂ ih₁ ih₂ => simp only [map_add, ih₁, ih₂, AddMonoidHom.add_apply]
 
 theorem proj_boundBy (n N : ℕ) : (proj n N).BoundBy N :=
   le_trans (boundBy_sum _ _ _ fun i _ => of_boundBy _) <| by
     simp only [Finset.card_fin, mul_one, Algebra.id.smul_eq_mul, Finset.sum_const]
+    exact le_rfl
 
 end UniversalMap
 
