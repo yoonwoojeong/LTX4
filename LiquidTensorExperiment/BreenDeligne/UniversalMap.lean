@@ -103,9 +103,15 @@ functorial in the abelian group `A`.
 
 A general such homomorphism is a formal linear combination
 of `basic_universal_map`s, which we aptly call `universal_map`s. -/
+-- Porting note: `@[reducible]` so that Lean 4 instance search/`ext` see through the definition,
+-- as Lean 3 did.
+@[reducible]
 def BasicUniversalMap (m n : ℕ) :=
   Matrix (Fin n) (Fin m) ℤ
-deriving AddCommGroup
+
+-- Porting note: `deriving AddCommGroup` does not work in Lean 4; give the instance explicitly.
+instance (m n : ℕ) : AddCommGroup (BasicUniversalMap m n) :=
+  inferInstanceAs (AddCommGroup (Matrix (Fin n) (Fin m) ℤ))
 
 namespace BasicUniversalMap
 
@@ -311,9 +317,14 @@ end BasicUniversalMap
 /-- A `universal_map m n` is a formal `ℤ`-linear combination
 of `basic_universal_map`s.
 It captures the data for a homomorphism `ℤ[A^m] → ℤ[A^n]`. -/
+-- Porting note: `@[reducible]`, see `BasicUniversalMap`.
+@[reducible]
 def UniversalMap (m n : ℕ) :=
   ℤ[BasicUniversalMap m n]
-deriving AddCommGroup
+
+-- Porting note: `deriving AddCommGroup` does not work in Lean 4; give the instance explicitly.
+instance (m n : ℕ) : AddCommGroup (UniversalMap m n) :=
+  inferInstanceAs (AddCommGroup (ℤ[BasicUniversalMap m n]))
 
 namespace UniversalMap
 

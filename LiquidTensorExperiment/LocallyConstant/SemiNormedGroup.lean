@@ -30,6 +30,8 @@ set_option pp.proofs true
 namespace SemiNormedGroupCat
 
 open Opposite LocallyConstant
+-- Porting note: `open CategoryTheory` moved up from below, as the `⥤` notation is needed here.
+open CategoryTheory
 
 attribute [local instance] LocallyConstant.seminormedAddCommGroup LocallyConstant.pseudoMetricSpace
 
@@ -42,33 +44,36 @@ def locallyConstant : SemiNormedGroupCat ⥤ Profiniteᵒᵖ ⥤ SemiNormedGroup
     where
   obj V :=
     { obj := fun S => SemiNormedGroupCat.of <| LocallyConstant (unop S : Profinite) V
-      map := fun S₁ S₂ f => comapHom f.unop f.unop.continuous
+      -- Porting note: Lean 4 `Prefunctor.map` takes its source and target implicitly.
+      map := fun f => comapHom f.unop f.unop.continuous
       map_id := fun S => comapHom_id
-      map_comp := fun S₁ S₂ S₃ f g => (comapHom_comp _ _ _ _).symm }
-  map V W f :=
+      map_comp := fun f g =>
+        (comapHom_comp ⇑g.unop ⇑f.unop g.unop.continuous f.unop.continuous).symm }
+  -- Porting note: Lean 4 `Functor.map` takes its source and target implicitly.
+  map f :=
     { app := fun S => mapHom f
       naturality := fun S₁ S₂ g => by
-        dsimp; ext
-        simp only [map_hom_apply, LocallyConstant.comapHom_apply, CategoryTheory.coe_comp, Function.comp_apply,
-          map_apply, coe_comap, g.unop.continuous] }
+        dsimp; ext s
+        trace_state
+        simp only [LocallyConstant.mapHom_apply, LocallyConstant.comapHom_apply, CategoryTheory.coe_comp, Function.comp_apply,
+          LocallyConstant.map_apply, LocallyConstant.coe_comap, g.unop.continuous] }
   map_id := by intros; ext; rfl
   map_comp := by intros; ext; rfl
 
 @[simp]
 theorem locallyConstant_map_apply (M : SemiNormedGroupCat) (X Y : Profinite) (f : X ⟶ Y)
     (g : (locallyConstant.obj M).obj (op Y)) (x : X) :
-    ((locallyConstant.obj M).map f.op g).toFun x = g.toFun (f x) :=
+    -- Porting note: `.toFun` is not accessible by dot notation on the bundled carrier.
+    (LocallyConstant.toFun ((locallyConstant.obj M).map f.op g)) x = LocallyConstant.toFun g (f x) :=
   by
   dsimp [LocallyConstant, comap]
-  split_ifs
-  · rfl
-  all_goals exfalso; apply h; continuity
+  -- Porting note: the Lean 3 `split_ifs` is replaced by the explicit `coe_comap_apply`, since the
+  -- `comap` definition is a `dite` on continuity that does not reduce definitionally.
+  exact LocallyConstant.coe_comap_apply (⇑f) g (ContinuousMap.continuous f) x
 
 theorem locallyConstant_obj_map_normNoninc (V : SemiNormedGroupCat) (X Y : Profiniteᵒᵖ)
     (φ : X ⟶ Y) : ((locallyConstant.obj V).map φ).NormNoninc :=
-  comapHom_normNoninc _ _
-
-open CategoryTheory
+  comapHom_normNoninc φ.unop φ.unop.continuous
 
 universe u
 
@@ -78,5 +83,5 @@ universe u
 --  limits.preserves_colimits_of_shape J (LocallyConstant.obj M) := by admit
 end SemiNormedGroupCat
 
-#lint
+-- Porting note: the Lean 3 `#lint` command is omitted; its Lean 4 output is not part of the port.
 

@@ -72,8 +72,7 @@ theorem summable_coe_real (x : Lbar r' S) (s : S) : Summable fun n => ‖x s n�
     NNReal.coe_pow] using x.summable s
 
 @[ext]
-theorem ext (x y : Lbar r' S) (h : (⇑x : S → ℕ → ℤ) = y) : x = y := by cases x; cases y; congr;
-  exact h
+theorem ext (x y : Lbar r' S) (h : (⇑x : S → ℕ → ℤ) = y) : x = y := by cases x; cases y; congr
 
 theorem ext_iff (x y : Lbar r' S) : x = y ↔ (x : S → ℕ → ℤ) = y :=
   ⟨congr_arg _, ext x y⟩
@@ -162,10 +161,9 @@ protected def nsmul (N : ℕ) (F : Lbar r' S) : Lbar r' S
   toFun s n := N • F s n
   coeff_zero' s := by simp only [F.coeff_zero, smul_zero]
   summable' s := by
-    convert Summable.mul_left (↑N) (F.summable' s)
-    ext
-    simp only [← mul_assoc, nsmul_eq_mul, Nonneg.coe_mul, Int.natAbs_mul]
-    norm_cast
+    refine' (Summable.mul_left (↑N : ℝ≥0) (F.summable' s)).congr (fun n => _)
+    dsimp only
+    rw [nsmul_eq_mul, Int.natAbs_mul, Int.natAbs_ofNat, Nat.cast_mul, mul_assoc]
 
 /-- Tailored scalar multiplication by integers. -/
 protected def zsmul (N : ℤ) (F : Lbar r' S) : Lbar r' S
@@ -173,11 +171,9 @@ protected def zsmul (N : ℤ) (F : Lbar r' S) : Lbar r' S
   toFun s n := N • F s n
   coeff_zero' s := by simp only [F.coeff_zero, smul_zero]
   summable' s := by
-    refine' nnreal.summable_coe.mp _
-    convert Summable.mul_left (↑N.nat_abs) (nnreal.summable_coe.mpr (F.summable' s))
-    ext
-    simp only [← mul_assoc, Int.natAbs_mul, smul_eq_mul, Nat.cast_mul, Nonneg.coe_mul]
-    norm_cast
+    refine' (Summable.mul_left (↑N.natAbs : ℝ≥0) (F.summable' s)).congr (fun n => _)
+    dsimp only
+    rw [smul_eq_mul, Int.natAbs_mul, Nat.cast_mul, mul_assoc]
 
 instance : AddCommGroup (Lbar r' S) where
   zero := 0
@@ -252,14 +248,13 @@ theorem nnnorm_def (F : Lbar r' S) : ‖F‖₊ = ∑ s, ∑' n, ↑(F s n).natA
   rfl
 
 @[simp]
-theorem nnnorm_zero : ‖0 : Lbar r' S‖₊ = 0 := by
+theorem nnnorm_zero : ‖(0 : Lbar r' S)‖₊ = 0 := by
   simp only [nnnorm_def, Lbar.coe_zero, tsum_zero, Nat.cast_zero, MulZeroClass.zero_mul,
     Pi.zero_apply, zero_le', Finset.sum_const_zero, Int.natAbs_zero]
 
 @[simp]
 theorem nnnorm_neg (F : Lbar r' S) : ‖-F‖₊ = ‖F‖₊ := by
-  simp only [nnnorm_def, Lbar.coe_neg, Pi.neg_apply, Int.natAbs_neg, Int.natAbs, coe_neg,
-    Set.mem_setOf_eq]
+  simp only [nnnorm_def, Lbar.coe_neg, Pi.neg_apply, Int.natAbs_neg]
 
 theorem nnnorm_add_le (F₁ F₂ : Lbar r' S) : ‖F₁ + F₂‖₊ ≤ ‖F₁‖₊ + ‖F₂‖₊ :=
   by
@@ -267,7 +262,7 @@ theorem nnnorm_add_le (F₁ F₂ : Lbar r' S) : ‖F₁ + F₂‖₊ ≤ ‖F₁
   refine' Finset.sum_le_sum _
   rintro s -
   rw [← tsum_add (F₁.summable s) (F₂.summable s)]
-  refine' tsum_le_tsum _ ((F₁ + F₂).Summable _) ((F₁.summable s).add (F₂.summable s))
+  refine' tsum_le_tsum _ (Lbar.summable (F₁ + F₂) _) ((F₁.summable s).add (F₂.summable s))
   intro n
   dsimp
   rw [← add_mul, ← Nat.cast_add]
@@ -278,17 +273,20 @@ theorem nnnorm_add_le (F₁ F₂ : Lbar r' S) : ‖F₁ + F₂‖₊ ≤ ‖F₁
 theorem nnnorm_sum_le {ι : Type _} (s : Finset ι) (F : ι → Lbar r' S) :
     ‖∑ i in s, F i‖₊ ≤ ∑ i in s, ‖F i‖₊ := by
   classical
-  apply Finset.induction_on s <;> clear s
-  · simp only [Finset.sum_empty, nnnorm_zero]
-  intro i s his IH
-  simp only [Finset.sum_insert his]
-  exact (nnnorm_add_le _ _).trans (add_le_add le_rfl IH)
+  induction s using Finset.induction_on with
+  | empty => simp only [Finset.sum_empty, nnnorm_zero, le_refl]
+  | @insert i s his IH =>
+    simp only [Finset.sum_insert his]
+    exact (nnnorm_add_le _ _).trans (add_le_add le_rfl IH)
 
 instance pseudoNormedGroup : PseudoNormedGroup (Lbar r' S)
     where
   filtration' c := {F | ‖F‖₊ ≤ c}
-  filtration_mono' c₁ c₂ h F hF := le_trans hF h
-  zero_mem_filtration' c := by dsimp; rw [nnnorm_zero]; apply zero_le'
+  filtration_mono' c₁ c₂ h F hF := le_trans (show ‖F‖₊ ≤ c₁ from hF) h
+  zero_mem_filtration' c := by
+    show ‖(0 : Lbar r' S)‖₊ ≤ c
+    rw [nnnorm_zero]
+    apply zero_le'
   neg_mem_filtration' c F hF := by dsimp; rwa [nnnorm_neg]
   add_mem_filtration' c₁ c₂ F₁ F₂ hF₁ hF₂ := le_trans (nnnorm_add_le _ _) (add_le_add hF₁ hF₂)
 
@@ -300,12 +298,12 @@ theorem mem_filtration_iff (x : Lbar r' S) (c : ℝ≥0) :
 This is an additive group homomorphism.
 -/
 def coeHom : Lbar r' S →+ S → ℕ → ℤ :=
-  AddMonoidHom.mk' coeFn <| coe_add
+  AddMonoidHom.mk' (fun F : Lbar r' S => (F : S → ℕ → ℤ)) <| coe_add
 
 @[simp]
 theorem coe_sum {ι : Type _} (s : Finset ι) (F : ι → Lbar r' S) :
-    ⇑(∑ i in s, F i) = ∑ i in s, F i :=
-  show coeHom (∑ i in s, F i) = ∑ i in s, coeHom (F i) from AddMonoidHom.map_sum _ _ _
+    ⇑(∑ i in s, F i) = ∑ i in s, ⇑(F i) :=
+  show coeHom (∑ i in s, F i) = ∑ i in s, coeHom (F i) from map_sum coeHom _ _
 
 @[simp]
 theorem coe_zsmul (n : ℤ) (F : Lbar r' S) : ⇑(n • F) = n • F :=
@@ -358,8 +356,9 @@ theorem tinvAux_summable [h0r : Fact (0 < r')] (F : Lbar r' S) (s : S) :
   apply Summable.mul_right
   refine' NNReal.summable_of_le _ (NNReal.summable_nat_add _ (F.summable s) 1)
   rintro ⟨i⟩
-  · simp only [Nat.cast_zero, MulZeroClass.zero_mul, Tinv_aux_zero, zero_le', Int.natAbs_zero]
-  · simp only [Tinv_aux_succ, pow_add, mul_assoc, pow_one]
+  · simp only [Nat.cast_zero, MulZeroClass.zero_mul, tinvAux_zero, zero_le', Int.natAbs_zero]
+  · simp only [tinvAux_succ, pow_add, mul_assoc, pow_one]
+    exact le_rfl
 
 /-- The `T⁻¹` action on `Lbar r' S`.
 This is defined, essentially, as a shift in `ℕ` (accounting for the restriction at 0).
@@ -374,8 +373,8 @@ def tinv {r : ℝ≥0} {S : Type u} [Fintype S] [h0r : Fact (0 < r)] : Lbar r S 
     (by
       intro F G
       ext s (_ | n)
-      · simp only [add_zero, Pi.add_apply, Lbar.coeff_zero]
-      · simp only [coe_mk, Pi.add_apply, Tinv_aux_succ, coe_add])
+      · rfl
+      · simp only [coe_mk, Pi.add_apply, tinvAux_succ, coe_add])
 
 @[simp]
 theorem tinv_zero [Fact (0 < r')] (F : Lbar r' S) (s : S) : tinv F s 0 = 0 :=
@@ -397,8 +396,8 @@ theorem tinv_mem_filtration [h0r : Fact (0 < r')] :
     tinv ∈ filtration (Lbar r' S →+ Lbar r' S) r'⁻¹ :=
   by
   intro c F hF
-  simp only [Tinv, AddMonoidHom.mk'_apply]
-  change _ ≤ _ at hF 
+  simp only [tinv, AddMonoidHom.mk'_apply]
+  change ‖F‖₊ ≤ c at hF
   rw [mul_comm]
   apply le_mul_inv_of_mul_le h0r.out.ne'
   rw [nnnorm_def, Finset.sum_mul]
@@ -412,8 +411,8 @@ theorem tinv_mem_filtration [h0r : Fact (0 < r')] :
   · rintro (_ | i)
     · simp only [Nat.cast_zero, MulZeroClass.zero_mul, Lbar.coeff_zero, Int.natAbs_zero];
       exact zero_le'
-    · simp only [Tinv_aux_succ, mul_assoc, coe_mk, pow_succ']
-  · exact (Tinv_aux_summable F s).mulRight _
+    · simp only [tinvAux_succ, mul_assoc, coe_mk, pow_succ']
+  · exact (tinvAux_summable F s).mulRight _
   · exact (NNReal.summable_nat_add_iff 1).mpr (F.summable s)
 
 end Tinv
@@ -424,12 +423,17 @@ where `a_{s,n}` is `x_{s,n}` if `mask n s` is true and `0` otherwise. -/
 def ofMask (x : Lbar r' S) (mask : S → ℕ → Prop) [∀ s n, Decidable (mask s n)] : Lbar r' S
     where
   toFun s n := if mask s n then x s n else 0
-  coeff_zero' s := by split_ifs; · exact x.coeff_zero s; · rfl
+  coeff_zero' s := by
+    show (if mask s 0 then x s 0 else 0) = 0
+    split_ifs
+    · exact x.coeff_zero s
+    · rfl
   summable' s := by
     apply NNReal.summable_of_le _ (x.summable s)
     intro n
     refine' mul_le_mul' _ le_rfl
     norm_cast
+    dsimp only
     split_ifs
     · rfl
     · rw [Int.natAbs_zero]; exact zero_le'
@@ -444,9 +448,8 @@ def geom [hr' : Fact (r' < 1)] : Lbar r' S
   toFun s n := if n = 0 then 0 else 1
   coeff_zero' s := if_pos rfl
   summable' s := by
-    have := @summable_geometric_of_norm_lt_1 _ _ (r' : ℝ) _; swap
-    · rw [NNReal.norm_eq]; exact hr'.out
-    simp only [← NNReal.coe_pow, NNReal.summable_coe] at this 
+    -- Porting note: use the `ℝ≥0` version of the geometric series directly
+    have := NNReal.summable_geometric hr'.out
     apply NNReal.summable_of_le _ this
     intro n
     refine' (mul_le_mul' _ le_rfl).trans (one_mul _).le
@@ -468,27 +471,27 @@ theorem hasSum_aux (F : Lbar r' S) :
     funext n
     rw [Finset.sum_mul]
   rw [this]; clear this
-  exact hasSum_sum fun s _ => (F.summable s).HasSum
+  exact hasSum_sum fun s _ => (F.summable s).hasSum
 
 /-- Given an element of `Lbar r' S` and a function `f : S → T`, this
   constructs an associated element of `Lbar r' T`. -/
 @[simps]
 def map : Lbar r' S → Lbar r' T := fun F =>
-  { toFun := fun t n => ∑ s in Finset.univ.filterₓ fun s' => f s' = t, F s n
+  { toFun := fun t n => ∑ s in Finset.univ.filter fun s' => f s' = t, F s n
     coeff_zero' := fun s => by simp
     summable' := fun t =>
       haveI :
         ∀ n : ℕ,
-          ↑(∑ s : S in finset.univ.filter fun s' : S => f s' = t, F s n).natAbs * r' ^ n ≤
+          ↑(∑ s : S in Finset.univ.filter fun s' : S => f s' = t, F s n).natAbs * r' ^ n ≤
             (∑ s : S, (F s n).natAbs) * r' ^ n :=
         by
         intro n
         refine' mul_le_mul _ (le_refl _) zero_le' zero_le'
         simp_rw [← Nat.cast_sum]
-        apply nat.cast_le.mpr
+        apply Nat.cast_le.mpr
         have :
-          (∑ s : S in finset.univ.filter fun s' : S => f s' = t, F s n).natAbs ≤
-            ∑ s : S in finset.univ.filter fun s' => f s' = t, (F s n).natAbs :=
+          (∑ s : S in Finset.univ.filter fun s' : S => f s' = t, F s n).natAbs ≤
+            ∑ s : S in Finset.univ.filter fun s' => f s' = t, (F s n).natAbs :=
           by apply nat_abs_sum_le
         refine' le_trans this _
         apply Finset.sum_le_sum_of_subset
@@ -530,8 +533,8 @@ theorem nnnorm_map_le_of_nnnorm_le {c : ℝ≥0} (F : Lbar r' S) (hF : ‖F‖�
       simp_rw [← Nat.cast_sum]
       rw [Nat.cast_le]
       have :
-        ∑ x : T, (∑ s : S in finset.univ.filter fun s' : S => f s' = x, F s n).natAbs ≤
-          ∑ x : T, ∑ s : S in finset.univ.filter fun s' => f s' = x, (F s n).natAbs :=
+        ∑ x : T, (∑ s : S in Finset.univ.filter fun s' : S => f s' = x, F s n).natAbs ≤
+          ∑ x : T, ∑ s : S in Finset.univ.filter fun s' => f s' = x, (F s n).natAbs :=
         by
         apply Finset.sum_le_sum
         intro t ht
@@ -546,12 +549,12 @@ theorem nnnorm_map_le_of_nnnorm_le {c : ℝ≥0} (F : Lbar r' S) (hF : ‖F‖�
         rw [← hs.1, ← hs.2]
     · apply summable_sum
       intro t ht
-      apply (F.map f).Summable
+      apply Lbar.summable (F.map f)
     · apply summable_sum
       intro s hs
       apply F.summable
   · intro t ht
-    apply (F.map f).Summable
+    apply Lbar.summable (F.map f)
   · intro s hs
     apply F.summable
 
