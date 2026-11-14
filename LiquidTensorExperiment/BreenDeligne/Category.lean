@@ -301,12 +301,12 @@ theorem homPow'_sum : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.sum 2) N = BD
     apply BasicUniversalMap.oneMulHom_eq_proj
   | N + 1 => by
     dsimp [pow'IsoMul, BreenDeligne.Data.homPow']
-    slice_lhs 3 4 => rw [← Functor.map_comp, BreenDeligne.Data.homPow'_sum]
-    rw [Category.assoc, Iso.inv_comp_eq, BD.mulCongr_hom_sum]
+    slice_lhs 3 4 => rw [← Functor.map_comp, homPow'_sum N]
+    rw [Iso.inv_comp_eq, BD.mulCongr_hom_sum]
     apply HomologicalComplex.hom_ext
     intro i
     iterate 2 erw [HomologicalComplex.comp_f]
-    dsimp [mul_mul_iso, FreeMat.mulMulIso, UniversalMap.sum]
+    dsimp [mulMulIso, FreeMat.mulMulIso, UniversalMap.sum]
     rw [UniversalMap.hMul_of]
     show UniversalMap.comp _ _ = UniversalMap.comp _ _
     simp only [UniversalMap.comp_of, AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply]
@@ -329,12 +329,12 @@ theorem homPow'_proj : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.proj 2) N = 
     apply BasicUniversalMap.oneMulHom_eq_proj
   | N + 1 => by
     dsimp [pow'IsoMul, BreenDeligne.Data.homPow']
-    slice_lhs 3 4 => rw [← Functor.map_comp, BreenDeligne.Data.homPow'_proj]
+    slice_lhs 3 4 => rw [← Functor.map_comp, homPow'_proj N]
     rw [Iso.inv_comp_eq]
     apply HomologicalComplex.hom_ext
     intro i
     iterate 2 erw [HomologicalComplex.comp_f]
-    dsimp [mul_mul_iso, FreeMat.mulMulIso, UniversalMap.proj]
+    dsimp [mulMulIso, FreeMat.mulMulIso, UniversalMap.proj]
     simp only [AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply, Preadditive.comp_sum,
       Preadditive.sum_comp]
     rw [← Finset.sum_comm, ← Finset.sum_product', Finset.univ_product_univ, ←
