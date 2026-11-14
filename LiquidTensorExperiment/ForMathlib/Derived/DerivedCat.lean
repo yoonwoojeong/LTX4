@@ -214,8 +214,8 @@ instance preadditive : Preadditive (BoundedDerivedCategory A)
   add_comp := by intro P Q R f₁ f₂ g; ext; apply Preadditive.add_comp _ _ _ f₁.val f₂.val g.val
   comp_add := by intro P Q R f g₁ g₂; ext; apply Preadditive.comp_add _ _ _ f.val g₁.val g₂.val
 
-instance additive (n : ℤ) : (shiftFunctor (BoundedDerivedCategory A) n).Additive
-    where map_add' := by
+instance additive (n : ℤ) : (shiftFunctor (BoundedDerivedCategory A) n).Additive where
+  map_add' := by
     intro P Q f g
     ext1
     dsimp

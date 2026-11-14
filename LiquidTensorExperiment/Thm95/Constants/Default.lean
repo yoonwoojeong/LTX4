@@ -343,8 +343,8 @@ instance n_pos : Fact (0 < N m) :=
   ⟨pow_pos zero_lt_two _⟩
 
 /-- For all `m` we have `k' m ≤ N m = 2 ^ N₂ m`. -/
-instance k'_le_two_pow_N : Fact (k' m ≤ 2 ^ N₂ m)
-    where out := by
+instance k'_le_two_pow_N : Fact (k' m ≤ 2 ^ N₂ m) where
+  out := by
     rw [← mul_one ((2 : ℝ≥0) ^ _)]
     obtain F := N₂_spec r r' BD κ' m
     rw [NNReal.div_le_iff (pow_pos zero_lt_two _).ne', mul_comm] at F 

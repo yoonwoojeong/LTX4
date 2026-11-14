@@ -27,8 +27,7 @@ theorem exact_factorThruImage_iff {X Y Z : 𝓐} (f : X ⟶ Y) (g : Y ⟶ Z) :
   · rw [← Abelian.Pseudoelement.comp_apply, Limits.image.fac]
     exact (Abelian.Pseudoelement.pseudo_exact_of_exact h).1 x
   · replace hy := congr_arg (Limits.image.ι g) hy
-    rw [Abelian.Pseudoelement.apply_zero, ← Abelian.Pseudoelement.comp_apply, Limits.image.fac] at
-      hy 
+    rw [Abelian.Pseudoelement.apply_zero, ← Abelian.Pseudoelement.comp_apply, Limits.image.fac] at hy
     obtain ⟨a, ha⟩ := (Abelian.Pseudoelement.pseudo_exact_of_exact h).2 _ hy
     exact ⟨a, ha⟩
 

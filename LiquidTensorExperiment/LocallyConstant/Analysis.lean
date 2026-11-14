@@ -69,8 +69,8 @@ variable {X Y Z V V₁ V₂ V₃ : Type _} [TopologicalSpace X]
 protected def hasNorm [Norm Y] : Norm (LocallyConstant X Y) where norm f := ⨆ x, ‖f x‖
 
 /-- The sup edist on locally constant function -/
-protected def hasEdist [EDist Y] : EDist (LocallyConstant X Y)
-    where edist f g := ⨆ x, edist (f x) (g x)
+protected def hasEdist [EDist Y] : EDist (LocallyConstant X Y) where
+  edist f g := ⨆ x, edist (f x) (g x)
 
 /-- The sup edist on locally constant function -/
 protected def hasDist [Dist Y] : Dist (LocallyConstant X Y) where dist f g := ⨆ x, dist (f x) (g x)

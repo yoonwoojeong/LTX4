@@ -31,8 +31,8 @@ def pow (n : ℕ) : 𝒜 ⥤ 𝒜 where
 -- move this
 attribute [simps] comp_hom
 
-instance (n : ℕ) {J : Type _} [Category J] : PreservesColimitsOfShape J (pow n : 𝒜 ⥤ 𝒜)
-    where PreservesColimit K :=
+instance (n : ℕ) {J : Type _} [Category J] : PreservesColimitsOfShape J (pow n : 𝒜 ⥤ 𝒜) where
+  PreservesColimit K :=
     {
       preserves := fun c hc =>
         { desc := fun s =>
@@ -64,8 +64,8 @@ instance (n : ℕ) {J : Type _} [Category J] : PreservesColimitsOfShape J (pow n
             simp only [NatTrans.comp_app, ← w, Functor.mapCocone_ι_app, Pow_map,
               biproduct.ι_map_assoc] } }
 
-instance (n : ℕ) : PreservesColimits (pow n : 𝒜 ⥤ 𝒜)
-    where PreservesColimitsOfShape J hJ := by infer_instance
+instance (n : ℕ) : PreservesColimits (pow n : 𝒜 ⥤ 𝒜) where
+  PreservesColimitsOfShape J hJ := by infer_instance
 
 end Preadditive
 
@@ -176,8 +176,8 @@ def evalPowFunctor : FreeMat ⥤ 𝒜 ⥤ 𝒜 where
     · rw [Matrix.one_apply_ne, zero_smul]; dsimp; rintro rfl; exact hij rfl
   map_comp m n o f g := evalPow_comp F _ _
 
-instance evalPowFunctor_additive : (evalPowFunctor F).Additive
-    where map_add' m n f g := by dsimp [eval_Pow]; rw [AddMonoidHom.map_add]
+instance evalPowFunctor_additive : (evalPowFunctor F).Additive where
+  map_add' m n f g := by dsimp [eval_Pow]; rw [AddMonoidHom.map_add]
 
 end UniversalMap
 
@@ -196,8 +196,8 @@ def evalFunctor : Data ⥤ 𝒜 ⥤ ChainComplex 𝒜 ℕ :=
 -- generalize to arbitrary homological complexes
 instance HomologicalComplex.functorEvalFlipPreservesColimitsOfShape (J : Type _) [Category J]
     (F : ChainComplex (𝒜 ⥤ 𝒜) ℕ) [∀ i, PreservesColimitsOfShape J (F.pt i)] :
-    PreservesColimitsOfShape J (HomologicalComplex.functorEval.flip.obj F)
-    where PreservesColimit K :=
+    PreservesColimitsOfShape J (HomologicalComplex.functorEval.flip.obj F) where
+  PreservesColimit K :=
     {
       preserves := fun c hc =>
         let t :
@@ -254,8 +254,8 @@ instance evalFunctorPreservesColimitsOfShape (BD : Data) (J : Type _) [Category 
   infer_instance
 
 instance evalFunctorPreservesFilteredColimits (BD : Data) [PreservesFilteredColimits F] :
-    PreservesFilteredColimits ((evalFunctor F).obj BD)
-    where PreservesFilteredColimits := by intros <;> infer_instance
+    PreservesFilteredColimits ((evalFunctor F).obj BD) where
+  PreservesFilteredColimits := by intros <;> infer_instance
 
 -- @[simps]
 -- def eval_functor.obj (M : 𝒜) : chain_complex 𝒜 ℕ :=

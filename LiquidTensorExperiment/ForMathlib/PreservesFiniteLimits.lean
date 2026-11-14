@@ -19,8 +19,8 @@ variable {𝓐 : Type u₁} {𝓑 : Type u₂} [Category.{v} 𝓐] [Category.{v}
 variable [Abelian 𝓐] [Abelian 𝓑]
 
 def preservesLimitsOfShapePemptyOfPreservesTerminal [PreservesLimit (Functor.empty.{0} 𝓐) F] :
-    PreservesLimitsOfShape (Discrete PEmpty) F
-    where PreservesLimit K :=
+    PreservesLimitsOfShape (Discrete PEmpty) F where
+  PreservesLimit K :=
     preservesLimitOfIsoDiagram.{0, 0} F (Functor.emptyExt (Functor.empty 𝓐) _)
 
 def preservesTerminalObjectOfPreservesZeroMorphisms [Functor.PreservesZeroMorphisms F] :
@@ -52,8 +52,8 @@ def preservesEqualizerOfPreservesKernels [F.Additive]
 
 def preservesEqualizersOfPreservesKernels [F.Additive]
     [∀ {X Y} (f : X ⟶ Y), PreservesLimit (parallelPair f 0) F] :
-    PreservesLimitsOfShape WalkingParallelPair F
-    where PreservesLimit K :=
+    PreservesLimitsOfShape WalkingParallelPair F where
+  PreservesLimit K :=
     by
     letI :=
       preservesEqualizerOfPreservesKernels F (K.map WalkingParallelPairHom.left)

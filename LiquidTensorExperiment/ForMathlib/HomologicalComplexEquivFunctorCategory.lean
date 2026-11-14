@@ -29,7 +29,7 @@ end
 
 section WalkingComplex
 
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 def WalkingComplex (c : ComplexShape ι) :=
   ι
 

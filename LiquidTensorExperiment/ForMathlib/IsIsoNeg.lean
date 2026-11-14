@@ -23,7 +23,7 @@ instance isIso_neg [IsIso f] : IsIso (-f) := by rwa [isIso_neg_iff]
 
 -- Move This
 @[simp]
-theorem isIso_negOnePow_iff (i : ℤ) : IsIso (i.neg_one_pow • f) ↔ IsIso f :=
+theorem isIso_negOnePow_iff (i : ℤ) : IsIso (i.negOnePow • f) ↔ IsIso f :=
   by
   induction' i using Int.induction_on_iff with i
   · simp only [Int.negOnePow_neg_zero, one_zsmul]

@@ -22,7 +22,7 @@ theorem additive_of_map_fst_add_snd [HasBinaryBiproducts 𝒜]
       ∀ A : 𝒜, F.map (biprod.fst + biprod.snd : A ⊞ A ⟶ A) = F.map biprod.fst + F.map biprod.snd) :
     F.Additive :=
   {
-    map_add' := fun A B f g =>
+    map_add := fun {A B} {f g} =>
       by
       have : f + g = biprod.lift f g ≫ (biprod.fst + biprod.snd) := by
         rw [Preadditive.comp_add, biprod.lift_fst, biprod.lift_snd]
@@ -33,13 +33,12 @@ noncomputable def objBiprodIso (F : 𝒜 ⥤ ℬ) [F.Additive] (A B : 𝒜) [Has
     [HasBinaryBiproduct (F.obj A) (F.obj B)] : F.obj (A ⊞ B) ≅ F.obj A ⊞ F.obj B :=
   IsBiprod.isoBiprod _ (F.mapIsBiprod _ (Biprod.isBiprod A B))
 
-instance forget₂_additive (R : Type _) [Ring R] : (forget₂ (ModuleCat R) AddCommGroupCat).Additive
-    where map_add' M N f g := rfl
+instance forget₂_additive (R : Type _) [Ring R] : (forget₂ (ModuleCat R) AddCommGroupCat).Additive where
+  map_add := rfl
 
-theorem map_isZero {X : 𝒜} [F.Additive] (hX : Limits.IsZero X) : Limits.IsZero (F.obj X) :=
-  by
-  rw [Limits.IsZero.iff_id_eq_zero] at hX ⊢
-  convert congr_arg (@CategoryTheory.Functor.map _ _ _ _ F _ _) hX <;> simp
+/-! Porting note: LTE's `CategoryTheory.Functor.map_isZero` (for additive functors) is superseded by
+mathlib's lemma of the same name, which only assumes `F.PreservesZeroMorphisms` (an instance for
+additive functors), so LTE's copy is removed. -/
 
 end Functor
 

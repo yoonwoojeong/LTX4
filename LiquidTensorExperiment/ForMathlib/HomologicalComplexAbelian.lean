@@ -211,12 +211,12 @@ def biproduct.fst : biproduct X Y ⟶ X where f i := biprod.fst
 def biproduct.snd : biproduct X Y ⟶ Y where f i := biprod.snd
 
 @[simps]
-def biproduct.lift (f : X ⟶ Y) (g : X ⟶ Z) : X ⟶ biproduct Y Z
-    where f i := biprod.lift (f.f i) (g.f i)
+def biproduct.lift (f : X ⟶ Y) (g : X ⟶ Z) : X ⟶ biproduct Y Z where
+  f i := biprod.lift (f.f i) (g.f i)
 
 @[simps]
-def biproduct.desc (f : X ⟶ Z) (g : Y ⟶ Z) : biproduct X Y ⟶ Z
-    where f i := biprod.desc (f.f i) (g.f i)
+def biproduct.desc (f : X ⟶ Z) (g : Y ⟶ Z) : biproduct X Y ⟶ Z where
+  f i := biprod.desc (f.f i) (g.f i)
 
 variable (X Y)
 
@@ -304,8 +304,8 @@ def kernelComplexFork : KernelFork f :=
   KernelFork.ofι (kernelComplexι f) (by ext; simp)
 
 @[simps]
-def kernelComplexLift (s : KernelFork f) : s.pt ⟶ kernelComplex f
-    where f i := kernel.lift _ (s.ι.f i) (by rw [← comp_f, CategoryTheory.Limits.KernelFork.condition]; rfl)
+def kernelComplexLift (s : KernelFork f) : s.pt ⟶ kernelComplex f where
+  f i := kernel.lift _ (s.ι.f i) (by rw [← comp_f, CategoryTheory.Limits.KernelFork.condition]; rfl)
 
 def kernelComplexIsKernel : IsLimit (kernelComplexFork f) :=
   by
@@ -342,8 +342,8 @@ def cokernelComplexCofork : CokernelCofork f :=
   CokernelCofork.ofπ (cokernelComplexπ f) (by ext; simp)
 
 @[simps]
-def cokernelComplexDesc (s : CokernelCofork f) : cokernelComplex f ⟶ s.pt
-    where f i := cokernel.desc _ (s.π.f i) (by rw [← comp_f, CategoryTheory.Limits.CokernelCofork.condition]; rfl)
+def cokernelComplexDesc (s : CokernelCofork f) : cokernelComplex f ⟶ s.pt where
+  f i := cokernel.desc _ (s.π.f i) (by rw [← comp_f, CategoryTheory.Limits.CokernelCofork.condition]; rfl)
 
 def cokernelComplexIsCokernel : IsColimit (cokernelComplexCofork f) :=
   by

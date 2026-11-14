@@ -22,8 +22,8 @@ theorem exists_sum (c : ℝ≥0) (x : M) (hx : x ∈ filtration M c) :
   Splittable.exists_sum c x hx
 
 instance splittablePi {ι : Type _} (M : ι → Type _) [∀ i, PseudoNormedGroup (M i)] (N : ℕ) (d : ℝ≥0)
-    [∀ i, Splittable (M i) N d] : Splittable (∀ i, M i) N d
-    where exists_sum c x hx :=
+    [∀ i, Splittable (M i) N d] : Splittable (∀ i, M i) N d where
+  exists_sum c x hx :=
     by
     have := fun i => exists_sum N d c (x i) (hx i)
     choose y hy1 hy2 using this

@@ -27,8 +27,8 @@ section
 
 -- move me
 instance HomologicalComplex.single_additive (i : ℤ) :
-    (HomologicalComplex.single C (ComplexShape.up ℤ) i).Additive
-    where map_add' X Y f g := by
+    (HomologicalComplex.single C (ComplexShape.up ℤ) i).Additive where
+  map_add' X Y f g := by
     ext n; dsimp; by_cases hn : n = i
     · subst n; rw [dif_pos rfl, dif_pos rfl, dif_pos rfl]
       simp only [Preadditive.add_comp, Preadditive.comp_add]
@@ -36,31 +36,31 @@ instance HomologicalComplex.single_additive (i : ℤ) :
 
 -- move me
 instance BoundedHomotopyCategory.single_additive (i : ℤ) :
-    (BoundedHomotopyCategory.single C i).Additive
-    where map_add' X Y f g := by
+    (BoundedHomotopyCategory.single C i).Additive where
+  map_add' X Y f g := by
     delta BoundedHomotopyCategory.single
     dsimp
     rw [Functor.map_add]
     rfl
 
 instance Ext.additive (i : ℤ) :
-    (ext i : (BoundedHomotopyCategory C)ᵒᵖ ⥤ BoundedHomotopyCategory C ⥤ Ab).Additive
-    where map_add' X Y f g := by
+    (ext i : (BoundedHomotopyCategory C)ᵒᵖ ⥤ BoundedHomotopyCategory C ⥤ Ab).Additive where
+  map_add' X Y f g := by
     ext B e
     dsimp [Ext]
     rw [Preadditive.comp_add, lift_add, Preadditive.add_comp]
 
 -- move me
-instance ext'.flip_additive (i : ℤ) (B : C) : ((ext' i).flip.obj B).Additive
-    where map_add' X Y f g := by
+instance ext'.flip_additive (i : ℤ) (B : C) : ((ext' i).flip.obj B).Additive where
+  map_add' X Y f g := by
     delta ext'
     dsimp
     rw [Functor.map_add, op_add, Functor.map_add]
     rfl
 
 -- move me
-instance ext'.additive (i : ℤ) (A : Cᵒᵖ) : ((ext' i).obj A).Additive
-    where map_add' X Y f g := by
+instance ext'.additive (i : ℤ) (A : Cᵒᵖ) : ((ext' i).obj A).Additive where
+  map_add' X Y f g := by
     delta ext'
     dsimp
     rw [Functor.map_add, Functor.map_add]

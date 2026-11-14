@@ -56,8 +56,7 @@ theorem isQuasiIsoOfOp {X Y : (ChainComplex 𝓐 ℤ)ᵒᵖ} (f : X ⟶ Y)
   apply (config := { instances := false }) IsIso.comp_isIso; · infer_instance
   apply (config := { instances := false }) IsIso.comp_isIso; swap; · infer_instance
   have aux := @IsQuasiIso.cond _ _ _ _ _ _ _ _ h (i + 1)
-  rw [← HomotopyCategory.homology'Functor_map_factors, CategoryTheory.homology'_iso_map i (i + 1) (i + 1 + 1)] at
-    aux 
+  rw [← HomotopyCategory.homology'Functor_map_factors, CategoryTheory.homology'_iso_map i (i + 1) (i + 1 + 1)] at aux
   swap; · dsimp; rfl; swap; · dsimp; rfl
   replace aux := @IsIso.of_isIso_comp_left _ _ _ _ _ _ _ _ aux
   replace aux := @IsIso.of_isIso_comp_right _ _ _ _ _ _ _ _ aux

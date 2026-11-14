@@ -182,12 +182,12 @@ class NormedSpace' (𝕜 : Type _) (p : outParam ℝ) (V : Type _) [NormedField 
   norm_smul : ∀ (c : 𝕜) (v : V), ‖c • v‖ = ‖c‖ ^ p * ‖v‖
 
 instance (priority := 100) NormedSpace.normedSpace' (𝕜 : Type _) (V : Type _) [NormedField 𝕜]
-    [NormedAddCommGroup V] [NormedSpace 𝕜 V] : NormedSpace' 𝕜 1 V
-    where norm_smul c k := by simp only [Real.rpow_one, norm_smul]
+    [NormedAddCommGroup V] [NormedSpace 𝕜 V] : NormedSpace' 𝕜 1 V where
+  norm_smul c k := by simp only [Real.rpow_one, norm_smul]
 
 /-- A type alias: `as_normed_space' p' V` is a `p'`-normed space over `𝕜`,
 when `V` is a `p`-normed space over `𝕜` and `0 < p' ≤ p`. -/
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 def AsNormedSpace' (p' : ℝ) (V : Type _) :=
   V
 
@@ -267,8 +267,8 @@ protected def normedAddCommGroup (V : Type _) [NormedAddCommGroup V] (p' p : ℝ
 attribute [local instance] AsNormedSpace'.normedAddCommGroup
 
 instance (𝕜 : Type _) (V : Type _) [NormedField 𝕜] [NormedAddCommGroup V] [Module 𝕜 V] (p' p : ℝ)
-    [Fact (0 < p')] [Fact (p' ≤ p)] [NormedSpace' 𝕜 p V] : NormedSpace' 𝕜 p' (AsNormedSpace' p' V)
-    where norm_smul c v := by
+    [Fact (0 < p')] [Fact (p' ≤ p)] [NormedSpace' 𝕜 p V] : NormedSpace' 𝕜 p' (AsNormedSpace' p' V) where
+  norm_smul c v := by
     have hp' : 0 < p' := Fact.out _
     have hp : 0 < p := lt_of_lt_of_le hp' (Fact.out _)
     rw [norm_def, norm_def, down_smul, NormedSpace'.norm_smul, Real.mul_rpow, ← Real.rpow_mul,

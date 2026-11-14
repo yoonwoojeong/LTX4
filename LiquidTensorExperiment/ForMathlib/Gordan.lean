@@ -413,8 +413,7 @@ theorem my_result [Fintype α] (C : Submodule ℚ≥0 (α → ℚ)) (hC : C.FG) 
     rintro x a ⟨w', hw', hw''⟩
     have hw''' : (∑ i : ι in s, w' i • toRationalPoint (w i)) a = toRationalPoint x a := by
       rw [hw'']
-    simp only [Finset.sum_apply, Algebra.id.smul_eq_mul, toRationalPoint_apply, Pi.smul_apply] at
-      hw''' 
+    simp only [Finset.sum_apply, Algebra.id.smul_eq_mul, toRationalPoint_apply, Pi.smul_apply] at hw'''
     change ∑ c : ι in s, (w' c : ℚ) * w c a = x a at hw''' 
     clear hw''
     have : abs (∑ c : ι in s, (w' c : ℚ) * w c a) ≤ ∑ c : ι in s, abs (w c a) :=

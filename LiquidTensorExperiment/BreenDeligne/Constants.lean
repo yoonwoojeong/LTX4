@@ -72,8 +72,8 @@ def κ' (BD : Package) (κ : ℕ → ℝ≥0) : ℕ → ℝ≥0
   | 0 => 1
   | n + 1 => (BD.Homotopy.Hom n (n + 1)).factor * rescaleConstants κ 2 n * (κ (n + 1))⁻¹
 
-instance κ'Adept (κ : ℕ → ℝ≥0) [∀ i, Fact (0 < κ i)] : Package.Adept BD κ (κ' BD κ)
-    where htpy_suitable' := by
+instance κ'Adept (κ : ℕ → ℝ≥0) [∀ i, Fact (0 < κ i)] : Package.Adept BD κ (κ' BD κ) where
+  htpy_suitable' := by
     intro n
     apply UniversalMap.suitable_of_factor_le
     dsimp [κ']

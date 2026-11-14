@@ -21,8 +21,8 @@ def nnratModule {Λ : Type _} [AddCommGroup Λ] [Module ℚ Λ] : Module ℚ≥0
 
 attribute [local instance] nnratModule
 
-instance nNRat_tower [Module ℚ Λ] : IsScalarTower ℚ≥0 ℚ Λ
-    where smul_assoc x y z := by
+instance nNRat_tower [Module ℚ Λ] : IsScalarTower ℚ≥0 ℚ Λ where
+  smul_assoc x y z := by
     rcases x with ⟨x, hx⟩
     change (x • y) • z = x • _
     simp [mul_smul]

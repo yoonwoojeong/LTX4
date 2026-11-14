@@ -469,40 +469,40 @@ protected theorem homInj_injective : Function.Injective (ShortExactSequence.homI
   let aux := π₂ h
   ext <;> [have := π₁ h; have := π₁ aux; have := π₂ aux] <;> exact this
 
-instance : Add (A ⟶ B)
-    where add f g :=
+instance : Add (A ⟶ B) where
+  add f g :=
     { fst := f.1 + g.1
       snd := f.2 + g.2
       trd := f.3 + g.3
       sq1' := by rw [add_comp, comp_add, f.sq1, g.sq1]
       sq2' := by rw [add_comp, comp_add, f.sq2, g.sq2] }
 
-instance : Neg (A ⟶ B)
-    where neg f :=
+instance : Neg (A ⟶ B) where
+  neg f :=
     { fst := -f.1
       snd := -f.2
       trd := -f.3
       sq1' := by rw [neg_comp, comp_neg, f.sq1]
       sq2' := by rw [neg_comp, comp_neg, f.sq2] }
 
-instance : Sub (A ⟶ B)
-    where sub f g :=
+instance : Sub (A ⟶ B) where
+  sub f g :=
     { fst := f.1 - g.1
       snd := f.2 - g.2
       trd := f.3 - g.3
       sq1' := by rw [sub_comp, comp_sub, f.sq1, g.sq1]
       sq2' := by rw [sub_comp, comp_sub, f.sq2, g.sq2] }
 
-instance hasNsmul : SMul ℕ (A ⟶ B)
-    where smul n f :=
+instance hasNsmul : SMul ℕ (A ⟶ B) where
+  smul n f :=
     { fst := n • f.1
       snd := n • f.2
       trd := n • f.3
       sq1' := by rw [nsmul_comp, comp_nsmul, f.sq1]
       sq2' := by rw [nsmul_comp, comp_nsmul, f.sq2] }
 
-instance hasZsmul : SMul ℤ (A ⟶ B)
-    where smul n f :=
+instance hasZsmul : SMul ℤ (A ⟶ B) where
+  smul n f :=
     { fst := n • f.1
       snd := n • f.2
       trd := n • f.3

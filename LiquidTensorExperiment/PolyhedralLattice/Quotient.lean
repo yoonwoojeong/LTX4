@@ -30,8 +30,8 @@ theorem π_apply_eq_zero_iff (x) : L.normedMk x = 0 ↔ x ∈ L :=
 theorem π_isQuotient : L.normedMk.IsQuotient :=
   NormedAddGroupHom.isQuotientQuotient _
 
-instance [H : Fact L.saturated] : NoZeroSMulDivisors ℤ (Λ ⧸ L)
-    where eq_zero_or_eq_zero_of_smul_eq_zero :=
+instance [H : Fact L.saturated] : NoZeroSMulDivisors ℤ (Λ ⧸ L) where
+  eq_zero_or_eq_zero_of_smul_eq_zero :=
     by
     intro n x h
     obtain ⟨x, rfl⟩ : ∃ y, L.normed_mk y = x := Quotient.surjective_Quotient_mk'' x
@@ -100,8 +100,8 @@ theorem norm_lift (y : Λ ⧸ L) : ∃ x, L.normedMk x = y ∧ ‖x‖ = ‖y‖
     simp only [exists_prop, Set.Finite.mem_toFinset, Finset.mem_image, Set.mem_setOf_eq]
     exact ⟨x₀, ⟨hx₀.1, (hx₀.2.trans key.le).trans (H.ge.trans hx.2)⟩, rfl⟩
 
-instance [H : Fact L.saturated] : PolyhedralLattice (Λ ⧸ L)
-    where polyhedral' :=
+instance [H : Fact L.saturated] : PolyhedralLattice (Λ ⧸ L) where
+  polyhedral' :=
     by
     obtain ⟨ι, _inst_ι, l, hl, hl'⟩ := PolyhedralLattice.polyhedral Λ; skip
     refine' ⟨ι, _inst_ι, fun i => L.normed_mk (l i), _⟩

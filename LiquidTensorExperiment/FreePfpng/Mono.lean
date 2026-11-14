@@ -57,8 +57,7 @@ theorem Profinite.specialization_eq_zero_of_eq_zero (S B : Profinite.{u}) (b : B
   apply_fun fun e => S.condensed_free_pfpng_specialize B b e at ht 
   rw [AddMonoidHom.map_zero] at ht 
   apply_fun fun e =>
-    Limits.limit.π (S.fintype_diagram ⋙ forget FintypeCat ⋙ AddCommGroupCat.free' ⋙ Ab.ulift) T e at
-    ht 
+    Limits.limit.π (S.fintype_diagram ⋙ forget FintypeCat ⋙ AddCommGroupCat.free' ⋙ Ab.ulift) T e at ht
   rw [AddMonoidHom.map_zero] at ht 
   apply_fun ULift.down at ht 
   dsimp [AddCommGroupCat.free']

@@ -22,8 +22,8 @@ theorem Int.sum_units_toNat_smul (n : ℤ) : ∑ i : Units ℤ, Int.toNat (i * n
   simp only [neg_mul, mul_one, one_mul, nsmul_eq_mul, Units.val_one, Units.coe_neg_one, mul_neg,
     Finset.sum_singleton, ← sub_eq_add_neg, Int.toNat_sub_toNat_neg]
 
-instance Int.polyhedralLattice : PolyhedralLattice ℤ
-    where polyhedral' := by
+instance Int.polyhedralLattice : PolyhedralLattice ℤ where
+  polyhedral' := by
     refine' ⟨Units ℤ, inferInstance, coe, _⟩
     intro n
     refine' ⟨fun e => Int.toNat (e * n), (Int.sum_units_toNat_smul _).symm, _⟩

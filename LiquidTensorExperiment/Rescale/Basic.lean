@@ -18,7 +18,7 @@ open scoped BigOperators Classical NNReal
 /-- `rescale r M` is the pseudo-normed group `M` but with a new filtration,
 where `(rescale r M)_c := M_{c*r⁻¹}`.
 -/
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 def Rescale (N : ℝ≥0) (V : Type _) :=
   V
 

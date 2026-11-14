@@ -171,8 +171,7 @@ theorem homFinsuppEquiv_ctu [Fact (0 < r')] (c : ℝ≥0) :
   · have aux1 := AddMonoidHom.incl_continuous (Fin N →₀ Λ) r' M c
     have aux2 := (continuous_apply (Finsupp.single i l)).comp aux1
     rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖Finsupp.single i l‖₊)
-          (c * ‖l‖₊)).continuous_iff] at
-      aux2 
+          (c * ‖l‖₊)).continuous_iff] at aux2
   · rw [Finsupp.nnnorm_def, Finsupp.sum_single_index]; exact nnnorm_zero
 
 end

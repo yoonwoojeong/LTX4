@@ -532,8 +532,8 @@ variable {f g}
 theorem ext (H : ∀ x, f x = g x) : f = g := by
   cases f; cases g; congr; exact AddMonoidHom.ext H
 
-instance : Zero (StrictComphausFilteredPseudoNormedGroupHom M₁ M₂)
-    where zero :=
+instance : Zero (StrictComphausFilteredPseudoNormedGroupHom M₁ M₂) where
+  zero :=
     {
       (0 : M₁ →+
           M₂) with

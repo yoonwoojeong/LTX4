@@ -311,8 +311,7 @@ theorem nonstrictExtendBoundBy (h : ∀ X, (α.app X).BoundBy c) (X : Profinite.
   · rw [mul_comm]
     rwa [show r = r * c * c⁻¹ by
         rw [mul_assoc, mul_inv_cancel (ne_of_gt (Fact.elim inferInstance)), mul_one] <;>
-          infer_instance] at
-      hm 
+          infer_instance] at hm
   · rw [← one_mul (1 : ℝ≥0), whisker_right_comp]
     apply ComphausFilteredPseudoNormedGroupHom.BoundBy.comp
     · apply StrictComphausFilteredPseudoNormedGroupHom.toChfpsngHom.boundByOne

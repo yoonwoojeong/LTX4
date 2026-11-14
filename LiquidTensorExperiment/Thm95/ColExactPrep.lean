@@ -156,8 +156,8 @@ instance : T2Space (AuxSpace f hf c₁ c₂) := by delta Thm95.fLCComplex.AuxSpa
 instance : TotallyDisconnectedSpace (AuxSpace f hf c₁ c₂) :=
   Subtype.totallyDisconnectedSpace
 
-instance : CompactSpace (AuxSpace f hf c₁ c₂)
-    where compact_univ :=
+instance : CompactSpace (AuxSpace f hf c₁ c₂) where
+  compact_univ :=
     by
     rw [embedding_subtype_coe.isCompact_iff]
     simp only [Set.image_univ, Subtype.range_coe_subtype]

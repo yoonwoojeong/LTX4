@@ -112,8 +112,8 @@ open Opposite
 example (S : Profinite.{u}) : PreservesZeroObjects (Condensed.evaluation Ab.{u + 1} S) :=
   inferInstance
 
-instance (S : Profinite.{u}) [Projective S] : Projective ℤ[S]
-    where Factors A B f g hg := by
+instance (S : Profinite.{u}) [Projective S] : Projective ℤ[S] where
+  Factors A B f g hg := by
     rw [CategoryTheory.Limits.epi_iff_isZero_cokernel] at hg 
     -- this follows from the fact that evaluation preserves colimits.
     let e : (cokernel g).val.obj (op S) ≅ cokernel (g.val.app (op S)) :=

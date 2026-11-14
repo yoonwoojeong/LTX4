@@ -102,8 +102,8 @@ def mulFunctor (N : ℕ) : FreeMat ⥤ FreeMat
           Equiv.apply_eq_iff_eq, eq_self_iff_true]
   map_comp f g := hMul_comp _ _ _
 
-instance mulFunctor.additive (N : ℕ) : (mulFunctor N).Additive
-    where map_add := AddMonoidHom.map_add _ _ _
+instance mulFunctor.additive (N : ℕ) : (mulFunctor N).Additive where
+  map_add := AddMonoidHom.map_add _ _ _
 
 @[simps]
 def isoMk' {m n : FreeMat} (f : BasicUniversalMap m n) (g : BasicUniversalMap n m)

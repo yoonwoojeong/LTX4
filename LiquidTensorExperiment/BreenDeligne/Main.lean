@@ -451,7 +451,7 @@ variable [HasProductsOfShape (ULift.{v} ℕ) 𝓐]
 
 open CategoryTheory.Preadditive
 
-@[simps, nolint unused_arguments]
+@[simps, nolint unusedArguments]
 def powX (X : Endomorphisms 𝓐) (n : ℕ) : ((pow n).obj X).pt ≅ (pow n).obj X.pt :=
   (applyPow (Endomorphisms.forget 𝓐) n).app X
 
@@ -803,8 +803,8 @@ def endoTCompForget {𝓐 : Type _} [Category 𝓐] (T : 𝓐 ⥤ Ab.{v} ⥤ �
     simp only [Category.comp_id, Category.id_comp]
 
 instance endoT_additive {𝓐 : Type _} [Category 𝓐] [Preadditive 𝓐] (T : 𝓐 ⥤ Ab.{v} ⥤ 𝓐)
-    (A : Endomorphisms 𝓐) [(T.obj A.pt).Additive] : ((endoT T).obj A).Additive
-    where map_add' X Y f g := by ext; dsimp; rw [Functor.map_add]
+    (A : Endomorphisms 𝓐) [(T.obj A.pt).Additive] : ((endoT T).obj A).Additive where
+  map_add' X Y f g := by ext; dsimp; rw [Functor.map_add]
 
 instance endoTPreservesFiniteLimits {𝓐 : Type _} [Category 𝓐] (T : 𝓐 ⥤ Ab.{v} ⥤ 𝓐)
     (A : Endomorphisms 𝓐) [PreservesFiniteLimits (T.obj A.pt)] :

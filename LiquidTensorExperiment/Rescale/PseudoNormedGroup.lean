@@ -242,8 +242,8 @@ def rescale (N : ℝ≥0) [Fact (0 < N)] :
   map M₁ M₂ f := Rescale.mapComphausFilteredPseudoNormedGroupWithTinvHom _ _ f
 
 @[simps]
-def rescaleOut (N : ℝ≥0) [Fact (1 ≤ N)] : rescale r' N ⟶ 𝟭 _
-    where app M :=
+def rescaleOut (N : ℝ≥0) [Fact (1 ≤ N)] : rescale r' N ⟶ 𝟭 _ where
+  app M :=
     { toFun := (Rescale.of.symm : Rescale N M → M)
       map_zero' := rfl
       map_add' := fun x y => rfl

@@ -12,8 +12,8 @@ open Opposite
 
 universe u
 
-instance condensedAbToCondensedSet_faithful : Faithful condensedAbToCondensedSet
-    where map_injective' := by
+instance condensedAbToCondensedSet_faithful : Faithful condensedAbToCondensedSet where
+  map_injective' := by
     intro X Y f g h; ext W t : 4
     apply_fun fun e => e.val.app W t at h ; dsimp at h 
     exact h

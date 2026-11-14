@@ -23,8 +23,8 @@ instance SemiNormedGroupCat.forget₂ : HasForget₂ SemiNormedGroupCat.{u} Ab.{
   forget_comp := rfl
 
 -- move me
-instance SemiNormedGroupCat.forget₂_additive : (forget₂ SemiNormedGroupCat.{u} Ab.{u}).Additive
-    where map_add' := by intros; rfl
+instance SemiNormedGroupCat.forget₂_additive : (forget₂ SemiNormedGroupCat.{u} Ab.{u}).Additive where
+  map_add' := by intros; rfl
 
 instance SemiNormedGroupCat.metricSpace : MetricSpace V :=
   metric.ofT0PseudoMetricSpace _

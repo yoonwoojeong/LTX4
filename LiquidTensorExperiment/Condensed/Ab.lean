@@ -132,8 +132,8 @@ def ofTopAb : Condensed.{u} Ab.{u + 1}
 
 variable {A} {B : Type u} [AddCommGroup B] [TopologicalSpace B] [TopologicalAddGroup B]
 
-def ofTopAbMap (f : A →+ B) (hf : Continuous f) : ofTopAb A ⟶ ofTopAb B
-    where val :=
+def ofTopAbMap (f : A →+ B) (hf : Continuous f) : ofTopAb A ⟶ ofTopAb B where
+  val :=
     whiskerRight
       { app := fun S =>
           by

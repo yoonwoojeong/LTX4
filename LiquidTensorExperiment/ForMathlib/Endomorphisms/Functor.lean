@@ -25,8 +25,8 @@ def mapEndomorphisms (F : C ⥤ D) : Endomorphisms C ⥤ Endomorphisms D
 end Functor
 
 @[simps]
-def NatTrans.mapEndomorphisms {F G : C ⥤ D} (η : F ⟶ G) : F.mapEndomorphisms ⟶ G.mapEndomorphisms
-    where app T := ⟨η.app _, by tidy⟩
+def NatTrans.mapEndomorphisms {F G : C ⥤ D} (η : F ⟶ G) : F.mapEndomorphisms ⟶ G.mapEndomorphisms where
+  app T := ⟨η.app _, by tidy⟩
 
 end CategoryTheory
 

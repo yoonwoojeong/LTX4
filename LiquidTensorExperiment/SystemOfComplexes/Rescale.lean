@@ -47,8 +47,8 @@ theorem rescale_d (r c : ℝ≥0) [Fact (0 < r)] (C : SystemOfComplexes) (i j : 
     (((rescale r).obj C).d i j) v = @Rescale.of r _ ((C.d i j) ((@Rescale.of r _).symm v)) :=
   rfl
 
-instance rescale.additive (r : ℝ≥0) [Fact (0 < r)] : (rescale r).Additive
-    where map_add' X Y f g := by ext; rfl
+instance rescale.additive (r : ℝ≥0) [Fact (0 < r)] : (rescale r).Additive where
+  map_add' X Y f g := by ext; rfl
 
 -- a heavy refl
 -- can we golf this? speed it up?

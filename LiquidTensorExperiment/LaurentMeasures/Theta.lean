@@ -325,7 +325,7 @@ def ϑ₀ (r : ℝ≥0) : LaurentMeasures r (FintypeCat.of PUnit) → ℝ := fun
 def ϑ (r p : ℝ≥0) (S : FintypeCat) : LaurentMeasures r S → RealMeasures p S := fun F s =>
   tsum fun n => F s n * ξ ^ n
 
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 def ϑ' (r p : ℝ≥0) (S : FintypeCat) : LaurentMeasures r S → S → ℝ := fun F s =>
   (ϑ₀ ξ r) (sevalℒ S s F)
 

@@ -16,8 +16,8 @@ section
 
 variable {ι X 𝒜 : Type _} [Category X] [Category 𝒜] [Preadditive 𝒜] {c : ComplexShape ι}
 
-instance evaluation_additive (x : X) : ((evaluation X 𝒜).obj x).Additive
-    where map_add' F G f g := by simp only [evaluation_obj_map, NatTrans.app_add]
+instance evaluation_additive (x : X) : ((evaluation X 𝒜).obj x).Additive where
+  map_add' F G f g := by simp only [evaluation_obj_map, NatTrans.app_add]
 
 @[simps]
 def FunctorEval.obj (x : X) : HomologicalComplex (X ⥤ 𝒜) c ⥤ HomologicalComplex 𝒜 c :=

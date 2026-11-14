@@ -24,7 +24,7 @@ universe v v' u u'
 variable (A : Type u) (B : Type u') [Category.{v} A] [Category.{v} B] [Abelian A] [Abelian B]
 
 /-- Cohomological covariant delta functor. -/
-@[nolint has_inhabited_instance]
+-- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
 structure DeltaFunctor where
   f : ℕ → A ⥤ B
   [Additive : ∀ n, Functor.Additive (F n)]
@@ -47,7 +47,7 @@ instance additive_apply (F : A ⥤δ B) (n : ℕ) : Functor.Additive (F n) :=
 variable {A B}
 
 /-- Morphisms of cohomological covariant delta functors. -/
-@[nolint has_inhabited_instance]
+-- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
 structure Hom (F G : A ⥤δ B) where
   η : ∀ n, F n ⟶ G n
   comm' : ∀ n, F.δ n ≫ whiskerLeft _ (η _) = whiskerLeft _ (η _) ≫ G.δ _
@@ -121,7 +121,7 @@ class Universal (F : A ⥤δ B) : Prop where
 namespace Tohoku
 
 /-- An effacement relative to a δ functor. -/
-@[nolint has_inhabited_instance]
+-- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
 structure Effacement (F : A ⥤δ B) (X : A) (n : ℕ) where
   i : A
   ι : X ⟶ I
@@ -129,7 +129,7 @@ structure Effacement (F : A ⥤δ B) (X : A) (n : ℕ) where
   w : (F (n + 1)).map ι = 0
 
 /-- Morphisms between effacements. -/
-@[ext, nolint has_inhabited_instance]
+@[ext]
 structure Effacement.Hom (F : A ⥤δ B) (X : A) (n : ℕ) (e₁ e₂ : Effacement F X n) where
   t : e₁.i ⟶ e₂.i
   w : e₁.ι ≫ t = e₂.ι

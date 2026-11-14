@@ -54,8 +54,9 @@ def point : Profinite.{u} :=
 def fromPoint {X : Profinite.{u}} : (point ⟶ X) ≃ X
     where
   toFun f := f PUnit.unit
-  invFun x := ⟨fun _ => x⟩
-  left_inv x := by ext ⟨⟩; rfl
+  invFun x := ⟨fun _ => x, continuous_const⟩
+  -- Porting note: `ext` does not find the extensionality lemma for morphisms of `Profinite`
+  left_inv f := ContinuousMap.ext fun x => by cases x; rfl
   right_inv x := rfl
 
 theorem fromPoint_apply {X Y : Profinite} (f : point ⟶ X) (g : X ⟶ Y) :
@@ -64,7 +65,7 @@ theorem fromPoint_apply {X Y : Profinite} (f : point ⟶ X) (g : X ⟶ Y) :
 
 noncomputable def mkPullback {X Y Z : Profinite.{u}} {f : X ⟶ Z} {g : Y ⟶ Z} {x : X} {y : Y}
     (h : f x = g y) : (pullback f g : Profinite) :=
-  fromPoint (pullback.lift (fromPoint.symm x) (fromPoint.symm y) (by ext ⟨⟩; exact h))
+  fromPoint (pullback.lift (fromPoint.symm x) (fromPoint.symm y) (ContinuousMap.ext fun _ => h))
 
 theorem mkPullback_fst {X Y Z : Profinite} {f : X ⟶ Z} {g : Y ⟶ Z} {x : X} {y : Y} {h : f x = g y} :
     (pullback.fst : pullback f g ⟶ _) (mkPullback h) = x :=

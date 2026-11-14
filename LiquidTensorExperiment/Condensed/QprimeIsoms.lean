@@ -735,8 +735,8 @@ instance preservesFilteredColimitsTensorFlipEval' (i : ℤ) :
 set_option pp.universes true
 
 instance additive_tensor_flip (A : AddCommGroupCat.{u}) :
-    Functor.Additive (AddCommGroupCat.tensorFunctor.flip.obj A)
-    where map_add' X Y f g := by
+    Functor.Additive (AddCommGroupCat.tensorFunctor.flip.obj A) where
+  map_add' X Y f g := by
     dsimp [AddCommGroupCat.mapTensor]; ext x
     dsimp only [LinearMap.toAddMonoidHom_coe, AddMonoidHom.add_apply]
     rw [← LinearMap.add_apply]

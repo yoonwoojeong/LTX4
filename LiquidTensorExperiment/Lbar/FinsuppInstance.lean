@@ -92,7 +92,7 @@ finsupps `ℕ →₀ ℤ` with an extra parameter `r`.
 
 The non-negative real number `r` is used in defining a norm on `r.normed`: given `F : ℕ →₀ ℤ`,
 define `∥F∥₊ = ∑ x in F.support, ∥F x∥₊ * r⁻¹ ^ x`. -/
-@[nolint unused_arguments, reducible]
+@[nolint unusedArguments, reducible]
 def NNReal.Normed (r : ℝ≥0) :=
   ℕ →₀ ℤ
 deriving AddCommGroup

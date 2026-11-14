@@ -183,8 +183,7 @@ theorem sum_Icc_sum_tail (f : ℤ → ℤ) (n d : ℤ) (hf : HasSum (fun x : ℤ
     simp only [not_le, Set.mem_setOf_eq] at hx 
     apply Or.intro_left
     exact int.cast_eq_zero.mpr (hd _ hx)
-  rw [← @hasSum_subtype_iff_of_support_subset ℝ ℤ _ _ (fun n : ℤ => f n * (2 ^ n)⁻¹) _ _ H_supp] at
-    hf 
+  rw [← @hasSum_subtype_iff_of_support_subset ℝ ℤ _ _ (fun n : ℤ => f n * (2 ^ n)⁻¹) _ _ H_supp] at hf
   let g := fun n : { x : ℤ // d ≤ x } => (f n : ℝ) * (2 ^ n.1)⁻¹
   have hg : HasSum g 0 := hf
   have := @sum_add_tsum_compl _ _ _ _ _ g _ (R hn) hg.summable

@@ -28,8 +28,8 @@ def IsInitial.colimitCocone {j : J} (hj : IsInitial j) [HasColimit F]
         apply hj.hom_ext }
 
 def IsInitial.isColimitColimitCocone {j : J} (hj : IsInitial j) [HasColimit F]
-    [∀ (a b : J) (f : a ⟶ b), IsIso (F.map f)] : IsColimit (hj.colimitCocone F)
-    where desc S := S.ι.app _
+    [∀ (a b : J) (f : a ⟶ b), IsIso (F.map f)] : IsColimit (hj.colimitCocone F) where
+  desc S := S.ι.app _
 
 theorem IsInitial.isIso_ι {j : J} (hj : IsInitial j) [HasColimit F]
     [∀ (a b : J) (f : a ⟶ b), IsIso (F.map f)] : IsIso (colimit.ι F j) :=

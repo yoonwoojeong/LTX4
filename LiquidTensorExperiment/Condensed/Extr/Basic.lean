@@ -509,7 +509,7 @@ theorem hr : Function.Surjective r :=
     rw [hc]; rfl
 
 -- this lemma has an extremely annoying type to write down
-@[nolint def_lemma]
+@[nolint defLemma]
 def hE (surj : ∀ b : B, ∃ (i : _) (x : X i), f i x = b) :=
   ExtrDisc.equalizerConditionForTypes_holds P π (hπ surj) r hr
 

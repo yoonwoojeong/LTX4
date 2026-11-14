@@ -182,8 +182,8 @@ namespace NatTrans
 @[simps]
 def mapShortComplex [HasZeroMorphisms C] [HasZeroMorphisms D] {F G : C ⥤ D}
     [F.PreservesZeroMorphisms] [G.PreservesZeroMorphisms] (φ : F ⟶ G) :
-    F.mapShortComplex ⟶ G.mapShortComplex
-    where app X := ⟨φ.app _, φ.app _, φ.app _, φ.naturality _, φ.naturality _⟩
+    F.mapShortComplex ⟶ G.mapShortComplex where
+  app X := ⟨φ.app _, φ.app _, φ.app _, φ.naturality _, φ.naturality _⟩
 
 end NatTrans
 

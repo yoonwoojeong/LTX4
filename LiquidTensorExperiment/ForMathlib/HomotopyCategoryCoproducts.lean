@@ -201,8 +201,8 @@ noncomputable def isColimitCofan {α : Type v} (X : α → HomotopyCategory A (C
     apply homotopic_of_quotient_map_eq
     exact hm
 
-instance {α : Type v} (X : α → HomotopyCategory A (ComplexShape.up ℤ)) : HasCoproduct X
-    where exists_colimit := Nonempty.intro <| ⟨colimitCofan _, isColimitCofan _⟩
+instance {α : Type v} (X : α → HomotopyCategory A (ComplexShape.up ℤ)) : HasCoproduct X where
+  exists_colimit := Nonempty.intro <| ⟨colimitCofan _, isColimitCofan _⟩
 
 instance {α : Type v} : HasColimitsOfShape (Discrete α) (HomotopyCategory A (ComplexShape.up ℤ)) :=
   by

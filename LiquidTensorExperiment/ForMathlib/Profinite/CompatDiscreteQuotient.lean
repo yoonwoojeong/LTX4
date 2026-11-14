@@ -39,7 +39,7 @@ def makeSetoid (S : DiscreteQuotient X) : Setoid Y :=
   ⟨S.MakeRel f, S.makeRel_equiv f surj⟩
 
 /-- The quotient of make_rel. -/
-@[nolint has_inhabited_instance]
+-- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
 def MakeQuotient (S : DiscreteQuotient X) : Type _ :=
   Quotient (S.makeSetoid f surj)
 

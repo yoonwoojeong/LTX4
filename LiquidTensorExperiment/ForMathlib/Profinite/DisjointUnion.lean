@@ -132,19 +132,19 @@ def pullback {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : Profinite
         infer_instance }
   IsTotallyDisconnected := Subtype.totallyDisconnectedSpace
 
-def pullback.fst {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : pullback f g ⟶ X
-    where toFun a := a.1.1
+def pullback.fst {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : pullback f g ⟶ X where
+  toFun a := a.1.1
 
-def pullback.snd {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : pullback f g ⟶ Y
-    where toFun a := a.1.2
+def pullback.snd {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : pullback f g ⟶ Y where
+  toFun a := a.1.2
 
 @[reassoc]
 theorem pullback.condition {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) :
     pullback.fst f g ≫ f = pullback.snd f g ≫ g := by ext ⟨t, ht⟩; exact ht
 
 def pullback.lift {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X) (e₂ : W ⟶ Y)
-    (w : e₁ ≫ f = e₂ ≫ g) : W ⟶ pullback f g
-    where toFun t := ⟨(e₁ t, e₂ t), by apply_fun fun ee => ee t at w ; exact w⟩
+    (w : e₁ ≫ f = e₂ ≫ g) : W ⟶ pullback f g where
+  toFun t := ⟨(e₁ t, e₂ t), by apply_fun fun ee => ee t at w ; exact w⟩
 
 @[reassoc (attr := simp)]
 theorem pullback.lift_fst {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X)

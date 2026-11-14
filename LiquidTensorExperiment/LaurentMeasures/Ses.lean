@@ -415,7 +415,7 @@ theorem seval_ℳ_α_commute' {X : Type _} (c : ℝ≥0) {f : X → filtration (
   simp only at this 
   rw [this]
 
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 def sevalℒBddC (c : ℝ≥0) (S : FintypeCat) (A : Finset ℤ) (s : S) :
     LaurentMeasuresBdd r S A c → LaurentMeasuresBdd r ϖ A c :=
   by

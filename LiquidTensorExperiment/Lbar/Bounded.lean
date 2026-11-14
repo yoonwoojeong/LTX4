@@ -80,8 +80,8 @@ theorem ext (x y : LbarBdd r' S c M) (h : (⇑x : S → Fin (M + 1) → ℤ) = y
   cases y
   congr
 
-instance : Zero (LbarBdd r' S c M)
-    where zero :=
+instance : Zero (LbarBdd r' S c M) where
+  zero :=
     { toFun := 0
       coeff_zero' := fun s => rfl
       sum_le' := by

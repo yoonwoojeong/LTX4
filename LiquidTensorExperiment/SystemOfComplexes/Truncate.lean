@@ -93,8 +93,8 @@ def truncate : CochainComplex SemiNormedGroupCat.{u} ℕ ⥤ CochainComplex Semi
   map_id C := by ext (n | n) ⟨x⟩ <;> rfl
   map_comp C₁ C₂ C₃ f g := by ext (n | n) ⟨x⟩ <;> rfl
 
-instance truncate.additive : truncate.Additive
-    where map_add' := by intros;
+instance truncate.additive : truncate.Additive where
+  map_add' := by intros;
     ext (_ | n) ⟨⟩ <;>
       simp only [truncate_map, Truncate.mapF_2, HomologicalComplex.add_f_apply,
         Preadditive.comp_add, Truncate.mapF, explicitCokernel.map, Preadditive.add_comp,

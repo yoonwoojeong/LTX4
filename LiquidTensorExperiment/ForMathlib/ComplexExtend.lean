@@ -19,7 +19,7 @@ namespace ComplexShape
 an injection `ι₁ → ι₂` sending related vertices to related vertices. Recall that two
 vertices are related in a complex shape iff the differential between them is allowed to
 be nonzero. -/
-@[nolint has_inhabited_instance]
+-- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
 structure Embedding (c₁ : ComplexShape ι₁) (c₂ : ComplexShape ι₂) where
   f : ι₁ → ι₂
   R : ι₂ → Option ι₁
@@ -307,8 +307,8 @@ def embed : HomologicalComplex 𝒞 cι ⥤ HomologicalComplex 𝒞 cι'
   map_id X := by ext i; exact Embed.f_id _
   map_comp := by intros; ext i; exact Embed.f_comp f g _
 
-instance embed_additive : (embed e : HomologicalComplex 𝒞 cι ⥤ HomologicalComplex 𝒞 cι').Additive
-    where map_add' X Y f g := by ext; exact Embed.f_add _
+instance embed_additive : (embed e : HomologicalComplex 𝒞 cι ⥤ HomologicalComplex 𝒞 cι').Additive where
+  map_add' X Y f g := by ext; exact Embed.f_add _
 
 def embedIso (i : ι) : ((embed e).obj X).pt (e.f i) ≅ X.pt i :=
   eqToIso

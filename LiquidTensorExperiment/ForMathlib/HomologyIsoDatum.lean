@@ -27,7 +27,7 @@ be an isomorphism `h.iso : H ≅ homology f g h.w`. The differences with
 quotient of cycles by boundaries;
 * the object `K` can be any choice for the kernel of `Y ⟶ Z` and
 `H` can be any choice of cokernel for `X ⟶ K`. -/
-@[nolint has_inhabited_instance]
+-- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
 structure HomologyIsoPredatum where
   w : f ≫ g = 0
   k : C
@@ -114,7 +114,7 @@ def mapIso {X' Y' Z' : C} (f' : X' ⟶ Y') (g' : Y' ⟶ Z') (e₁ : Arrow.mk f �
 
 end HomologyIsoPredatum
 
-@[nolint has_inhabited_instance]
+-- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
 structure HomologyIsoDatum (H : C) extends HomologyIsoPredatum f g H where
   forkIsLimit : IsLimit to_homology_iso_predatum.Fork
   coforkIsColimit : IsColimit to_homology_iso_predatum.Cofork
@@ -270,7 +270,7 @@ theorem tautological_iso_hom :
 
 variable {f g}
 
-@[nolint has_inhabited_instance]
+-- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
 structure Change {H₁ H₂ : C} (h₁ : HomologyIsoDatum f g H₁) (h₂ : HomologyIsoDatum f g H₂) where
   κ : h₁.k ⟶ h₂.k
   fac₁' : h₁.f' ≫ κ = h₂.f'

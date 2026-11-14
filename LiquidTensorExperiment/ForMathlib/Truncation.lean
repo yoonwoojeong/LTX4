@@ -996,8 +996,7 @@ theorem ιSucc_toImker_ι_ex {i n : ℤ} :
           by
           rw [←
             cokernel.π_desc ((ι_succ C i).f (i + 1)) ((CochainComplex.truncation.toImker C (i + 1)).f (i + 1))
-              (ι_succ.comp_toImker_zero C)] at
-            this 
+              (ι_succ.comp_toImker_zero C)] at this
           exact @mono_of_epi_of_comp_mono _ _ _ _ _ _ _ _ _ this
         delta CochainComplex.truncation.toImker
         dsimp only

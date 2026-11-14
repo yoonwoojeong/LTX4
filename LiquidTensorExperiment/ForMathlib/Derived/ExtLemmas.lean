@@ -13,8 +13,8 @@ namespace BoundedDerivedCategory
 variable (A : Type _) [Category A] [Abelian A] [EnoughProjectives A]
 
 instance ext_additive_fst (i : ℤ) (X : BoundedDerivedCategory A) :
-    ((ext A i).flip.obj X).rightOp.Additive
-    where map_add' := by
+    ((ext A i).flip.obj X).rightOp.Additive where
+  map_add' := by
     intro Y Z f g; dsimp
     conv_rhs => rw [← op_add]; congr 1; ext e
     dsimp; rw [Preadditive.add_comp]

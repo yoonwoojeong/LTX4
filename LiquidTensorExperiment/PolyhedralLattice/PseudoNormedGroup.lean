@@ -94,8 +94,8 @@ theorem incl_continuous : Continuous (@incl Λ r' M _ _ c) :=
 instance : T2Space (filtration (Λ →+ M) c) :=
   (incl_embedding Λ r' M c).T2Space
 
-instance : TotallyDisconnectedSpace (filtration (Λ →+ M) c)
-    where isTotallyDisconnected_univ :=
+instance : TotallyDisconnectedSpace (filtration (Λ →+ M) c) where
+  isTotallyDisconnected_univ :=
     (incl_embedding Λ r' M c).IsTotallyDisconnected <|
       isTotallyDisconnected_of_totallyDisconnectedSpace _
 
@@ -136,8 +136,8 @@ theorem incl_range_isClosed : IsClosed (Set.range (@incl Λ r' M _ _ c)) :=
       (continuous_cast_le _ _).comp
         ((continuous_add' _ _).comp ((continuous_apply l₁).prod_mk (continuous_apply l₂)))
 
-instance : CompactSpace (filtration (Λ →+ M) c)
-    where compact_univ := by
+instance : CompactSpace (filtration (Λ →+ M) c) where
+  compact_univ := by
     rw [← (incl_inducing Λ r' M c).isCompact_iff]
     apply IsClosed.isCompact
     rw [Set.image_univ]

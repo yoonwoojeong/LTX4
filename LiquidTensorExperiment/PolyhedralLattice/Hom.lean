@@ -57,8 +57,7 @@ def hom (M : ProFiltPseuNormGrpWithTinv r') : PolyhedralLatticeCatᵒᵖ ⥤ Pro
         haveI : Fact (‖f.unop l‖₊ ≤ ‖l‖₊) := ⟨f.unop.strict_nnnorm l⟩
         have aux :=
           (continuous_apply (f.unop l)).comp (AddMonoidHom.incl_continuous Λ₁.unop r' M c)
-        rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖f.unop l‖₊) (c * ‖l‖₊)).continuous_iff] at
-          aux 
+        rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖f.unop l‖₊) (c * ‖l‖₊)).continuous_iff] at aux
       map_Tinv' := fun g => by ext l; rfl }
   map_id Λ := by ext; rfl
   map_comp := by intros; ext; rfl
@@ -107,8 +106,7 @@ theorem homZMapEquiv_ctu (c : ℝ≥0) :
   have aux := AddMonoidHom.incl_continuous ℤ r' M c
   have aux2 := (continuous_apply 1).comp aux
   rwa [(ComphausFilteredPseudoNormedGroup.embedding_castLe (c * ‖1 : ℤ‖₊)
-        c).continuous_iff] at
-    aux2 
+        c).continuous_iff] at aux2
 
 /-- The isomorphism `Hom ℤ M ≅ M` for `M` a `profinitely_filtered_pseudo_normed_group_with_Tinv`. -/
 noncomputable def homZIso : hom ℤ M ≅ M :=

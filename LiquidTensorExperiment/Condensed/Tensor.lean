@@ -492,8 +492,8 @@ example (α : Type (u + 1)) (M : Condensed.{u} Ab.{u + 1}) :
 
 /- this is an assumption in `main_lemma'` in `breen_deligne/main.lean` and it is
 used in `condensed/bd_lemma.lean` -/
-instance tensorFunctor_additive (A : Condensed.{u} Ab.{u + 1}) : (tensorFunctor.obj A).Additive
-    where map_add' := by
+instance tensorFunctor_additive (A : Condensed.{u} Ab.{u + 1}) : (tensorFunctor.obj A).Additive where
+  map_add' := by
     intro A B f g
     dsimp [tensor_functor, map_tensor]
     rw [← Functor.map_add]; congr 1; ext S : 3

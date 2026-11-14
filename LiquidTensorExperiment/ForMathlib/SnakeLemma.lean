@@ -45,11 +45,11 @@ namespace Eq
 
 variable {X : Type _} {x y : X} (h : x = y)
 
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 abbrev lhs (h : x = y) :=
   x
 
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 abbrev rhs (h : x = y) :=
   y
 
@@ -568,11 +568,11 @@ namespace IsSnakeInput
 
 variable {D : SnakeDiagram ⥤ 𝒜}
 
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 theorem map_eq (hD : IsSnakeInput D) {x y : SnakeDiagram} (f g : x ⟶ y) : D.map f = D.map g :=
   congr_arg _ (SnakeDiagram.hom_ext _ _)
 
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 theorem map_eq_id (hD : IsSnakeInput D) {x : SnakeDiagram} (f : x ⟶ x) : D.map f = 𝟙 _ := by
   rw [SnakeDiagram.hom_ext f (𝟙 x), D.map_id]
 
@@ -736,8 +736,7 @@ theorem row_exact₀ (hD : IsSnakeInput D) : Exact ((0, 0)⟶[D](0, 1)) ((0, 1)�
     simp [Abelian.Pseudoelement.comp_apply, eq_zero_of_exact hD.row_exact₁]
   · intro b hb
     apply_fun (0, 2)⟶[D](1, 2) at hb 
-    simp_rw [← Abelian.Pseudoelement.comp_apply, ← D.map_comp, Abelian.Pseudoelement.apply_zero] at
-      hb 
+    simp_rw [← Abelian.Pseudoelement.comp_apply, ← D.map_comp, Abelian.Pseudoelement.apply_zero] at hb
     change D.map (hom (0, 1) (1, 1) ≫ hom (1, 1) (1, 2)) b = 0 at hb 
     simp_rw [D.map_comp, Abelian.Pseudoelement.comp_apply] at hb 
     let b' := ((0, 1)⟶[D](1, 1)) b

@@ -166,8 +166,8 @@ example (a m : ℤ) : -a * m = a * -m :=
   neg_mul_comm a m
 
 -- move me
-instance : ContinuousSMul ℕ ℝ≥0
-    where continuous_smul :=
+instance : ContinuousSMul ℕ ℝ≥0 where
+  continuous_smul :=
     by
     let f : ℕ × ℝ≥0 → ℝ≥0 × ℝ≥0 := Prod.map coe id
     have hf : Continuous f := Continuous.prod_map continuous_bot continuous_id

@@ -142,8 +142,7 @@ theorem epi_and_exact_of_isZero_homology'
       HomologicalComplex.dFrom_eq _ (show (ComplexShape.down ℤ).Rel 0 (-1) by simp), exact_comp_iso,
       HomologicalComplex.dTo_eq _ (show (ComplexShape.down ℤ).Rel 1 0 by simp), exact_iso_comp] at h 
     rw [IsZero.eq_zero_of_tgt (is_zero_zero _)
-        (((HomologicalComplex.embed ComplexShape.Embedding.natDownIntDown).obj D).d 0 (-1))] at
-      h 
+        (((HomologicalComplex.embed ComplexShape.Embedding.natDownIntDown).obj D).d 0 (-1))] at h
     rw [epi_iff_exact_zero_right]
     exact h
   -- defeq abuse probably

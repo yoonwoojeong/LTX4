@@ -97,8 +97,8 @@ protected def forget (C : Type u) [Category.{v} C] : Endomorphisms C ⥤ C
   map_id _ := rfl
   map_comp _ _ := rfl
 
-instance forget_faithful : Faithful (Endomorphisms.forget C)
-    where map_injective := by intro X Y f g h; ext; exact h
+instance forget_faithful : Faithful (Endomorphisms.forget C) where
+  map_injective := by intro X Y f g h; ext; exact h
 
 theorem epi_of_epi_f {X Y : Endomorphisms C} (f : X ⟶ Y) [Epi f.f] : Epi f :=
   { left_cancellation := fun g h w => by ext; rw [← cancel_epi f.f, ← comp_f, w, comp_f] }
@@ -489,8 +489,8 @@ def free.presentation [EnoughProjectives C] (A : Endomorphisms C) : ProjectivePr
     simp only [colimit.ι_desc, Cofan.mk_ι_app, pow_zero, End.one_def, Category.comp_id]
     infer_instance
 
-instance [EnoughProjectives C] : EnoughProjectives (Endomorphisms C)
-    where presentation A := ⟨free.presentation A⟩
+instance [EnoughProjectives C] : EnoughProjectives (Endomorphisms C) where
+  presentation A := ⟨free.presentation A⟩
 
 -- generalize to colimits
 instance projective_sigma {C ι : Type _} [Category C] (P : ι → C) [HasCoproduct P]

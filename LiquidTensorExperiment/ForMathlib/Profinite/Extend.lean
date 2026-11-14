@@ -71,8 +71,8 @@ def extend : Profinite ⥤ C where
 
 /-- discrete quotients of a finite type has an initial object given by `⊥`. -/
 @[simps]
-def botInitial (X : FintypeCat) : IsInitial (⊥ : DiscreteQuotient (FintypeCat.toProfinite.obj X))
-    where desc S := homOfLE bot_le
+def botInitial (X : FintypeCat) : IsInitial (⊥ : DiscreteQuotient (FintypeCat.toProfinite.obj X)) where
+  desc S := homOfLE bot_le
 
 /-- The extension of `F : Fintype ⥤ C` extends `F`. -/
 @[simps]
@@ -189,8 +189,8 @@ theorem extendCommutes_comp_extendExtends (G : C ⥤ D)
 /-- A natural transformation induces a natural transformation on extensions. -/
 @[simps]
 def extendNatTrans {F G : FintypeCat ⥤ C} [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ F)]
-    [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ G)] (η : F ⟶ G) : extend F ⟶ extend G
-    where app X := CategoryTheory.Limits.limMap <| whiskerLeft _ η
+    [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ G)] (η : F ⟶ G) : extend F ⟶ extend G where
+  app X := CategoryTheory.Limits.limMap <| whiskerLeft _ η
 
 @[simp]
 theorem extendNatTrans_id (F : FintypeCat ⥤ C) [∀ X : Profinite, HasLimit (X.fintypeDiagram ⋙ F)] :

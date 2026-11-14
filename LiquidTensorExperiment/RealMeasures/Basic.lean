@@ -37,7 +37,7 @@ open scoped BigOperators NNReal Classical
 
 /-- `real_measures p S` is the vector space of maps `S → ℝ` equipped with the `ℓᵖ` norm,
 which gives it the structure of a `CompHausl`y-filtered normed group.  -/
-@[nolint unused_arguments]
+@[nolint unusedArguments]
 def RealMeasures (p : ℝ≥0) (S : FintypeCat) :=
   S → ℝ
 deriving AddCommGroup
@@ -320,8 +320,8 @@ theorem RealMeasures.dist_eq {c : ℝ≥0} (F G : filtration (ℳ p ϖ) c) :
     Real.rpow_mul (norm_nonneg _), mul_inv_cancel hp]
   simpa only [Real.rpow_one, Real.norm_eq_abs]
 
-instance {c : ℝ≥0} : Zero (closedBall (0 : ℝ) c)
-    where zero := ⟨0, by simp only [mem_closedBall_zero_iff, norm_zero, NNReal.zero_le_coe]⟩
+instance {c : ℝ≥0} : Zero (closedBall (0 : ℝ) c) where
+  zero := ⟨0, by simp only [mem_closedBall_zero_iff, norm_zero, NNReal.zero_le_coe]⟩
 
 theorem homeoFiltrationϖBall_preimage {c ε : ℝ≥0} (h : ε ^ (p : ℝ) ≤ c) :
     homeoFiltrationϖBall c ⁻¹' closedBall 0 ε =

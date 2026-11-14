@@ -790,8 +790,8 @@ instance (c : ℝ≥0) : PreservesLimit G (level.obj c) :=
         | exact Subtype.ext (ConePointType.coe_incl_preimage_apply ⟨t, fun _ _ e => ht e⟩ j).symm
         | exact Subtype.ext (ConePointType.coe_incl_preimage_apply ⟨t, fun _ _ e => ht e⟩ j) }
 
-instance (c : ℝ≥0) : PreservesLimits (level.obj c)
-    where preservesLimitsOfShape := { preservesLimit := inferInstance }
+instance (c : ℝ≥0) : PreservesLimits (level.obj c) where
+  preservesLimitsOfShape := { preservesLimit := inferInstance }
 
 theorem mem_filtration_iff_of_isLimit (C : Cone G) (hC : IsLimit C) (c : ℝ≥0) (x : C.pt) :
     x ∈ PseudoNormedGroup.filtration C.pt c ↔

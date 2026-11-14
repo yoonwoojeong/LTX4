@@ -724,11 +724,11 @@ let E := (whiskering_right Profinite _ _).obj (forget Profinite) in
   ((whiskering_right _ _ _).obj E).obj (Lbar_le.bifunctor.{u} r')
 
 /-- The functor `Lbar : Profinite ⥤ Type*`. -/
-@[nolint check_univs] -- TODO remove this
+@[nolint checkUnivs] -- TODO remove this
 def profinite [fact (0 < r')] : Profinite ⥤ Type* :=
 (as_small.down ⋙ profinite_diagram r').flip ⋙ colim
 
-attribute [nolint check_univs] profinite._proof_1
+attribute [nolint checkUnivs] profinite._proof_1
 
 -- TODO: Move this to the condensed folder, once it's more stable!
 /-- The representable presheaf associated to a profinite set. -/
