@@ -500,7 +500,7 @@ namespace BreenDeligne
 
 open cLCFPTinv
 
-variable (M) {l m n}
+variable {l m n}
 
 namespace UniversalMap
 
@@ -509,52 +509,71 @@ variable (ϕ ψ : UniversalMap m n)
 def evalCLCFPTinv₂ [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)] [ϕ.Suitable c₃ c₁]
     [ϕ.Suitable c₄ c₂] : cLCFPTinv₂ r V r' c₁ c₂ n ⟶ cLCFPTinv₂ r V r' c₃ c₄ m :=
   by
-  dsimp only [cLCFPTinv₂_def]
-  refine'
-    SemiNormedGroupCat.equalizer.mapNat (ϕ.evalCLCFP _ _ _ _) (ϕ.evalCLCFP _ _ _ _)
-      (Tinv_comp_eval_CLCFP V r' c₁ c₂ c₃ c₄ ϕ).symm _
-  haveI : Fact (c₂ ≤ c₁) := aux r' _ _; haveI : Fact (c₄ ≤ c₃) := aux r' _ _
-  have h₁ := res_comp_eval_CLCFP V r' c₁ c₂ c₃ c₄ ϕ
-  have h₂ := T_inv_comp_eval_CLCFP r V r' c₂ c₄ ϕ
-  have := comm_sq₂ h₁ h₂
-  exact this.symm
+  haveI : Fact (c₂ ≤ c₁) := aux r' _ _
+  haveI : Fact (c₄ ≤ c₃) := aux r' _ _
+  have h₁ := res_comp_evalCLCFP V r' c₁ c₂ c₃ c₄ ϕ
+  have h₂ := tInv_comp_evalCLCFP r V r' c₂ c₄ ϕ
+  -- Porting note: the implicit arguments are given explicitly, and the unfolding of
+  -- `cLCFPTinv₂` (`cLCFPTinv₂_def`) is done by `exact` up to definitional equality
+  exact SemiNormedGroupCat.equalizer.mapNat
+    (f₁ := cLCFP.tinv V r' c₁ c₂ n) (f₂ := cLCFP.tinv V r' c₃ c₄ m)
+    (g₁ := cLCFP.res V r' c₁ c₂ n ≫ cLCFP.tInv r V r' c₂ n)
+    (g₂ := cLCFP.res V r' c₃ c₄ m ≫ cLCFP.tInv r V r' c₄ m)
+    (ϕ.evalCLCFP V r' c₁ c₃) (ϕ.evalCLCFP V r' c₂ c₄)
+    (tinv_comp_evalCLCFP V r' c₁ c₂ c₃ c₄ ϕ).symm (comm_sq₂ h₁ h₂).symm
 
 @[simp]
 theorem evalCLCFPTinv₂_zero [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)] :
     (0 : UniversalMap m n).evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ = 0 := by
-  simp only [eval_CLCFPTinv₂, eval_CLCFP_zero]; ext; rfl
+  -- Porting note: Lean 3 `ext` was recursive
+  apply NatTrans.ext
+  funext X
+  apply NormedAddGroupHom.ext
+  intro z
+  apply Subtype.ext
+  show ((0 : UniversalMap m n).evalCLCFP V r' c₁ c₃).app X z.1 = (0 : (cLCFP V r' c₃ m).obj X)
+  rw [evalCLCFP_zero]
+  rfl
 
 @[simp]
 theorem evalCLCFPTinv₂_add [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)] [ϕ.Suitable c₃ c₁]
     [ϕ.Suitable c₄ c₂] [ψ.Suitable c₃ c₁] [ψ.Suitable c₄ c₂] :
     (ϕ + ψ : UniversalMap m n).evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ =
-      ϕ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ + ψ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ :=
-  by simp only [eval_CLCFPTinv₂, eval_CLCFP_add]; ext; rfl
+      ϕ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ + ψ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ := by
+  apply NatTrans.ext
+  funext X
+  apply NormedAddGroupHom.ext
+  intro z
+  apply Subtype.ext
+  have h := NatTrans.congr_app (evalCLCFP_add V r' c₁ c₃ ϕ ψ) X
+  exact FunLike.congr_fun h z.1
 
 @[simp]
 theorem evalCLCFPTinv₂_sub [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)] [ϕ.Suitable c₃ c₁]
     [ϕ.Suitable c₄ c₂] [ψ.Suitable c₃ c₁] [ψ.Suitable c₄ c₂] :
     (ϕ - ψ : UniversalMap m n).evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ =
-      ϕ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ - ψ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ :=
-  by simp only [eval_CLCFPTinv₂, eval_CLCFP_sub]; ext; rfl
+      ϕ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ - ψ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ := by
+  apply NatTrans.ext
+  funext X
+  apply NormedAddGroupHom.ext
+  intro z
+  apply Subtype.ext
+  have h := NatTrans.congr_app (evalCLCFP_sub V r' c₁ c₃ ϕ ψ) X
+  exact FunLike.congr_fun h z.1
 
 theorem evalCLCFPTinv₂_comp {l m n : FreeMat} (f : l ⟶ m) (g : m ⟶ n) [Fact (c₂ ≤ r' * c₁)]
     [Fact (c₄ ≤ r' * c₃)] [Fact (c₆ ≤ r' * c₅)] [f.Suitable c₅ c₃] [f.Suitable c₆ c₄]
     [g.Suitable c₃ c₁] [g.Suitable c₄ c₂] :
     @evalCLCFPTinv₂ r V _ _ r' _ _ c₁ c₂ c₅ c₆ _ _ (f ≫ g) _ _ (Suitable.comp c₃)
         (Suitable.comp c₄) =
-      g.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ ≫ f.evalCLCFPTinv₂ r V r' c₃ c₄ c₅ c₆ :=
-  by
-  dsimp only [eval_CLCFPTinv₂, cLCFPTinv₂_def]; delta id
-  simp only [SemiNormedGroupCat.equalizer.mapNat_comp_mapNat]
-  generalize_proofs h1 h2 h3 h4 h5 h6 h7 h8
-  revert h5 h6 h7 h8; skip
-  have H1 : eval_CLCFP V r' c₁ c₅ (f ≫ g) = eval_CLCFP V r' c₁ c₃ g ≫ eval_CLCFP V r' c₃ c₅ f :=
-    eval_CLCFP_comp V r' c₁ c₃ c₅ g f
-  have H2 : eval_CLCFP V r' c₂ c₆ (f ≫ g) = eval_CLCFP V r' c₂ c₄ g ≫ eval_CLCFP V r' c₄ c₆ f :=
-    eval_CLCFP_comp V r' c₂ c₄ c₆ g f
-  rw [H1, H2]
-  intros; rfl
+      g.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄ ≫ f.evalCLCFPTinv₂ r V r' c₃ c₄ c₅ c₆ := by
+  apply NatTrans.ext
+  funext X
+  apply NormedAddGroupHom.ext
+  intro z
+  apply Subtype.ext
+  have h := NatTrans.congr_app (evalCLCFP_comp V r' c₁ c₃ c₅ g f) X
+  exact FunLike.congr_fun h z.1
 
 theorem res_comp_evalCLCFPTinv₂ [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)] [Fact (c₆ ≤ r' * c₅)]
     [Fact (c₈ ≤ r' * c₇)] [Fact (c₂ ≤ c₁)] [Fact (c₃ ≤ c₁)] [Fact (c₄ ≤ c₂)] [Fact (c₄ ≤ c₃)]
@@ -563,19 +582,31 @@ theorem res_comp_evalCLCFPTinv₂ [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r'
     cLCFPTinv₂.res r V r' c₁ c₂ c₃ c₄ n ≫ ϕ.evalCLCFPTinv₂ r V r' c₃ c₄ c₇ c₈ =
       ϕ.evalCLCFPTinv₂ r V r' c₁ c₂ c₅ c₆ ≫ cLCFPTinv₂.res r V r' c₅ c₆ c₇ c₈ m :=
   by
-  dsimp only [cLCFPTinv₂.res, eval_CLCFPTinv₂, cLCFPTinv₂_def, cLCTinv.mapNat_def]; delta id
-  simp only [SemiNormedGroupCat.equalizer.mapNat_comp_mapNat]
-  congr 1 <;> · simp only [← cLCFP.res_def]; apply res_comp_eval_CLCFP
+  -- Porting note: Lean 3 `ext` was recursive
+  apply NatTrans.ext
+  funext X
+  apply NormedAddGroupHom.ext
+  intro z
+  apply Subtype.ext
+  have h := NatTrans.congr_app (res_comp_evalCLCFP V r' c₁ c₃ c₅ c₇ ϕ) X
+  exact FunLike.congr_fun h z.1
 
 theorem norm_evalCLCFPTinv₂_le [Fact (c₂ ≤ r' * c₁)] [Fact (c₄ ≤ r' * c₃)] [ϕ.Suitable c₃ c₁]
     [ϕ.Suitable c₄ c₂] (N : ℕ) (h : ϕ.BoundBy N) (M) :
     ‖((ϕ.evalCLCFPTinv₂ r V r' c₁ c₂ c₃ c₄).app M)‖ ≤ N :=
   by
-  apply SemiNormedGroupCat.equalizer.norm_map_le
+  haveI : Fact (c₂ ≤ c₁) := aux r' _ _
+  haveI : Fact (c₄ ≤ c₃) := aux r' _ _
+  have h₁ := res_comp_evalCLCFP V r' c₁ c₂ c₃ c₄ ϕ
+  have h₂ := tInv_comp_evalCLCFP r V r' c₂ c₄ ϕ
+  -- Porting note: the hypotheses of `norm_map_le` are given explicitly
+  refine' SemiNormedGroupCat.equalizer.norm_map_le (ψ := (ϕ.evalCLCFP V r' c₂ c₄).app M)
+    (NatTrans.congr_app (tinv_comp_evalCLCFP V r' c₁ c₂ c₃ c₄ ϕ).symm M)
+    (NatTrans.congr_app (comm_sq₂ h₁ h₂).symm M) N _
   refine' NormedAddGroupHom.norm_comp_le_of_le' _ _ _ (mul_one _).symm _ _
-  · apply norm_eval_CLCFP_le; exact h
-  · apply NormNoninc.normNoninc_iff_norm_le_one.1
-    exact equalizer.ι_norm_noninc
+  · exact norm_evalCLCFP_le r V r' c₁ c₃ ϕ N h M
+  · apply NormedAddGroupHom.NormNoninc.normNoninc_iff_norm_le_one.1
+    exact NormedAddGroupHom.Equalizer.ι_normNoninc
 
 def evalCLCFPTinv [ϕ.Suitable c₂ c₁] : cLCFPTinv r V r' c₁ n ⟶ cLCFPTinv r V r' c₂ m :=
   ϕ.evalCLCFPTinv₂ r V r' c₁ _ c₂ _
@@ -586,7 +617,7 @@ theorem evalCLCFPTinv_def [ϕ.Suitable c₂ c₁] :
 
 @[simp]
 theorem evalCLCFPTinv_zero : (0 : UniversalMap m n).evalCLCFPTinv r V r' c₁ c₂ = 0 := by
-  apply eval_CLCFPTinv₂_zero
+  apply evalCLCFPTinv₂_zero
 
 @[simp]
 theorem evalCLCFPTinv_add [ϕ.Suitable c₂ c₁] [ψ.Suitable c₂ c₁] :
@@ -604,30 +635,31 @@ theorem evalCLCFPTinv_comp {l m n : FreeMat} (f : l ⟶ m) (g : m ⟶ n) [hg : g
     [hf : f.Suitable c₃ c₂] :
     @evalCLCFPTinv r V _ _ r' _ _ c₁ c₃ _ _ (f ≫ g) (Suitable.comp c₂) =
       g.evalCLCFPTinv r V r' c₁ c₂ ≫ f.evalCLCFPTinv r V r' c₂ c₃ :=
-  by apply eval_CLCFPTinv₂_comp
+  by apply evalCLCFPTinv₂_comp
 
 theorem res_comp_evalCLCFPTinv [Fact (c₂ ≤ c₁)] [ϕ.Suitable c₄ c₂] [ϕ.Suitable c₃ c₁]
     [Fact (c₄ ≤ c₃)] :
     res r V r' c₁ c₂ n ≫ ϕ.evalCLCFPTinv r V r' c₂ c₄ =
       ϕ.evalCLCFPTinv r V r' c₁ c₃ ≫ res r V r' c₃ c₄ m :=
-  by apply res_comp_eval_CLCFPTinv₂
+  by apply res_comp_evalCLCFPTinv₂
 
 theorem res_comp_evalCLCFPTinv_absorb [Fact (c₂ ≤ c₁)] [hϕ : ϕ.Suitable c₃ c₂] :
     res r V r' c₁ c₂ n ≫ ϕ.evalCLCFPTinv r V r' c₂ c₃ =
-      @evalCLCFPTinv r V _ _ r' _ _ c₁ c₃ _ _ ϕ (hϕ.le _ _ _ _ le_rfl (Fact.out _)) :=
+      @evalCLCFPTinv r V _ _ r' _ _ c₁ c₃ _ _ ϕ (hϕ.le _ _ _ _ le_rfl Fact.out) :=
   by
-  rw [@res_comp_eval_CLCFPTinv r V _ _ r' _ _ c₁ c₂ c₃ c₃ _ _ ϕ (_root_.id _) (_root_.id _)
-      (_root_.id _) (_root_.id _),
-    res_refl, Category.comp_id]
+  -- Porting note: the instance arguments are provided by `haveI` instead of `_root_.id _`
+  haveI : ϕ.Suitable c₃ c₁ := hϕ.le _ _ _ _ le_rfl Fact.out
+  haveI : Fact (c₃ ≤ c₃) := ⟨le_rfl⟩
+  rw [res_comp_evalCLCFPTinv r V r' c₁ c₂ c₃ c₃ ϕ, res_refl, Category.comp_id]
 
 theorem evalCLCFPTinv_comp_res_absorb {_ : Fact (c₃ ≤ c₂)} [hϕ : ϕ.Suitable c₂ c₁] :
     ϕ.evalCLCFPTinv r V r' c₁ c₂ ≫ res r V r' c₂ c₃ m =
-      @evalCLCFPTinv r V _ _ r' _ _ c₁ c₃ _ _ ϕ (hϕ.le _ _ _ _ (Fact.out _) le_rfl) :=
+      @evalCLCFPTinv r V _ _ r' _ _ c₁ c₃ _ _ ϕ (hϕ.le _ _ _ _ Fact.out le_rfl) :=
   by
-  rw [←
-    @res_comp_eval_CLCFPTinv r V _ _ r' _ _ c₁ c₁ c₂ c₃ _ _ ϕ (_root_.id _) (_root_.id _)
-      (_root_.id _) (_root_.id _),
-    res_refl, Category.id_comp]
+  -- Porting note: the instance arguments are provided by `haveI` instead of `_root_.id _`
+  haveI : ϕ.Suitable c₃ c₁ := hϕ.le _ _ _ _ Fact.out le_rfl
+  haveI : Fact (c₁ ≤ c₁) := ⟨le_rfl⟩
+  rw [← res_comp_evalCLCFPTinv r V r' c₁ c₁ c₂ c₃ ϕ, res_refl, Category.id_comp]
 
 theorem norm_evalCLCFPTinv_le [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c₂ c₁] (N : ℕ)
     (h : ϕ.BoundBy N) (M) : ‖((ϕ.evalCLCFPTinv r V r' c₁ c₂).app M)‖ ≤ N :=
@@ -636,20 +668,19 @@ theorem norm_evalCLCFPTinv_le [NormedWithAut r V] [Fact (0 < r)] [ϕ.Suitable c�
 theorem evalCLCFPTinv_normNoninc [NormedWithAut r V] [Fact (0 < r)] [h : ϕ.VerySuitable r r' c₂ c₁]
     (M) : ((ϕ.evalCLCFPTinv r V r' c₁ c₂).app M).NormNoninc :=
   by
-  apply NormNoninc.normNoninc_iff_norm_le_one.2
+  apply NormedAddGroupHom.NormNoninc.normNoninc_iff_norm_le_one.2
   have h' := h
-  rcases h with ⟨N, k, c', hN, hϕ, hr, H⟩
-  haveI : Fact (c' ≤ c₁) := ⟨H.trans <| Fact.out _⟩
-  have aux := res_comp_eval_CLCFPTinv r V r' c₁ c' c₂ c₂ ϕ
+  rcases h.out with ⟨N, k, c', hN, hϕ, hr, H⟩
+  haveI : Fact (c' ≤ c₁) := ⟨H.trans <| Fact.out⟩
+  have aux := res_comp_evalCLCFPTinv r V r' c₁ c' c₂ c₂ ϕ
   rw [res_refl, Category.comp_id] at aux 
   rw [← aux]
   refine' le_trans _ hr
   rw [mul_comm]
   apply NormedAddGroupHom.norm_comp_le_of_le
-  · apply_mod_cast norm_eval_CLCFPTinv_le; exact hN
+  · exact_mod_cast norm_evalCLCFPTinv_le r V r' c' c₂ ϕ N hN M
   · haveI : Fact (c' ≤ r' ^ k * c₁) := ⟨H⟩
-    rw [NNReal.coe_pow]
-    apply norm_res_le_pow
+    exact_mod_cast norm_res_le_pow r V r' c₁ c' n k M
 
 end UniversalMap
 
