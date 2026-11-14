@@ -49,6 +49,37 @@ open ComphausFilteredPseudoNormedGroupHom ComphausFilteredPseudoNormedGroup
 
 variable [ProfinitelyFilteredPseudoNormedGroup M]
 
+-- Porting note: Lean 4's instance search does not see through `M ^ m = Fin m → M`
+-- (Lean 3 did), so the instances on the power are registered explicitly.
+instance instPseudoNormedGroupPow : PseudoNormedGroup (M ^ m) :=
+  PseudoNormedGroup.pi fun _ => M
+
+instance instComphausFilteredPseudoNormedGroupPow : ComphausFilteredPseudoNormedGroup (M ^ m) :=
+  ComphausFilteredPseudoNormedGroup.pi fun _ => M
+
+instance instProfinitelyFilteredPseudoNormedGroupPow :
+    ProfinitelyFilteredPseudoNormedGroup (M ^ m) :=
+  ProfinitelyFilteredPseudoNormedGroup.pi fun _ => M
+
+-- Porting note: helper lemmas replacing the long `simp only` chains of the Lean 3 proofs
+-- (which no longer work verbatim in Lean 4).
+theorem sum_smul_piProj_apply (a : Fin m → ℤ) (x : M ^ m) :
+    (∑ i, a i • (ComphausFilteredPseudoNormedGroup.piProj i :
+      ComphausFilteredPseudoNormedGroupHom (M ^ m) M)) x = ∑ i, a i • x i := by
+  rw [← ComphausFilteredPseudoNormedGroupHom.coe_toAddMonoidHom,
+    ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, _root_.map_sum,
+    AddMonoidHom.finset_sum_apply]
+  refine' Finset.sum_congr rfl fun i _ => _
+  rw [_root_.map_zsmul]
+  rfl
+
+theorem piLift_sum_smul_piProj_apply (a : Fin n → Fin m → ℤ) {hh} (x : M ^ m) (j : Fin n) :
+    (ComphausFilteredPseudoNormedGroup.piLift
+      (fun j => ∑ i, a j i • (ComphausFilteredPseudoNormedGroup.piProj i :
+        ComphausFilteredPseudoNormedGroupHom (M ^ m) M)) hh :
+      ComphausFilteredPseudoNormedGroupHom (M ^ m) (M ^ n)) x j = ∑ i, a j i • x i :=
+  sum_smul_piProj_apply M (a j) x
+
 /-- `eval_png M f` is the homomorphism `M^m → M^n` of profinitely filtered pseudo-normed groups
 obtained by matrix multiplication with the matrix `f`. -/
 def evalPng : BasicUniversalMap m n →+ ComphausFilteredPseudoNormedGroupHom (M ^ m) (M ^ n) :=
@@ -56,13 +87,15 @@ def evalPng : BasicUniversalMap m n →+ ComphausFilteredPseudoNormedGroupHom (M
     (fun f =>
       piLift (fun j => ∑ i, f j i • piProj i)
         (by
-          let C : ℝ≥0 := finset.univ.sup fun j => ∑ i, (f j i).natAbs
+          let C : ℝ≥0 := Finset.univ.sup fun j => ∑ i, (f j i).natAbs
           refine' ⟨C, fun j => _⟩
           intro c x hx
-          have : ∑ i, ↑(f j i).natAbs * (1 * c) ≤ C * c := by rw [← Finset.sum_mul];
-            exact mul_le_mul' (Finset.le_sup (Finset.mem_univ j)) (one_mul c).le
+          have : ∑ i, ↑(f j i).natAbs * (1 * c) ≤ C * c := by
+            rw [← Finset.sum_mul]
+            exact mul_le_mul' (Finset.le_sup (f := fun j => ∑ i, ((f j i).natAbs : ℝ≥0)) (Finset.mem_univ j))
+              (one_mul c).le
           refine' filtration_mono this _
-          simp only [← coe_to_add_monoid_hom, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_sum,
+          simp only [← ComphausFilteredPseudoNormedGroupHom.coe_toAddMonoidHom, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_sum,
             AddMonoidHom.map_zsmul, AddMonoidHom.finset_sum_apply]
           refine' sum_mem_filtration _ _ _ _
           rintro i -
@@ -71,35 +104,35 @@ def evalPng : BasicUniversalMap m n →+ ComphausFilteredPseudoNormedGroupHom (M
     (by
       intro f g
       ext x j
-      simp only [← coe_to_add_monoid_hom, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_add,
+      simp only [← ComphausFilteredPseudoNormedGroupHom.coe_toAddMonoidHom,
+        ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_add,
         AddMonoidHom.add_apply, Pi.add_apply]
-      simp only [coe_to_add_monoid_hom, ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply]
-      simp only [pi_lift_to_fun, AddMonoidHom.mkToPi_apply, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply,
-        AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, AddMonoidHom.finset_sum_apply]
-      rw [← Finset.sum_add_distrib]
-      simp only [pi_proj_to_fun, ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, coe_smul, coe_to_add_monoid_hom,
-        Pi.smul_apply, add_smul]
-      rfl)
+      -- Porting note: the Lean 3 `simp only` chain is replaced by a helper lemma
+      erw [piLift_sum_smul_piProj_apply, piLift_sum_smul_piProj_apply,
+        piLift_sum_smul_piProj_apply]
+      refine' (Finset.sum_congr rfl fun i _ => add_smul (f j i) (g j i) (x i)).trans _
+      exact Finset.sum_add_distrib)
 
 theorem evalPng_apply (x : M ^ m) : evalPng M f x = fun j => ∑ i, f j i • x i :=
   by
-  ext j
-  simp only [BreenDeligne.BasicUniversalMap.evalPng, mk'_apply, pi_lift_to_fun, AddMonoidHom.mkToPi_apply, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply]
-  simp only [AddMonoidHom.map_sum, AddMonoidHom.map_zsmul, AddMonoidHom.finset_sum_apply]
-  rfl
+  funext j
+  exact piLift_sum_smul_piProj_apply M f x j
 
 theorem evalPng_mem_filtration :
     (evalPng M f).toAddMonoidHom ∈
       filtration (M ^ m →+ M ^ n) (Finset.univ.sup fun i => ∑ j, (f i j).natAbs) :=
   by
-  apply AddMonoidHom.mkToPi_mem_filtration
+  refine' AddMonoidHom.mkToPi_mem_filtration (M := fun _ => M)
+    (f := fun j => (∑ i, f j i • piProj (M := fun _ : Fin m => M) i).toAddMonoidHom) _
   intro j
-  let C : ℝ≥0 := finset.univ.sup fun j => ∑ i, (f j i).natAbs
+  let C : ℝ≥0 := Finset.univ.sup fun j => ∑ i, (f j i).natAbs
   intro c x hx
-  have : ∑ i, ↑(f j i).natAbs * (1 * c) ≤ C * c := by rw [← Finset.sum_mul];
-    exact mul_le_mul' (Finset.le_sup (Finset.mem_univ j)) (one_mul c).le
+  have : ∑ i, ↑(f j i).natAbs * (1 * c) ≤ C * c := by
+    rw [← Finset.sum_mul]
+    exact mul_le_mul' (Finset.le_sup (f := fun j => ∑ i, ((f j i).natAbs : ℝ≥0)) (Finset.mem_univ j))
+      (one_mul c).le
   refine' filtration_mono this _
-  simp only [← coe_to_add_monoid_hom, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_sum,
+  simp only [← ComphausFilteredPseudoNormedGroupHom.coe_toAddMonoidHom, ← ComphausFilteredPseudoNormedGroupHom.toAddMonoidHomHom_apply, AddMonoidHom.map_sum,
     AddMonoidHom.map_zsmul, AddMonoidHom.finset_sum_apply]
   refine' sum_mem_filtration _ _ _ _
   rintro i -
@@ -122,7 +155,7 @@ theorem evalPng_comp {l m n} (g : BasicUniversalMap m n) (f : BasicUniversalMap 
     evalPng M (BasicUniversalMap.comp g f) = (evalPng M g).comp (evalPng M f) :=
   by
   ext x j
-  simp only [BreenDeligne.BasicUniversalMap.evalPng_apply, Function.comp_apply, coe_comp, BasicUniversalMap.comp, comp_to_fun,
+  simp only [BreenDeligne.BasicUniversalMap.evalPng_apply, Function.comp_apply, coe_comp, BasicUniversalMap.comp, ComphausFilteredPseudoNormedGroupHom.comp_apply,
     Matrix.mul_apply, Finset.smul_sum, Finset.sum_smul, mul_smul, AddMonoidHom.mk'_apply]
   rw [Finset.sum_comm]
 
