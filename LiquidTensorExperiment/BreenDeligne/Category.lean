@@ -181,6 +181,7 @@ theorem hMul_hMul_iso_aux (m n i j : ℕ) (f : BasicUniversalMap i j) :
   simp only [Matrix.reindexLinearEquiv_apply]
   rw [kroneckerMap_reindex_left, kroneckerMap_reindex_right, ← Matrix.kronecker_assoc]
   simp only [← Equiv.trans_apply, Matrix.reindex_trans, Matrix.one_kronecker_one, Equiv.trans_refl]
+  -- Porting note: the Lean 3 `pick_goal 3; infer_instance` is no longer needed.
   congr 3
   · ext ⟨⟨a, b⟩, c⟩
     simp only [Equiv.trans_apply, Equiv.symm_apply_apply, Equiv.apply_symm_apply,
@@ -266,6 +267,7 @@ open HomologicalComplex FreeMat CategoryTheory CategoryTheory.Limits
 
 def homPow' {BD : Data} (f : (mul 2).obj BD ⟶ BD) : ∀ N, BD.pow' N ⟶ BD
   | 0 => 𝟙 _
+  -- Porting note: `f` is an explicit argument of the recursive call in Lean 4.
   | n + 1 => (mul 2).map (BreenDeligne.Data.homPow' f n) ≫ f
 
 open scoped ZeroObject
@@ -302,7 +304,8 @@ theorem homPow'_sum : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.sum 2) N = BD
   | N + 1 => by
     dsimp [pow'IsoMul, BreenDeligne.Data.homPow']
     slice_lhs 3 4 => rw [← Functor.map_comp, homPow'_sum N]
-    rw [Iso.inv_comp_eq, BD.mulCongr_hom_sum]
+    -- Porting note: the extra `mulCongr` iso is removed first, then the Lean 3 `inv_comp_eq` step.
+    rw [Iso.inv_comp_eq, BD.mulCongr_hom_sum, Iso.inv_comp_eq]
     apply HomologicalComplex.hom_ext
     intro i
     iterate 2 erw [HomologicalComplex.comp_f]
@@ -311,7 +314,9 @@ theorem homPow'_sum : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.sum 2) N = BD
     show UniversalMap.comp _ _ = UniversalMap.comp _ _
     simp only [UniversalMap.comp_of, AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply]
     congr 1
-    rw [← Finset.sum_product', Finset.univ_product_univ, ← fin_prod_fin_equiv.symm.sum_comp]
+    -- Porting note: `Finset.sum_comm` is needed to match the order of the product in Lean 4
+    rw [Finset.sum_comm, ← Finset.sum_product', Finset.univ_product_univ,
+      ← finProdFinEquiv.symm.sum_comp]
     apply Fintype.sum_congr
     apply BasicUniversalMap.comp_proj_hMul_proj
 
@@ -330,15 +335,21 @@ theorem homPow'_proj : ∀ N, (BD.pow'IsoMul N).inv ≫ homPow' (BD.proj 2) N = 
   | N + 1 => by
     dsimp [pow'IsoMul, BreenDeligne.Data.homPow']
     slice_lhs 3 4 => rw [← Functor.map_comp, homPow'_proj N]
-    rw [Iso.inv_comp_eq]
+    -- Porting note: the extra `mulCongr` iso is removed first, then the Lean 3 `inv_comp_eq` step.
+    rw [Iso.inv_comp_eq, BD.mulCongr_hom_proj, Iso.inv_comp_eq]
     apply HomologicalComplex.hom_ext
     intro i
     iterate 2 erw [HomologicalComplex.comp_f]
     dsimp [mulMulIso, FreeMat.mulMulIso, UniversalMap.proj]
     simp only [AddMonoidHom.map_sum, AddMonoidHom.finset_sum_apply, Preadditive.comp_sum,
       Preadditive.sum_comp]
+    -- Porting note: `simp` does not see the `Preadditive` structure on `FreeMat` homs, so
+    -- these rewrites are done with `erw`.
+    erw [Preadditive.sum_comp]
+    erw [Preadditive.comp_sum]
+    conv_lhs => enter [2, j]; erw [Preadditive.comp_sum]
     rw [← Finset.sum_comm, ← Finset.sum_product', Finset.univ_product_univ, ←
-      fin_prod_fin_equiv.symm.sum_comp]
+      finProdFinEquiv.symm.sum_comp]
     apply Fintype.sum_congr
     intro j
     rw [UniversalMap.hMul_of]
