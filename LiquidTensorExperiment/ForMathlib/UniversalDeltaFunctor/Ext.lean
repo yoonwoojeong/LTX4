@@ -44,8 +44,8 @@ def extδFunctor (B : A) : Aᵒᵖ ⥤δ Ab.{v}
         intro S T f
         dsimp only [Functor.comp_map]
         have :=
-          ext'δ_natural _ _ _ _ ((ShortExactSequence.trd Aᵒᵖ).map f).unop _
-            ((ShortExactSequence.fst Aᵒᵖ).map f).unop _ _ B
+          ext'δ_natural _ _ _ _ ((ShortExactSequence.Trd Aᵒᵖ).map f).unop _
+            ((ShortExactSequence.Fst Aᵒᵖ).map f).unop _ _ B
             (ShortExactSequence.shortExact <| ShortExactSequence.unop T)
             (ShortExactSequence.shortExact <| ShortExactSequence.unop S) n
         dsimp only [Quiver.Hom.op_unop] at this 

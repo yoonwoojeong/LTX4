@@ -18,13 +18,13 @@ variable (C : Type u) [Category.{v} C] [Abelian C]
 variable {ι : Type _} {c : ComplexShape ι}
 
 abbrev fst : ChainComplex (ShortExactSequence C) ℕ ⥤ HomologicalComplex C (ComplexShape.down ℕ) :=
-  (ShortExactSequence.fst C).mapHomologicalComplex _
+  (ShortExactSequence.Fst C).mapHomologicalComplex _
 
 abbrev snd : ChainComplex (ShortExactSequence C) ℕ ⥤ HomologicalComplex C (ComplexShape.down ℕ) :=
-  (ShortExactSequence.snd C).mapHomologicalComplex _
+  (ShortExactSequence.Snd C).mapHomologicalComplex _
 
 abbrev trd : ChainComplex (ShortExactSequence C) ℕ ⥤ HomologicalComplex C (ComplexShape.down ℕ) :=
-  (ShortExactSequence.trd C).mapHomologicalComplex _
+  (ShortExactSequence.Trd C).mapHomologicalComplex _
 
 abbrev fstSnd : fst C ⟶ snd C :=
   NatTrans.mapHomologicalComplex (ShortExactSequence.fNat C) _

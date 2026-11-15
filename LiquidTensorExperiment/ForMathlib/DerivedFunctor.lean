@@ -59,13 +59,13 @@ theorem Functor.leftDerived_map_eq' (F : C ⥤ D) [F.Additive] (n : ℕ) (X Y : 
   simpa using Functor.leftDerived_map_eq F n f gr w
 
 abbrev α [F.Additive] :
-    (ShortExactSequence.fst C ⋙ F).mapHomologicalComplex (ComplexShape.down ℕ) ⟶
-      (ShortExactSequence.snd C ⋙ F).mapHomologicalComplex (ComplexShape.down ℕ) :=
+    (ShortExactSequence.Fst C ⋙ F).mapHomologicalComplex (ComplexShape.down ℕ) ⟶
+      (ShortExactSequence.Snd C ⋙ F).mapHomologicalComplex (ComplexShape.down ℕ) :=
   NatTrans.mapHomologicalComplex (whiskerRight (ShortExactSequence.fNat _) _) _
 
 abbrev β [F.Additive] :
-    (ShortExactSequence.snd C ⋙ F).mapHomologicalComplex (ComplexShape.down ℕ) ⟶
-      (ShortExactSequence.trd C ⋙ F).mapHomologicalComplex (ComplexShape.down ℕ) :=
+    (ShortExactSequence.Snd C ⋙ F).mapHomologicalComplex (ComplexShape.down ℕ) ⟶
+      (ShortExactSequence.Trd C ⋙ F).mapHomologicalComplex (ComplexShape.down ℕ) :=
   NatTrans.mapHomologicalComplex (whiskerRight (ShortExactSequence.gNat _) _) _
 
 theorem exact_α_β_horseshoe [F.Additive] (A : ShortExactSequence C) (n : ℕ) :

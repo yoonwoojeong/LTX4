@@ -212,23 +212,23 @@ theorem horseshoe_d_π : (horseshoe A).d 1 0 ≫ horseshoeπ A = 0 :=
 
 def horseshoeToSingle₁ :=
   (ChainComplex.toSingle₀Equiv ((HomologicalComplex.fst C).obj (horseshoe A)) A.1).symm
-    ⟨(ShortExactSequence.fst C).map (horseshoeπ A),
+    ⟨(ShortExactSequence.Fst C).map (horseshoeπ A),
       by
-      have := horseshoe_d_π A; apply_fun fun f => (ShortExactSequence.fst C).map f at this 
+      have := horseshoe_d_π A; apply_fun fun f => (ShortExactSequence.Fst C).map f at this 
       rwa [Functor.map_comp, Functor.map_zero] at this ⟩
 
 def horseshoeToSingle₂ :=
   (ChainComplex.toSingle₀Equiv ((HomologicalComplex.snd C).obj (horseshoe A)) A.2).symm
-    ⟨(ShortExactSequence.snd C).map (horseshoeπ A),
+    ⟨(ShortExactSequence.Snd C).map (horseshoeπ A),
       by
-      have := horseshoe_d_π A; apply_fun fun f => (ShortExactSequence.snd C).map f at this 
+      have := horseshoe_d_π A; apply_fun fun f => (ShortExactSequence.Snd C).map f at this 
       rwa [Functor.map_comp, Functor.map_zero] at this ⟩
 
 def horseshoeToSingle₃ :=
   (ChainComplex.toSingle₀Equiv ((HomologicalComplex.trd C).obj (horseshoe A)) A.3).symm
-    ⟨(ShortExactSequence.trd C).map (horseshoeπ A),
+    ⟨(ShortExactSequence.Trd C).map (horseshoeπ A),
       by
-      have := horseshoe_d_π A; apply_fun fun f => (ShortExactSequence.trd C).map f at this 
+      have := horseshoe_d_π A; apply_fun fun f => (ShortExactSequence.Trd C).map f at this 
       rwa [Functor.map_comp, Functor.map_zero] at this ⟩
 
 theorem horseshoe_exact₁ (A : ShortExactSequence C) (n : ℕ) :

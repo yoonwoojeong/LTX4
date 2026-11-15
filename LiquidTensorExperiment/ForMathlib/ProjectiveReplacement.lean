@@ -117,7 +117,7 @@ noncomputable def replacement : CochainComplex V ℤ
               norm_num [← Int.abs_eq_natAbs]
               rw [abs_eq_self.mpr _, abs_eq_self.mpr _]
               all_goals linarith) ≫
-          (replacementAux X a H ((a - j).natAbs + 1)).fst.hom ≫ eqToHom (dif_neg h₂).symm
+          (replacementAux X a H ((a - j).natAbs + 1)).fst.hom ≫ eqToHom (if_neg h₂).symm
     else 0
   shape _ _ e := dif_neg e
   d_comp_d' := by
@@ -130,15 +130,25 @@ noncomputable def replacement : CochainComplex V ℤ
     simp only [Category.assoc, CategoryTheory.eqToHom_trans_assoc]
     rw [← IsIso.eq_inv_comp, zero_comp, comp_zero, CategoryTheory.Projective.replacementAux_hom_eq]
     simp only [Category.assoc, CategoryTheory.eqToHom_trans_assoc]
-    iterate 3 convert comp_zero
-    suffices (a - (i + 1)).natAbs = (a - (i + 1 + 1)).natAbs + 1
-      by
-      convert kernel.condition _ <;> try rw [this]; apply (eqToHom_comp_hEq_iff _ _ _).mpr
-      congr <;> rw [this]
-    apply Int.ofNat.inj
-    norm_num [← Int.abs_eq_natAbs]
-    rw [abs_eq_self.mpr _, abs_eq_self.mpr _]
-    all_goals linarith
+    -- Porting note: `iterate 3 convert comp_zero` and the `convert`/`congr` steps do not work well in
+    -- Lean 4, so the vanishing of the kernel composite is proved by an auxiliary statement
+    have this : (a - (i + 1)).natAbs = (a - (i + 1 + 1)).natAbs + 1 := by
+      apply Int.ofNat.inj
+      norm_num [← Int.abs_eq_natAbs]
+      rw [abs_eq_self.mpr _, abs_eq_self.mpr _]
+      all_goals linarith
+    have key : ∀ (k m : ℕ) (e : k = m + 1)
+        (e' : (replacementAux X a H k).fst.left = (replacementAux X a H (m + 1)).fst.left),
+        kernel.ι (replacementAux X a H k).fst.hom ≫ eqToHom e' ≫
+          (replacementAux X a H (m + 1)).fst.hom = 0 := by
+      intro k m e e'
+      subst e
+      simp
+    have h0 : ∀ e', kernel.ι (replacementAux X a H (a - (i + 1)).natAbs).fst.hom ≫ eqToHom e' ≫
+        (replacementAux X a H ((a - (i + 1 + 1)).natAbs + 1)).fst.hom = 0 :=
+      fun e' => key _ _ this e'
+    simp only [h0, comp_zero]
+    linarith
 
 noncomputable def replacement.hom : replacement X a H ⟶ X
     where

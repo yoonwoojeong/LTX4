@@ -78,8 +78,8 @@ def sigma.ι (a : α) : X a ⟶ sigma X where
     apply continuous_coinduced_rng
 
 theorem sigma.ι_injective (a : α) : Function.Injective (sigma.ι X a) := by
-  dsimp [sigma.ι]
-  exact sigma_mk_injective
+  intro x y h
+  exact eq_of_heq (Sigma.mk.inj_iff.1 h).2
 
 theorem sigma.ι_jointly_surjective (t : sigma X) : ∃ (a : _) (x : X a), sigma.ι X a x = t := by
   rcases t with ⟨a, t⟩; exact ⟨a, t, rfl⟩
@@ -145,9 +145,18 @@ instance {B} (f : ∀ a, X a ⟶ B) : IsIso (sigmaPullbackToPullbackSigma X f) :
     (by
       constructor
       · rintro ⟨⟨a, b⟩, ⟨⟨x₁, x₂⟩, hx⟩⟩ ⟨⟨a', b'⟩, ⟨⟨x'₁, x'₂⟩, hx'⟩⟩ h
-        dsimp [Profinite.sigmaPullbackToPullbackSigma, sigma.desc, pullback.lift, sigma.ι, pullback.fst,
-          pullback.snd] at *
-        tidy
+        -- Porting note: Lean 3 `tidy` replaced by an explicit argument.
+        have h1 : (⟨a, x₁⟩ : Σ a, X a) = ⟨a', x'₁⟩ :=
+          congrArg (fun z : {xy : (Σ a, X a) × (Σ a, X a) |
+            sigma.desc X f xy.1 = sigma.desc X f xy.2} => z.1.1) h
+        have h2 : (⟨b, x₂⟩ : Σ a, X a) = ⟨b', x'₂⟩ :=
+          congrArg (fun z : {xy : (Σ a, X a) × (Σ a, X a) |
+            sigma.desc X f xy.1 = sigma.desc X f xy.2} => z.1.2) h
+        obtain ⟨rfl, h1⟩ := Sigma.mk.inj_iff.1 h1
+        obtain ⟨rfl, h2⟩ := Sigma.mk.inj_iff.1 h2
+        cases h1
+        cases h2
+        rfl
       · rintro ⟨⟨⟨a, x⟩, ⟨b, y⟩⟩, h⟩
         refine' ⟨⟨⟨a, b⟩, ⟨⟨x, y⟩, h⟩⟩, rfl⟩)
 
@@ -195,7 +204,7 @@ def sigmaIsoOfEquiv {α β : Type u} [Fintype α] [Fintype β] (e : α ≃ β) (
     apply sigma_iso_of_equiv_aux
     simp
 
-def sigmaIsoEmpty : sigma PEmpty.elim ≅ empty
+def sigmaIsoEmpty : sigma (α := PEmpty.{u + 1}) PEmpty.elim ≅ empty
     where
   hom := sigma.desc _ fun a => a.elim
   inv := empty.elim _
@@ -205,7 +214,7 @@ def sigmaIsoEmpty : sigma PEmpty.elim ≅ empty
   inv_hom_id := by ext ⟨⟩
 
 -- fin_zero_elim is terrible!
-def sigmaIsoEmpty' (X : (PEmpty : Type u) → Profinite.{u}) : sigma X ≅ (empty : Profinite.{u})
+def sigmaIsoEmpty' (X : PEmpty.{u + 1} → Profinite.{u}) : sigma X ≅ (empty : Profinite.{u})
     where
   hom := sigma.desc _ fun i => i.elim
   inv := empty.elim _
@@ -218,21 +227,23 @@ def sigmaSumIso {α β : Type u} [Fintype α] [Fintype β] (X : α → Profinite
     (Y : β → Profinite.{u}) : (sigma fun x : Sum α β => Sum.recOn x X Y) ≅ sum (sigma X) (sigma Y)
     where
   hom :=
+    -- Porting note: the Lean 3 `Sum.recOn x (fun a => by dsimp; exact …) …` is written as a `match`
     sigma.desc _ fun x =>
-      Sum.recOn x (fun a => by dsimp; exact sigma.ι _ _ ≫ Profinite.sum.inl _ _) fun b =>
-        by dsimp; exact sigma.ι _ _ ≫ Profinite.sum.inr _ _
+      match x with
+      | Sum.inl a => sigma.ι X a ≫ Profinite.sum.inl (sigma X) (sigma Y)
+      | Sum.inr b => sigma.ι Y b ≫ Profinite.sum.inr (sigma X) (sigma Y)
   inv :=
     sum.desc _ _
       (sigma.desc _ fun a => by
-        refine' _ ≫ sigma.ι _ (_root_.sum.inl a)
+        refine' _ ≫ sigma.ι (fun x : Sum α β => Sum.recOn x X Y) (Sum.inl a)
         exact 𝟙 _)
       (sigma.desc _ fun b => by
-        refine' _ ≫ sigma.ι _ (_root_.sum.inr b)
+        refine' _ ≫ sigma.ι (fun x : Sum α β => Sum.recOn x X Y) (Sum.inr b)
         exact 𝟙 _)
   hom_inv_id := by
     apply sigma.hom_ext
     rintro (a | b)
-    all_goals dsimp; simp
+    all_goals simp
   inv_hom_id := by
     apply sum.hom_ext
     all_goals
@@ -247,13 +258,15 @@ def sigmaSumIso' {α β : Type u} [Fintype α] [Fintype β] (X : Sum α β → P
     where
   hom :=
     sigma.desc _ fun x =>
-      Sum.recOn x (fun a => sigma.ι (X ∘ _root_.sum.inl) a ≫ sum.inl _ _) fun b =>
-        sigma.ι (X ∘ _root_.sum.inr) b ≫ sum.inr _ _
-  inv := sum.desc _ _ (sigma.desc _ fun a => sigma.ι _ _) (sigma.desc _ fun b => sigma.ι _ _)
+      match x with
+      | Sum.inl a => sigma.ι (X ∘ Sum.inl) a ≫ sum.inl _ _
+      | Sum.inr b => sigma.ι (X ∘ Sum.inr) b ≫ sum.inr _ _
+  inv := sum.desc _ _ (sigma.desc _ fun a => sigma.ι X (Sum.inl a))
+    (sigma.desc _ fun b => sigma.ι X (Sum.inr b))
   hom_inv_id := by
     apply sigma.hom_ext
     rintro (a | b)
-    all_goals dsimp; simp
+    all_goals simp
   inv_hom_id := by
     apply sum.hom_ext
     all_goals
@@ -262,36 +275,36 @@ def sigmaSumIso' {α β : Type u} [Fintype α] [Fintype β] (X : Sum α β → P
       apply sigma.hom_ext
       intros; simp
 
-def sigmaPunitIso (X : (PUnit : Type u) → Profinite.{u}) : X PUnit.unit ≅ sigma X
+def sigmaPunitIso (X : PUnit.{u + 1} → Profinite.{u}) : X PUnit.unit ≅ sigma X
     where
   hom := sigma.ι _ _
   inv := sigma.desc _ fun ⟨⟩ => 𝟙 _
 
 def sigmaWalkingPairIso (X : ULift.{u} Limits.WalkingPair → Profinite.{u}) :
-    sigma X ≅ (X ⟨Limits.WalkingPair.left⟩).Sum (X ⟨Limits.WalkingPair.right⟩)
+    sigma X ≅ (X ⟨Limits.WalkingPair.left⟩).sum (X ⟨Limits.WalkingPair.right⟩)
     where
   hom :=
     sigma.desc _ fun a =>
+      -- Porting note: `WalkingPair.recOn` is not supported by the code generator; use `match`
       match a with
-      | ⟨a⟩ => Limits.WalkingPair.recOn a (sum.inl _ _) (sum.inr _ _)
+      | ⟨Limits.WalkingPair.left⟩ => sum.inl _ _
+      | ⟨Limits.WalkingPair.right⟩ => sum.inr _ _
   inv := sum.desc _ _ (sigma.ι X (ULift.up _)) (sigma.ι X (ULift.up _))
   hom_inv_id := by
     apply sigma.hom_ext
-    rintro (⟨a⟩ | ⟨b⟩)
+    rintro ⟨_ | _⟩
     all_goals
-      dsimp; simp only [sigma.ι_desc_assoc, Category.comp_id]
-      dsimp [sigma_walking_pair_iso._match_1]
-      simp only [sum.inl_desc, sum.inr_desc]
+      simp only [sigma.ι_desc_assoc, Category.comp_id, sum.inl_desc, sum.inr_desc]
   inv_hom_id := by
     apply sum.hom_ext
-    all_goals dsimp; simpa only [sum.inl_desc_assoc, sigma.ι_desc, Category.comp_id]
+    all_goals simp
 
 --TODO: Finish off the api for the explicit pullback
 def equalizer {X Y : Profinite.{u}} (f g : X ⟶ Y) : Profinite
     where
   toCompHaus :=
     { toTop := TopCat.of {x | f x = g x}
-      IsCompact := by
+      is_compact := by
         erw [← isCompact_iff_compactSpace]
         apply IsClosed.isCompact
         apply isClosed_eq
@@ -300,12 +313,15 @@ def equalizer {X Y : Profinite.{u}} (f g : X ⟶ Y) : Profinite
       is_hausdorff := by
         change T2Space {x | f x = g x}
         infer_instance }
-  IsTotallyDisconnected := Subtype.totallyDisconnectedSpace
+  isTotallyDisconnected := Subtype.totallyDisconnectedSpace
 
 def equalizer.ι {X Y : Profinite.{u}} (f g : X ⟶ Y) : equalizer f g ⟶ X where toFun x := x.1
 
 def equalizer.lift {W X Y : Profinite.{u}} (f g : X ⟶ Y) (e : W ⟶ X) (w : e ≫ f = e ≫ g) :
-    W ⟶ equalizer f g where toFun t := ⟨e t, by apply_fun fun ee => ee t at w ; exact w⟩
+    W ⟶ equalizer f g where
+  toFun t := ⟨e t, by apply_fun fun ee => ee t at w ; exact w⟩
+  -- Porting note: `continuous_toFun` is no longer filled in by an auto-param
+  continuous_toFun := e.continuous.subtype_mk _
 
 @[reassoc (attr := simp)]
 theorem equalizer.lift_ι {W X Y : Profinite.{u}} (f g : X ⟶ Y) (e : W ⟶ X) (w : e ≫ f = e ≫ g) :
@@ -316,7 +332,7 @@ theorem equalizer.hom_ext {W X Y : Profinite.{u}} (f g : X ⟶ Y) (e₁ e₂ : W
   by
   ext t
   apply_fun fun ee => ee t at w 
-  exact w
+  exact Subtype.ext w
 
 /-- Descend a morphism along a surjective morphism. -/
 noncomputable def descend {X B Y : Profinite} (π : X ⟶ B) (t : X ⟶ Y) (hπ : Function.Surjective π)
@@ -330,11 +346,11 @@ noncomputable def descend {X B Y : Profinite} (π : X ⟶ B) (t : X ⟶ Y) (hπ 
             apply_fun fun e => e ⟨(a, b), h⟩ at w 
             exact w) :
         Quotient (Setoid.ker π) → Y) ∘
-      (Profinite.quotientMap π hπ).Homeomorph.symm
+      (Profinite.quotientMap π hπ).homeomorph.symm
   continuous_toFun := by
     apply Continuous.comp
     · apply continuous_quot_lift; exact t.continuous
-    · exact (QuotientMap π hπ).Homeomorph.symm.continuous
+    · exact (Profinite.quotientMap π hπ).homeomorph.symm.continuous
 
 -- TODO: Define `foo_to_Top` analogues for the colimit-like constructions above.
 noncomputable def descendToTop {X B : Profinite} {Y : TopCat} (π : X ⟶ B)
@@ -352,11 +368,11 @@ noncomputable def descendToTop {X B : Profinite} {Y : TopCat} (π : X ⟶ B)
             apply_fun fun e => e ⟨(a, b), h⟩ at w 
             exact w) :
         Quotient (Setoid.ker π) → Y) ∘
-      (Profinite.quotientMap π hπ).Homeomorph.symm
+      (Profinite.quotientMap π hπ).homeomorph.symm
   continuous_toFun := by
     apply Continuous.comp
     · apply continuous_quot_lift; exact t.continuous
-    · exact (QuotientMap π hπ).Homeomorph.symm.continuous
+    · exact (Profinite.quotientMap π hπ).homeomorph.symm.continuous
 
 @[simp]
 theorem π_descend {X B Y : Profinite} (π : X ⟶ B) (t : X ⟶ Y) (hπ : Function.Surjective π)
@@ -366,8 +382,9 @@ theorem π_descend {X B Y : Profinite} (π : X ⟶ B) (t : X ⟶ Y) (hπ : Funct
   dsimp [descend, Setoid.quotientKerEquivOfSurjective, Setoid.quotientKerEquivOfRightInverse,
     QuotientMap.homeomorph]
   let c : pullback π π := ⟨(Function.surjInv hπ (π i), i), Function.surjInv_eq hπ (π i)⟩
-  apply_fun fun e => e c at w 
-  exact w
+  -- Porting note: `apply_fun … at w` cannot clear `w` here, since the goal depends on it
+  have w' : (pullback.fst π π ≫ t) c = (pullback.snd π π ≫ t) c := by rw [w]
+  exact w'
 
 theorem π_descendToTop {X B : Profinite} {Y : TopCat} (π : X ⟶ B) (t : Profinite.toTopCat.obj X ⟶ Y)
     (hπ : Function.Surjective π)
@@ -377,11 +394,12 @@ theorem π_descendToTop {X B : Profinite} {Y : TopCat} (π : X ⟶ B) (t : Profi
     Profinite.toTopCat.map π ≫ descendToTop π t hπ w = t :=
   by
   ext i
-  dsimp [descend_to_Top, Setoid.quotientKerEquivOfSurjective, Setoid.quotientKerEquivOfRightInverse,
+  dsimp [descendToTop, Setoid.quotientKerEquivOfSurjective, Setoid.quotientKerEquivOfRightInverse,
     QuotientMap.homeomorph]
   let c : pullback π π := ⟨(Function.surjInv hπ (π i), i), Function.surjInv_eq hπ (π i)⟩
-  apply_fun fun e => e c at w 
-  exact w
+  -- Porting note: `apply_fun … at w` cannot clear `w` here, since the goal depends on it
+  have w' : (pullback.fst π π ≫ t) c = (pullback.snd π π ≫ t) c := by rw [w]
+  exact w'
 
 def product {α : Type} (X : α → Profinite.{u}) : Profinite :=
   Profinite.of <| ∀ a, X a
@@ -403,7 +421,8 @@ theorem product.lift_π {α : Type} {Y : Profinite.{u}} (X : α → Profinite.{u
 theorem product.hom_ext {α : Type} {Y : Profinite.{u}} (X : α → Profinite.{u}) (f g : Y ⟶ product X)
     (h : ∀ a, f ≫ product.π X a = g ≫ product.π X a) : f = g :=
   by
-  ext y a
+  ext y
+  funext a
   specialize h a
   apply_fun fun e => e y at h 
   exact h
@@ -412,12 +431,14 @@ def punit : Profinite.{u} :=
   Profinite.of PUnit
 
 def punit.elim (X : Profinite.{u}) : X ⟶ punit :=
-  ⟨fun x => PUnit.unit, by tidy⟩
+  ⟨fun x => PUnit.unit, continuous_const⟩
 
-theorem punit.hom_ext (X : Profinite.{u}) (f g : X ⟶ punit) : f = g := by ext
+theorem punit.hom_ext (X : Profinite.{u}) (f g : X ⟶ punit) : f = g := by
+  ext
+  exact Subsingleton.elim _ _
 
 def fromPunit {X : Profinite.{u}} (x : X) : punit ⟶ X :=
-  ⟨fun _ => x, by tidy⟩
+  ⟨fun _ => x, continuous_const⟩
 
 def pow (X : Profinite.{u}) (n : ℕ) : Profinite.{u} :=
   Profinite.product fun i : Fin n => X

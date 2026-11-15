@@ -28,7 +28,7 @@ variable (A : Type u) (B : Type u') [Category.{v} A] [Category.{v} B] [Abelian A
 structure DeltaFunctor where
   f : ℕ → A ⥤ B
   [Additive : ∀ n, Functor.Additive (F n)]
-  δ : ∀ n : ℕ, ShortExactSequence.trd A ⋙ F n ⟶ ShortExactSequence.fst A ⋙ F (n + 1)
+  δ : ∀ n : ℕ, ShortExactSequence.Trd A ⋙ F n ⟶ ShortExactSequence.Fst A ⋙ F (n + 1)
   Mono : ∀ S : ShortExactSequence _, Mono ((F 0).map S.f)
   exact' : ∀ (n : ℕ) (S : ShortExactSequence _), Exact ((F n).map S.f) ((F n).map S.g)
   exact_δ : ∀ (n : ℕ) (S : ShortExactSequence _), Exact ((F n).map S.g) ((δ n).app S)

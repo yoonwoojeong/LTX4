@@ -110,11 +110,14 @@ theorem map_comp {S'' : FintypeCat.{u}} (f : S ⟶ S') (g : S' ⟶ S'') :
           simpa only [Finset.mem_biUnion, Finset.mem_filter, Finset.mem_univ, true_and_iff,
             exists_prop, exists_eq_right'] using hi
     · intros; rfl
-  · intro i hi j hj h k hk
-    simp only [Finset.inf_eq_inter, Finset.mem_inter, Finset.mem_filter, Finset.mem_univ,
-      true_and_iff, Finset.coe_filter, Finset.coe_univ, Set.sep_univ, Set.mem_setOf_eq] at hi hj hk 
-    refine' h _
-    rw [← hk.1, ← hk.2]
+  · -- Porting note: `Disjoint` is now stated with `≤` and `⊥` instead of `⊓`
+    intro i hi j hj h k hk hk'
+    intro a ha
+    exfalso
+    have h1 := Finset.le_iff_subset.mp hk ha
+    have h2 := Finset.le_iff_subset.mp hk' ha
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and_iff] at h1 h2
+    exact h (h1.symm.trans h2)
 
 def add : ℒ S → ℒ S → ℒ S := fun F G =>
   { toFun := F + G
@@ -212,7 +215,7 @@ instance : AddCommMonoid (ℒ S) :=
           have := @Summable.const_smul _ _ _ _ _ _ _ _ _ n (F.nnreal_summable s)
           simpa only [nsmul_eq_mul, Int.nnnorm_hMul, Nat.nnnorm_coe_int, mul_assoc] }
     nsmul_zero := fun F => by ext; simp
-    nsmul_succ := fun n F => by ext; simp [succ_nsmul', add_mul] }
+    nsmul_succ := fun n F => by ext; simp [succ_nsmul', add_mul, add_comm] }
 
 instance : AddCommGroup (ℒ S) :=
   {-- aahrg, why is `n.nat_abs` an implicit variable here???
@@ -321,12 +324,16 @@ theorem map_bound (f : S ⟶ S') (F : ℒ S) : ‖map f F‖₊ ≤ ‖F‖₊ :
       rw [← sum_biUnion]
       refine' sum_congr _ _
       · ext s;
-        simp only [mem_bUnion, mem_univ, mem_filter, true_and_iff, exists_true_left, exists_eq']
+        simp only [mem_biUnion, mem_univ, mem_filter, true_and_iff, exists_true_left, exists_eq']
       · intros; rfl
-      · rintro x - y - h i hi
-        apply h
-        simp only [inf_eq_inter, mem_inter, mem_filter, mem_univ, true_and_iff] at hi 
-        rw [← hi.1, ← hi.2]
+      · -- Porting note: `Disjoint` is now stated with `≤` and `⊥` instead of `⊓`
+        rintro x - y - h i hi hi'
+        intro a ha
+        exfalso
+        have h1 := Finset.le_iff_subset.mp hi ha
+        have h2 := Finset.le_iff_subset.mp hi' ha
+        simp only [mem_filter, mem_univ, true_and_iff] at h1 h2
+        exact h (h1.symm.trans h2)
 
 end
 
@@ -371,7 +378,7 @@ theorem eq_zero_of_filtration (F : ℒ S) (c : ℝ≥0) :
   convert mul_lt_mul this (le_refl (r ^ n)⁻¹) _ hr₁.le
   · exact (mul_inv_cancel_right₀ hr₂ _).symm
   · exact (mul_inv_cancel hr₂).symm
-  · rwa [NNReal.inv_pos]
+  · exact inv_pos.mpr hr₁
 
 -- move me
 theorem zpow_strictAnti {K : Type} [LinearOrderedField K] {x : K} (hx₀ : 0 < x) (hx₁ : x < 1) :
@@ -405,7 +412,7 @@ theorem exists_bdd_filtration {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : 
     split_ifs with h
     · rw [tsub_le_iff_right, sub_add, sub_self, sub_zero]
       exact Int.floor_nonpos (div_nonpos_of_nonneg_of_nonpos h (le_of_lt h_logr))
-    · simp only [zero_sub]
+    · simp only [zero_sub, le_refl]
   have hFd1 : log (‖F‖) < d * log (r : ℝ) :=
     by
     rw [← zsmul_eq_mul]
@@ -626,13 +633,13 @@ def laurentMeasuresBddHomeo (c : ℝ≥0) [Fact (0 < r)] :
       exact continuous_id }
 
 instance (c : ℝ≥0) [Fact (0 < r)] : T2Space {F : ℒ S | ‖F‖₊ ≤ c} :=
-  (laurentMeasuresBddHomeo r S c).symm.T2Space
+  (laurentMeasuresBddHomeo r S c).symm.t2Space
 
 instance (c : ℝ≥0) [Fact (0 < r)] : TotallyDisconnectedSpace {F : ℒ S | ‖F‖₊ ≤ c} :=
-  (laurentMeasuresBddHomeo r S c).symm.TotallyDisconnectedSpace
+  (laurentMeasuresBddHomeo r S c).symm.totallyDisconnectedSpace
 
 instance (c : ℝ≥0) [Fact (0 < r)] : CompactSpace {F : ℒ S | ‖F‖₊ ≤ c} :=
-  (laurentMeasuresBddHomeo r S c).symm.CompactSpace
+  (laurentMeasuresBddHomeo r S c).symm.compactSpace
 
 @[continuity]
 theorem truncate_continuous (c : ℝ≥0) [Fact (0 < r)] (A : Finset ℤ) :

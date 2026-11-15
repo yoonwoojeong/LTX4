@@ -39,6 +39,12 @@ instance : Category PseuNormGrp₁.{u}
 instance {A B : PseuNormGrp₁.{u}} : CoeFun (A ⟶ B) fun _ => A → B where
   coe (f : StrictPseudoNormedGroupHom A B) := f
 
+-- Porting note: Lean 3's `ext` found the extensionality lemma of `strict_pseudo_normed_group_hom`
+-- through the definition of `⟶`; in Lean 4 it has to be stated for `⟶`.
+@[ext]
+theorem hom_ext {A B : PseuNormGrp₁.{u}} (f g : A ⟶ B) (h : ∀ x, f x = g x) : f = g :=
+  StrictPseudoNormedGroupHom.ext f g h
+
 @[simp]
 theorem id_apply (M : PseuNormGrp₁) (x : M) : (𝟙 M : M ⟶ M) x = x :=
   rfl
@@ -95,31 +101,34 @@ def boundedConePoint : PseuNormGrp₁
       filtration_mono' := by
         intro c₁ c₂ h x hx
         obtain ⟨t, rfl⟩ := hx; refine' ⟨⟨t, _⟩, rfl⟩; intro i
-        apply PseudoNormedGroup.filtration_mono h; apply t.2
+        exact PseudoNormedGroup.filtration_mono (M := K.obj i) h (t.2 i)
       zero_mem_filtration' := by
-        intro c; refine' ⟨⟨0, fun i => _⟩, rfl⟩; simp
-        apply PseudoNormedGroup.zero_mem_filtration
+        intro c; refine' ⟨⟨0, fun i => _⟩, rfl⟩
+        rw [map_zero]
+        exact PseudoNormedGroup.zero_mem_filtration (M := K.obj i) c
       neg_mem_filtration' := by
         intro c x hx
-        obtain ⟨t, rfl⟩ := hx; refine' ⟨⟨-t, fun i => _⟩, rfl⟩; simp
-        apply PseudoNormedGroup.neg_mem_filtration; apply t.2
+        obtain ⟨t, rfl⟩ := hx; refine' ⟨⟨-t, fun i => _⟩, rfl⟩
+        rw [map_neg]
+        exact PseudoNormedGroup.neg_mem_filtration (M := K.obj i) (t.2 i)
       add_mem_filtration' := by
         intro c₁ c₂ x₁ x₂ h₁ h₂
         obtain ⟨t₁, rfl⟩ := h₁; obtain ⟨t₂, rfl⟩ := h₂
-        refine' ⟨⟨t₁ + t₂, fun i => _⟩, rfl⟩; simp
-        apply PseudoNormedGroup.add_mem_filtration; apply t₁.2; apply t₂.2 }
+        refine' ⟨⟨t₁ + t₂, fun i => _⟩, rfl⟩
+        rw [map_add]
+        exact PseudoNormedGroup.add_mem_filtration (M := K.obj i) (t₁.2 i) (t₂.2 i) }
   exhaustive' := by
     intro m
     obtain ⟨c, hc⟩ := m.2
-    refine' ⟨c, ⟨m.1, hc⟩, by ext; rfl⟩
+    refine' ⟨c, ⟨m.1, hc⟩, Subtype.ext rfl⟩
 
 def boundedCone : Cone K where
   pt := boundedConePoint C
   π :=
     { app := fun j =>
         { toFun := fun x => C.cone.π.app _ x.1
-          map_zero' := by simp
-          map_add' := fun x y => by simp
+          map_zero' := AddMonoidHom.map_zero (C.cone.π.app _)
+          map_add' := fun x y => AddMonoidHom.map_add (C.cone.π.app _) x.1 y.1
           strict' := by
             rintro c x ⟨x, rfl⟩
             apply x.2 }
@@ -134,17 +143,23 @@ def boundedConeLift (S : Cone K) : S.pt ⟶ boundedConePoint C
     where
   toFun x :=
     ⟨C.2.lift (toAb.mapCone S) x, by
-      obtain ⟨c, hc⟩ := S.X.exhaustive x
+      obtain ⟨c, hc⟩ := S.pt.exhaustive x
       use c
       intro j
-      rw [← Ab.comp_apply, C.2.fac]
+      -- Porting note: `rw [← Ab.comp_apply, C.2.fac]` does not find its pattern in Lean 4
+      have h : C.cone.π.app j (C.2.lift (toAb.mapCone S) x) = S.π.app j x :=
+        FunLike.congr_fun (C.2.fac (toAb.mapCone S) j) x
+      rw [h]
       exact StrictPseudoNormedGroupHom.strict (S.π.app j) hc⟩
-  map_zero' := by ext; simp
-  map_add' x y := by ext; simp
+  map_zero' := Subtype.ext (map_zero _)
+  map_add' x y := Subtype.ext (map_add _ x y)
   strict' := by
     intro c x hx
     refine' ⟨⟨_, fun j => _⟩, rfl⟩
-    erw [← Ab.comp_apply, C.2.fac]
+    -- Porting note: `erw [← Ab.comp_apply, C.2.fac]` does not find its pattern in Lean 4
+    have h : C.cone.π.app j (C.2.lift (toAb.mapCone S) x) = S.π.app j x :=
+      FunLike.congr_fun (C.2.fac (toAb.mapCone S) j) x
+    rw [h]
     exact StrictPseudoNormedGroupHom.strict (S.π.app j) hx
 
 def boundedConeIsLimit : IsLimit (boundedCone C)
@@ -152,20 +167,14 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
   lift S := boundedConeLift C S
   fac := by
     intro S j
-    ext
-    dsimp [PseuNormGrp₁.boundedConeLift, boundedCone]
-    rw [← Ab.comp_apply, C.2.fac]
-    rfl
+    ext x
+    exact FunLike.congr_fun (C.2.fac (toAb.mapCone S) j) x
   uniq := by
     intro S m hm
-    ext
-    dsimp [PseuNormGrp₁.boundedConeLift, boundedCone]
-    apply Ab.is_limit_ext
-    intro j
-    rw [← Ab.comp_apply, C.2.fac]
-    dsimp
-    rw [← hm]
-    rfl
+    ext x
+    apply Subtype.ext
+    refine' Ab.is_limit_ext C _ _ fun j => _
+    exact (congrArg (fun f : S.pt ⟶ K.obj j => f x) (hm j)).trans (FunLike.congr_fun (C.2.fac (toAb.mapCone S) j) x).symm
 
 instance : HasLimits PseuNormGrp₁ := by
   constructor; intro J hJ; constructor; intro K
@@ -181,55 +190,57 @@ theorem mem_filtration_iff_of_isLimit (C : Cone K) (hC : IsLimit C) (x : C.pt) (
   · intro h j
     exact StrictPseudoNormedGroupHom.strict (C.π.app j) h
   · intro h
-    let E := bounded_cone ⟨_, Ab.explicitLimitConeIsLimit.{u, u} _⟩
-    let e : C ≅ E := hC.uniqueUpToIso (bounded_cone_is_limit _)
-    let eX : C.X ≅ E.X := (Cones.forget _).mapIso e
+    let E := boundedCone ⟨_, Ab.explicitLimitConeIsLimit.{u, u} (K ⋙ toAb)⟩
+    let e : C ≅ E := hC.uniqueUpToIso (boundedConeIsLimit _)
+    let eX : C.pt ≅ E.pt := (Cones.forget _).mapIso e
     let w := eX.hom x
     have hw : ∀ j, E.π.app j w ∈ filtration (K.obj j) c :=
       by
       intro j
-      dsimp only [w]
-      change (eX.hom ≫ E.π.app _) _ ∈ _
-      dsimp only [eX, Functor.mapIso, Cones.forget]
-      convert h j
-      simp
-    suffices w ∈ filtration E.X c by
-      convert eX.inv.strict this
-      change _ = (eX.hom ≫ eX.inv) x
-      rw [Iso.hom_inv_id]
-      rfl
-    refine' ⟨⟨_, hw⟩, rfl⟩
+      -- Porting note: the `simp`/`convert` of the Lean 3 proof is replaced by an explicit equation
+      have hj : E.π.app j w = C.π.app j x :=
+        congrArg (fun f : C.pt ⟶ K.obj j => f x) (e.hom.w j)
+      rw [hj]
+      exact h j
+    suffices hwm : w ∈ filtration E.pt c by
+      have hx : eX.inv w = x := congrArg (fun f : C.pt ⟶ C.pt => f x) eX.hom_inv_id
+      have := StrictPseudoNormedGroupHom.strict eX.inv hwm
+      rw [hx] at this
+      exact this
+    exact ⟨⟨w.1, hw⟩, rfl⟩
 
+-- Porting note: `_root_` as in Lean 3 (mathport dropped it)
 @[simps]
-def StrictPseudoNormedGroupHom.level {M N : Type _} [PseudoNormedGroup M] [PseudoNormedGroup N]
-    (f : StrictPseudoNormedGroupHom M N) (c) : filtration M c → filtration N c := fun x =>
-  ⟨f x, f.strict x.2⟩
+def _root_.StrictPseudoNormedGroupHom.level {M N : Type _} [PseudoNormedGroup M]
+    [PseudoNormedGroup N] (f : StrictPseudoNormedGroupHom M N) (c) :
+    filtration M c → filtration N c := fun x => ⟨f x, f.strict x.2⟩
 
 @[simp]
-theorem StrictPseudoNormedGroupHom.level_id (M : Type _) [PseudoNormedGroup M] (c) :
+theorem _root_.StrictPseudoNormedGroupHom.level_id (M : Type _) [PseudoNormedGroup M] (c) :
     (StrictPseudoNormedGroupHom.id M).level c = id := by ext; rfl
 
 @[simp]
-theorem StrictPseudoNormedGroupHom.level_comp {M N L : Type _} [PseudoNormedGroup M]
+theorem _root_.StrictPseudoNormedGroupHom.level_comp {M N L : Type _} [PseudoNormedGroup M]
     [PseudoNormedGroup N] [PseudoNormedGroup L] (f : StrictPseudoNormedGroupHom M N)
-    (g : StrictPseudoNormedGroupHom N L) (c) : (f.comp g).level c = g.level c ∘ f.level c := by ext;
-  rfl
+    (g : StrictPseudoNormedGroupHom N L) (c) : (f.comp g).level c = g.level c ∘ f.level c := by
+  ext; rfl
 
 @[simps]
 def level : NNReal ⥤ PseuNormGrp₁.{u} ⥤ Type u
     where
   obj c :=
     { obj := fun M => filtration M c
-      map := fun X Y f => f.level _
+      map := fun f => StrictPseudoNormedGroupHom.level f _
       map_id := fun M => StrictPseudoNormedGroupHom.level_id M _
-      map_comp := fun M N L f g => f.level_comp g c }
-  map {c₁ c₂} h := { app := fun M => PseudoNormedGroup.castLe' h.le }
+      map_comp := fun f g => StrictPseudoNormedGroupHom.level_comp f g c }
+  map {c₁ c₂} h := { app := fun M => PseudoNormedGroup.castLe' (leOfHom h) }
 
-theorem level_map {X Y : PseuNormGrp₁} (f : X ⟶ Y) (c) : (level.obj c).map f = f.level _ :=
+theorem level_map {X Y : PseuNormGrp₁} (f : X ⟶ Y) (c) :
+    (level.obj c).map f = StrictPseudoNormedGroupHom.level f _ :=
   rfl
 
 theorem level_map' {X Y : PseuNormGrp₁} (f : X ⟶ Y) (c) :
-    (level.obj c).map f = PseudoNormedGroup.level f f.strict c :=
+    (level.obj c).map f = PseudoNormedGroup.level f (StrictPseudoNormedGroupHom.strict f) c :=
   rfl
 
 def levelConeIsoHom (c) (t : (level.obj c).obj (boundedConePoint C)) : (K ⋙ level.obj c).sections
@@ -238,68 +249,62 @@ def levelConeIsoHom (c) (t : (level.obj c).obj (boundedConePoint C)) : (K ⋙ le
     { val := C.cone.π.app j t.1.1
       property := by
         obtain ⟨w, hw⟩ := t.2
-        apply_fun fun e => e.val at hw 
-        rw [← hw]
-        apply w.2 }
+        have hw' : w.1 = t.1.1 := congrArg Subtype.val hw
+        rw [← hw']
+        exact w.2 j }
   property := by
     intro i j f
-    ext
-    dsimp
-    rw [← C.cone.w f]
-    rfl
+    -- Porting note: `ext; dsimp; rw [← C.cone.w f]; refl` replaced by an explicit term
+    exact Subtype.ext (FunLike.congr_fun (C.cone.w f) t.1.1)
 
-def levelConeIsoInv (c) (t : (K ⋙ level.obj c).sections) : (level.obj c).obj (boundedConePoint C)
-    where
-  val :=
-    { val :=
-        C.2.lift (Ab.explicitLimitCone.{u, u} _)
-          ⟨fun j => (t.1 j).1, by
-            intro i j f
-            dsimp
-            change _ = (t.val _).val
-            rw [← t.2 f]
-            rfl⟩
-      property := by
-        use c
-        intro j
-        rw [← Ab.comp_apply, C.2.fac]
-        dsimp [Ab.explicitLimitCone]
-        apply (t.1 j).2 }
-  property := by
-    refine' ⟨⟨_, _⟩, rfl⟩
-    intro j
-    dsimp
-    rw [← Ab.comp_apply, C.2.fac]
-    dsimp [Ab.explicitLimitCone]
-    apply (t.1 j).2
+-- Porting note: `noncomputable` is needed in Lean 4 (it was not checked in Lean 3)
+noncomputable def levelConeIsoInv (c) (t : (K ⋙ level.obj c).sections) :
+    (level.obj c).obj (boundedConePoint C) :=
+  -- Porting note: the element of the explicit limit is named so that it can be reused
+  let y : ((K ⋙ toAb) ⋙ forget Ab).sections :=
+    ⟨fun j => (t.1 j).1, fun {i j} f => congrArg Subtype.val (t.2 f)⟩
+  have hy : ∀ j, C.cone.π.app j (C.2.lift (Ab.explicitLimitCone.{u, u} (K ⋙ toAb)) y) =
+      (t.1 j).1 := fun j => FunLike.congr_fun (C.2.fac (Ab.explicitLimitCone.{u, u} (K ⋙ toAb)) j) y
+  ⟨⟨C.2.lift (Ab.explicitLimitCone.{u, u} (K ⋙ toAb)) y, by
+      use c
+      intro j
+      rw [hy j]
+      exact (t.1 j).2⟩,
+    ⟨⟨C.2.lift (Ab.explicitLimitCone.{u, u} (K ⋙ toAb)) y, fun j => by
+      rw [hy j]
+      exact (t.1 j).2⟩, rfl⟩⟩
 
-def levelConeIso (c) : (level.obj c).mapCone (boundedCone C) ≅ Types.limitCone.{u, u} _ :=
+-- Porting note: `noncomputable` is needed in Lean 4 (it was not checked in Lean 3)
+noncomputable def levelConeIso (c) :
+    (level.obj c).mapCone (boundedCone C) ≅ Types.limitCone.{u, u} _ :=
   Cones.ext
     { hom := levelConeIsoHom _ _
       inv := levelConeIsoInv _ _
       hom_inv_id := by
-        ext
-        dsimp [PseuNormGrp₁.levelConeIsoInv, PseuNormGrp₁.levelConeIsoHom]
-        apply Ab.is_limit_ext
+        funext t
+        apply Subtype.ext
+        apply Subtype.ext
+        apply Ab.is_limit_ext C
         intro j
-        rw [← Ab.comp_apply, C.2.fac]
-        rfl
+        exact FunLike.congr_fun (C.2.fac (Ab.explicitLimitCone.{u, u} (K ⋙ toAb)) j) _
       inv_hom_id := by
-        ext
-        dsimp [PseuNormGrp₁.levelConeIsoInv, PseuNormGrp₁.levelConeIsoHom]
-        rw [← Ab.comp_apply, C.2.fac]
-        rfl }
+        funext t
+        apply Subtype.ext
+        funext j
+        apply Subtype.ext
+        exact FunLike.congr_fun (C.2.fac (Ab.explicitLimitCone.{u, u} (K ⋙ toAb)) j) _ }
     (by
       intro j
-      ext
+      funext t
       rfl)
 
-instance preservesLimitsLevelObj (c) : PreservesLimits (level.obj c) :=
+-- Porting note: `noncomputable` is needed in Lean 4 (it was not checked in Lean 3)
+noncomputable instance preservesLimitsLevelObj (c) : PreservesLimits (level.obj c) :=
   by
   constructor; intro J hJ; constructor; intro K
   apply
     CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
-      (bounded_cone_is_limit ⟨_, Ab.explicitLimitConeIsLimit _⟩)
+      (boundedConeIsLimit ⟨_, Ab.explicitLimitConeIsLimit.{u, u} (K ⋙ toAb)⟩)
   apply IsLimit.ofIsoLimit (Types.limitConeIsLimit _) (PseuNormGrp₁.levelConeIso _ _).symm
 
 def negNatTrans (c) : level.obj c ⟶ level.obj c
@@ -307,9 +312,9 @@ def negNatTrans (c) : level.obj c ⟶ level.obj c
   app X := PseudoNormedGroup.neg'
   naturality := by
     intro A B f
-    ext
-    dsimp [level, neg']
-    simp
+    funext x
+    apply Subtype.ext
+    exact (StrictPseudoNormedGroupHom.map_neg f x.1).symm
 
 end PseuNormGrp₁
 
