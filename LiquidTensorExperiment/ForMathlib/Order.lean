@@ -1,4 +1,7 @@
 import Mathlib.Data.Fintype.Basic
+-- Porting note: this import was transitively available in Lean 3
+import Mathlib.Data.Finset.Lattice
+import Mathlib.Data.Fintype.Powerset
 
 #align_import for_mathlib.order
 
@@ -22,16 +25,17 @@ theorem iInter_eq {α β : Type _} [Inhabited α] [Fintype β] [SemilatticeInf �
     use hj
     refine' le_antisymm _ _
     · refine' Set.sInter_subset_of_mem ⟨j, _⟩
-      tidy
+      haveI : Nonempty (j ≤ i) := ⟨hj⟩
+      exact Set.iInter_eq_const fun _ => rfl
     · rintro x hx _ ⟨k, rfl⟩
       rintro _ ⟨hk, rfl⟩
       apply h _ _ hx
   let BB := {S : Set β | ∃ (e : α) (he : e ≤ i), S = f e he}
   let FF : BB → α := fun ee => Classical.choose ee.2
-  have hFF : ∀ S : BB, FF S ≤ i := fun S => (Classical.choose_spec S.2).some
+  have hFF : ∀ S : BB, FF S ≤ i := fun S => (Classical.choose_spec S.2).choose
   have hFF' : ∀ S : BB, (S : Set β) = f (FF S) (hFF S) := fun S =>
     (Classical.choose_spec S.2).choose_spec
-  haveI : Fintype BB := Fintype.ofInjective (fun S : BB => S.1) (by tidy)
+  haveI : Fintype BB := Fintype.ofInjective (fun S : BB => S.1) Subtype.coe_injective
   let GG := (Finset.univ : Finset BB).image FF
   obtain ⟨j0, hj0⟩ := exists_le_finset GG
   use j0 ⊓ i, inf_le_right
@@ -39,12 +43,9 @@ theorem iInter_eq {α β : Type _} [Inhabited α] [Fintype β] [SemilatticeInf �
   have : ∃ (e : α) (he : e ≤ i) (heFF : e ∈ GG), f k hk = f e he :=
     by
     let T : BB := ⟨f k hk, k, hk, rfl⟩
-    use FF T, hFF _
-    constructor
-    · erw [Finset.mem_image]
-      use T
-      simp
-    · rw [← hFF']; rfl
+    refine' ⟨FF T, hFF _, _, _⟩
+    · exact Finset.mem_image.2 ⟨T, Finset.mem_univ _, rfl⟩
+    · exact hFF' T
   obtain ⟨e, he, heFF, hhe⟩ := this
   rw [hhe]
   exact hf _ _ _ _ (le_trans inf_le_left (hj0 _ heFF))
@@ -62,5 +63,6 @@ theorem eventually_constant {α β : Type _} [Inhabited α] [Fintype β] [Semila
   rw [← h]
   rintro x hx
   refine' hx _ ⟨e, _⟩
-  tidy
+  haveI : Nonempty (e ≤ i) := ⟨le_trans he hj0⟩
+  exact Set.iInter_eq_const fun _ => rfl
 

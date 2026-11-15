@@ -72,7 +72,7 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
     rw [zero_add]
     obtain ⟨_, _, rfl, rfl, y, hy⟩ := hC c ⟨hc⟩ 0 (Nat.zero_le m) (res x) γ hγ
     rwa [res_res, d_eq_zero_apply, sub_zero, d_res, hx, map_zero, norm_zero, MulZeroClass.mul_zero,
-      zero_add] at hy 
+      zero_add] at hy
     decide
   -- we continue with the case `i + 1`
   have hc₀kc : k * c ≥ c₀ :=
@@ -83,9 +83,9 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
   let K' := if K = 0 then 1 else K
   have hK' : (0 : ℝ) < K' := by
     dsimp [K']
-    split_ifs
-    norm_num
-    exact zero_lt_iff.mpr h
+    split_ifs with h
+    · norm_num
+    · exact NNReal.coe_pos.mpr (zero_lt_iff.mpr h)
   let ε : ℕ → ℝ := fun j => 2⁻¹ * 2⁻¹ ^ j / K' / 2
   have ε_pos : ∀ j, 0 < ε j := by
     intro j
@@ -94,9 +94,10 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
   have ε_decr : ∀ j, ε (j + 1) ≤ ε j := by
     intro j
     dsimp [ε]
-    field_simp
-    apply one_div_le_one_div_of_le <;> norm_num [hK', pow_succ]
-  have seq : ∀ j : ℕ, ∃ w : C (k * c) i, ‖(res x - C.d i (i + 1) w)‖ ≤ ε j :=
+    -- Porting note: replaced `field_simp; apply one_div_le_one_div_of_le` by `gcongr`
+    gcongr
+    exact pow_le_pow_of_le_one (by norm_num) (by norm_num) (Nat.le_succ j)
+  have seq : ∀ j : ℕ, ∃ w : C (k * c) i, ‖((res x : C (k * c) (i + 1)) - C.d i (i + 1) w)‖ ≤ ε j :=
     by
     intro j
     specialize hC (k * c) ⟨hc₀kc⟩ _ hi (res x) (ε j) (ε_pos j)

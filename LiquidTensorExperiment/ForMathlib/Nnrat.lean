@@ -1,4 +1,6 @@
 import Mathlib.Data.Rat.NNRat
+-- Porting note: this import was transitively available in Lean 3
+import Mathlib.Algebra.BigOperators.Ring
 
 #align_import for_mathlib.nnrat
 
@@ -32,7 +34,7 @@ theorem hMul_finset_sup {α} {f : α → ℚ≥0} {s : Finset α} (r : ℚ≥0) 
   classical
   refine' s.induction_on _ _
   · simp [bot_eq_zero]
-  · intro a s has ih; simp [has, ih, mul_sup]
+  · intro a s has ih; simp [has, ih, hMul_sup]
 
 section Inv
 
@@ -69,13 +71,13 @@ theorem le_of_forall_lt_one_hMul_le {x y : ℚ≥0} (h : ∀ a < 1, a * x ≤ y)
   le_of_forall_ge_of_dense fun a ha =>
     by
     have hx : x ≠ 0 := pos_iff_ne_zero.1 (lt_of_le_of_lt (zero_le _) ha)
-    have hx' : x⁻¹ ≠ 0 := by rwa [(· ≠ ·), inv_eq_zero]
-    have : a * x⁻¹ < 1 := by rwa [← lt_inv_iff_mul_lt hx', inv_inv]
+    have hx' : x⁻¹ ≠ 0 := by rwa [Ne, inv_eq_zero]
+    have : a * x⁻¹ < 1 := by rwa [← lt_inv_iff_hMul_lt hx', inv_inv]
     have : a * x⁻¹ * x ≤ y := h _ this
     rwa [mul_assoc, inv_mul_cancel hx, mul_one] at this 
 
 theorem half_lt_self {a : ℚ≥0} (h : a ≠ 0) : a / 2 < a :=
-  half_lt_self h.bot_lt
+  _root_.half_lt_self h.bot_lt
 
 theorem two_inv_lt_one : (2⁻¹ : ℚ≥0) < 1 := by simpa using half_lt_self zero_ne_one.symm
 

@@ -22,9 +22,9 @@ def presheafToSheafOfTypes : (Cᵒᵖ ⥤ Type max v u) ⥤ SheafOfTypes J
       cond := by
         rw [← CategoryTheory.isSheaf_iff_isSheaf_of_type]
         exact GrothendieckTopology.Plus.isSheaf_plus_plus J P }
-  map P Q η := ⟨J.sheafifyMap η⟩
+  map η := ⟨J.sheafifyMap η⟩
   map_id P := SheafOfTypes.Hom.ext _ _ <| J.sheafifyMap_id _
-  map_comp P Q R η γ := SheafOfTypes.Hom.ext _ _ <| J.sheafifyMap_comp _ _
+  map_comp η γ := SheafOfTypes.Hom.ext _ _ <| J.sheafifyMap_comp _ _
 
 -- Sanity check
 def presheafToSheafOfTypesIso :
@@ -34,9 +34,11 @@ def presheafToSheafOfTypesIso :
 -- The adjunction for sheaves of types
 def sheafificationAdjunctionTypes : presheafToSheafOfTypes J ⊣ sheafOfTypesToPresheaf J :=
   show
-    presheafToSheaf J _ ⋙ (sheafEquivSheafOfTypes J).functor ⊣
-      (sheafEquivSheafOfTypes J).inverse ⋙ sheafToPresheaf J _
-    from Adjunction.comp (sheafificationAdjunction _ _) <| (sheafEquivSheafOfTypes J).toAdjunction
+    presheafToSheaf J (Type max v u) ⋙ (sheafEquivSheafOfTypes J).functor ⊣
+      (sheafEquivSheafOfTypes J).inverse ⋙ sheafToPresheaf J (Type max v u)
+    from
+    Adjunction.comp (sheafificationAdjunction J (Type max v u)) <|
+      (sheafEquivSheafOfTypes J).toAdjunction
 
 @[simp]
 theorem sheafificationAdjunctionTypes_homEquiv_apply (X : Cᵒᵖ ⥤ Type max v u) (Y : SheafOfTypes J)
@@ -65,11 +67,11 @@ theorem sheafificationAdjunctionTypes_counit_app (Y : SheafOfTypes J) :
 instance isIso_sheafification_types_adjunction_counit_app (X : SheafOfTypes J) :
     IsIso ((sheafificationAdjunctionTypes J).counit.app X) :=
   by
-  apply CategoryTheory.isIso_of_reflects_iso _ (Sheaf_equiv_SheafOfTypes J).inverse
+  apply CategoryTheory.isIso_of_reflects_iso _ (sheafEquivSheafOfTypes J).inverse
   change
-    is_iso
+    IsIso
       ((CategoryTheory.sheafificationAdjunction J (Type max v u)).counit.app
-        ((Sheaf_equiv_SheafOfTypes J).inverse.obj X))
+        ((sheafEquivSheafOfTypes J).inverse.obj X))
   infer_instance
 
 instance sheafification_types_reflective : IsIso (sheafificationAdjunctionTypes J).counit :=
