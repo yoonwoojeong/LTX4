@@ -563,6 +563,7 @@ def ofFIsZero (hf : f = 0) : HomologyIsoDatum f g (kernel g)
   forkIsLimit := kernelIsKernel g
   coforkIsColimit :=
     isColimitAux _ (fun s => s.π) (fun s => by apply Category.id_comp) fun s m hm => by
+      dsimp only
       rw [← hm]
       symm
       apply Category.id_comp
@@ -580,6 +581,7 @@ def ofGIsZero (hg : g = 0) : HomologyIsoDatum f g (cokernel f)
   zero₂' := cokernel.condition f
   forkIsLimit :=
     isLimitAux _ (fun s => s.ι) (fun s => by apply Category.comp_id) fun s m hm => by
+      dsimp only
       rw [← hm]
       symm
       apply Category.comp_id
@@ -598,11 +600,13 @@ def ofBothZeros (hf : f = 0) (hg : g = 0) : HomologyIsoDatum f g Y
   zero₂' := zero_comp
   forkIsLimit :=
     isLimitAux _ (fun s => s.ι) (fun s => by apply Category.comp_id) fun s m hm => by
+      dsimp only
       rw [← hm]
       symm
       apply Category.comp_id
   coforkIsColimit :=
     isColimitAux _ (fun s => s.π) (fun s => by apply Category.id_comp) fun s m hm => by
+      dsimp only
       rw [← hm]
       symm
       dsimp

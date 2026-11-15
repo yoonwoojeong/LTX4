@@ -60,7 +60,7 @@ theorem zsmul_apply (k : ℤ) (F : ℤ[T⁻¹] S) (s : S) : (k • F) s = k • 
 -- @[ext]
 -- lemma ext (F G : ℤ[T⁻¹] S) : (F : S → ) = G → F = G :=
 -- by { intros h, funext s, ext, exact congr_fun (congr_fun h s) n }
-protected theorem nNReal_summable (F : ℤ[T⁻¹] S) (s : S) :
+protected theorem nnreal_summable (F : ℤ[T⁻¹] S) (s : S) :
     Summable fun n => ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) :=
   by
   apply @summable_of_ne_finset_zero _ _ _ _ _ (F s).support
@@ -148,7 +148,7 @@ theorem nnnorm_add (F G : ℤ[T⁻¹] S) : ‖F + G‖₊ ≤ ‖F‖₊ + ‖G�
   rintro s -
   rw [← tsum_add (F.nnreal_summable _) (G.nnreal_summable _)]
   refine'
-    tsum_le_tsum _ ((F + G).nNReal_summable _) ((F.nnreal_summable s).add (G.nnreal_summable s))
+    tsum_le_tsum _ ((F + G).nnreal_summable _) ((F.nnreal_summable s).add (G.nnreal_summable s))
   intro b
   simp [← add_mul]
   refine' mul_le_mul' (nnnorm_add_le _ _) le_rfl
@@ -198,7 +198,7 @@ theorem map_bound (f : S ⟶ S') (F : ℤ[T⁻¹] S) : ‖map f F‖₊ ≤ ‖F
     _ =
         ∑ s',
           ∑ s in univ.filterₓ fun t => f t = s', ∑' n, ‖((F s).Coeff n)‖₊ * r ^ (-n : ℤ) :=
-      (sum_congr rfl fun s' _ => tsum_sum fun s _ => F.nNReal_summable _)
+      (sum_congr rfl fun s' _ => tsum_sum fun s _ => F.nnreal_summable _)
     _ = _ := by
       rw [← sum_bUnion]
       refine' sum_congr _ _

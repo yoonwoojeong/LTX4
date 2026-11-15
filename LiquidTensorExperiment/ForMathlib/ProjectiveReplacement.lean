@@ -385,7 +385,7 @@ noncomputable def homologyFunctorObjIso (X) (i : ℤ) :
       homology' _ _ (X.d_comp_d (i - 1) i (i + 1)) :=
   homology'.mapIso _ _
     (Arrow.isoMk (X.xPrevIso (sub_add_cancel _ _)) (Iso.refl _) (by dsimp; simp [← X.dTo_eq]))
-    (Arrow.isoMk (Iso.refl _) (X.xNextIso rfl) (by dsimp; simp)) (by dsimp; simp)
+    (Arrow.isoMk (Iso.refl _) (X.xNextIso rfl) (by dsimp; simp)) (by dsimp)
 
 theorem homology'Functor_map_iso {X Y : CochainComplex V ℤ} (f : X ⟶ Y) (i : ℤ) :
     (homology'Functor V (ComplexShape.up ℤ) i).map f =

@@ -186,4 +186,5 @@ Apache 2.0, as the original project (see `LICENSE`).
 | `category_theory.simplicial_object.hom_ext` | `CategoryTheory.SimplicialObject.hom_ext_augmentedCechNerve` | mathlib4's `SimplicialObject.hom_ext` has a different statement |
 | `category_theory.cover_dense.Sheaf_equiv_of_cover_preserving_cover_lifting_sheafification_compatibility` | `CategoryTheory.Functor.IsCoverDense.sheafEquivOfCoverPreservingCoverLiftingSheafificationCompatibility'` | upstreamed to mathlib4 under the unprimed name, with instance arguments |
 | `int.neg_one_pow` and its lemmas (`int.neg_one_pow_add`, …) | `Int.negOnePow'`, `Int.negOnePow'_add`, … | mathlib4's `Int.negOnePow : ℤ → ℤˣ` has a different type (LTE's is `ℤ → ℤ`) |
+| `laurent_measures.nnreal_summable`, `invpoly.nnreal_summable`, `laurent_measures.mk_seq_compat_nnreal_summable` | `…nnreal_summable` (Lean 3 spelling) | mathport's table gives `nNReal_summable`; the Lean 3 spelling is kept, as the files' own uses already had it |
 | `system_of_double_complexes.normed_spectral.K₀`, `one_le_K₀` | `…NormedSpectral.K₀`, `one_le_K₀` (kept) | mathport mapped both `k₀` and `K₀` to `k₀` |

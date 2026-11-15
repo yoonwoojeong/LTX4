@@ -440,7 +440,9 @@ def termwiseSplitMonoDescSection (f : A ⟶ B) :
     have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
     have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
     rw [termwise_split_mono_desc_section_aux (i + 1)]
-    rw [dNext_eq _ aux₂, prevD_eq _ aux₁, dif_pos rfl, dif_pos rfl]
+    -- Porting note: `rw` fails to match up to instances; `erw` works
+    erw [dNext_eq _ aux₂, prevD_eq _ aux₁]
+    rw [dif_pos rfl, dif_pos rfl]
     simp only [sub_add_cancel, biproduct_d, cone_d, xEqToIso_refl, Category.id_comp,
       biprod.map_snd_assoc, Category.assoc, biprod.inr_map, add_left_inj, Cone.d]
     rw [dif_pos rfl, dif_pos rfl]
@@ -536,7 +538,9 @@ def termwiseSplitEpiRetractionLift (f : A ⟶ B) :
     have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
     have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
     rw [termwise_split_epi_retraction_lift_aux (i + 1)]
-    rw [dNext_eq _ aux₂, prevD_eq _ aux₁, dif_pos rfl, dif_pos rfl]
+    -- Porting note: `rw` fails to match up to instances; `erw` works
+    erw [dNext_eq _ aux₂, prevD_eq _ aux₁]
+    rw [dif_pos rfl, dif_pos rfl]
     simp only [sub_add_cancel, biproduct_d, cone_d, xEqToIso_refl, Category.id_comp,
       biprod.map_snd_assoc, Category.assoc, biprod.inr_map, add_left_inj, Cone.d]
     rw [dif_pos rfl, dif_pos rfl]
@@ -601,7 +605,9 @@ def homotopyConnectingHomOfSplittings (h h' : ∀ i : ℤ, Splitting (f.f i) (g.
       obtain ⟨i, rfl⟩ : ∃ j, j + 1 = i := ⟨i - 1, sub_add_cancel _ _⟩
       have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
       have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
-      rw [dNext_eq _ aux₂, prevD_eq _ aux₁, dif_pos rfl, dif_pos rfl]
+      -- Porting note: `rw` fails to match up to instances; `erw` works
+    erw [dNext_eq _ aux₂, prevD_eq _ aux₁]
+    rw [dif_pos rfl, dif_pos rfl]
       simp only [dNext, prevD, Splitting.π_section_eq_id_sub_assoc, -retraction_x_eq_to_hom,
         Preadditive.sub_comp_assoc, Category.id_comp, Category.assoc, Hom.comm,
         Preadditive.sub_comp, Splitting.ι_retraction, Category.comp_id, xEqToIso_refl, shift_d,
@@ -806,7 +812,9 @@ def compTermwiseSplitToConeHomotopy (h : ∀ i, Splitting (f.f i) (g.f i)) :
     obtain ⟨i, rfl⟩ : ∃ j, j + 1 = i := ⟨i - 1, sub_add_cancel _ _⟩
     have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
     have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
-    rw [dNext_eq _ aux₂, prevD_eq _ aux₁, dif_pos rfl, dif_pos rfl]
+    -- Porting note: `rw` fails to match up to instances; `erw` works
+    erw [dNext_eq _ aux₂, prevD_eq _ aux₁]
+    rw [dif_pos rfl, dif_pos rfl]
     simp only [dite_eq_ite, HomologicalComplex.cochainComplex_prevD, dif_pos, if_true, Category.assoc, cone_d,
       Category.id_comp, add_left_inj, sub_add_cancel, dif_ctx_congr, xEqToIso_refl, Cone.d,
       Preadditive.comp_neg, eq_self_iff_true, HomologicalComplex.cochainComplex_dNext, Preadditive.neg_comp]
@@ -838,7 +846,9 @@ def coneToTermwiseSplitCompHomotopy (h : ∀ i, Splitting (f.f i) (g.f i)) :
     obtain ⟨i, rfl⟩ : ∃ j, j + 1 = i := ⟨i - 1, sub_add_cancel _ _⟩
     have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
     have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
-    rw [dNext_eq _ aux₂, prevD_eq _ aux₁, dif_pos rfl, dif_pos rfl]
+    -- Porting note: `rw` fails to match up to instances; `erw` works
+    erw [dNext_eq _ aux₂, prevD_eq _ aux₁]
+    rw [dif_pos rfl, dif_pos rfl]
     simp only [Category.comp_id, dite_eq_ite, HomologicalComplex.cochainComplex_prevD, cone.out, dif_pos, if_true,
       add_left_inj, sub_add_cancel, Cone.d, shift_d, dif_ctx_congr, Preadditive.comp_neg,
       eq_self_iff_true, Int.negOnePow'_one, HomologicalComplex.cochainComplex_dNext, one_zsmul, Category.assoc,
@@ -864,7 +874,9 @@ def isoConeOfTermwiseSplitInvHomHomotopy (h : ∀ i, Splitting (f.f i) (g.f i)) 
     obtain ⟨i, rfl⟩ : ∃ j, j + 1 = i := ⟨i - 1, sub_add_cancel _ _⟩
     have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
     have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
-    rw [dNext_eq _ aux₂, prevD_eq _ aux₁, dif_pos rfl, dif_pos rfl]
+    -- Porting note: `rw` fails to match up to instances; `erw` works
+    erw [dNext_eq _ aux₂, prevD_eq _ aux₁]
+    rw [dif_pos rfl, dif_pos rfl]
     simp only [Category.comp_id, dite_eq_ite, HomologicalComplex.cochainComplex_prevD, dif_pos, if_true,
       Category.id_comp, add_left_inj, sub_add_cancel, Cone.d, dif_ctx_congr, eq_self_iff_true,
       HomologicalComplex.cochainComplex_dNext, Category.assoc, biprod.lift_snd_assoc, xEqToIso_refl, cone_d]
