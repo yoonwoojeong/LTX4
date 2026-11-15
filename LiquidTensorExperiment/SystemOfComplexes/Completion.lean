@@ -48,9 +48,7 @@ variable {k k' K K' : ℝ≥0} {m m' : ℕ} {c₀ c₀' : ℝ≥0}
 -- by admit
 -- Porting note: Lean 4 instance search does not see through `(forget SemiNormedGroupCat).obj A`,
 -- which is the type of the image of an element under a morphism `A ⟶ B` (e.g. `res x`, `d x`).
-local instance (A : SemiNormedGroupCat) :
-    SeminormedAddCommGroup ((CategoryTheory.forget SemiNormedGroupCat).obj A) :=
-  inferInstanceAs (SeminormedAddCommGroup A)
+attribute [local reducible] CategoryTheory.forget
 
 theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
     (hC : C.IsWeakBoundedExact k K m c₀) (hC' : Admissible C) [∀ c i, CompleteSpace (C c i)] :
@@ -106,7 +104,7 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
     have h2 : (2⁻¹ : ℝ) ^ (j + 1) ≤ 2⁻¹ ^ j :=
       pow_le_pow_of_le_one (by norm_num) (by norm_num) (Nat.le_succ j)
     gcongr
-  have seq : ∀ j : ℕ, ∃ w : C (k * c) i, ‖(show C (k * c) (i + 1) from res x) - (show C (k * c) (i + 1) from C.d i (i + 1) w)‖ ≤ ε j :=
+  have seq : ∀ j : ℕ, ∃ w : C (k * c) i, ‖(res x - C.d i (i + 1) w)‖ ≤ ε j :=
     by
     intro j
     specialize hC (k * c) ⟨hc₀kc⟩ _ hi (res x) (ε j) (ε_pos j)
@@ -141,16 +139,15 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
   have seq :
     ∀ j : ℕ,
       ∃ z : C c i₀,
-        ‖(show C c i from res (w (j + 1) - w j)) - (show C c i from C.d i₀ i z)‖ ≤
-          K * ‖(show C (k * c) (i + 1) from C.d i (i + 1) (w (j + 1) - w j))‖ + δ j :=
+        ‖(res (w (j + 1) - w j) - C.d i₀ i z)‖ ≤
+          K * ‖(C.d i (i + 1) (w (j + 1) - w j))‖ + δ j :=
     by
     intro j
     have : i ≤ m := i.le_succ.trans hi
     obtain ⟨i', -, hi', rfl, hy⟩ := hC c ⟨hc⟩ i this (w (j + 1) - w j) _ (δ_pos j)
     rw [← hi₀] at hi' ; subst i'; exact hy
   choose z hz using seq
-  let y : ℕ → C c i := fun j =>
-    (show C c i from res (w j)) - ∑ l in range j, (show C c i from C.d i₀ i (z l))
+  let y : ℕ → C c i := fun j => res (w j) - ∑ l in range j, C.d _ _ (z l)
   have cau_y : CauchySeq y :=
     by
     apply cauchySeq_of_le_geometric (2⁻¹ : ℝ) 1 two_inv_lt_one
@@ -179,21 +176,14 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
         apply add_le_add_right
         apply mul_le_mul_of_nonneg_left fact (NNReal.coe_nonneg K)
       _ ≤ 1 * 2⁻¹ ^ j := hεδ j
-  have hdyj : ∀ j, C.d i (i + 1) (y j) = res (C.d i (i + 1) <| w j) :=
+  have hdyj : ∀ j, C.d _ _ (y j) = res (C.d _ _ <| w j) :=
     by
     intro j
-    -- Porting note: explicit `show`s are needed to make the types `↑(C c i)` instead of
-    -- `(forget _).obj (C c i)`, and `erw` replaces `rw`
     calc
-      C.d i (i + 1) (y j) =
-          C.d i (i + 1) ((show C c i from res (w j)) -
-            ∑ l in range j, (show C c i from C.d i₀ i (z l))) := rfl
-      _ = (show C c (i + 1) from C.d i (i + 1) (res (w j))) -
-            ∑ l in range j, (show C c (i + 1) from C.d i (i + 1) (C.d i₀ i (z l))) := by
-        erw [_root_.map_sub, map_sum]
-      _ = res (C.d i (i + 1) (w j)) := by
-        erw [d_res]
-        simp only [d_d, sum_const_zero, sub_zero]
+      C.d _ _ (y j) = C.d _ _ (res (w j) - ∑ l in range j, C.d _ i (z l)) := rfl
+      _ = C.d _ _ (res (w j)) - ∑ l in range j, C.d i (i + 1) (C.d _ _ (z l)) := by
+        rw [_root_.map_sub, map_sum]
+      _ = res (C.d _ _ (w j)) := by simp only [d_res, d_d, sum_const_zero, sub_zero]
   have hblop : ∀ j, ‖(res x - C.d _ _ (y j))‖ ≤ ε j :=
     by
     intro j

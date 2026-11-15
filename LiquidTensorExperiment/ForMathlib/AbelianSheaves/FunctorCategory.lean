@@ -397,7 +397,9 @@ instance functorCategoryIsAbelian : Abelian (C ⥤ D) := by
     fun η => functor_category_isIso_coim_to_im.{w, v, u} η
   exact Abelian.ofCoimageImageComparisonIsIso
 
-theorem NatTrans.exact_iff_forall {F G H : C ⥤ D} (η : F ⟶ G) (γ : G ⟶ H) :
+-- Porting note: the proof is given outside of the namespace `NatTrans`, where it elaborates
+-- differently (the zero morphisms of the functor category are not recognised by `exact`)
+private theorem exact_iff_forall_aux {F G H : C ⥤ D} (η : F ⟶ G) (γ : G ⟶ H) :
     -- Porting note: the `HasImages (C ⥤ D)` instance is given explicitly, because Lean 4 cannot
     -- solve the universe constraint arising when synthesising it (see `functor_category_hasKernels_general`)
     @Exact (C ⥤ D) _
@@ -444,6 +446,16 @@ theorem NatTrans.exact_iff_forall {F G H : C ⥤ D} (η : F ⟶ G) (γ : G ⟶ H
       rw [this]
       clear this
       simp only [Category.assoc, reassoc_of% (h j).2, comp_zero, zero_comp]
+
+theorem NatTrans.exact_iff_forall {F G H : C ⥤ D} (η : F ⟶ G) (γ : G ⟶ H) :
+    -- Porting note: the `HasImages (C ⥤ D)` instance is given explicitly, because Lean 4 cannot
+    -- solve the universe constraint arising when synthesising it (see `functor_category_hasKernels_general`)
+    @Exact (C ⥤ D) _
+        (@hasImages_of_hasStrongEpiMonoFactorisations (C ⥤ D) _
+          (@Abelian.instHasStrongEpiMonoFactorisations (C ⥤ D) _
+            functorCategoryIsAbelian.{w, v, u})) _ _ F G H η γ ↔
+      ∀ j, Exact (η.app j) (γ.app j) :=
+  exact_iff_forall_aux.{w, v, u} η γ
 
 /- ./././Mathport/Syntax/Translate/Basic.lean:339:40: warning: unsupported option pp.universes -/
 set_option pp.universes true

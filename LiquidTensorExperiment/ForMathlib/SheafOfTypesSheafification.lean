@@ -55,7 +55,7 @@ theorem sheafificationAdjunctionTypes_homEquiv_symm_apply (X : Cᵒᵖ ⥤ Type 
 
 -- Porting note: computing the simp-lemma keys for this lemma exceeds the default heartbeat limit
 -- (unfolding `sheafificationAdjunctionTypes`); a bounded increase is used.
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 1000000 in
 @[simp]
 theorem sheafificationAdjunctionTypes_unit_app (X : Cᵒᵖ ⥤ Type max v u) :
     (sheafificationAdjunctionTypes J).unit.app X = J.toSheafify X :=
@@ -63,7 +63,7 @@ theorem sheafificationAdjunctionTypes_unit_app (X : Cᵒᵖ ⥤ Type max v u) :
 
 -- Porting note: computing the simp-lemma keys for this lemma exceeds the default heartbeat limit
 -- (unfolding `sheafificationAdjunctionTypes`); a bounded increase is used.
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 1000000 in
 @[simp]
 theorem sheafificationAdjunctionTypes_counit_app (Y : SheafOfTypes J) :
     ((sheafificationAdjunctionTypes J).counit.app Y).val =
