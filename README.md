@@ -171,3 +171,10 @@ in doubt it was checked with Lean 3 itself (e.g. `nnreal.fact_two_pow_inv_le_two
 ## License
 
 Apache 2.0, as the original project (see `LICENSE`).
+
+### Renamed because of later mathlib declarations
+
+| Lean 3 LTE name | Lean 4 name | reason |
+|---|---|---|
+| `category_theory.simplicial_object.hom_ext` | `CategoryTheory.SimplicialObject.hom_ext_augmentedCechNerve` | mathlib4's `SimplicialObject.hom_ext` has a different statement |
+| `system_of_double_complexes.normed_spectral.K₀`, `one_le_K₀` | `…NormedSpectral.K₀`, `one_le_K₀` (kept) | mathport mapped both `k₀` and `K₀` to `k₀` |

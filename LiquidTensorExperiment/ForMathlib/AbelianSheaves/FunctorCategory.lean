@@ -401,35 +401,49 @@ theorem NatTrans.exact_iff_forall {F G H : C ⥤ D} (η : F ⟶ G) (γ : G ⟶ H
     -- Porting note: the `HasImages (C ⥤ D)` instance is given explicitly, because Lean 4 cannot
     -- solve the universe constraint arising when synthesising it (see `functor_category_hasKernels_general`)
     @Exact (C ⥤ D) _
-        (hasImages_of_hasStrongEpiMonoFactorisations
-          (C := C ⥤ D) (inst := @Abelian.instHasStrongEpiMonoFactorisations (C ⥤ D) _
+        (@hasImages_of_hasStrongEpiMonoFactorisations (C ⥤ D) _
+          (@Abelian.instHasStrongEpiMonoFactorisations (C ⥤ D) _
             functorCategoryIsAbelian.{w, v, u})) _ _ F G H η γ ↔
       ∀ j, Exact (η.app j) (γ.app j) :=
   by
   haveI : Abelian (C ⥤ D) := functorCategoryIsAbelian.{w, v, u}
+  have h := Abelian.exact_iff η γ
+  -- Porting note: the two `HasZeroMorphisms (C ⥤ D)` instances are not syntactically equal
+  refine Iff.trans (by convert h) ?_
   simp_rw [Abelian.exact_iff]
   constructor
   · rintro ⟨h1, h2⟩ j
     constructor
-    · apply_fun fun e => e.app j at h1 ; simpa using h1
+    · apply_fun fun e => e.app j at h1
+      exact h1
     · apply_fun fun e => e.app j at h2 
-      simp only [NatTrans.comp_app, NatTrans.app_zero] at h2 
+      -- Porting note: `0.app j = 0` holds by `rfl`, but `simp` does not see it because of the
+      -- different `HasZeroMorphisms` instances
+      replace h2 : NatTrans.app (kernel.ι γ) j ≫ NatTrans.app (cokernel.π η) j = 0 := h2
       let eK : (kernel γ).obj j ≅ kernel (γ.app j) := NatTrans.kernelObjIso.{w, v, u} γ j
       let eQ : (cokernel η).obj j ≅ cokernel (η.app j) := NatTrans.cokernelObjIso.{w, v, u} η j
-      have : kernel.ι (γ.app j) = eK.inv ≫ (NatTrans.app (kernel.ι γ) j) := by simp; rw [this]; clear this
-      have : cokernel.π (η.app j) = (NatTrans.app (cokernel.π η) j) ≫ eQ.hom := by simp; rw [this]; clear this
-      simp only [Category.assoc, reassoc_of h2, zero_comp, comp_zero]
+      have : kernel.ι (γ.app j) = eK.inv ≫ (NatTrans.app (kernel.ι γ) j) := by simp
+      rw [this]
+      clear this
+      have : cokernel.π (η.app j) = (NatTrans.app (cokernel.π η) j) ≫ eQ.hom := by simp
+      rw [this]
+      clear this
+      simp only [Category.assoc, reassoc_of% h2, zero_comp, comp_zero]
   · intro h
     constructor
     · ext j
-      exact (h j).1
+      convert (h j).1 using 1
     · ext j
-      dsimp
+      change NatTrans.app (kernel.ι γ) j ≫ NatTrans.app (cokernel.π η) j = 0
       let eK : (kernel γ).obj j ≅ kernel (γ.app j) := NatTrans.kernelObjIso.{w, v, u} γ j
       let eQ : (cokernel η).obj j ≅ cokernel (η.app j) := NatTrans.cokernelObjIso.{w, v, u} η j
-      have : (NatTrans.app (kernel.ι γ) j) = eK.hom ≫ kernel.ι _ := by simp; rw [this]; clear this
-      have : (NatTrans.app (cokernel.π η) j) = cokernel.π _ ≫ eQ.inv := by simp; rw [this]; clear this
-      simp only [Category.assoc, reassoc_of (h j).2, comp_zero, zero_comp]
+      have : (NatTrans.app (kernel.ι γ) j) = eK.hom ≫ kernel.ι _ := by simp
+      rw [this]
+      clear this
+      have : (NatTrans.app (cokernel.π η) j) = cokernel.π _ ≫ eQ.inv := by simp
+      rw [this]
+      clear this
+      simp only [Category.assoc, reassoc_of% (h j).2, comp_zero, zero_comp]
 
 /- ./././Mathport/Syntax/Translate/Basic.lean:339:40: warning: unsupported option pp.universes -/
 set_option pp.universes true

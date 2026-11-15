@@ -12,14 +12,17 @@ noncomputable def Arrow.cechNerveObj0 {C : Type u} [Category.{v} C] (F : Arrow C
     where
   hom := Limits.WidePullback.π _ 0
   inv :=
-    Limits.WidePullback.lift F.Hom (fun _ => 𝟙 _) (by simp only [Category.id_comp, forall_const])
+    Limits.WidePullback.lift F.hom (fun _ => 𝟙 _) (by simp only [Category.id_comp, forall_const])
   hom_inv_id := by
     apply Limits.WidePullback.hom_ext
     · intro i
       simp only [Limits.WidePullback.lift_π, Category.id_comp, Category.comp_id, Category.assoc]
-      congr; dsimp; simp only [eq_iff_true_of_subsingleton]
+      congr
+      dsimp
+      -- Porting note: `Fin (len _ + 1)` is not syntactically `Fin 1`
+      exact Subsingleton.elim (α := Fin 1) _ _
     ·
       simp only [Category.id_comp, Category.assoc, Limits.WidePullback.lift_base,
-        Limits.widePullback.π_arrow]
+        Limits.WidePullback.π_arrow]
   inv_hom_id := Limits.WidePullback.lift_π _ _ _ _ 0
 

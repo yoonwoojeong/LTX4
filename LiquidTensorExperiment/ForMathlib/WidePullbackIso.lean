@@ -76,37 +76,29 @@ def uliftWidePullbackIso (i : ℕ) (T B X : C) (f : X ⟶ B) :
     apply WidePullback.hom_ext
     rintro ⟨j⟩
     · simp only [WidePullback.lift_π]
-      have :=
-        types_comp_apply
-          (WidePullback.lift
-            (uliftFunctor.{u + 1, u}.map
-              ((yoneda.{u, u + 1}.map (WidePullback.base fun _x : Fin i => f)).app (op.{u + 2} T)))
-            (fun q : Fin i =>
-              uliftFunctor.{u + 1, u}.map
-                ((yoneda.{u, u + 1}.map (WidePullback.π (fun _x : Fin i => f) q)).app
-                  (op.{u + 2} T)))
-            _)
-          (WidePullback.π
-            (fun _x : Fin i =>
-              uliftFunctor.{u + 1, u}.map ((yoneda.{u, u + 1}.map f).app (op.{u + 2} T)))
-            _)
-          t
-      rw [← this, WidePullback.lift_π]; rfl
+      -- Porting note: `types_comp_apply` with explicit arguments, as Lean 4 cannot infer them
+      refine congrArg ULift.down
+        ((types_comp_apply (WidePullback.lift
+          (uliftFunctor.{u + 1, u}.map
+            ((yoneda.map (WidePullback.base fun _ : Fin i => f)).app (op T)))
+          (fun q : Fin i =>
+            uliftFunctor.{u + 1, u}.map ((yoneda.map (WidePullback.π (fun _ : Fin i => f) q)).app (op T)))
+          _)
+          (WidePullback.π (fun _ : Fin i => uliftFunctor.{u + 1, u}.map ((yoneda.map f).app (op T)))
+            _) t).symm.trans ?_)
+      rw [WidePullback.lift_π]
+      rfl
     · simp only [WidePullback.lift_base]
-      have :=
-        types_comp_apply
-          (WidePullback.lift
-            (uliftFunctor.{u + 1, u}.map
-              ((yoneda.{u, u + 1}.map (WidePullback.base fun _x : Fin i => f)).app (op.{u + 2} T)))
-            (fun q : Fin i =>
-              uliftFunctor.{u + 1, u}.map
-                ((yoneda.{u, u + 1}.map (WidePullback.π (fun _x : Fin i => f) q)).app
-                  (op.{u + 2} T)))
-            _)
-          (WidePullback.base fun _x : Fin i =>
-            uliftFunctor.{u + 1, u}.map ((yoneda.{u, u + 1}.map f).app (op.{u + 2} T)))
-          t
-      rw [← this, Limits.WidePullback.lift_base]; rfl
+      refine congrArg ULift.down
+        ((types_comp_apply (WidePullback.lift
+          (uliftFunctor.{u + 1, u}.map
+            ((yoneda.map (WidePullback.base fun _ : Fin i => f)).app (op T)))
+          (fun q : Fin i =>
+            uliftFunctor.{u + 1, u}.map ((yoneda.map (WidePullback.π (fun _ : Fin i => f) q)).app (op T)))
+          _)
+          (WidePullback.base (fun _ : Fin i => uliftFunctor.{u + 1, u}.map ((yoneda.map f).app (op T)))) t).symm.trans ?_)
+      rw [WidePullback.lift_base]
+      rfl
   inv_hom_id :=
     by
     dsimp [CategoryTheory.uliftWidePullbackIsoHomAux, CategoryTheory.uliftWidePullbackIsoInvAux]

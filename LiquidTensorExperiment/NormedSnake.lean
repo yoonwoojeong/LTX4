@@ -13,6 +13,9 @@ open CategoryTheory Opposite NormedAddGroupHom SystemOfComplexes
 variable (M M' N : SystemOfComplexes.{u}) (f : M ⟶ M') (g : M' ⟶ N)
 
 --TODO Add the non weak version for complete system of complexes
+-- Porting note: elaboration of this long proof exceeds the default 200000 heartbeats in Lean 4
+-- (many slow `CoeFun` instance searches for morphisms of systems of complexes)
+set_option maxHeartbeats 1000000 in
 /-- The normed snake lemma, weak version. See Proposition 9.10 from Analytic.pdf -/
 theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk' : Fact (1 ≤ k')]
     [hk'' : Fact (1 ≤ k'')] {m : ℕ} {c₀ : ℝ≥0} (hM : M.IsWeakBoundedExact k K (m + 1) c₀)
@@ -38,7 +41,7 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
     haveI hc : Fact (k'' * k * k' * c = c₁) :=
       { out := (mul_assoc _ _ _).trans ((mul_assoc _ _ _).trans rfl) }
     -- Porting note: `Fact (_ ≤ _)` from an equality is no longer an instance
-    haveI : Fact (c₁ ≤ k'' * k * k' * c) := ⟨hc.out.ge⟩
+    haveI hc₁le : Fact (c₁ ≤ k'' * k * k' * c) := ⟨hc.out.ge⟩
     rcases this (res n₁) ε hε with ⟨i₀, hi₀, y, hy⟩
     rw [res_res, d_res] at hy 
     refine' ⟨i₀, _, hi₀, rfl, _⟩
@@ -67,8 +70,10 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
     exact ⟨m₁, by rw [hm₁, sub_add_cancel]⟩
   have him : i + 2 ≤ m + 2 := add_le_add_right hi _
   have hm₂ : f (M.d (i + 1) (i + 2) m₁) = -M'.d (i + 1) (i + 2) m₁'' := by
-    rw [← d_apply, eq_sub_of_add_eq hm₁, _root_.map_sub, ← CategoryTheory.comp_apply, d_comp_d,
-      coe_zero, ← neg_inj, Pi.zero_apply, zero_sub]
+    -- Porting note: `d_comp_d` rewriting replaced by `d_d`
+    rw [← d_apply, eq_sub_of_add_eq hm₁, _root_.map_sub]
+    show M'.d (i + 1) (i + 2) (M'.d i (i + 1) m') - _ = _
+    rw [d_d, zero_sub]
   have hle : ‖(res (M.d (i + 1) (i + 2) m₁))‖ ≤ K'' * ‖m₁''‖ := by
     calc
       ‖(res (M.d (i + 1) (i + 2) m₁))‖ ≤ K'' * ‖(f (M.d (i + 1) (i + 2) m₁))‖ :=
@@ -102,11 +107,13 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
       mnew₁' = M'.d i (i + 1) (res m' - f m₀) := rfl
       _ = res (M'.d i (i + 1) m') - f (M.d i (i + 1) m₀) := by
         -- Porting note: `rw [map_sub, d_res _, d_apply]` times out in Lean 4
-        refine (map_sub (M'.d i (i + 1)) _ _).trans ?_
+        refine (_root_.map_sub (M'.d i (i + 1)) _ _).trans ?_
         congr 1
-        · exact d_res _ _ _
-        · exact d_apply _ _
-      _ = res (M'.d i (i + 1) m') - f (res m₁) + (f (res m₁) - f (M.d i (i + 1) m₀)) := by abel
+        · exact d_res M' i (i + 1) _ m'
+        · exact d_apply M M' f m₀
+      -- Porting note: type ascriptions added; Lean 4 times out otherwise
+      _ = (res (M'.d i (i + 1) m') : M' (k' * c) (i + 1)) - f (res m₁ : M (k' * c) (i + 1)) +
+            (f (res m₁ : M (k' * c) (i + 1)) - f (M.d i (i + 1) m₀)) := by abel
       _ = res m₁'' + f (res m₁ - M.d i (i + 1) m₀) := by
         rw [← SystemOfComplexes.map_sub, ← res_apply, ← _root_.map_sub, ←
           sub_eq_of_eq_add' hm₁.symm]

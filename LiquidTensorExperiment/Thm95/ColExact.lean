@@ -480,7 +480,8 @@ def fLCComplexAugIso : fLCComplex V _ (augMapStrict r' Λ M N n) ≅ colComplexL
         Iso.op_hom, CategoryTheory.asIso_hom, Functor.op_map]
       simp only [← CategoryTheory.Functor.map_comp, ← op_comp, Quiver.Hom.unop_op]
       congr 2
-      apply SimplicialObject.hom_ext
+      -- Porting note: LTE's `simplicial_object.hom_ext` is `SimplicialObject.hom_ext_augmentedCechNerve`
+      apply SimplicialObject.hom_ext_augmentedCechNerve
       · dsimp only [unop_op]
         let f := FLC_complex_arrow _ (Thm95.augMapStrict r' Λ M N n) (unop c₁)
         rw [← cancel_mono (augmentedCechNerve.leftObjZeroIso f).hom]

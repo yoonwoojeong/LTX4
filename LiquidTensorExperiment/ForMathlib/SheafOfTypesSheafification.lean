@@ -53,26 +53,28 @@ theorem sheafificationAdjunctionTypes_homEquiv_symm_apply (X : Cᵒᵖ ⥤ Type 
       J.sheafifyLift e (by rw [CategoryTheory.isSheaf_iff_isSheaf_of_type]; exact Y.2) :=
   rfl
 
+-- Porting note: computing the simp-lemma keys for this lemma exceeds the default heartbeat limit
+-- (unfolding `sheafificationAdjunctionTypes`); a bounded increase is used.
+set_option maxHeartbeats 400000 in
 @[simp]
 theorem sheafificationAdjunctionTypes_unit_app (X : Cᵒᵖ ⥤ Type max v u) :
     (sheafificationAdjunctionTypes J).unit.app X = J.toSheafify X :=
   rfl
 
+-- Porting note: computing the simp-lemma keys for this lemma exceeds the default heartbeat limit
+-- (unfolding `sheafificationAdjunctionTypes`); a bounded increase is used.
+set_option maxHeartbeats 400000 in
 @[simp]
 theorem sheafificationAdjunctionTypes_counit_app (Y : SheafOfTypes J) :
     ((sheafificationAdjunctionTypes J).counit.app Y).val =
-      J.sheafifyLift (𝟙 _) (by rw [CategoryTheory.isSheaf_iff_isSheaf_of_type]; exact Y.2) :=
+      J.sheafifyLift (𝟙 Y.val) (by rw [CategoryTheory.isSheaf_iff_isSheaf_of_type]; exact Y.2) :=
   rfl
 
 instance isIso_sheafification_types_adjunction_counit_app (X : SheafOfTypes J) :
     IsIso ((sheafificationAdjunctionTypes J).counit.app X) :=
   by
+  -- Porting note: `apply` already closes the remaining goal by instance search
   apply CategoryTheory.isIso_of_reflects_iso _ (sheafEquivSheafOfTypes J).inverse
-  change
-    IsIso
-      ((CategoryTheory.sheafificationAdjunction J (Type max v u)).counit.app
-        ((sheafEquivSheafOfTypes J).inverse.obj X))
-  infer_instance
 
 instance sheafification_types_reflective : IsIso (sheafificationAdjunctionTypes J).counit :=
   NatIso.isIso_of_isIso_app _
