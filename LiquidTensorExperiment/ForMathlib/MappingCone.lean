@@ -19,6 +19,8 @@ open scoped Classical
 
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Pretriangulated
 
+-- Porting note: Lean 3's `@[simp, reassoc]` is `@[reassoc (attr := simp)]` in Lean 4 (`reassoc (attr := simp)`
+-- only adds `simp` to the `_assoc` version).
 namespace HomologicalComplex
 
 variable {V : Type u} [Category.{v} V] [Abelian V]
@@ -390,6 +392,27 @@ def ofTermwiseSplitEpiHomotopy (H : ∀ i, SplitEpi (f'.f i)) :
 
 end ConeFunctorial
 
+-- Porting note: component lemmas for `shiftNegShift` and `shiftShiftNeg` (these were `rfl` in Lean 3)
+theorem shiftNegShift_hom_f (X : CochainComplex V ℤ) (n i : ℤ) :
+    Hom.f (shiftNegShift X n).hom i = (X.xEqToIso (by ring)).hom := by
+  dsimp [shiftNegShift, shiftFunctorCompIsoId, shiftFunctorAdd', shiftFunctorZero, shiftFunctorAdd]
+  simp only [HomologicalComplex.xEqToIso, eqToHom_map, eqToHom_app, eqToIso.hom, HomologicalComplex.eqToHom_f, comp_f, eqToHom_trans, shift_μ_inv_app_f, shift_ε_hom_app_f, shift_ε_inv_app_f, Iso.symm_hom, Iso.trans_inv, Iso.symm_inv, NatTrans.comp_app]
+
+theorem shiftShiftNeg_hom_f (X : CochainComplex V ℤ) (n i : ℤ) :
+    Hom.f (shiftShiftNeg X n).hom i = (X.xEqToIso (by ring)).hom := by
+  dsimp [shiftShiftNeg, shiftFunctorCompIsoId, shiftFunctorAdd', shiftFunctorZero, shiftFunctorAdd]
+  simp only [HomologicalComplex.xEqToIso, eqToHom_map, eqToHom_app, eqToIso.hom, HomologicalComplex.eqToHom_f, comp_f, eqToHom_trans, shift_μ_inv_app_f, shift_ε_hom_app_f, shift_ε_inv_app_f, Iso.symm_hom, Iso.trans_inv, Iso.symm_inv, NatTrans.comp_app]
+
+theorem shiftNegShift_inv_f (X : CochainComplex V ℤ) (n i : ℤ) :
+    Hom.f (shiftNegShift X n).inv i = (X.xEqToIso (by ring)).hom := by
+  rw [← cancel_epi (Hom.f (shiftNegShift X n).hom i), ← comp_f, Iso.hom_inv_id, shiftNegShift_hom_f]
+  simp
+
+theorem shiftShiftNeg_inv_f (X : CochainComplex V ℤ) (n i : ℤ) :
+    Hom.f (shiftShiftNeg X n).inv i = (X.xEqToIso (by ring)).hom := by
+  rw [← cancel_epi (Hom.f (shiftShiftNeg X n).hom i), ← comp_f, Iso.hom_inv_id, shiftShiftNeg_hom_f]
+  simp
+
 section TermwiseSplitMonoLift
 
 @[simps]
@@ -427,6 +450,24 @@ theorem termwise_split_mono_desc_section_aux (i : ℤ) :
   ext1; · simp only [add_zero, Preadditive.add_comp, comp_zero, biprod.inr_fst, Category.assoc]
   ext1 <;> simp
 
+-- Porting note: variant of the previous lemma at `i + 1`, avoiding the non-defeq index `i + 1 - 1 + 1`
+theorem termwise_split_mono_desc_section_aux' (i : ℤ) :
+    𝟙 (B.X (i + 1) ⊞ A.X (i + 1 + 1) ⊞ A.X (i + 1)) =
+      biprod.snd ≫ biprod.desc (𝟙 (A.X (i + 1 + 1))) (A.d (i + 1) (i + 1 + 1)) ≫ biprod.inl ≫ biprod.inr +
+          biprod.snd ≫
+            biprod.snd ≫
+              biprod.inl ≫
+                biprod.lift (biprod.desc (-A.d (i + 1) (i + 1 + 1)) 0)
+                      (biprod.desc (𝟙 (A.X (i + 1))) (A.d i (i + 1))) ≫
+                    biprod.inr +
+        biprod.fst ≫ biprod.inl := by
+  ext1 <;>
+    simp only [zero_comp, Preadditive.comp_add, zero_add, add_zero, biprod.inr_fst_assoc,
+      biprod.inl_fst_assoc, biprod.inl_snd_assoc, biprod.inr_snd_assoc, Category.comp_id]
+  ext1; · simp
+  ext1; · simp only [add_zero, Preadditive.add_comp, comp_zero, biprod.inr_fst, Category.assoc]
+  ext1 <;> simp
+
 def termwiseSplitMonoDescSection (f : A ⟶ B) :
     Homotopy (𝟙 _) (termwiseSplitMonoDesc f ≫ termwiseSplitMonoSection f)
     where
@@ -439,18 +480,17 @@ def termwiseSplitMonoDescSection (f : A ⟶ B) :
     obtain ⟨i, rfl⟩ : ∃ j, j + 1 = i := ⟨i - 1, sub_add_cancel _ _⟩
     have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
     have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
-    rw [termwise_split_mono_desc_section_aux (i + 1)]
+    rw [termwise_split_mono_desc_section_aux' i]
     -- Porting note: `rw` fails to match up to instances; `erw` works
     erw [dNext_eq _ aux₂, prevD_eq _ aux₁]
     rw [dif_pos rfl, dif_pos rfl]
     simp only [sub_add_cancel, biproduct_d, cone_d, xEqToIso_refl, Category.id_comp,
       biprod.map_snd_assoc, Category.assoc, biprod.inr_map, add_left_inj, Cone.d]
-    rw [dif_pos rfl, dif_pos rfl]
-    simp only [id_f, Category.comp_id, biprod.lift_snd_assoc, add_right_inj]
-    ext <;>
-      simp only [biprod.inl_snd_assoc, biprod.inr_snd_assoc, biprod.inr_fst, biprod.lift_fst,
-        biprod.inl_desc, biprod.lift_snd, Category.assoc, zero_comp, comp_zero,
-        Preadditive.comp_neg, xEqToIso_d, xEqToIso_trans, xEqToIso_refl]
+    simp only [dite_true]
+    simp only [id_f, Category.comp_id, biprod.lift_snd_assoc]
+    congr 1
+    erw [biprod.map_snd_assoc, biprod.lift_snd_assoc]
+    rfl
 
 def termwiseSplitMonoLiftSplitMono (f : A ⟶ B) (i : ℤ) : SplitMono ((termwiseSplitMonoLift f).f i)
     where
@@ -498,6 +538,23 @@ def termwiseSplitEpiRetraction (f : A ⟶ B) : biproduct A (cone (𝟙 (B⟦(-1 
 theorem termwiseSplitEpiLift_retraction (f : A ⟶ B) :
     termwiseSplitEpiLift f ≫ termwiseSplitEpiRetraction f = 𝟙 _ := by ext; simp
 
+-- Porting note: the Lean 3 statement mixes `i - 1` and `i + -1`, which Lean 4's `simp` does not
+-- identify; the lemma is first proved with consistent index expressions.
+theorem termwise_split_epi_retraction_lift_aux'' (i : ℤ) :
+    𝟙 (A.X i ⊞ B.X (i + 1 + -1) ⊞ B.X (i + -1)) =
+      biprod.snd ≫ biprod.desc (𝟙 _) (-B.d (i + -1) (i + 1 + -1)) ≫ 𝟙 _ ≫ biprod.inl ≫ biprod.inr +
+          biprod.snd ≫
+            biprod.snd ≫
+              (B⟦(-1 : ℤ)⟧.xEqToIso (sub_add_cancel _ _).symm).hom ≫
+                biprod.inl ≫
+                  biprod.lift (biprod.desc (B.d (i - 1 + 1 + -1) (i + 1 + -1)) 0)
+                      (biprod.desc (B⟦(-1 : ℤ)⟧.xEqToIso <| sub_add_cancel _ _).hom
+                        (-B.d (i - 1 + -1) (i + -1))) ≫
+                    biprod.inr +
+        biprod.fst ≫ biprod.inl :=
+  by
+  ext <;> simp
+
 theorem termwise_split_epi_retraction_lift_aux (i : ℤ) :
     𝟙 (A.X i ⊞ B.X (i + 1 - 1) ⊞ B.X (i - 1)) =
       biprod.snd ≫ biprod.desc (𝟙 _) (-B.d (i + -1) (i + 1 + -1)) ≫ 𝟙 _ ≫ biprod.inl ≫ biprod.inr +
@@ -510,19 +567,7 @@ theorem termwise_split_epi_retraction_lift_aux (i : ℤ) :
                         (-B.d (i - 1 + -1) (i + -1))) ≫
                     biprod.inr +
         biprod.fst ≫ biprod.inl :=
-  by
-  ext1 <;>
-    simp only [Category.comp_id, add_zero, Category.id_comp, Preadditive.comp_add,
-      biprod.inl_snd_assoc, zero_add, zero_comp, biprod.inl_fst_assoc, biprod.inr_fst_assoc,
-      biprod.inr_snd_assoc]
-  ext1; · simp
-  simp only [biprod.inr_desc_assoc, Preadditive.neg_comp_assoc, xEqToIso_shift,
-    biprod.inr_snd_assoc, Preadditive.comp_add, Category.assoc, Preadditive.neg_comp]
-  ext1;
-  ·
-    simp only [add_zero, Preadditive.add_comp, comp_zero, Preadditive.neg_comp, biprod.inr_fst,
-      neg_zero, Category.assoc]
-  ext <;> simp <;> rfl
+  termwise_split_epi_retraction_lift_aux'' i
 
 def termwiseSplitEpiRetractionLift (f : A ⟶ B) :
     Homotopy (𝟙 _) (termwiseSplitEpiRetraction f ≫ termwiseSplitEpiLift f)
@@ -537,26 +582,22 @@ def termwiseSplitEpiRetractionLift (f : A ⟶ B) :
     obtain ⟨i, rfl⟩ : ∃ j, j + 1 = i := ⟨i - 1, sub_add_cancel _ _⟩
     have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
     have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
-    rw [termwise_split_epi_retraction_lift_aux (i + 1)]
-    -- Porting note: `rw` fails to match up to instances; `erw` works
     erw [dNext_eq _ aux₂, prevD_eq _ aux₁]
     rw [dif_pos rfl, dif_pos rfl]
     simp only [sub_add_cancel, biproduct_d, cone_d, xEqToIso_refl, Category.id_comp,
-      biprod.map_snd_assoc, Category.assoc, biprod.inr_map, add_left_inj, Cone.d]
-    rw [dif_pos rfl, dif_pos rfl]
-    simp only [id_f, Category.comp_id, biprod.lift_snd_assoc, add_right_inj]
-    ext <;>
-      simp only [Preadditive.add_comp, Category.assoc, biprod.inr_fst, Preadditive.comp_add,
-        biprod.inl_snd_assoc, biprod.inl_snd, biprod.inr_snd_assoc, biprod.inl_fst,
-        Category.comp_id, biprod.inl_desc, zero_comp, comp_zero, add_zero, biprod.inr_desc,
-        xEqToIso_shift, biprod.lift_fst, xEqToIso_d, shift_d, Int.negOnePow'_neg_one, neg_smul,
-        one_zsmul, neg_neg, biprod.lift_snd, xEqToIso_trans, xEqToIso_refl, zero_add]
-    all_goals rfl
+      biprod.map_snd_assoc, Category.assoc, biprod.inr_map, Cone.d]
+    simp only [dite_true]
+    simp only [id_f, Category.comp_id]
+    ext <;> simp [shift_d, Int.negOnePow'_neg_one]
 
 def termwiseSplitEpiDescSplitEpi (f : A ⟶ B) (i : ℤ) : SplitEpi ((termwiseSplitEpiDesc f).f i)
     where
   section_ := (B.xEqToIso <| eq_add_neg_of_add_eq rfl).hom ≫ biprod.inl ≫ biprod.inr
-  id := by dsimp; simp [cone.out]
+  id := by
+    dsimp
+    simp [cone.out]
+    erw [shiftNegShift_hom_f]
+    simp
 
 instance (f : A ⟶ B) (i : ℤ) : Epi ((termwiseSplitEpiDesc f).f i) :=
   (termwiseSplitEpiDescSplitEpi f i).epi
@@ -576,7 +617,6 @@ def connectingHom (h : ∀ i : ℤ, Splitting (f.f i) (g.f i)) : C ⟶ A⟦(1 : 
     induction r
     dsimp
     rw [← cancel_mono (𝟙 _)]
-    swap; infer_instance
     conv_lhs => rw [← (h _).ι_retraction]
     simp only [Preadditive.comp_neg, one_zsmul, Category.assoc, neg_smul, Preadditive.neg_comp, ←
       f.comm_assoc, (h _).retraction_ι_eq_id_sub_assoc, Preadditive.sub_comp_assoc,
@@ -600,21 +640,28 @@ def homotopyConnectingHomOfSplittings (h h' : ∀ i : ℤ, Splitting (f.f i) (g.
     where
   hom i j := if e : j + 1 = i then (h' i).section ≫ (h i).retraction ≫ (A.xEqToIso e).inv else 0
   comm i := by
-    rw [← cancel_epi (g.f _)]
-    · dsimp
-      obtain ⟨i, rfl⟩ : ∃ j, j + 1 = i := ⟨i - 1, sub_add_cancel _ _⟩
-      have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
-      have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
-      -- Porting note: `rw` fails to match up to instances; `erw` works
+    -- Porting note: the `Epi` instance is provided before rewriting
+    haveI := (h i).epi
+    rw [← cancel_epi (g.f i)]
+    dsimp
+    obtain ⟨i, rfl⟩ : ∃ j, j + 1 = i := ⟨i - 1, sub_add_cancel _ _⟩
+    have aux₁ : (ComplexShape.up ℤ).Rel i (i + 1) := rfl
+    have aux₂ : (ComplexShape.up ℤ).Rel (i + 1) (i + 1 + 1) := rfl
+    -- Porting note: `rw` fails to match up to instances; `erw` works
     erw [dNext_eq _ aux₂, prevD_eq _ aux₁]
     rw [dif_pos rfl, dif_pos rfl]
-      simp only [dNext, prevD, Splitting.π_section_eq_id_sub_assoc, -retraction_x_eq_to_hom,
-        Preadditive.sub_comp_assoc, Category.id_comp, Category.assoc, Hom.comm,
-        Preadditive.sub_comp, Splitting.ι_retraction, Category.comp_id, xEqToIso_refl, shift_d,
-        Int.negOnePow'_one, neg_smul, one_zsmul, Preadditive.comp_neg, Preadditive.comp_add,
-        Hom.comm_assoc, Preadditive.comp_sub, neg_sub, Splitting.ι_retraction_assoc]
-      abel; apply add_comm
-    exact (h i).epi
+    simp only [dNext, prevD, Splitting.π_section_eq_id_sub_assoc,
+      Preadditive.sub_comp_assoc, Category.id_comp, Category.assoc, Hom.comm,
+      Preadditive.sub_comp, Splitting.ι_retraction, Category.comp_id, xEqToIso_refl, shift_d,
+      Int.negOnePow'_one, neg_smul, one_zsmul, Preadditive.comp_neg, Preadditive.comp_add,
+      Hom.comm_assoc, Preadditive.comp_sub, neg_sub, Splitting.ι_retraction_assoc]
+    -- Porting note: `abel` fails in the type `B.X (i + 1) ⟶ (A⟦1⟧).X (i + 1)`, so we generalize the
+    -- morphisms, which live in `B.X (i + 1) ⟶ A.X (i + 1 + 1)`
+    generalize B.d (i + 1) (i + 1 + 1) ≫ (h (i + 1 + 1)).retraction = x
+    generalize B.d (i + 1) (i + 1 + 1) ≫ (h' (i + 1 + 1)).retraction = x'
+    generalize (h (i + 1)).retraction ≫ A.d (i + 1) (i + 1 + 1) = y
+    generalize (h' (i + 1)).retraction ≫ A.d (i + 1) (i + 1 + 1) = y'
+    abel
   zero _ _ h := dif_neg h
 
 @[simps]
@@ -667,7 +714,7 @@ def compNullHomotopicOfRowSplitExact : Homotopy (b' ≫ b) 0 :=
   by
   have H1 := fun i => (H₂ i).splitEpi
   have H2 := fun i => (H₂ i).splitMono
-  have aux := fun i => (H₂ i).shortExact.3
+  have aux := fun i => (H₂ i).shortExact.exact
   let h₁' := (h₂.trans (Homotopy.ofEq (comp_zero : 𝟙 _ ≫ 0 = 0).symm)).symm
   let h₂' := h₃.trans <| Homotopy.ofEq (zero_comp : 0 ≫ 𝟙 _ = 0).symm
   refine'
@@ -687,16 +734,21 @@ end
 def cone.termwiseSplit (i : ℤ) : Splitting ((cone.in f).f i) ((cone.out f).f i)
     where
   iso := biprod.braiding _ _
-  comp_iso_eq_inl := by ext <;> simp [cone.in]
-  iso_comp_snd_eq := by ext <;> simp [cone.out]
+  comp_iso_eq_inl := by
+    apply biprod.hom_ext <;> simp [cone.in]
+  iso_comp_snd_eq := by
+    apply biprod.hom_ext' <;> simp [cone.out]
 
 @[simp]
 theorem cone.termwiseSplit_section (i : ℤ) : (cone.termwiseSplit f i).section = biprod.inl := by
-  delta Splitting.section cone.termwiseSplit; ext <;> dsimp <;> simp
+  dsimp only [Splitting.«section», cone.termwiseSplit]
+  apply biprod.hom_ext <;> simp
 
 @[simp]
 theorem cone.termwiseSplit_retraction (i : ℤ) : (cone.termwiseSplit f i).retraction = biprod.snd :=
-  by delta Splitting.retraction cone.termwiseSplit; dsimp; simp
+  by
+  dsimp only [Splitting.retraction, cone.termwiseSplit]
+  simp
 
 def coneHomotopyEquivAux (c : cone f ⟶ cone f) (h₁ : Homotopy (cone.in f ≫ c) (cone.in f))
     (h₂ : Homotopy (c ≫ cone.out f) (cone.out f)) : Homotopy (𝟙 _) (2 • c - c ≫ c) :=
@@ -704,9 +756,9 @@ def coneHomotopyEquivAux (c : cone f ⟶ cone f) (h₁ : Homotopy (cone.in f ≫
   have : Homotopy ((𝟙 _ - c) ≫ (𝟙 _ - c)) 0 :=
     by
     apply HomologicalComplex.compNullHomotopicOfRowSplitExact (cone.in f) (cone.out f) (cone.termwiseSplit f)
-    · refine' (Homotopy.ofEq _).trans h₂.symm.equivSubZero; simp
-    · refine' (Homotopy.ofEq _).trans h₁.symm.equivSubZero; simp
-  apply Homotopy.equivSubZero.symm _
+    · refine' (Homotopy.ofEq _).trans (Homotopy.equivSubZero h₂.symm); simp
+    · refine' (Homotopy.ofEq _).trans (Homotopy.equivSubZero h₁.symm); simp
+  refine Homotopy.equivSubZero.symm ?_
   refine' (Homotopy.ofEq _).trans this
   simp [two_smul]; abel
 
@@ -736,13 +788,13 @@ theorem cone_triangleₕ_map_iso_of_id (φ : cone.triangleₕ f ⟶ cone.triangl
   have e₃ := φ.comm₃
   rw [h₂, Category.id_comp] at e₂ 
   rw [h₁, CategoryTheory.Functor.map_id, Category.comp_id] at e₃ 
-  erw [← Q.image_preimage φ.hom₃, ← Q.map_comp] at e₂ e₃ 
+  erw [← Functor.image_preimage Q φ.hom₃, ← Functor.map_comp Q] at e₂ e₃ 
   convert
     IsIso.of_iso
       (HomotopyCategory.isoOfHomotopyEquiv
         (HomologicalComplex.coneHomotopyEquiv _ _ (HomotopyCategory.homotopyOfEq _ _ e₂)
           (HomotopyCategory.homotopyOfEq _ _ e₃.symm)))
-  exact (Q.image_preimage _).symm
+  exact (Functor.image_preimage Q _).symm
 
 open CategoryTheory.Triangulated
 
@@ -752,17 +804,17 @@ theorem cone.triangleₕ_isIso {A' B' : CochainComplex V ℤ} {f : A ⟶ B} {f' 
   suffices IsIso φ.hom₃ by exact CategoryTheory.Triangulated.triangle_morphism_isIso _
   have := φ.comm₁
   dsimp at this 
-  rw [← IsIso.eq_comp_inv, Category.assoc, ← IsIso.inv_comp_eq, ← Q.image_preimage (inv φ.hom₁), ←
-    Q.map_comp, ← Q.image_preimage (inv φ.hom₂), ← Q.map_comp] at this 
+  rw [← IsIso.eq_comp_inv, Category.assoc, ← IsIso.inv_comp_eq, ← Functor.image_preimage Q (inv φ.hom₁), ←
+    Functor.map_comp Q, ← Functor.image_preimage Q (inv φ.hom₂), ← Functor.map_comp Q] at this 
   let T := cone.triangleₕMap (HomotopyCategory.homotopyOfEq _ _ this).symm
-  haveI := cone_triangleₕ_map_iso_of_id _ (φ ≫ T) (by simp) (by simp)
-  haveI := cone_triangleₕ_map_iso_of_id _ (T ≫ φ) (by simp) (by simp)
-  haveI : Epi φ.hom₃ := @epi_of_epi _ T.hom₃ φ.hom₃ (show epi (T ≫ φ).hom₃ by infer_instance)
-  use T.hom₃ ≫ inv (φ ≫ T).hom₃
+  haveI : IsIso (φ.hom₃ ≫ T.hom₃) := cone_triangleₕ_map_iso_of_id _ (φ ≫ T) (by simp) (by simp)
+  haveI : IsIso (T.hom₃ ≫ φ.hom₃) := cone_triangleₕ_map_iso_of_id _ (T ≫ φ) (by simp) (by simp)
+  haveI : Epi φ.hom₃ := epi_of_epi T.hom₃ φ.hom₃
+  use T.hom₃ ≫ inv (φ.hom₃ ≫ T.hom₃)
   constructor
   · rw [← Category.assoc]; exact IsIso.hom_inv_id _
   · rw [← cancel_epi φ.hom₃, ← Category.assoc, ← Category.assoc, Category.comp_id, Category.assoc]
-    exact IsIso.hom_inv_id_assoc (φ ≫ T).hom₃ _
+    exact IsIso.hom_inv_id_assoc (φ.hom₃ ≫ T.hom₃) _
 
 instance : IsIso (fromTermwiseSplitMonoLiftTriangleₕ f) :=
   by
@@ -776,13 +828,15 @@ instance : IsIso (fromTermwiseSplitMonoLiftTriangleₕ f) :=
 -- move this
 @[simp]
 theorem cochainComplex_dNext (i : ℤ) (f : ∀ i j, A.X i ⟶ B.X j) :
-    dNext i f = A.d i (i + 1) ≫ f (i + 1) i := by simp only [dNext, AddMonoidHom.mk'_apply];
-  rw [← CochainComplex.next]
+    dNext i f = A.d i (i + 1) ≫ f (i + 1) i := by
+  simp only [dNext, AddMonoidHom.mk'_apply]
+  rw [CochainComplex.next ℤ i]
 
 @[simp]
 theorem cochainComplex_prevD (i : ℤ) (f : ∀ i j, A.X i ⟶ B.X j) :
-    prevD i f = f i (i - 1) ≫ B.d (i - 1) i := by simp only [prevD, AddMonoidHom.mk'_apply];
-  rw [← CochainComplex.prev]
+    prevD i f = f i (i - 1) ≫ B.d (i - 1) i := by
+  simp only [prevD, AddMonoidHom.mk'_apply]
+  rw [CochainComplex.prev ℤ i]
 
 @[simps]
 def termwiseSplitToCone (h : ∀ i, Splitting (f.f i) (g.f i)) : C ⟶ cone f
@@ -790,16 +844,15 @@ def termwiseSplitToCone (h : ∀ i, Splitting (f.f i) (g.f i)) : C ⟶ cone f
   f i := biprod.lift (-(connectingHom f g h).f i) (h i).section
   comm' := by
     rintro i j (rfl : i + 1 = j)
-    have He := fun i => (h i).splitEpi
-    ext
+    -- Porting note: the `Epi` instance is provided before rewriting
+    haveI : Epi (g.f i) := (h i).epi
+    apply biprod.hom_ext
     · dsimp [Cone.d]
-      rw [← cancel_epi (g.f _)]
-      · simp [g.comm, Splitting.π_section_eq_id_sub_assoc]
-      · exact (He _).epi
+      rw [← cancel_epi (g.f i)]
+      simp [g.comm, Splitting.π_section_eq_id_sub_assoc]
     · dsimp [Cone.d]
-      rw [← cancel_epi (g.f _)]
-      · simp [Splitting.π_section_eq_id_sub_assoc, Splitting.π_section_eq_id_sub]
-      · exact (He _).epi
+      rw [← cancel_epi (g.f i)]
+      simp [Splitting.π_section_eq_id_sub_assoc, Splitting.π_section_eq_id_sub]
 
 @[simps]
 def compTermwiseSplitToConeHomotopy (h : ∀ i, Splitting (f.f i) (g.f i)) :
@@ -818,12 +871,11 @@ def compTermwiseSplitToConeHomotopy (h : ∀ i, Splitting (f.f i) (g.f i)) :
     simp only [dite_eq_ite, HomologicalComplex.cochainComplex_prevD, dif_pos, if_true, Category.assoc, cone_d,
       Category.id_comp, add_left_inj, sub_add_cancel, dif_ctx_congr, xEqToIso_refl, Cone.d,
       Preadditive.comp_neg, eq_self_iff_true, HomologicalComplex.cochainComplex_dNext, Preadditive.neg_comp]
-    ext
-    ·
-      simp [cone.in, Splitting.π_section_eq_id_sub_assoc, ← sub_eq_add_neg,
+    apply biprod.hom_ext
+    · simp [cone.in, Splitting.π_section_eq_id_sub_assoc, ← sub_eq_add_neg,
         -retraction_x_eq_to_hom_assoc]
-    ·
-      simp [cone.in, Splitting.retraction_ι_eq_id_sub, ← sub_eq_add_neg,
+      abel
+    · simp [cone.in, Splitting.retraction_ι_eq_id_sub, ← sub_eq_add_neg,
         -retraction_x_eq_to_hom_assoc]
 
 @[simps]
@@ -832,7 +884,7 @@ def coneToTermwiseSplit (h : ∀ i, Splitting (f.f i) (g.f i)) : cone f ⟶ C
   f i := biprod.snd ≫ g.f i
   comm' := by
     rintro i j (rfl : i + 1 = j)
-    ext <;> simp [Cone.d, (h _).comp_eq_zero]
+    apply biprod.hom_ext' <;> simp [Cone.d, (h _).comp_eq_zero]
 
 @[simps]
 def coneToTermwiseSplitCompHomotopy (h : ∀ i, Splitting (f.f i) (g.f i)) :
@@ -901,28 +953,28 @@ def isoConeOfTermwiseSplit (h : ∀ i, Splitting (f.f i) (g.f i)) :
   fapply CategoryTheory.Triangulated.mkTriangleIso
   exact Iso.refl _
   exact Iso.refl _
-  refine' ⟨Q.map (termwiseSplitToCone f g h), Q.map (coneToTermwiseSplit f g h), _, _⟩
-  · dsimp; erw [← Q.map_comp, ← Q.map_id]; congr; ext <;> dsimp; simp
-  · dsimp; erw [← Q.map_comp, ← Q.map_id]; apply HomotopyCategory.eq_of_homotopy
+  refine' ⟨(Q).map (termwiseSplitToCone f g h), (Q).map (coneToTermwiseSplit f g h), _, _⟩
+  · dsimp; erw [← Functor.map_comp Q, ← CategoryTheory.Functor.map_id Q]; congr; ext <;> dsimp; simp
+  · dsimp; erw [← Functor.map_comp Q, ← CategoryTheory.Functor.map_id Q]; apply HomotopyCategory.eq_of_homotopy
     apply HomologicalComplex.isoConeOfTermwiseSplitInvHomHomotopy
   · exact (Category.comp_id _).trans (Category.id_comp _).symm
-  · dsimp; rw [← Q.map_comp, Category.id_comp]
+  · dsimp; rw [← Functor.map_comp Q, Category.id_comp]
     apply HomotopyCategory.eq_of_homotopy; apply HomologicalComplex.compTermwiseSplitToConeHomotopy
-  · dsimp; rw [CategoryTheory.Functor.map_id, Category.comp_id, ← Q.map_neg, ← Q.map_comp]
+  · dsimp; rw [CategoryTheory.Functor.map_id, Category.comp_id, ← CategoryTheory.Functor.map_neg Q, ← Functor.map_comp Q]
     congr; ext; simp [cone.out]
 
 instance : Mono (termwiseSplitMonoLift f) :=
   mono_of_eval _
 
 def termwiseSplitOfTermwiseSplitMono (H : ∀ i, SplitMono (f.f i)) (i : ℤ) :
-    have : Mono f := @mono_of_eval _ _ _ _ _ _ _ f fun i => (H i).mono
-    splitting (f.f i) ((HomologicalComplex.normalMono f).g.f i) :=
+    have : Mono f := haveI := fun i => (H i).mono; HomologicalComplex.mono_of_eval f
+    Splitting (f.f i) ((HomologicalComplex.normalMono f).g.f i) :=
   by
-  apply left_split.splitting
-  dsimp only [normal_mono, cokernel_complex_π]
+  apply LeftSplit.splitting
+  dsimp only [HomologicalComplex.normalMono, cokernelComplexπ]
   constructor
-  exact ⟨(H i).1, (H i).2⟩
-  exact Abelian.exact_cokernel _
+  · exact ⟨(H i).1, (H i).2⟩
+  · exact Abelian.exact_cokernel _
 
 /-- Every neg₃ of a cone triangle is isomorphic to some triangle associated to some
   termwise split sequence -/
@@ -962,8 +1014,9 @@ def isoConnectingHomShiftCone (h : ∀ i, Splitting (f.f i) (g.f i)) :
       (h _).iso ≪≫
         biprod.braiding _ _ ≪≫ Biprod.mapIso (C.xEqToIso (by simp)) (A.xEqToIso (by simp)))
     (by
-      have He := fun i => (h i).splitEpi
       rintro i j (rfl : i + 1 = j)
+      -- Porting note: the `Epi` instance is provided before rewriting
+      haveI : Epi (g.f i) := (h i).epi
       dsimp [Cone.d]
       rw [← cancel_epi (h i).iso.inv]
       simp only [Category.comp_id, Biprod.lift_map, neg_smul_neg, if_true, Iso.inv_hom_id_assoc,
@@ -975,13 +1028,12 @@ def isoConnectingHomShiftCone (h : ∀ i, Splitting (f.f i) (g.f i)) :
           Splitting.comp_iso_eq_inl_assoc, Splitting.inl_comp_iso_eq_assoc,
           Splitting.iso_comp_snd_eq_assoc, eq_self_iff_true, Hom.comm_assoc, zero_add,
           Splitting.iso_hom_fst_assoc, Splitting.inr_iso_inv_assoc, exact_inl_snd]
-      · rw [← cancel_epi (g.f _)]
+      · rw [← cancel_epi (g.f i)]
         simp only [Category.id_comp, Preadditive.sub_comp_assoc, (h _).comp_eq_zero_assoc, sub_zero,
           Category.assoc, comp_zero, Hom.comm, Preadditive.sub_comp, Limits.zero_comp,
           Splitting.π_section_eq_id_sub_assoc, Hom.comm_assoc]
         rw [← xEqToIso_f, x_d_eq_to_iso_assoc]
-        exact (He _).epi
-      · rw [← cancel_epi (g.f _)]
+      · rw [← cancel_epi (g.f i)]
         simp only [Category.comp_id, x_d_eq_to_iso, Category.id_comp, Preadditive.sub_comp_assoc,
           Splitting.π_section_eq_id_sub_assoc, Category.assoc, Hom.comm, Preadditive.sub_comp,
           Splitting.ι_retraction]
@@ -989,31 +1041,40 @@ def isoConnectingHomShiftCone (h : ∀ i, Splitting (f.f i) (g.f i)) :
         simp only [x_d_eq_to_iso_assoc, Category.comp_id, Hom.comm_assoc, retraction_x_eq_to_hom,
           Category.id_comp, Preadditive.sub_comp_assoc, xEqToIso_d_assoc, Splitting.ι_retraction,
           Preadditive.comp_sub, Hom.comm, Preadditive.sub_comp, sub_right_inj, Category.assoc]
-        rw [← retraction_x_eq_to_hom_assoc, xEqToIso_d]
-        exact (He _).epi)
+        rw [← retraction_x_eq_to_hom_assoc, xEqToIso_d])
 
 theorem inv_rotate_iso_cone_triangle_comm₁ (h : ∀ i, Splitting (f.f i) (g.f i)) :
-    (triangleOfTermwiseSplit f g h).nonnegInvRotate.mor₁ ≫ (shiftShiftNeg _ _).inv =
+    (triangleOfTermwiseSplit f g h).nonnegInvRotate.mor₁ ≫ (shiftShiftNeg A (1 : ℤ)).inv =
       𝟙 _ ≫ (cone.triangle (connectingHom f g h⟦(-1 : ℤ)⟧')).mor₁ :=
-  by ext; dsimp; simp; dsimp; simp
+  by
+  simp [Triangle.nonnegInvRotate, triangleOfTermwiseSplit, cone.triangle]
 
 theorem inv_rotate_iso_cone_triangle_comm₂ (h : ∀ i, Splitting (f.f i) (g.f i)) :
     (triangleOfTermwiseSplit f g h).nonnegInvRotate.mor₂ ≫ (isoConnectingHomShiftCone f g h).hom =
-      (shiftShiftNeg _ _).inv ≫ (cone.triangle (connectingHom f g h⟦(-1 : ℤ)⟧')).mor₂ :=
-  by ext <;> dsimp [cone.in] <;> simp
+      (shiftShiftNeg A (1 : ℤ)).inv ≫ (cone.triangle (connectingHom f g h⟦(-1 : ℤ)⟧')).mor₂ :=
+  by
+  ext i
+  dsimp [cone.in]
+  erw [shiftShiftNeg_inv_f]
+  simp [isoConnectingHomShiftCone, Biprod.mapIso]
+  apply biprod.hom_ext <;> simp
 
 theorem inv_rotate_iso_cone_triangle_comm₃ (h : ∀ i, Splitting (f.f i) (g.f i)) :
     (triangleOfTermwiseSplit f g h).nonnegInvRotate.mor₃ ≫ 𝟙 _⟦(1 : ℤ)⟧' =
       (isoConnectingHomShiftCone f g h).hom ≫
         (cone.triangle (connectingHom f g h⟦(-1 : ℤ)⟧')).mor₃ :=
-  by ext; dsimp [cone.out]; simpa
+  by
+  ext
+  dsimp [cone.out]
+  erw [shiftNegShift_inv_f]
+  simp
 
 def invRotateIsoConeTriangle (h : ∀ i, Splitting (f.f i) (g.f i)) :
     (triangleOfTermwiseSplit f g h).nonnegInvRotate ≅
       cone.triangle (connectingHom f g h⟦(-1 : ℤ)⟧') :=
   by
   fapply CategoryTheory.Triangulated.mkTriangleIso
-  exacts [Iso.refl _, (CategoryTheory.shiftShiftNeg _ _).symm, HomologicalComplex.isoConnectingHomShiftCone f g h,
+  exacts [Iso.refl _, (CategoryTheory.shiftShiftNeg A (1 : ℤ)).symm, HomologicalComplex.isoConnectingHomShiftCone f g h,
     inv_rotate_iso_cone_triangle_comm₁ _ _ _, inv_rotate_iso_cone_triangle_comm₂ _ _ _,
     inv_rotate_iso_cone_triangle_comm₃ f g h]
 
