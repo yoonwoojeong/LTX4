@@ -26,8 +26,11 @@ variable {𝒞 : Type _} [Category 𝒞] {r : HomRel 𝒞} [Congruence r]
 
 variable {X Y : 𝒞} {f g : X ⟶ Y}
 
-theorem CompClosure.rel (h : CompClosure r f g) : r f g := by cases h; apply Congruence.compLeft;
-  apply Congruence.compRight; assumption
+theorem CompClosure.rel (h : CompClosure r f g) : r f g := by
+  cases h
+  apply Congruence.compLeft
+  apply Congruence.compRight
+  assumption
 
 end Quotient
 
@@ -41,13 +44,14 @@ variable {C D : HomologicalComplex V c} {f f₁ f₂ g g₁ g₂ : C ⟶ D}
 protected def neg (h : Homotopy f g) : Homotopy (-f) (-g)
     where
   hom := -h.hom
-  zero' i j H := by dsimp; rw [h.zero i j H, neg_zero]
+  zero i j H := by dsimp; rw [h.zero i j H, neg_zero]
   comm i := by simp only [neg_f_apply, AddMonoidHom.map_neg, h.comm, neg_add]
 
 @[simps (config := { fullyApplied := false })]
 def addLeft (f : C ⟶ D) (h : Homotopy g₁ g₂) : Homotopy (f + g₁) (f + g₂) :=
   { h with
-    comm := fun i => by simp only [add_f_apply, h.comm];
+    comm := fun i => by
+      simp only [add_f_apply, h.comm]
       rw [add_comm, add_comm (f.f i), ← add_assoc] }
 
 @[simps (config := { fullyApplied := false })]
@@ -59,7 +63,9 @@ def subLeft (f : C ⟶ D) (h : Homotopy g₁ g₂) : Homotopy (f - g₁) (f - g�
   { h.neg with
     comm := fun i => by
       simp only [h.comm, add_f_apply, neg_f_apply, neg_hom, sub_eq_add_neg, AddMonoidHom.map_neg,
-        add_comm _ (f.f i), ← add_assoc, neg_add] }
+        add_comm _ (f.f i), ← add_assoc, neg_add]
+      -- Porting note: `simp only` no longer closes the goal
+      abel }
 
 @[simps (config := { fullyApplied := false })]
 def subRight (h : Homotopy f₁ f₂) (g : C ⟶ D) : Homotopy (f₁ - g) (f₂ - g) :=
@@ -78,91 +84,29 @@ variable (A B : HomotopyCategory V c)
 theorem quot_mk {A B : HomologicalComplex V c} (f : A ⟶ B) : Quot.mk _ f = (quotient V c).map f :=
   rfl
 
-instance : Zero (A ⟶ B) :=
-  ⟨(quotient V c).map 0⟩
-
-instance : Neg (A ⟶ B) :=
-  ⟨Quot.lift (fun f => (quotient V c).map (-f))
-      fun (f g : A.as ⟶ B.as) (h : Quotient.CompClosure (homotopic V c) f g) =>
-      eq_of_homotopy _ _ h.Rel.some.neg⟩
-
-instance : Add (A ⟶ B) :=
-  ⟨Quot.lift₂ (fun f g => (quotient V c).map (f + g))
-      (fun (f g₁ g₂ : A.as ⟶ B.as) (h : Quotient.CompClosure (homotopic V c) g₁ g₂) =>
-        eq_of_homotopy _ _ (h.Rel.some.addLeft _))
-      fun (f₁ f₂ g : A.as ⟶ B.as) (h : Quotient.CompClosure (homotopic V c) f₁ f₂) =>
-      eq_of_homotopy _ _ (h.Rel.some.addRight g)⟩
-
-instance : Sub (A ⟶ B) :=
-  ⟨Quot.lift₂ (fun f g => (quotient V c).map (f - g))
-      (fun (f g₁ g₂ : A.as ⟶ B.as) (h : Quotient.CompClosure (homotopic V c) g₁ g₂) =>
-        eq_of_homotopy _ _ (h.Rel.some.subLeft _))
-      fun (f₁ f₂ g : A.as ⟶ B.as) (h : Quotient.CompClosure (homotopic V c) f₁ f₂) =>
-      eq_of_homotopy _ _ (h.Rel.some.subRight g)⟩
-
-instance hasNsmul : SMul ℕ (A ⟶ B) :=
-  ⟨fun n => nsmulRec n⟩
-
-instance hasZsmul : SMul ℤ (A ⟶ B) :=
-  ⟨fun n => zsmulRec n⟩
+/-! Porting note: the instances `Zero`, `Neg`, `Add`, `Sub`, `SMul ℕ`, `SMul ℤ`, `AddCommGroup`
+on `A ⟶ B` and `Preadditive (HomotopyCategory V c)` (and `quotient.additive`) were upstreamed to
+mathlib (`CategoryTheory.Quotient.preadditive`); LTE's copies are removed to avoid diamonds. -/
 
 theorem quotient_map_neg {A B : HomologicalComplex V c} (f : A ⟶ B) :
     (quotient V c).map (-f) = -(quotient V c).map f :=
-  rfl
+  Functor.map_neg _
 
 theorem quotient_map_add {A B : HomologicalComplex V c} (f g : A ⟶ B) :
     (quotient V c).map (f + g) = (quotient V c).map f + (quotient V c).map g :=
-  rfl
+  Functor.map_add _
 
 theorem quotient_map_sub {A B : HomologicalComplex V c} (f g : A ⟶ B) :
     (quotient V c).map (f - g) = (quotient V c).map f - (quotient V c).map g :=
-  rfl
+  Functor.map_sub _
 
 theorem quotient_map_nsmul {A B : HomologicalComplex V c} (n : ℕ) (f : A ⟶ B) :
     (quotient V c).map (n • f) = n • (quotient V c).map f :=
-  by
-  induction' n with n ih
-  · rw [zero_smul]; rfl
-  · rw [succ_nsmul, quotient_map_add, ih]; rfl
+  Functor.map_nsmul _
 
 theorem quotient_map_zsmul {A B : HomologicalComplex V c} (n : ℤ) (f : A ⟶ B) :
     (quotient V c).map (n • f) = n • (quotient V c).map f :=
-  by
-  cases n
-  · rw [ofNat_zsmul, quotient_map_nsmul]; rfl
-  · rw [negSucc_zsmul, quotient_map_neg, quotient_map_nsmul]; rfl
-
-instance : AddCommGroup (A ⟶ B) :=
-  Function.Surjective.addCommGroup (fun f => (quotient V c).map f) (surjective_quot_mk _) rfl
-    (fun _ _ => rfl) (fun _ => rfl) (fun _ _ => rfl) (fun f n => quotient_map_nsmul n f) fun f n =>
-    quotient_map_zsmul n f
-
-instance : Preadditive (HomotopyCategory V c)
-    where
-  add_comp X Y Z f₁ f₂ g := by
-    apply Quot.induction_on₃ f₁ f₂ g; clear f₁ f₂ g
-    intro f₁ f₂ g
-    repeat' erw [quot_mk]
-    rw [← quotient_map_add]
-    calc
-      (Quotient V c).map (f₁ + f₂) ≫ (Quotient V c).map g = (Quotient V c).map ((f₁ + f₂) ≫ g) := by
-        rw [(Quotient V c).map_comp]
-      _ = (Quotient V c).map (f₁ ≫ g + f₂ ≫ g) := by rw [Preadditive.add_comp]
-      _ = (Quotient V c).map (f₁ ≫ g) + (Quotient V c).map (f₂ ≫ g) := by rw [quotient_map_add]
-  comp_add X Y Z f g₁ g₂ := by
-    apply Quot.induction_on₃ f g₁ g₂; clear f g₁ g₂
-    intro f g₁ g₂
-    repeat' erw [quot_mk]
-    rw [← quotient_map_add]
-    calc
-      (Quotient V c).map f ≫ (Quotient V c).map (g₁ + g₂) = (Quotient V c).map (f ≫ (g₁ + g₂)) := by
-        rw [(Quotient V c).map_comp]
-      _ = (Quotient V c).map (f ≫ g₁ + f ≫ g₂) := by rw [Preadditive.comp_add]
-      _ = (Quotient V c).map (f ≫ g₁) + (Quotient V c).map (f ≫ g₂) := by rw [quotient_map_add]
-
-instance quotient.additive : (quotient V c).Additive where
-
-deriving instance Full for Quotient
+  Functor.map_zsmul _
 
 open scoped ZeroObject
 
@@ -182,6 +126,13 @@ instance [HasZeroObject V] : HasZeroObject (HomotopyCategory V c) :=
 
 instance shiftFunctor_additive (n : ℤ) :
     (CategoryTheory.shiftFunctor (HomotopyCategory V (ComplexShape.up ℤ)) n).Additive where
+  map_add := by
+    -- Porting note: `aesop_cat` no longer proves this
+    intro X Y f g
+    rw [← quotient_map_out f, ← quotient_map_out g, ← quotient_map_add]
+    erw [HomotopyCategory.shiftFunctor_map_quotient, HomotopyCategory.shiftFunctor_map_quotient,
+      HomotopyCategory.shiftFunctor_map_quotient, ← quotient_map_add]
+    congr 1
 
 end HomotopyCategory
 
@@ -193,13 +144,13 @@ namespace Functor
 def mapHomotopyCategoryComp {W : Type _} [Category W] [Preadditive W] (F : V ⥤ W)
     [Functor.Additive F] (c : ComplexShape ι) :
     F.mapHomologicalComplex c ⋙ HomotopyCategory.quotient W c ≅
-      HomotopyCategory.quotient V c ⋙ Functor.mapHomotopyCategory c F :=
-  NatIso.ofComponents (fun X => eqToIso (by rfl)) fun X Y f =>
+      HomotopyCategory.quotient V c ⋙ Functor.mapHomotopyCategory F c :=
+  NatIso.ofComponents (fun X => eqToIso (by rfl)) fun {X Y} f =>
     by
-    simp only [Functor.comp_map, eq_to_iso_refl, Iso.refl_hom, Category.comp_id,
+    simp only [Functor.comp_map, eqToIso_refl, Iso.refl_hom, Category.comp_id,
       Functor.mapHomotopyCategory_map, Category.id_comp]
-    apply CategoryTheory.Quotient.sound
-    exact Nonempty.intro (F.map_homotopy (HomotopyCategory.homotopyOutMap f)).symm
+    -- Porting note: the `simp only` call above already closes the goal (new definition of
+    -- `Functor.mapHomotopyCategory` in mathlib)
 
 end Functor
 

@@ -16,10 +16,13 @@ variable (C)
 
 -- Category of complexes `X ⟶ Y ⟶ Z`
 def ShortComplex [HasZeroMorphisms C] :=
-  FullSubcategory fun S : ComposableMorphisms C => S.zero
-deriving Category
+  FullSubcategory fun S : ComposableMorphisms C => S.Zero
 
 end
+
+-- Porting note: `deriving Category` is not available for this def in Lean 4; the instance is given by hand.
+instance [HasZeroMorphisms C] : Category (ShortComplex C) :=
+  inferInstanceAs (Category (FullSubcategory fun S : ComposableMorphisms C => S.Zero))
 
 open CategoryTheory
 
@@ -44,6 +47,12 @@ theorem next_comp {X Y Z : HomologicalComplex C c} (f : X ⟶ Y) (g : Y ⟶ Z) (
 end HomologicalComplex
 
 namespace ShortComplex
+
+-- Porting note: Lean 4 `ext` does not see through the full subcategory structure, so we provide an ext lemma.
+@[ext]
+theorem hom_ext [HasZeroMorphisms C] {S₁ S₂ : ShortComplex C} {f g : S₁ ⟶ S₂} (h₁ : f.τ₁ = g.τ₁)
+    (h₂ : f.τ₂ = g.τ₂) (h₃ : f.τ₃ = g.τ₃) : f = g :=
+  ComposableMorphisms.Hom.ext _ _ h₁ h₂ h₃
 
 @[reassoc (attr := simp)]
 theorem zero [HasZeroMorphisms C] (S : ShortComplex C) : S.1.f ≫ S.1.g = 0 :=
@@ -92,34 +101,33 @@ def homMk [HasZeroMorphisms C] {X₁ Y₁ Z₁ X₂ Y₂ Z₂ : C} {f₁ : X₁ 
   ⟨τ₁, τ₂, τ₃, comm₁₂, comm₂₃⟩
 
 @[simps]
-def isoMk [HasZeroMorphisms C] {S₁ S₂ : ShortComplex C} (τ₁ : S₁.1.pt ≅ S₂.1.pt)
-    (τ₂ : S₁.1.y ≅ S₂.1.y) (τ₃ : S₁.1.z ≅ S₂.1.z) (comm₁₂ : S₁.1.f ≫ τ₂.hom = τ₁.hom ≫ S₂.1.f)
+def isoMk [HasZeroMorphisms C] {S₁ S₂ : ShortComplex C} (τ₁ : S₁.1.X ≅ S₂.1.X)
+    (τ₂ : S₁.1.Y ≅ S₂.1.Y) (τ₃ : S₁.1.Z ≅ S₂.1.Z) (comm₁₂ : S₁.1.f ≫ τ₂.hom = τ₁.hom ≫ S₂.1.f)
     (comm₂₃ : S₁.1.g ≫ τ₃.hom = τ₂.hom ≫ S₂.1.g) : S₁ ≅ S₂
     where
   hom := ⟨τ₁.hom, τ₂.hom, τ₃.hom, comm₁₂, comm₂₃⟩
   inv := by
     refine' ⟨τ₁.inv, τ₂.inv, τ₃.inv, _, _⟩
-    ·
-      simp only [← cancel_mono τ₂.hom, ← cancel_epi τ₁.hom, assoc, Iso.inv_hom_id, comp_id,
-        Iso.hom_inv_id_assoc, comm₁₂]
-    ·
-      simp only [← cancel_mono τ₃.hom, ← cancel_epi τ₂.hom, assoc, Iso.inv_hom_id, comp_id,
-        Iso.hom_inv_id_assoc, comm₂₃]
+    · -- Porting note: `simp only [← cancel_mono ..]` makes no progress in Lean 4; use `rw` first.
+      rw [← cancel_mono τ₂.hom, ← cancel_epi τ₁.hom]
+      simp only [assoc, Iso.inv_hom_id, comp_id, Iso.hom_inv_id_assoc, comm₁₂]
+    · rw [← cancel_mono τ₃.hom, ← cancel_epi τ₂.hom]
+      simp only [assoc, Iso.inv_hom_id, comp_id, Iso.hom_inv_id_assoc, comm₂₃]
   hom_inv_id := by
     ext
-    · simpa only [comp_τ₁, hom_mk_τ₁, Iso.hom_inv_id]
-    · simpa only [comp_τ₂, hom_mk_τ₂, Iso.hom_inv_id]
-    · simpa only [comp_τ₃, hom_mk_τ₃, Iso.hom_inv_id]
+    · exact Iso.hom_inv_id τ₁
+    · exact Iso.hom_inv_id τ₂
+    · exact Iso.hom_inv_id τ₃
   inv_hom_id := by
     ext
-    · simpa only [Iso.inv_hom_id, comp_τ₁, hom_mk_τ₁]
-    · simpa only [Iso.inv_hom_id, comp_τ₂, hom_mk_τ₂]
-    · simpa only [Iso.inv_hom_id, comp_τ₃, hom_mk_τ₃]
+    · exact Iso.inv_hom_id τ₁
+    · exact Iso.inv_hom_id τ₂
+    · exact Iso.inv_hom_id τ₃
 
 theorem isIso_of_is_isos [HasZeroMorphisms C] {S₁ S₂ : ShortComplex C} (φ : S₁ ⟶ S₂)
     (h₁ : IsIso φ.τ₁) (h₂ : IsIso φ.τ₂) (h₃ : IsIso φ.τ₃) : IsIso φ :=
   by
-  let e : S₁ ≅ S₂ := iso_mk (CategoryTheory.asIso φ.τ₁) (CategoryTheory.asIso φ.τ₂) (CategoryTheory.asIso φ.τ₃) φ.comm₁₂ φ.comm₂₃
+  let e : S₁ ≅ S₂ := isoMk (CategoryTheory.asIso φ.τ₁) (CategoryTheory.asIso φ.τ₂) (CategoryTheory.asIso φ.τ₃) φ.comm₁₂ φ.comm₂₃
   rcases φ with ⟨τ₁, τ₂, τ₃, comm₁₂, comm₂₂⟩
   exact IsIso.of_iso e
 
@@ -129,10 +137,14 @@ def homology [Abelian C] (S : ShortComplex C) : C :=
 @[simps]
 def homologyFunctor [Abelian C] : ShortComplex C ⥤ C
     where
-  obj X := X.homology'
-  map X Y φ := homology'.map X.2 Y.2 ⟨φ.τ₁, φ.τ₂, φ.comm₁₂.symm⟩ ⟨φ.τ₂, φ.τ₃, φ.comm₂₃.symm⟩ rfl
+  obj X := X.homology
+  map {X Y} φ := homology'.map X.2 Y.2 ⟨φ.τ₁, φ.τ₂, φ.comm₁₂.symm⟩ ⟨φ.τ₂, φ.τ₃, φ.comm₂₃.symm⟩ rfl
   map_id X := by apply homology'.map_id
-  map_comp X Y Z φ ψ := by symm; apply homology'.map_comp
+  map_comp {X Y Z} φ ψ := by
+    symm
+    -- Porting note: `apply` cannot infer the `HasImageMap` instances, so the arguments are given explicitly.
+    exact homology'.map_comp X.2 Y.2 Z.2 ⟨φ.τ₁, φ.τ₂, φ.comm₁₂.symm⟩ ⟨φ.τ₂, φ.τ₃, φ.comm₂₃.symm⟩
+      ⟨ψ.τ₁, ψ.τ₂, ψ.comm₁₂.symm⟩ ⟨ψ.τ₂, ψ.τ₃, ψ.comm₂₃.symm⟩ rfl rfl
 
 variable (C)
 
@@ -157,8 +169,9 @@ def functorHomologicalComplex [HasZeroMorphisms C] {M : Type _} (c : ComplexShap
 @[simps]
 def homologyFunctorIso [Abelian C] {M : Type _} (c : ComplexShape M) (i : M) :
     homology'Functor C c i ≅ functorHomologicalComplex C c i ⋙ ShortComplex.homologyFunctor :=
-  NatIso.ofComponents (fun X => Iso.refl _) fun X Y f => by ext;
-    simpa only [Iso.refl_hom, id_comp, comp_id]
+  NatIso.ofComponents (fun X => Iso.refl _) fun f => by
+    simp only [Iso.refl_hom, id_comp, comp_id]
+    rfl
 
 end ShortComplex
 
@@ -193,7 +206,7 @@ open CategoryTheory
 
 namespace ShortComplex
 
-variable {C}
+-- Porting note: `variable {C}` removed (it is a redundant binder annotation update in Lean 4).
 
 def functorHomologicalComplexMap [Preadditive C] [Preadditive D] (F : C ⥤ D) [F.Additive]
     {M : Type _} (c : ComplexShape M) (i : M) :

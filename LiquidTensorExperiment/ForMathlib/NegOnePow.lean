@@ -36,72 +36,75 @@ namespace Int
 
 -- Porting note: Lean 3 wrote `@has_pow.pow (units ℤ) ℤ _ (-1) n`, which was `(-1 : ℤˣ) ^ n`;
 -- in Lean 4 `^` is `HPow.hPow`, so the definition is stated with `^` to keep the `zpow` API usable.
-def negOnePow (n : ℤ) : ℤ :=
+-- Porting note: Lean 3 LTE's `int.neg_one_pow : ℤ → ℤ` would be `Int.negOnePow`, but mathlib4 now has
+-- `Int.negOnePow : ℤ → ℤˣ` (a different statement), so LTE's function and its lemmas are renamed
+-- `Int.negOnePow'`, `Int.negOnePow'_add`, …
+def negOnePow' (n : ℤ) : ℤ :=
   ((-1 : ℤˣ) ^ n : ℤˣ)
 
 @[simp]
-theorem negOnePow_add (n m : ℤ) : negOnePow (n + m) = negOnePow n * negOnePow m := by
-  delta negOnePow; rw [zpow_add]; simp
+theorem negOnePow'_add (n m : ℤ) : negOnePow' (n + m) = negOnePow' n * negOnePow' m := by
+  delta negOnePow'; rw [zpow_add]; simp
 
 @[simp]
-theorem negOnePow_one : negOnePow 1 = -1 :=
+theorem negOnePow'_one : negOnePow' 1 = -1 :=
   rfl
 
 -- This lemma is provable by `neg_one_pow_neg`, but it is nice to have a rfl-lemma for this.
 -- The priority is thus higher to silence the linter.
 @[simp]
-theorem negOnePow_neg_one : negOnePow (-1) = -1 :=
+theorem negOnePow'_neg_one : negOnePow' (-1) = -1 :=
   rfl
 
 @[simp]
-theorem negOnePow_neg_zero : negOnePow 0 = 1 :=
+theorem negOnePow'_neg_zero : negOnePow' 0 = 1 :=
   rfl
 
-theorem negOnePow_ite (n : ℤ) : negOnePow n = if Even n then 1 else -1 :=
+theorem negOnePow'_ite (n : ℤ) : negOnePow' n = if Even n then 1 else -1 :=
   by
   induction' n using Int.induction_on with n h n h
-  · simp [negOnePow]
+  · simp [negOnePow']
   · simp [h, apply_ite Neg.neg, parity_simps]
-  · rw [sub_eq_add_neg, Int.negOnePow_add]
+  · rw [sub_eq_add_neg, Int.negOnePow'_add]
     simp [h, apply_ite Neg.neg, parity_simps]
 
-theorem negOnePow_even {n : ℤ} (h : Even n) : negOnePow n = 1 := by rw [Int.negOnePow_ite, if_pos h]
+theorem negOnePow'_even {n : ℤ} (h : Even n) : negOnePow' n = 1 := by rw [Int.negOnePow'_ite, if_pos h]
 
-theorem negOnePow_odd {n : ℤ} (h : Odd n) : negOnePow n = -1 := by
-  rw [Int.negOnePow_ite, if_neg (odd_iff_not_even.mp h)]
-
-@[simp]
-theorem negOnePow_bit0 (n : ℤ) : negOnePow (bit0 n) = 1 :=
-  negOnePow_even (even_bit0 n)
+theorem negOnePow'_odd {n : ℤ} (h : Odd n) : negOnePow' n = -1 := by
+  rw [Int.negOnePow'_ite, if_neg (odd_iff_not_even.mp h)]
 
 @[simp]
-theorem negOnePow_bit1 (n : ℤ) : negOnePow (bit1 n) = -1 :=
-  negOnePow_odd (odd_bit1 n)
+theorem negOnePow'_bit0 (n : ℤ) : negOnePow' (bit0 n) = 1 :=
+  negOnePow'_even (even_bit0 n)
 
-theorem negOnePow_eq_pow_abs (n : ℤ) : negOnePow n = (-1) ^ n.natAbs :=
+@[simp]
+theorem negOnePow'_bit1 (n : ℤ) : negOnePow' (bit1 n) = -1 :=
+  negOnePow'_odd (odd_bit1 n)
+
+theorem negOnePow'_eq_pow_abs (n : ℤ) : negOnePow' n = (-1) ^ n.natAbs :=
   by
-  rw [Int.negOnePow_ite]
-  convert (Int.negOnePow_ite n.natAbs).symm using 2
+  rw [Int.negOnePow'_ite]
+  convert (Int.negOnePow'_ite n.natAbs).symm using 2
   -- Porting note: Lean 4's `simp` normalises `↑n.natAbs` to `|n|`, so these need the `abs` lemmas
   · simp [parity_simps, even_abs]
-  · delta negOnePow; rw [zpow_coe_nat]; simp
+  · delta negOnePow'; rw [zpow_coe_nat]; simp
 
-theorem negOnePow_eq_neg_one_npow (n : ℕ) : negOnePow n = (-1) ^ n := by delta negOnePow; simp
-
-@[simp]
-theorem negOnePow_neg (n : ℤ) : negOnePow (-n) = negOnePow n := by
-  simp [Int.negOnePow_ite, parity_simps]
+theorem negOnePow'_eq_neg_one_npow (n : ℕ) : negOnePow' n = (-1) ^ n := by delta negOnePow'; simp
 
 @[simp]
-theorem negOnePow_sub (n m : ℤ) : negOnePow (n - m) = negOnePow n * negOnePow m := by
-  rw [sub_eq_neg_add, Int.negOnePow_add, Int.negOnePow_neg, mul_comm]
+theorem negOnePow'_neg (n : ℤ) : negOnePow' (-n) = negOnePow' n := by
+  simp [Int.negOnePow'_ite, parity_simps]
 
 @[simp]
-theorem negOnePow_hMul_self (n : ℤ) : negOnePow n * negOnePow n = 1 := by delta negOnePow; simp
+theorem negOnePow'_sub (n m : ℤ) : negOnePow' (n - m) = negOnePow' n * negOnePow' m := by
+  rw [sub_eq_neg_add, Int.negOnePow'_add, Int.negOnePow'_neg, mul_comm]
 
 @[simp]
-theorem negOnePow_smul_self {α : Type _} [AddCommGroup α] (n : ℤ) (X : α) :
-    negOnePow n • negOnePow n • X = X := by simp [smul_smul]
+theorem negOnePow'_hMul_self (n : ℤ) : negOnePow' n * negOnePow' n = 1 := by delta negOnePow'; simp
+
+@[simp]
+theorem negOnePow'_smul_self {α : Type _} [AddCommGroup α] (n : ℤ) (X : α) :
+    negOnePow' n • negOnePow' n • X = X := by simp [smul_smul]
 
 open CategoryTheory
 
@@ -110,17 +113,17 @@ variable {A : Type _} [Category A] [Preadditive A]
 @[simps]
 def negOnePowSmulIso (n : ℤ) {X Y : A} (e : X ≅ Y) : X ≅ Y
     where
-  hom := n.negOnePow • e.hom
-  inv := n.negOnePow • e.inv
+  hom := n.negOnePow' • e.hom
+  inv := n.negOnePow' • e.inv
 
 @[simps]
 def negOnePowArrowIsoLeft (n : ℤ) {X Y : A} (f : X ⟶ Y) :
-    Arrow.mk f ≅ Arrow.mk (n.negOnePow • f) :=
+    Arrow.mk f ≅ Arrow.mk (n.negOnePow' • f) :=
   Arrow.isoMk (n.negOnePowSmulIso (Iso.refl _)) (Iso.refl _) (by dsimp; simp)
 
 @[simps]
 def negOnePowArrowIsoRight (n : ℤ) {X Y : A} (f : X ⟶ Y) :
-    Arrow.mk f ≅ Arrow.mk (n.negOnePow • f) :=
+    Arrow.mk f ≅ Arrow.mk (n.negOnePow' • f) :=
   Arrow.isoMk (Iso.refl _) (n.negOnePowSmulIso (Iso.refl _)) (by dsimp; simp)
 
 end Int

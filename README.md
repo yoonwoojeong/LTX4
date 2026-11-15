@@ -172,10 +172,16 @@ in doubt it was checked with Lean 3 itself (e.g. `nnreal.fact_two_pow_inv_le_two
 
 Apache 2.0, as the original project (see `LICENSE`).
 
+### Upstreamed to mathlib (LTE copy removed)
+
+* `quotient_map.homeomorph` → mathlib4 `QuotientMap.homeomorph` (same statement).
+* `category_theory.functor.map_is_zero` → mathlib4 `CategoryTheory.Functor.map_isZero` (more general).
+
 ### Renamed because of later mathlib declarations
 
 | Lean 3 LTE name | Lean 4 name | reason |
 |---|---|---|
 | `category_theory.simplicial_object.hom_ext` | `CategoryTheory.SimplicialObject.hom_ext_augmentedCechNerve` | mathlib4's `SimplicialObject.hom_ext` has a different statement |
 | `category_theory.cover_dense.Sheaf_equiv_of_cover_preserving_cover_lifting_sheafification_compatibility` | `CategoryTheory.Functor.IsCoverDense.sheafEquivOfCoverPreservingCoverLiftingSheafificationCompatibility'` | upstreamed to mathlib4 under the unprimed name, with instance arguments |
+| `int.neg_one_pow` and its lemmas (`int.neg_one_pow_add`, …) | `Int.negOnePow'`, `Int.negOnePow'_add`, … | mathlib4's `Int.negOnePow : ℤ → ℤˣ` has a different type (LTE's is `ℤ → ℤ`) |
 | `system_of_double_complexes.normed_spectral.K₀`, `one_le_K₀` | `…NormedSpectral.K₀`, `one_le_K₀` (kept) | mathport mapped both `k₀` and `K₀` to `k₀` |

@@ -518,7 +518,7 @@ def termwiseSplitEpiRetractionLift (f : A ⟶ B) :
       simp only [Preadditive.add_comp, Category.assoc, biprod.inr_fst, Preadditive.comp_add,
         biprod.inl_snd_assoc, biprod.inl_snd, biprod.inr_snd_assoc, biprod.inl_fst,
         Category.comp_id, biprod.inl_desc, zero_comp, comp_zero, add_zero, biprod.inr_desc,
-        X_eq_to_iso_shift, biprod.lift_fst, X_eq_to_iso_d, shift_d, Int.negOnePow_neg_one, neg_smul,
+        X_eq_to_iso_shift, biprod.lift_fst, X_eq_to_iso_d, shift_d, Int.negOnePow'_neg_one, neg_smul,
         one_zsmul, neg_neg, biprod.lift_snd, X_eq_to_iso_trans, X_eq_to_iso_refl, zero_add]
     all_goals rfl
 
@@ -579,7 +579,7 @@ def homotopyConnectingHomOfSplittings (h h' : ∀ i : ℤ, Splitting (f.f i) (g.
       simp only [dNext, prevD, splitting.π_section_eq_id_sub_assoc, -retraction_X_eq_to_hom,
         Preadditive.sub_comp_assoc, Category.id_comp, Category.assoc, hom.comm,
         Preadditive.sub_comp, splitting.ι_retraction, Category.comp_id, X_eq_to_iso_refl, shift_d,
-        Int.negOnePow_one, neg_smul, one_zsmul, Preadditive.comp_neg, Preadditive.comp_add,
+        Int.negOnePow'_one, neg_smul, one_zsmul, Preadditive.comp_neg, Preadditive.comp_add,
         hom.comm_assoc, Preadditive.comp_sub, neg_sub, splitting.ι_retraction_assoc]
       abel; apply add_comm
     exact (h i).Epi
@@ -817,7 +817,7 @@ def coneToTermwiseSplitCompHomotopy (h : ∀ i, Splitting (f.f i) (g.f i)) :
       dif_pos rfl, dif_pos rfl]
     simp only [Category.comp_id, dite_eq_ite, HomologicalComplex.cochainComplex_prevD, cone.out, dif_pos, if_true,
       add_left_inj, sub_add_cancel, Cone.d, shift_d, dif_ctx_congr, Preadditive.comp_neg,
-      eq_self_iff_true, Int.negOnePow_one, HomologicalComplex.cochainComplex_dNext, one_zsmul, Category.assoc,
+      eq_self_iff_true, Int.negOnePow'_one, HomologicalComplex.cochainComplex_dNext, one_zsmul, Category.assoc,
       X_eq_to_iso_d, neg_neg, neg_smul, biprod.lift_snd_assoc, X_eq_to_iso_refl, cone_d,
       Preadditive.neg_comp]
     ext <;>-- This is simp [splitting.π_section_eq_id_sub_assoc, sub_eq_add_neg]

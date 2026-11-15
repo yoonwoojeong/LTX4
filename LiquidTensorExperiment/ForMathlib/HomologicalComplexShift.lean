@@ -55,7 +55,7 @@ theorem ComplexShape.up_add_right_cancel {α : Type _} [AddCancelCommMonoid α] 
 def shiftFunctor (n : ℤ) : CochainComplex V ℤ ⥤ CochainComplex V ℤ where
   obj X :=
     { X := fun i => X.X (i + n)
-      d := fun i j => n.negOnePow • X.d _ _
+      d := fun i j => n.negOnePow' • X.d _ _
       shape := fun i j h => by
         dsimp only
         rw [X.shape (i + n) (j + n), smul_zero]
@@ -123,7 +123,7 @@ theorem shift_x (X : CochainComplex V ℤ) (n m : ℤ) : X⟦n⟧.X m = X.X (m +
 
 @[simp]
 theorem shift_d (X : CochainComplex V ℤ) (n i j : ℤ) :
-    X⟦n⟧.d i j = n.negOnePow • X.d (i + n) (j + n) :=
+    X⟦n⟧.d i j = n.negOnePow' • X.d (i + n) (j + n) :=
   rfl
 
 @[simp]
@@ -140,7 +140,7 @@ variable {V}
 
 def homotopyShift {X Y : CochainComplex V ℤ} {f g : X ⟶ Y} (h : Homotopy f g) (n : ℤ) :
     Homotopy (f⟦n⟧') (g⟦n⟧') where
-  hom i j := n.negOnePow • h.hom _ _
+  hom i j := n.negOnePow' • h.hom _ _
   zero i j r := by rw [← ComplexShape.up_add_right_cancel n] at r ; simp [h.zero _ _ r]
   comm i := by
     -- Porting note: reproved using `dNext_eq` and `prevD_eq` (the `delta` approach of Lean 3 does not work)

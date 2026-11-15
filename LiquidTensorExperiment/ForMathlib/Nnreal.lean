@@ -16,9 +16,10 @@ theorem NNReal.div_le_div_left_of {a b c : ℝ≥0} (w : 0 < c) (h : c ≤ b) : 
   change 0 < c at w 
   change c ≤ b at h 
   by_cases p : 0 < a
-  · rw [div_le_div_left p (lt_of_lt_of_le w h) w]
+  · -- Porting note: `_root_` needed since we are inside the `NNReal` namespace
+    rw [_root_.div_le_div_left p (lt_of_lt_of_le w h) w]
     exact h
-  · have q : a = 0; linarith
+  · have q : a = 0 := by linarith
     subst q
     simp
 
@@ -35,13 +36,13 @@ theorem NNReal.summable_symm {α β : Type _} (F : α → β → ℝ≥0)
   use a
   rw [← ENNReal.hasSum_coe]
   convert_to HasSum (fun n => ∑' k, (F n k : ℝ≥0∞)) a
-  · ext1 n
+  · funext n
     exact ENNReal.coe_tsum (h_rows n)
   · rw [ENNReal.hasSum_comm]
     rw [← ENNReal.hasSum_coe] at ha 
     convert ha
-    ext1 k
-    exact (ENNReal.coe_tsum (h_cols k)).symm
+    -- Porting note: `convert` already introduced the point
+    exact (ENNReal.coe_tsum (h_cols _)).symm
 
 open NNReal
 
@@ -51,23 +52,31 @@ theorem NNReal.summable_of_comp_injective {α β : Type _} {f : α → ℝ≥0} 
   rw [← summable_coe] at hfi ⊢
   let e : β ≃ ({x : α | x ∈ Set.range i} : Set α) :=
     { toFun := fun b => ⟨i b, b, rfl⟩
-      invFun := fun x => x.2.some
-      left_inv := by intro b; simp; apply hi; exact Exists.choose_spec (⟨b, rfl⟩ : ∃ y, i y = i b)
-      right_inv := by rintro ⟨x, b, rfl⟩; simp;
+      invFun := fun x => x.2.choose
+      left_inv := by
+        intro b
+        simp
+        apply hi
+        exact Exists.choose_spec (⟨b, rfl⟩ : ∃ y, i y = i b)
+      right_inv := by
+        rintro ⟨x, b, rfl⟩
+        simp
         exact Exists.choose_spec (⟨b, rfl⟩ : ∃ y, i y = i b) }
   have this2 : Summable ((fun x : { x : α // x ∈ Set.range i } => (f x.1 : ℝ)) ∘ ⇑e : β → ℝ) :=
     by
     convert (summable_congr _).1 hfi
     intro b; rfl
   rw [e.summable_iff] at this2 
-  change Summable ((fun a => (f a : ℝ)) ∘ (coe : { x // x ∈ Set.range i } → α)) at this2 
+  change Summable ((fun a => (f a : ℝ)) ∘ (Subtype.val : { x // x ∈ Set.range i } → α)) at this2 
   rw [← this2.summable_compl_iff]
   convert summable_zero
-  ext1 ⟨x, hx⟩
+  -- Porting note: `convert` already introduced the point
+  rename_i x
+  obtain ⟨x, hx⟩ := x
   simp [hi' x hx]
 
 theorem NNReal.summable_subtype {β : Type _} {f : β → ℝ≥0} (hf : Summable f) (s : Set β) :
-    Summable (f ∘ (coe : s → β)) := by
+    Summable (f ∘ (Subtype.val : s → β)) := by
   rw [← summable_coe] at hf ⊢
   exact hf.subtype s
 
@@ -75,7 +84,7 @@ theorem NNReal.hMul_le_hMul_right {a b : ℝ≥0} (h : a ≤ b) (c : ℝ≥0) : 
   by
   suffices (a : ℝ) * c ≤ b * c by assumption_mod_cast
   apply mul_le_mul_of_nonneg_right (by assumption_mod_cast)
-  apply zero_le'
+  exact NNReal.coe_nonneg c
 
 theorem NNReal.hMul_le_hMul_left {a b : ℝ≥0} (h : a ≤ b) (c : ℝ≥0) : c * a ≤ c * b := by
   simpa [mul_comm] using NNReal.hMul_le_hMul_right h c
@@ -114,8 +123,9 @@ theorem NNReal.pow_log_div_log_self {r : ℝ} {s : ℝ} (hr : 0 < r) (hs : 0 < s
   apply Real.injective_log (Real.rpow_pos_of_pos hs _) hr
   rw [Real.log_rpow hs]
   rw [← eq_div_iff]
-  apply mt (fun h => _) hs'
-  rw [Real.log_eq_zero] at h 
+  apply mt _ hs'
+  intro h
+  rw [Real.log_eq_zero] at h
   rcases h with (h | h | h) <;> linarith
 
 theorem NNReal.div_inv {a b : ℝ≥0} : a / b⁻¹ = a * b :=
@@ -126,14 +136,15 @@ theorem NNReal.div_inv {a b : ℝ≥0} : a / b⁻¹ = a * b :=
 
 theorem NNReal.tsum_le_tsum {X : Type _} {f g : X → ℝ≥0} (hle : ∀ x, f x ≤ g x)
     (hsummable : Summable g) : ∑' x, f x ≤ ∑' x, g x :=
-  tsum_le_tsum hle (summable_of_le hle hsummable) hsummable
+  _root_.tsum_le_tsum hle (NNReal.summable_of_le hle hsummable) hsummable
 
 theorem NNReal.summable_iff_summable_nnnorm {X : Type _} {f : X → ℝ} :
     Summable f ↔ Summable fun x => ‖f x‖₊ :=
   by
-  rw [← summable_norm_iff]
+  -- Porting note: `summable_norm_iff` needs an extra import; use `summable_abs_iff` instead
   rw [← summable_coe]
-  congr
+  simp only [coe_nnnorm, Real.norm_eq_abs]
+  exact summable_abs_iff.symm
 
 theorem NNReal.le_zero_iff {a : ℝ≥0} : a ≤ 0 ↔ a = 0 :=
   le_bot_iff
@@ -149,7 +160,7 @@ theorem NNReal.inv_lt_of_inv_lt {a b : ℝ≥0} (ha : a ≠ 0) (hab : a⁻¹ < b
   by
   suffices : (b : ℝ)⁻¹ < a
   exact_mod_cast this
-  apply inv_lt_of_inv_lt
+  apply _root_.inv_lt_of_inv_lt
   · norm_cast
     rwa [zero_lt_iff]
   · exact_mod_cast hab

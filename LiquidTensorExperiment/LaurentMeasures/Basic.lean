@@ -20,6 +20,9 @@ noncomputable section
 
 open scoped BigOperators NNReal Classical
 
+-- Porting note: needed for the scoped notation `𝟙`, `≫`, ...
+open CategoryTheory
+
 /-
 structure c_measures (r : ℝ≥0) (c : ℝ≥0) (S : Fintype) :=
 (toFun     : S → ℤ → ℤ)
@@ -52,7 +55,7 @@ theorem ext (F G : ℒ S) : (F : S → ℤ → ℤ) = G → F = G := by intro h;
 theorem ext_iff (F G : ℒ S) : F = G ↔ ∀ s n, F s n = G s n :=
   ⟨fun h => by intros <;> rw [h], fun h => LaurentMeasures.ext F G <| by ext <;> apply h⟩
 
-protected theorem nNReal_summable (F : ℒ S) (s : S) :
+protected theorem nnreal_summable (F : ℒ S) (s : S) :
     Summable fun n => ‖F s n‖₊ * r ^ n :=
   F.2 _
 
@@ -65,24 +68,24 @@ theorem nonneg_of_norm_hMul_zpow (k n : ℤ) (r : ℝ≥0) : 0 ≤ ‖k‖ * (r 
   mul_nonneg (norm_nonneg _) (zpow_nonneg (NNReal.coe_nonneg _) _)
 
 def map (f : S ⟶ S') : ℒ S → ℒ S' := fun F =>
-  { toFun := fun s' k => ∑ s in Finset.univ.filterₓ fun t => f t = s', F s k
+  { toFun := fun s' k => ∑ s in Finset.univ.filter fun t => f t = s', F s k
     summable' := by
       intro s'
       have :
         ∀ n : ℤ,
-          ‖∑ s in finset.univ.filter fun t => f t = s', F s n‖₊ * r ^ n ≤
-            ∑ s in finset.univ.filter fun t => f t = s', ‖F s n‖₊ * r ^ n :=
+          ‖∑ s in Finset.univ.filter fun t => f t = s', F s n‖₊ * r ^ n ≤
+            ∑ s in Finset.univ.filter fun t => f t = s', ‖F s n‖₊ * r ^ n :=
         fun n =>
         calc
-          ‖∑ s in finset.univ.filter fun t => f t = s', F s n‖₊ * r ^ n ≤
-              (∑ s in finset.univ.filter fun t => f t = s', ‖F s n‖₊) * r ^ n :=
+          ‖∑ s in Finset.univ.filter fun t => f t = s', F s n‖₊ * r ^ n ≤
+              (∑ s in Finset.univ.filter fun t => f t = s', ‖F s n‖₊) * r ^ n :=
             mul_le_mul' (nnnorm_sum_le _ _) le_rfl
           _ = _ := by rw [Finset.sum_mul]
       exact NNReal.summable_of_le this (summable_sum fun (s : S) _ => F.nnreal_summable s) }
 
 @[simp]
 theorem map_apply (f : S ⟶ S') (F : ℒ S) (s' : S') (k : ℤ) :
-    map f F s' k = ∑ s in Finset.univ.filterₓ fun t => f t = s', F s k :=
+    map f F s' k = ∑ s in Finset.univ.filter fun t => f t = s', F s k :=
   rfl
 
 @[simp]
@@ -100,7 +103,7 @@ theorem map_comp {S'' : FintypeCat.{u}} (f : S ⟶ S') (g : S' ⟶ S'') :
   simp only [Function.comp_apply, map_apply, Finset.sum_congr]
   rw [← Finset.sum_biUnion]
   · apply Finset.sum_congr
-    · change (finset.univ.filter fun t => g (f t) = s) = _
+    · change (Finset.univ.filter fun t => g (f t) = s) = _
       ext i
       constructor <;>
         · intro hi;
@@ -153,7 +156,7 @@ theorem neg_apply (F : ℒ S) (s : S) (n : ℤ) : (-F) s n = -F s n :=
 
 def sub : ℒ S → ℒ S → ℒ S := fun F G =>
   { toFun := F - G
-    summable' := (add F (neg G)).nNReal_summable }
+    summable' := (add F (neg G)).nnreal_summable }
 
 instance : Sub (ℒ S) :=
   ⟨sub⟩
@@ -169,28 +172,28 @@ example (a m : ℤ) : -a * m = a * -m :=
 instance : ContinuousSMul ℕ ℝ≥0 where
   continuous_smul :=
     by
-    let f : ℕ × ℝ≥0 → ℝ≥0 × ℝ≥0 := Prod.map coe id
+    let f : ℕ × ℝ≥0 → ℝ≥0 × ℝ≥0 := Prod.map (Nat.cast : ℕ → ℝ≥0) id
     have hf : Continuous f := Continuous.prod_map continuous_bot continuous_id
     simpa only [nsmul_eq_mul] using continuous_mul.comp hf
 
 -- move me
 @[simp]
-theorem Int.norm_hMul (m n : ℤ) : ‖m * n‖ = ‖m‖ * ‖n‖ := by
+theorem _root_.Int.norm_hMul (m n : ℤ) : ‖m * n‖ = ‖m‖ * ‖n‖ := by
   simp only [Int.norm_eq_abs, Int.cast_mul, abs_mul]
 
 -- move me
 @[simp]
-theorem Int.nnnorm_hMul (m n : ℤ) : ‖m * n‖₊ = ‖m‖₊ * ‖n‖₊ := by
-  ext <;> simp only [coe_nnnorm, Int.norm_hMul, Nonneg.coe_mul]
+theorem _root_.Int.nnnorm_hMul (m n : ℤ) : ‖m * n‖₊ = ‖m‖₊ * ‖n‖₊ := by
+  ext <;> simp only [coe_nnnorm, Int.norm_hMul, NNReal.coe_mul]
 
 -- move me
 @[simp]
-theorem Nat.norm_coe_int (n : ℕ) : ‖(n : ℤ)‖ = n := by
+theorem _root_.Nat.norm_coe_int (n : ℕ) : ‖(n : ℤ)‖ = n := by
   simp only [Int.norm_eq_abs, Int.cast_ofNat, Nat.abs_cast]
 
 -- move me
 @[simp]
-theorem Nat.nnnorm_coe_int (n : ℕ) : ‖(n : ℤ)‖₊ = n := by
+theorem _root_.Nat.nnnorm_coe_int (n : ℕ) : ‖(n : ℤ)‖₊ = n := by
   ext <;> simp only [coe_nnnorm, Nat.norm_coe_int, NNReal.coe_nat_cast]
 
 instance : AddCommMonoid (ℒ S) :=
@@ -208,8 +211,8 @@ instance : AddCommMonoid (ℒ S) :=
           by
           have := @Summable.const_smul _ _ _ _ _ _ _ _ _ n (F.nnreal_summable s)
           simpa only [nsmul_eq_mul, Int.nnnorm_hMul, Nat.nnnorm_coe_int, mul_assoc] }
-    nsmul_zero := fun F => by ext; rfl
-    nsmul_succ := fun n F => by ext; rfl }
+    nsmul_zero := fun F => by ext; simp
+    nsmul_succ := fun n F => by ext; simp [succ_nsmul', add_mul] }
 
 instance : AddCommGroup (ℒ S) :=
   {-- aahrg, why is `n.nat_abs` an implicit variable here???
@@ -226,9 +229,11 @@ instance : AddCommGroup (ℒ S) :=
           have := @Summable.const_smul _ _ _ _ _ _ _ _ _ n.natAbs (F.nnreal_summable s)
           simpa only [nsmul_eq_mul, NNReal.coe_natAbs, Algebra.id.smul_eq_mul, Int.nnnorm_hMul,
             mul_assoc] }
-    zsmul_zero' := fun F => by ext;
+    zsmul_zero' := fun F => by
+      ext
       simp only [Algebra.id.smul_eq_mul, MulZeroClass.zero_mul, coe_mk, zero_apply]
-    zsmul_succ' := fun n F => by ext;
+    zsmul_succ' := fun n F => by
+      ext
       simp only [add_apply, Int.ofNat_succ, Int.ofNat_eq_coe, zsmul_eq_smul, smul_eq_mul, add_mul,
         add_comm, one_mul, coe_mk]
     zsmul_neg' := fun n F => by
@@ -236,7 +241,7 @@ instance : AddCommGroup (ℒ S) :=
       simp only [neg_apply, Int.ofNat_succ, Int.ofNat_eq_coe, Int.negSucc_coe, add_comm,
         zsmul_eq_smul, smul_eq_mul]
       dsimp; ring_nf
-    add_left_neg := fun F => by ext; simp only [zero_apply, add_apply, neg_apply, add_left_neg]
+    add_left_neg := fun F => by ext; exact add_left_neg _
     add_comm := fun a b => by ext; dsimp; rw [add_comm] }
 
 instance : Norm (ℒ S) :=
@@ -252,9 +257,9 @@ theorem nnnorm_def (F : ℒ S) : ‖F‖₊ = ∑ s, ∑' n, ‖F s n‖₊ * r 
   rfl
 
 @[simp]
-theorem coe_nnnorm (F : ℒ S) : (‖F‖(₊ : ℝ) = )‖F‖ := by
-  simp only [nnnorm_def, norm_def, NNReal.coe_sum, NNReal.coe_tsum, Nonneg.coe_mul, coe_nnnorm,
-    NNReal.coe_zpow]
+theorem coe_nnnorm (F : ℒ S) : ((‖F‖₊ : ℝ) = ‖F‖) := by
+  simp only [nnnorm_def, norm_def, NNReal.coe_sum, NNReal.coe_tsum, NNReal.coe_mul,
+    _root_.coe_nnnorm, NNReal.coe_zpow]
 
 @[simp]
 theorem LaurentMeasures.norm_nonneg (F : ℒ S) : 0 ≤ ‖F‖ := by
@@ -262,7 +267,7 @@ theorem LaurentMeasures.norm_nonneg (F : ℒ S) : 0 ≤ ‖F‖ := by
 
 @[simp]
 theorem nnnorm_neg (F : ℒ S) : ‖-F‖₊ = ‖F‖₊ := by
-  simp only [nnnorm_def, neg_apply, nnnorm_neg]
+  simp only [nnnorm_def, neg_apply, _root_.nnnorm_neg]
 
 theorem nnnorm_add (F G : ℒ S) : ‖F + G‖₊ ≤ ‖F‖₊ + ‖G‖₊ :=
   by
@@ -271,7 +276,7 @@ theorem nnnorm_add (F G : ℒ S) : ‖F + G‖₊ ≤ ‖F‖₊ + ‖G‖₊ :=
   rintro s -
   rw [← tsum_add (F.nnreal_summable _) (G.nnreal_summable _)]
   refine'
-    tsum_le_tsum _ ((F + G).nNReal_summable _) ((F.nnreal_summable s).add (G.nnreal_summable s))
+    tsum_le_tsum _ ((F + G).nnreal_summable _) ((F.nnreal_summable s).add (G.nnreal_summable s))
   intro b
   simp [← add_mul]
   refine' mul_le_mul' (nnnorm_add_le _ _) le_rfl
@@ -294,26 +299,26 @@ open Finset
 theorem map_bound (f : S ⟶ S') (F : ℒ S) : ‖map f F‖₊ ≤ ‖F‖₊ :=
   calc
     ‖map f F‖₊ =
-        ∑ s', ∑' n, ‖∑ s in univ.filterₓ fun t => f t = s', F s n‖₊ * _ :=
+        ∑ s', ∑' n, ‖∑ s in univ.filter fun t => f t = s', F s n‖₊ * _ :=
       rfl
-    _ ≤ ∑ s', ∑' n, ∑ s in univ.filterₓ fun t => f t = s', ‖F s n‖₊ * r ^ n :=
+    _ ≤ ∑ s', ∑' n, ∑ s in univ.filter fun t => f t = s', ‖F s n‖₊ * r ^ n :=
       by
       apply sum_le_sum
       rintro s' -
       have h1 :
         Summable fun n : ℤ =>
-          ∑ s : S.α in univ.filter fun t => f t = s', ‖F s n‖₊ * r ^ n :=
+          ∑ s : S in univ.filter fun t => f t = s', ‖F s n‖₊ * r ^ n :=
         summable_sum fun s _ => F.nnreal_summable s
       have h2 :
         ∀ b : ℤ,
-          ‖(∑ s : S.α in univ.filter fun t => f t = s', F s b)‖₊ * r ^ b ≤
-            ∑ s : S.α in univ.filter fun t => f t = s', ‖F s b‖₊ * r ^ b :=
+          ‖(∑ s : S in univ.filter fun t => f t = s', F s b)‖₊ * r ^ b ≤
+            ∑ s : S in univ.filter fun t => f t = s', ‖F s b‖₊ * r ^ b :=
         by intro b; rw [← sum_mul]; exact mul_le_mul' (nnnorm_sum_le _ _) le_rfl
       apply tsum_le_tsum h2 (NNReal.summable_of_le h2 h1) h1
-    _ = ∑ s', ∑ s in univ.filterₓ fun t => f t = s', ∑' n, ‖F s n‖₊ * r ^ n :=
-      (sum_congr rfl fun s' _ => tsum_sum fun s _ => F.nNReal_summable _)
+    _ = ∑ s', ∑ s in univ.filter fun t => f t = s', ∑' n, ‖F s n‖₊ * r ^ n :=
+      (sum_congr rfl fun s' _ => tsum_sum fun s _ => F.nnreal_summable _)
     _ = _ := by
-      rw [← sum_bUnion]
+      rw [← sum_biUnion]
       refine' sum_congr _ _
       · ext s;
         simp only [mem_bUnion, mem_univ, mem_filter, true_and_iff, exists_true_left, exists_eq']
@@ -354,17 +359,19 @@ theorem eq_zero_of_filtration (F : ℒ S) (c : ℝ≥0) :
     rwa [← Int.abs_lt_one_iff]
   have : ‖F s n‖₊ * r ^ n ≤ ∑' k, ‖F s k‖₊ * r ^ k :=
     le_tsum (F.nnreal_summable s) _ fun k _ => zero_le'
-  replace this := lt_of_le_of_lt (this.trans _) h
-  · have hr₁ : 0 < r ^ n := lt_of_le_of_lt zero_le' h
-    have hr₂ : r ^ n ≠ 0 := hr₁.ne'
-    convert mul_lt_mul this (le_refl (r ^ n)⁻¹) _ hr₁.le
-    · exact (mul_inv_cancel_right₀ hr₂ _).symm
-    · exact (mul_inv_cancel hr₂).symm
-    · rwa [nnreal.inv_pos]
-  · refine' le_trans _ hF
+  -- Porting note: the second goal of `replace` is proved first
+  have hsum : ∑' k, ‖F s k‖₊ * r ^ k ≤ c := by
+    refine' le_trans _ hF
     apply @Finset.single_le_sum S ℝ≥0 _ fun s => ∑' n, ‖F s n‖₊ * r ^ n
     · rintro s -; exact zero_le'
     · exact Finset.mem_univ _
+  replace this := lt_of_le_of_lt (this.trans hsum) h
+  have hr₁ : 0 < r ^ n := lt_of_le_of_lt zero_le' h
+  have hr₂ : r ^ n ≠ 0 := hr₁.ne'
+  convert mul_lt_mul this (le_refl (r ^ n)⁻¹) _ hr₁.le
+  · exact (mul_inv_cancel_right₀ hr₂ _).symm
+  · exact (mul_inv_cancel hr₂).symm
+  · rwa [NNReal.inv_pos]
 
 -- move me
 theorem zpow_strictAnti {K : Type} [LinearOrderedField K] {x : K} (hx₀ : 0 < x) (hx₁ : x < 1) :
@@ -395,7 +402,7 @@ theorem exists_bdd_filtration {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : 
     rw [lt_neg, neg_zero, ← Int.cast_zero, Int.cast_lt]
     apply Int.lt_of_le_sub_one
     dsimp only [d]
-    split_ifs
+    split_ifs with h
     · rw [tsub_le_iff_right, sub_add, sub_self, sub_zero]
       exact Int.floor_nonpos (div_nonpos_of_nonneg_of_nonpos h (le_of_lt h_logr))
     · simp only [zero_sub]
@@ -403,7 +410,7 @@ theorem exists_bdd_filtration {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : 
     by
     rw [← zsmul_eq_mul]
     rw [ite_smul]
-    split_ifs
+    split_ifs with h
     · rw [zsmul_eq_mul]
       calc
         log (‖F‖) = log (‖F‖) / log r * log r :=
@@ -422,7 +429,7 @@ theorem exists_bdd_filtration {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : 
   rwa [Real.rpow_int_cast _ d] at this 
 
 def bddFiltration {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : (r : ℝ) < 1) (F : ℒ S) : ℤ :=
-  (exists_bdd_filtration hr₀ hr₁ F).some
+  (exists_bdd_filtration hr₀ hr₁ F).choose
 
 def bddFiltration_spec {S : FintypeCat} (hr₀ : 0 < (r : ℝ)) (hr₁ : (r : ℝ) < 1) (F : ℒ S) :
     ∀ s n, n < bddFiltration hr₀ hr₁ F → F s n = 0 :=
@@ -433,10 +440,10 @@ section ProfiniteStructure
 @[simps]
 def truncate {c : ℝ≥0} (A : Finset ℤ) : {F : ℒ S | ‖F‖₊ ≤ c} → LaurentMeasuresBdd r S A c :=
   fun F =>
-  { toFun := fun s i => F s i
+  { toFun := fun s i => (F : ℒ S) s i
     bound' := by
       refine' (Finset.sum_le_sum fun s _ => _).trans F.2
-      convert sum_le_tsum A _ ((F : ℒ S).nNReal_summable s) using 1
+      convert sum_le_tsum A _ ((F : ℒ S).nnreal_summable s) using 1
       · conv_rhs => rw [← Finset.sum_attach]; rfl
       · intro b hb; exact zero_le' }
 
@@ -457,8 +464,8 @@ def transition {c : ℝ≥0} {A B : Finset ℤ} (h : B ≤ A) :
     by
     refine' (Finset.sum_le_sum fun s _ => _).trans F.2
     have :
-      ∑ i : B, ‖(F s (finset_map h i))‖₊ * r ^ (i : ℤ) =
-        ∑ i in finset.univ.image (finset_map h), ‖F s i‖₊ * r ^ (i : ℤ) :=
+      ∑ i : B, ‖(F s (finsetMap h i))‖₊ * r ^ (i : ℤ) =
+        ∑ i in Finset.univ.image (finsetMap h), ‖F s i‖₊ * r ^ (i : ℤ) :=
       by
       rw [Finset.sum_image]
       · rfl
@@ -476,9 +483,9 @@ theorem mkSeq_compat {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
     (compat : ∀ (A B : Finset ℤ) (h : B ≤ A), transition h (F _) = F _) (s : S) (A : Finset ℤ)
     (i : A) : mkSeq F s i = F A s i :=
   by
-  have : ({i} : Finset ℤ) ≤ A := by simp
+  have : ({(i : ℤ)} : Finset ℤ) ≤ A := by simp
   specialize compat _ _ this
-  dsimp [mk_seq]
+  dsimp [mkSeq]
   rw [← compat]
   change (F A) s _ = _
   congr
@@ -506,7 +513,7 @@ theorem mkSeq_compat_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r 
     rintro a -
     refine' mul_nonneg (norm_nonneg _) (zpow_nonneg (NNReal.coe_nonneg _) _)
 
-theorem mkSeq_compat_nNReal_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
+theorem mkSeq_compat_nnreal_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
     (compat : ∀ (A B : Finset ℤ) (h : B ≤ A), transition h (F _) = F _) (s : S) :
     Summable fun k : ℤ => ‖mkSeq F s k‖₊ * r ^ k :=
   by
@@ -518,7 +525,7 @@ theorem mkSeq_compat_sum_le {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S 
     ∑ s : S, ∑' k : ℤ, ‖mkSeq F s k‖₊ * r ^ k ≤ c :=
   by
   rw [← tsum_sum]
-  swap; · intro s hs; apply mk_seq_compat_nnreal_summable _ compat
+  swap; · intro s hs; apply mkSeq_compat_nnreal_summable _ compat
   have : ∀ A : Finset ℤ, ∑ b : A, ∑ s : S, ‖F A s b‖₊ * r ^ (b : ℤ) ≤ c :=
     by
     intro A
@@ -527,7 +534,7 @@ theorem mkSeq_compat_sum_le {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S 
   apply tsum_le_of_sum_le
   · apply summable_sum
     intro s hs
-    apply mk_seq_compat_nnreal_summable _ compat
+    apply mkSeq_compat_nnreal_summable _ compat
   intro I
   rw [Finset.sum_comm]
   convert (F I).bound using 1
@@ -543,8 +550,8 @@ theorem exists_of_compat {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c
     (compat : ∀ (A B : Finset ℤ) (h : B ≤ A), transition h (F _) = F _) :
     ∃ G : {H : ℒ S | ‖H‖₊ ≤ c}, ∀ k : Finset ℤ, truncate k G = F k :=
   by
-  let G : ℒ S := ⟨mk_seq F, mk_seq_compat_nnreal_summable _ compat⟩
-  use G
+  let G : ℒ S := ⟨mkSeq F, mkSeq_compat_nnreal_summable _ compat⟩
+  refine' ⟨⟨G, _⟩, _⟩
   · apply LaurentMeasures.mkSeq_compat_sum_le _ compat
   · intro k
     ext s i
@@ -572,7 +579,7 @@ def laurentMeasuresBddFunctor (c : ℝ≥0) [Fact (0 < r)] : (AsSmall (Finset �
 over `T : finset ℤ` of the finite types `laurent_measures_bdd r S T c`. -/
 def laurentMeasuresBddEquiv (c : ℝ≥0) [Fact (0 < r)] :
     {F : ℒ S | ‖F‖₊ ≤ c} ≃
-      (Profinite.limitCone (laurentMeasuresBddFunctor r S c ⋙ FintypeCat.toProfinite)).X :=
+      (Profinite.limitCone (laurentMeasuresBddFunctor r S c ⋙ FintypeCat.toProfinite)).pt :=
   Equiv.ofBijective (fun F => ⟨fun A => truncate (ULift.down A.unop) F, fun A B f => by ext; rfl⟩)
     (by
       constructor
@@ -605,7 +612,7 @@ instance (c : ℝ≥0) [Fact (0 < r)] : TopologicalSpace {F : ℒ S | ‖F‖₊
 
 def laurentMeasuresBddHomeo (c : ℝ≥0) [Fact (0 < r)] :
     {F : ℒ S | ‖F‖₊ ≤ c} ≃ₜ
-      (Profinite.limitCone (laurentMeasuresBddFunctor r S c ⋙ FintypeCat.toProfinite)).X :=
+      (Profinite.limitCone (laurentMeasuresBddFunctor r S c ⋙ FintypeCat.toProfinite)).pt :=
   {
     laurentMeasuresBddEquiv _ _
       _ with
@@ -762,7 +769,7 @@ def shiftAddMonoidHom [hr : Fact (0 < r)] (k : ℤ) : ℒ S →+ ℒ S :=
 
 -- move me
 @[simp, to_additive]
-theorem Finset.prod_attach' {α M : Type _} [CommMonoid M] (s : Finset α) (f : s → M) :
+theorem _root_.Finset.prod_attach' {α M : Type _} [CommMonoid M] (s : Finset α) (f : s → M) :
     ∏ a in s.attach, f a = ∏ a in s, if h : a ∈ s then f ⟨a, h⟩ else 1 :=
   by
   rw [eq_comm, ← Finset.prod_attach, Finset.prod_congr rfl]
@@ -850,7 +857,7 @@ def mapHom [Fact (0 < r)] (f : S ⟶ S') : ComphausFilteredPseudoNormedGroupWith
 /-- Let `F : ℒ S` be a Laurent measure.  `laurent_measures.d` chooses a bound `d ∈ ℤ` for `F`,
 such that, for all `s : S`, the sequence `F s` is zero from `d-1` and below. -/
 def d [h0 : Fact (0 < r)] [h1 : Fact (r < 1)] (F : ℒ S) : ℤ :=
-  (exists_bdd_filtration h0.out h1.out F).some
+  (exists_bdd_filtration h0.out h1.out F).choose
 
 theorem lt_d_eq_zero [h0 : Fact (0 < r)] [h1 : Fact (r < 1)] (F : ℒ S) (s : S) (n : ℤ) :
     n < F.d → F s n = 0 :=

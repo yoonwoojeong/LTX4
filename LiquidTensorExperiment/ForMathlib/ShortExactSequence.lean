@@ -56,7 +56,11 @@ namespace ShortExactSequence
 
 attribute [instance] mono' epi'
 
-variable {𝒞} [HasImages 𝒞] [HasZeroMorphisms 𝒞] [HasKernels 𝒞]
+-- Porting note: in Lean 4 the binder update `{𝒞}` must be a separate `variable` command,
+-- otherwise the instance `[Category 𝒞]` is not found while elaborating the new binders.
+variable {𝒞}
+
+variable [HasImages 𝒞] [HasZeroMorphisms 𝒞] [HasKernels 𝒞]
 
 @[reassoc (attr := simp)]
 theorem f_comp_g (A : ShortExactSequence 𝒞) : A.f ≫ A.g = 0 :=
@@ -67,12 +71,19 @@ structure Hom (A B : ShortExactSequence 𝒞) where
   fst : A.1 ⟶ B.1
   snd : A.2 ⟶ B.2
   trd : A.3 ⟶ B.3
-  sq1' : fst ≫ B.f = A.f ≫ snd := by obviously
-  sq2' : snd ≫ B.g = A.g ≫ trd := by obviously
+  sq1' : fst ≫ B.f = A.f ≫ snd := by aesop_cat
+  sq2' : snd ≫ B.g = A.g ≫ trd := by aesop_cat
 
 namespace Hom
 
-attribute [reassoc] sq1 sq2
+-- Porting note: `restate_axiom sq1' sq1` is not available in Lean 4; the lemmas are stated by hand.
+@[reassoc]
+theorem sq1 {A B : ShortExactSequence 𝒞} (f : Hom A B) : f.fst ≫ B.f = A.f ≫ f.snd :=
+  f.sq1'
+
+@[reassoc]
+theorem sq2 {A B : ShortExactSequence 𝒞} (f : Hom A B) : f.snd ≫ B.g = A.g ≫ f.trd :=
+  f.sq2'
 
 end Hom
 
@@ -95,15 +106,20 @@ def comp {A B C : ShortExactSequence 𝒞} (f : A ⟶ B) (g : B ⟶ C) : A ⟶ C
   sq1' := by rw [Category.assoc, Hom.sq1, Hom.sq1_assoc]
   sq2' := by rw [Category.assoc, Hom.sq2, Hom.sq2_assoc]
 
-instance : Category (ShortExactSequence 𝒞) :=
-  {
-    (inferInstance : Quiver (ShortExactSequence
-          𝒞)) with
-    id := id
-    comp := fun A B C f g => comp f g
-    id_comp := by intros; ext <;> dsimp <;> apply Category.id_comp
-    comp_id := by intros; ext <;> dsimp <;> apply Category.comp_id
-    assoc := by intros; ext <;> dsimp <;> apply Category.assoc }
+instance : Category (ShortExactSequence 𝒞) where
+  Hom := Hom
+  id := id
+  comp := fun f g => comp f g
+  id_comp := by intros; apply Hom.ext <;> dsimp [id, comp] <;> apply Category.id_comp
+  comp_id := by intros; apply Hom.ext <;> dsimp [id, comp] <;> apply Category.comp_id
+  assoc := by intros; apply Hom.ext <;> dsimp [id, comp] <;> apply Category.assoc
+
+-- Porting note: Lean 4 `ext` does not see through `⟶` (`Quiver.Hom`), so we state the extensionality
+-- lemma for morphisms of short exact sequences explicitly.
+@[ext]
+protected theorem hom_ext {A B : ShortExactSequence 𝒞} {f g : A ⟶ B} (h₁ : f.1 = g.1)
+    (h₂ : f.2 = g.2) (h₃ : f.3 = g.3) : f = g :=
+  Hom.ext _ _ h₁ h₂ h₃
 
 @[simp]
 theorem id_fst (A : ShortExactSequence 𝒞) : Hom.fst (𝟙 A) = 𝟙 A.1 :=
@@ -133,40 +149,34 @@ theorem comp_trd : (f ≫ g).3 = f.3 ≫ g.3 :=
 
 variable (𝒞)
 
-/- warning: category_theory.short_exact_sequence.Fst clashes with category_theory.short_exact_sequence.fst -> CategoryTheory.ShortExactSequence.fst
-Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Fst CategoryTheory.ShortExactSequence.fstₓ'. -/
 @[simps]
-def fst : ShortExactSequence 𝒞 ⥤ 𝒞 where
+def Fst : ShortExactSequence 𝒞 ⥤ 𝒞 where
   obj := fst
   map {A B} f := f.1
 
-/- warning: category_theory.short_exact_sequence.Snd clashes with category_theory.short_exact_sequence.snd -> CategoryTheory.ShortExactSequence.snd
-Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Snd CategoryTheory.ShortExactSequence.sndₓ'. -/
 @[simps]
-def snd : ShortExactSequence 𝒞 ⥤ 𝒞 where
+def Snd : ShortExactSequence 𝒞 ⥤ 𝒞 where
   obj := snd
   map {A B} f := f.2
 
-/- warning: category_theory.short_exact_sequence.Trd clashes with category_theory.short_exact_sequence.trd -> CategoryTheory.ShortExactSequence.trd
-Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Trd CategoryTheory.ShortExactSequence.trdₓ'. -/
 @[simps]
-def trd : ShortExactSequence 𝒞 ⥤ 𝒞 where
+def Trd : ShortExactSequence 𝒞 ⥤ 𝒞 where
   obj := trd
   map {A B} f := f.3
 
 @[simps]
-def fNat : fst 𝒞 ⟶ snd 𝒞 where
+def fNat : Fst 𝒞 ⟶ Snd 𝒞 where
   app A := A.f
   naturality A B f := f.sq1
 
 @[simps]
-def gNat : snd 𝒞 ⟶ trd 𝒞 where
+def gNat : Snd 𝒞 ⟶ Trd 𝒞 where
   app A := A.g
   naturality A B f := f.sq2
 
 instance : HasZeroMorphisms (ShortExactSequence 𝒞)
     where
-  Zero A B :=
+  zero A B :=
     ⟨{  fst := 0
         snd := 0
         trd := 0 }⟩
@@ -190,12 +200,13 @@ variable {𝒞}
 protected def functor (A : ShortExactSequence 𝒞) : Fin 3 ⥤ 𝒞 :=
   fin3FunctorMk ![A.1, A.2, A.3] A.f A.g
 
-def functorMap {A B : ShortExactSequence 𝒞} (f : A ⟶ B) : ∀ i, A.Functor.obj i ⟶ B.Functor.obj i
+def functorMap {A B : ShortExactSequence 𝒞} (f : A ⟶ B) : ∀ i, A.functor.obj i ⟶ B.functor.obj i
   | ⟨0, h⟩ => f.1
   | ⟨1, h⟩ => f.2
   | ⟨2, h⟩ => f.3
-  | ⟨i + 3, hi⟩ => by exfalso; revert hi; decide
+  | ⟨i + 3, hi⟩ => by exfalso; exact absurd hi (Nat.not_lt.mpr (Nat.le_add_left 3 i))
 
+-- Porting note: `omega` is unavailable here, impossible cases are closed by `Nat.not_lt`.
 -- Porting note: Lean 3 `meta def aux_tac` was
 -- `simp only [hom_of_le_refl, functor.map_id, category.id_comp, category.comp_id]`;
 -- re-expressed as a Lean 4 macro.
@@ -205,7 +216,7 @@ macro "aux_tac" : tactic =>
 
 theorem functorMap_naturality {A B : ShortExactSequence 𝒞} (f : A ⟶ B) :
     ∀ (i j : Fin 3) (hij : i ≤ j),
-      functorMap f i ≫ B.Functor.map hij.hom = A.Functor.map hij.hom ≫ functorMap f j
+      functorMap f i ≫ B.functor.map hij.hom = A.functor.map hij.hom ≫ functorMap f j
   | ⟨0, hi⟩, ⟨0, hj⟩, hij => by
     aux_tac
   | ⟨1, hi⟩, ⟨1, hj⟩, hij => by
@@ -214,32 +225,30 @@ theorem functorMap_naturality {A B : ShortExactSequence 𝒞} (f : A ⟶ B) :
     aux_tac
   | ⟨0, hi⟩, ⟨1, hj⟩, hij => f.sq1
   | ⟨1, hi⟩, ⟨2, hj⟩, hij => f.sq2
-  | ⟨i + 3, hi⟩, _, _ => by exfalso; revert hi; decide
-  | _, ⟨j + 3, hj⟩, _ => by exfalso; revert hj; decide
-  | ⟨i + 1, hi⟩, ⟨0, hj⟩, H => by exfalso; revert H; decide
-  | ⟨i + 2, hi⟩, ⟨1, hj⟩, H => by exfalso; revert H; decide
+  | ⟨i + 3, hi⟩, _, _ => by exfalso; exact absurd hi (Nat.not_lt.mpr (Nat.le_add_left 3 i))
+  | _, ⟨j + 3, hj⟩, _ => by exfalso; exact absurd hj (Nat.not_lt.mpr (Nat.le_add_left 3 j))
+  | ⟨i + 1, hi⟩, ⟨0, hj⟩, H => by exfalso; rw [Fin.le_def] at H; simp at H
+  | ⟨i + 2, hi⟩, ⟨1, hj⟩, H => by exfalso; rw [Fin.le_def] at H; simp at H
   | ⟨0, hi⟩, ⟨2, hj⟩, hij =>
     by
-    have h01 : (0 : Fin 3) ⟶ 1 := hom_of_le (by decide)
-    have h12 : (1 : Fin 3) ⟶ 2 := hom_of_le (by decide)
+    have h01 : (0 : Fin 3) ⟶ 1 := homOfLE (by decide)
+    have h12 : (1 : Fin 3) ⟶ 2 := homOfLE (by decide)
     calc
-      functor_map f ⟨0, hi⟩ ≫ B.functor.map hij.hom =
-          functor_map f ⟨0, hi⟩ ≫ B.functor.map h01 ≫ B.functor.map h12 :=
+      functorMap f ⟨0, hi⟩ ≫ B.functor.map hij.hom =
+          functorMap f ⟨0, hi⟩ ≫ B.functor.map h01 ≫ B.functor.map h12 :=
         _
-      _ = (functor_map f ⟨0, hi⟩ ≫ B.functor.map h01) ≫ B.functor.map h12 := by rw [Category.assoc]
-      _ = (A.functor.map h01 ≫ functor_map f _) ≫ B.functor.map h12 := _
-      _ = A.functor.map h01 ≫ functor_map f _ ≫ B.functor.map h12 := (Category.assoc _ _ _)
-      _ = A.functor.map h01 ≫ A.functor.map h12 ≫ functor_map f _ := _
-      _ = A.functor.map hij.hom ≫ functor_map f ⟨2, hj⟩ := _
+      _ = (functorMap f ⟨0, hi⟩ ≫ B.functor.map h01) ≫ B.functor.map h12 := by rw [Category.assoc]
+      _ = (A.functor.map h01 ≫ functorMap f _) ≫ B.functor.map h12 := _
+      _ = A.functor.map h01 ≫ functorMap f _ ≫ B.functor.map h12 := (Category.assoc _ _ _)
+      _ = A.functor.map h01 ≫ A.functor.map h12 ≫ functorMap f _ := _
+      _ = A.functor.map hij.hom ≫ functorMap f ⟨2, hj⟩ := _
     · rw [← Functor.map_comp]; congr
     · congr 1; exact f.sq1
     · congr 1; exact f.sq2
     · rw [← Functor.map_comp_assoc]; congr
 
-/- warning: category_theory.short_exact_sequence.Functor clashes with category_theory.short_exact_sequence.functor -> CategoryTheory.ShortExactSequence.functor
-Case conversion may be inaccurate. Consider using '#align category_theory.short_exact_sequence.Functor CategoryTheory.ShortExactSequence.functorₓ'. -/
 @[simps]
-def functor : ShortExactSequence 𝒞 ⥤ Fin 3 ⥤ 𝒞
+def Functor : ShortExactSequence 𝒞 ⥤ Fin 3 ⥤ 𝒞
     where
   obj := ShortExactSequence.functor
   map {A B} f :=
@@ -252,7 +261,9 @@ end ShortExactSequence
 
 namespace ShortExactSequence
 
-variable {𝒞} [Abelian 𝒞]
+variable {𝒞}
+
+variable [Abelian 𝒞]
 
 variable {A B C : ShortExactSequence 𝒞} (f : A ⟶ B) (g : B ⟶ C)
 
@@ -327,7 +338,7 @@ variable {𝒜 : Type _} [Category 𝒜] [Abelian 𝒜]
 theorem exact_of_split {A B C : 𝒜} (f : A ⟶ B) (g : B ⟶ C) (χ : C ⟶ B) (φ : B ⟶ A) (hfg : f ≫ g = 0)
     (H : φ ≫ f + g ≫ χ = 𝟙 B) : Exact f g :=
   { w := hfg
-    Epi :=
+    epi :=
       by
       let ψ : (kernel_subobject g : 𝒜) ⟶ CategoryTheory.Limits.imageSubobject f :=
         Subobject.arrow _ ≫ φ ≫ CategoryTheory.Limits.factorThruImageSubobject f
@@ -352,17 +363,17 @@ def mkOfSplit {A B C : 𝒜} (f : A ⟶ B) (g : B ⟶ C) (φ : B ⟶ A) (χ : C 
     f
     g
     mono' :=
-      haveI : mono (f ≫ φ) := by rw [hφ]; infer_instance
+      haveI : Mono (f ≫ φ) := by rw [hφ]; infer_instance
       mono_of_mono f φ
     epi' :=
-      haveI : epi (χ ≫ g) := by rw [hχ]; infer_instance
+      haveI : Epi (χ ≫ g) := by rw [hχ]; infer_instance
       epi_of_epi χ g
     exact' := exact_of_split f g χ φ hfg H }
 
 def mkOfSplit' {A B C : 𝒜} (f : A ⟶ B) (g : B ⟶ C)
     (H : ∃ (φ : B ⟶ A) (χ : C ⟶ B), f ≫ g = 0 ∧ f ≫ φ = 𝟙 A ∧ χ ≫ g = 𝟙 C ∧ φ ≫ f + g ≫ χ = 𝟙 B) :
     ShortExactSequence 𝒜 :=
-  mkOfSplit f g H.some H.choose_spec.some H.choose_spec.choose_spec.1 H.choose_spec.choose_spec.2.1
+  mkOfSplit f g H.choose H.choose_spec.choose H.choose_spec.choose_spec.1 H.choose_spec.choose_spec.2.1
     H.choose_spec.choose_spec.2.2.1 H.choose_spec.choose_spec.2.2.2
 
 @[simp]
@@ -393,10 +404,10 @@ def Split (A : ShortExactSequence 𝒜) : Prop :=
   ∃ (φ : A.2 ⟶ A.1) (χ : A.3 ⟶ A.2),
     A.f ≫ φ = 𝟙 A.1 ∧ χ ≫ A.g = 𝟙 A.3 ∧ χ ≫ φ = 0 ∧ φ ≫ A.f + A.g ≫ χ = 𝟙 A.2
 
-theorem mkSplit_split (A B : 𝒜) : (mkSplit A B).split :=
+theorem mkSplit_split (A B : 𝒜) : (mkSplit A B).Split :=
   ⟨biprod.fst, biprod.inr, biprod.inl_fst, biprod.inr_snd, biprod.inr_fst, biprod.total⟩
 
-theorem Splitting.split {A : ShortExactSequence 𝒜} (i : Splitting A) : A.split :=
+theorem Splitting.split {A : ShortExactSequence 𝒜} (i : Splitting A) : A.Split :=
   by
   refine' ⟨i.hom.2 ≫ biprod.fst ≫ i.inv.1, i.hom.3 ≫ biprod.inr ≫ i.inv.2, _⟩
   simp only [Category.assoc, ← Hom.sq1_assoc, Hom.sq2]; dsimp
@@ -436,7 +447,7 @@ def RightSplit.splitting {A : ShortExactSequence 𝒜} (h : A.RightSplit) : A.Sp
   trd_eq_id := rfl
 
 theorem tFAE_split (A : ShortExactSequence 𝒜) :
-    TFAE [A.LeftSplit, A.RightSplit, A.split, Nonempty A.Splitting] :=
+    List.TFAE [A.LeftSplit, A.RightSplit, A.Split, Nonempty A.Splitting] :=
   by
   tfae_have 3 → 1; · rintro ⟨φ, χ, hφ, hχ, hχφ, H⟩; exact ⟨φ, hφ⟩
   tfae_have 3 → 2; · rintro ⟨φ, χ, hφ, hχ, hχφ, H⟩; exact ⟨χ, hχ⟩
@@ -453,7 +464,9 @@ namespace ShortExactSequence
 
 open CategoryTheory.Preadditive
 
-variable {𝒞} [Preadditive 𝒞] [HasImages 𝒞] [HasKernels 𝒞]
+variable {𝒞}
+
+variable [Preadditive 𝒞] [HasImages 𝒞] [HasKernels 𝒞]
 
 variable (A B : ShortExactSequence 𝒞)
 
@@ -519,11 +532,11 @@ instance : Preadditive (ShortExactSequence 𝒞)
   add_comp := by intros; ext <;> apply add_comp
   comp_add := by intros; ext <;> apply comp_add
 
-instance fst_additive : (fst 𝒞).Additive where
+instance Fst_additive : (Fst 𝒞).Additive where
 
-instance snd_additive : (snd 𝒞).Additive where
+instance Snd_additive : (Snd 𝒞).Additive where
 
-instance trd_additive : (trd 𝒞).Additive where
+instance Trd_additive : (Trd 𝒞).Additive where
 
 end ShortExactSequence
 

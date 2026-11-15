@@ -20,7 +20,7 @@ structure PseuNormGrp₁ where
 namespace PseuNormGrp₁
 
 instance : CoeSort PseuNormGrp₁.{u} (Type u) :=
-  ⟨Carrier⟩
+  ⟨carrier⟩
 
 instance (M : PseuNormGrp₁.{u}) : PseudoNormedGroup M :=
   M.str
@@ -32,7 +32,12 @@ instance : Category PseuNormGrp₁.{u}
     where
   Hom A B := StrictPseudoNormedGroupHom A B
   id A := StrictPseudoNormedGroupHom.id A
-  comp {A B C} f g := f.comp g
+  comp f g := f.comp g
+
+-- Porting note: in Lean 3 morphisms unfolded to `StrictPseudoNormedGroupHom` and used its
+-- coercion; in Lean 4 it is declared (as for mathlib's `MonCat`)
+instance {A B : PseuNormGrp₁.{u}} : CoeFun (A ⟶ B) fun _ => A → B where
+  coe (f : StrictPseudoNormedGroupHom A B) := f
 
 @[simp]
 theorem id_apply (M : PseuNormGrp₁) (x : M) : (𝟙 M : M ⟶ M) x = x :=
@@ -51,29 +56,30 @@ variable {K : J ⥤ PseuNormGrp₁.{u}}
 
 variable (C : Limits.LimitCone (K ⋙ toAb))
 
-def boundedElements : AddSubgroup C.Cone.pt
+def boundedElements : AddSubgroup C.cone.pt
     where
-  carrier := {x | ∃ c, ∀ j, C.Cone.π.app j x ∈ PseudoNormedGroup.filtration (K.obj j) c}
-  zero_mem' := ⟨0, fun j => by simp; apply PseudoNormedGroup.zero_mem_filtration⟩
-  add_mem' a b ha hb := by
+  carrier := {x | ∃ c, ∀ j, C.cone.π.app j x ∈ PseudoNormedGroup.filtration (K.obj j) c}
+  -- Porting note: the `simp` calls of the Lean 3 proofs are replaced by explicit rewrites, and
+  -- the pseudo-normed group `K.obj j` is given explicitly (it is not found from `toAb.obj (K.obj j)`)
+  zero_mem' := ⟨0, fun j => by
+    rw [map_zero]
+    exact PseudoNormedGroup.zero_mem_filtration (M := K.obj j) 0⟩
+  add_mem' {a b} ha hb := by
     obtain ⟨c, hc⟩ := ha
     obtain ⟨d, hd⟩ := hb
     use c + d
     intro j
-    simp
-    apply PseudoNormedGroup.add_mem_filtration
-    apply hc
-    apply hd
-  neg_mem' a ha := by
+    rw [map_add]
+    exact PseudoNormedGroup.add_mem_filtration (M := K.obj j) (hc j) (hd j)
+  neg_mem' {a} ha := by
     obtain ⟨c, hc⟩ := ha
     use c
     intro j
-    simp
-    apply PseudoNormedGroup.neg_mem_filtration
-    apply hc
+    rw [map_neg]
+    exact PseudoNormedGroup.neg_mem_filtration (M := K.obj j) (hc j)
 
-def boundedElements.filt (c : NNReal) : Set C.Cone.pt :=
-  {x | ∀ j, C.Cone.π.app j x ∈ PseudoNormedGroup.filtration (K.obj j) c}
+def boundedElements.filt (c : NNReal) : Set C.cone.pt :=
+  {x | ∀ j, C.cone.π.app j x ∈ PseudoNormedGroup.filtration (K.obj j) c}
 
 def boundedElements.filtIncl (c : NNReal) : boundedElements.filt C c → boundedElements C := fun x =>
   ⟨x, c, x.2⟩
@@ -111,7 +117,7 @@ def boundedCone : Cone K where
   pt := boundedConePoint C
   π :=
     { app := fun j =>
-        { toFun := fun x => C.Cone.π.app _ x.1
+        { toFun := fun x => C.cone.π.app _ x.1
           map_zero' := by simp
           map_add' := fun x y => by simp
           strict' := by
@@ -132,16 +138,14 @@ def boundedConeLift (S : Cone K) : S.pt ⟶ boundedConePoint C
       use c
       intro j
       rw [← Ab.comp_apply, C.2.fac]
-      apply (S.π.app j).Strict
-      exact hc⟩
+      exact StrictPseudoNormedGroupHom.strict (S.π.app j) hc⟩
   map_zero' := by ext; simp
   map_add' x y := by ext; simp
   strict' := by
     intro c x hx
     refine' ⟨⟨_, fun j => _⟩, rfl⟩
     erw [← Ab.comp_apply, C.2.fac]
-    apply (S.π.app j).Strict
-    exact hx
+    exact StrictPseudoNormedGroupHom.strict (S.π.app j) hx
 
 def boundedConeIsLimit : IsLimit (boundedCone C)
     where
@@ -149,13 +153,13 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
   fac := by
     intro S j
     ext
-    dsimp [PseuNormGrp₁.boundedConeLift, bounded_cone]
+    dsimp [PseuNormGrp₁.boundedConeLift, boundedCone]
     rw [← Ab.comp_apply, C.2.fac]
     rfl
   uniq := by
     intro S m hm
     ext
-    dsimp [PseuNormGrp₁.boundedConeLift, bounded_cone]
+    dsimp [PseuNormGrp₁.boundedConeLift, boundedCone]
     apply Ab.is_limit_ext
     intro j
     rw [← Ab.comp_apply, C.2.fac]
@@ -165,7 +169,7 @@ def boundedConeIsLimit : IsLimit (boundedCone C)
 
 instance : HasLimits PseuNormGrp₁ := by
   constructor; intro J hJ; constructor; intro K
-  exact HasLimit.mk ⟨_, bounded_cone_is_limit ⟨_, limit.isLimit _⟩⟩
+  exact HasLimit.mk ⟨_, boundedConeIsLimit ⟨_, limit.isLimit _⟩⟩
 
 open PseudoNormedGroup
 
@@ -175,7 +179,7 @@ theorem mem_filtration_iff_of_isLimit (C : Cone K) (hC : IsLimit C) (x : C.pt) (
   by
   constructor
   · intro h j
-    exact (C.π.app j).Strict h
+    exact StrictPseudoNormedGroupHom.strict (C.π.app j) h
   · intro h
     let E := bounded_cone ⟨_, Ab.explicitLimitConeIsLimit.{u, u} _⟩
     let e : C ≅ E := hC.uniqueUpToIso (bounded_cone_is_limit _)
@@ -199,7 +203,7 @@ theorem mem_filtration_iff_of_isLimit (C : Cone K) (hC : IsLimit C) (x : C.pt) (
 @[simps]
 def StrictPseudoNormedGroupHom.level {M N : Type _} [PseudoNormedGroup M] [PseudoNormedGroup N]
     (f : StrictPseudoNormedGroupHom M N) (c) : filtration M c → filtration N c := fun x =>
-  ⟨f x, f.Strict x.2⟩
+  ⟨f x, f.strict x.2⟩
 
 @[simp]
 theorem StrictPseudoNormedGroupHom.level_id (M : Type _) [PseudoNormedGroup M] (c) :
@@ -225,13 +229,13 @@ theorem level_map {X Y : PseuNormGrp₁} (f : X ⟶ Y) (c) : (level.obj c).map f
   rfl
 
 theorem level_map' {X Y : PseuNormGrp₁} (f : X ⟶ Y) (c) :
-    (level.obj c).map f = PseudoNormedGroup.level f f.Strict c :=
+    (level.obj c).map f = PseudoNormedGroup.level f f.strict c :=
   rfl
 
 def levelConeIsoHom (c) (t : (level.obj c).obj (boundedConePoint C)) : (K ⋙ level.obj c).sections
     where
   val j :=
-    { val := C.Cone.π.app j t.1.1
+    { val := C.cone.π.app j t.1.1
       property := by
         obtain ⟨w, hw⟩ := t.2
         apply_fun fun e => e.val at hw 
@@ -325,7 +329,7 @@ def toPNG₁ : CompHausFiltPseuNormGrp₁.{u} ⥤ PseuNormGrp₁.{u}
   obj M :=
     { carrier := M
       exhaustive' := M.exhaustive }
-  map {X Y} f := { f.toAddMonoidHom with strict' := fun c x h => f.Strict h }
+  map {X Y} f := { f.toAddMonoidHom with strict' := fun c x h => f.strict h }
 
 instance : Faithful toPNG₁.{u} :=
   Faithful.mk <| by
@@ -583,7 +587,7 @@ def toPNG₁ : ProFiltPseuNormGrp₁.{u} ⥤ PseuNormGrp₁.{u}
   obj M :=
     { carrier := M
       exhaustive' := M.exhaustive }
-  map {X Y} f := { f.toAddMonoidHom with strict' := fun c x h => f.Strict h }
+  map {X Y} f := { f.toAddMonoidHom with strict' := fun c x h => f.strict h }
 
 instance : Faithful toPNG₁.{u} :=
   Faithful.mk <| by

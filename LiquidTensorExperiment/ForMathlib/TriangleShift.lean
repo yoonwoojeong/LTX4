@@ -194,21 +194,21 @@ def triangleShiftFunctorμ (i j : ℤ) :
         (by
           dsimp [CategoryTheory.Triangulated.Triangle.triangleShiftFunctor, CategoryTheory.Triangulated.Triangle.triangleShiftObj]
           simp only [zsmul_comp, comp_zsmul, Iso.symm_hom, Iso.app_inv, Iso.symm_inv,
-            monoidal_functor.μ_iso_hom, Functor.map_zsmul, smul_smul, Int.negOnePow_add]
+            monoidal_functor.μ_iso_hom, Functor.map_zsmul, smul_smul, Int.negOnePow'_add]
           have := (shift_functor_add _ i j).inv.naturality T.mor₁
           rw [Functor.comp_map] at this 
           erw [this, mul_comm]; rfl)
         (by
           dsimp [CategoryTheory.Triangulated.Triangle.triangleShiftFunctor, CategoryTheory.Triangulated.Triangle.triangleShiftObj]
           simp only [zsmul_comp, comp_zsmul, Iso.symm_hom, Iso.app_inv, Iso.symm_inv,
-            monoidal_functor.μ_iso_hom, Functor.map_zsmul, smul_smul, Int.negOnePow_add]
+            monoidal_functor.μ_iso_hom, Functor.map_zsmul, smul_smul, Int.negOnePow'_add]
           have := (shift_functor_add _ i j).inv.naturality T.mor₂
           rw [Functor.comp_map] at this 
           erw [this, mul_comm]; rfl)
         (by
           dsimp [CategoryTheory.Triangulated.Triangle.triangleShiftFunctor, CategoryTheory.Triangulated.Triangle.triangleShiftObj]
           simp only [zsmul_comp, comp_zsmul, Iso.symm_hom, Iso.app_inv, Iso.symm_inv,
-            monoidal_functor.μ_iso_hom, Functor.map_zsmul, smul_smul, Int.negOnePow_add,
+            monoidal_functor.μ_iso_hom, Functor.map_zsmul, smul_smul, Int.negOnePow'_add,
             mul_comm j.neg_one_pow]
           have := (shift_functor_add _ i j).inv.naturality T.mor₃
           dsimp [Functor.comp_map] at this 

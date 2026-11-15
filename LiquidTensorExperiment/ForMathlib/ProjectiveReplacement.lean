@@ -15,92 +15,101 @@ section ZeroObject
 
 variable {V : Type _} [Category V] [HasZeroMorphisms V]
 
-noncomputable theorem splitEpiOfIsZero {X Y : V} (f : X ⟶ Y) (h : IsZero Y) : SplitEpi f :=
-  ⟨0, by simp [is_zero_iff_id_eq_zero.mp h]⟩
+-- Porting note: `lemma` with data is a `def` in Lean 4
+noncomputable def splitEpiOfIsZero {X Y : V} (f : X ⟶ Y) (h : IsZero Y) : SplitEpi f :=
+  ⟨0, by simp [(IsZero.iff_id_eq_zero _).mp h]⟩
 
 theorem epi_of_isZero {X Y : V} (f : X ⟶ Y) (h : IsZero Y) : Epi f :=
-  @SplitEpi.epi _ (splitEpiOfIsZero f h)
+  SplitEpi.epi (splitEpiOfIsZero f h)
 
-noncomputable theorem splitMonoOfIsZero {X Y : V} (f : X ⟶ Y) (h : IsZero X) : SplitMono f :=
-  ⟨0, by simp [is_zero_iff_id_eq_zero.mp h]⟩
+-- Porting note: `lemma` with data is a `def` in Lean 4
+noncomputable def splitMonoOfIsZero {X Y : V} (f : X ⟶ Y) (h : IsZero X) : SplitMono f :=
+  ⟨0, by simp [(IsZero.iff_id_eq_zero _).mp h]⟩
 
 theorem mono_of_isZero_object {X Y : V} (f : X ⟶ Y) (h : IsZero X) : Mono f :=
-  @SplitMono.mono _ (splitMonoOfIsZero f h)
+  SplitMono.mono (splitMonoOfIsZero f h)
 
 theorem isIso_of_isZero {X Y : V} (f : X ⟶ Y) (h₁ : IsZero X) (h₂ : IsZero Y) : IsIso f :=
   by
   use 0
-  rw [is_zero_iff_id_eq_zero.mp h₁, is_zero_iff_id_eq_zero.mp h₂]
+  rw [(IsZero.iff_id_eq_zero _).mp h₁, (IsZero.iff_id_eq_zero _).mp h₂]
   constructor <;> simp
 
 end ZeroObject
 
 variable {V : Type _} [Category V] [Abelian V] [EnoughProjectives V] (X : CochainComplex V ℤ)
 
-variable (a : ℤ) (H : ∀ (i) (h : a ≤ i), IsZero (X.pt i))
+variable (a : ℤ) (H : ∀ (i) (h : a ≤ i), IsZero (X.X i))
 
 theorem comp_eqToHom_hEq_iff {C : Type _} [Category C] {X X' Y Y' Y'' : C} (f : X ⟶ Y)
-    (f' : X' ⟶ Y') (e : Y = Y'') : HEq (f ≫ eqToHom e) f' ↔ HEq f f' := by subst e;
+    (f' : X' ⟶ Y') (e : Y = Y'') : HEq (f ≫ eqToHom e) f' ↔ HEq f f' := by
+  subst e
   erw [Category.comp_id]
 
 theorem eqToHom_comp_hEq_iff {C : Type _} [Category C] {X X' Y Y' X'' : C} (f : X ⟶ Y)
-    (f' : X' ⟶ Y') (e : X'' = X) : HEq (eqToHom e ≫ f) f' ↔ HEq f f' := by subst e;
+    (f' : X' ⟶ Y') (e : X'' = X) : HEq (eqToHom e ≫ f) f' ↔ HEq f f' := by
+  subst e
   erw [Category.id_comp]
 
 theorem hEq_eqToHom_comp_iff {C : Type _} [Category C] {X X' Y Y' X'' : C} (f : X ⟶ Y)
-    (f' : X' ⟶ Y') (e : X'' = X') : HEq f (eqToHom e ≫ f') ↔ HEq f f' := by subst e;
+    (f' : X' ⟶ Y') (e : X'' = X') : HEq f (eqToHom e ≫ f') ↔ HEq f f' := by
+  subst e
   erw [Category.id_comp]
 
 theorem hEq_comp_eqToHom_iff {C : Type _} [Category C] {X X' Y Y' Y'' : C} (f : X ⟶ Y)
-    (f' : X' ⟶ Y') (e : Y' = Y'') : HEq f (f' ≫ eqToHom e) ↔ HEq f f' := by subst e;
+    (f' : X' ⟶ Y') (e : Y' = Y'') : HEq f (f' ≫ eqToHom e) ↔ HEq f f' := by
+  subst e
   erw [Category.comp_id]
 
 namespace CategoryTheory.Projective
 
-noncomputable def replacementAux : ∀ n : ℕ, Σ f : Arrow V, f.left ⟶ X.pt (a - n)
+-- Porting note: Lean 3 `include H`; `H` is not used in the body, so we bind it explicitly
+noncomputable def replacementAux (H : ∀ (i) (h : a ≤ i), IsZero (X.X i)) : ∀ n : ℕ, Σ f : Arrow V, f.left ⟶ X.X (a - n)
   | 0 => ⟨⟨0, 0, 0⟩, 0⟩
   | n + 1 =>
     ⟨⟨over
           (pullback (X.d (a - n - 1) (a - n))
-            (kernel.ι (replacement_aux n).1.Hom ≫ (replacement_aux n).2)),
-        (replacement_aux n).1.left, π _ ≫ pullback.snd ≫ kernel.ι _⟩,
+            (kernel.ι (replacementAux H n).1.hom ≫ (replacementAux H n).2)),
+        (replacementAux H n).1.left, π _ ≫ pullback.snd ≫ kernel.ι _⟩,
       π _ ≫ pullback.fst ≫ (X.xEqToIso (by norm_num; exact sub_sub _ _ _)).hom⟩
 
 theorem replacementAux_right_eq (n : ℕ) :
     (replacementAux X a H (n + 1)).1.right = (replacementAux X a H n).1.left := by
-  delta replacement_aux; exact rfl
+  simp only [replacementAux]; exact rfl
 
 theorem replacementAux_hom_eq (n : ℕ) :
-    (replacementAux X a H (n + 1)).1.Hom =
-      eqToHom (by delta replacement_aux; exact rfl) ≫
+    (replacementAux X a H (n + 1)).1.hom =
+      eqToHom (by simp only [replacementAux]; exact rfl) ≫
         π
             (pullback (X.d (a - n - 1) (a - n))
-              (kernel.ι (replacementAux X a H n).1.Hom ≫ (replacementAux X a H n).2)) ≫
+              (kernel.ι (replacementAux X a H n).1.hom ≫ (replacementAux X a H n).2)) ≫
           pullback.snd ≫
-            kernel.ι (replacementAux X a H n).1.Hom ≫
-              eqToHom (by delta replacement_aux; exact rfl) :=
-  by delta replacement_aux; erw [Category.id_comp, Category.comp_id]; exact rfl
+            kernel.ι (replacementAux X a H n).1.hom ≫
+              eqToHom (by simp only [replacementAux]; exact rfl) :=
+  by simp only [replacementAux]; erw [Category.id_comp, Category.comp_id]
 
 theorem replacementAux_snd_comm (n : ℕ) :
-    (replacementAux X a H (n + 1)).1.Hom ≫
+    (replacementAux X a H (n + 1)).1.hom ≫
         eqToHom (replacementAux_right_eq X a H n) ≫ (replacementAux X a H n).2 =
       (replacementAux X a H (n + 1)).2 ≫ X.d _ _ :=
   by
   rw [CategoryTheory.Projective.replacementAux_hom_eq]
   simp only [Category.id_comp, CategoryTheory.eqToHom_refl, Category.assoc, CategoryTheory.eqToHom_trans_assoc]
-  delta replacement_aux
-  rw [CategoryTheory.eqToHom_refl, Category.id_comp, ← pullback.condition]
+  simp only [replacementAux]
+  rw [← pullback.condition]
   erw [Category.assoc, Category.assoc, HomologicalComplex.xEqToIso_d]
 
 noncomputable def replacement : CochainComplex V ℤ
     where
-  pt i := if a < i then 0 else (replacementAux X a H ((a - i).natAbs + 1)).1.right
+  X i := if a < i then 0 else (replacementAux X a H ((a - i).natAbs + 1)).1.right
   d i j :=
     if h₁ : i + 1 = j then
       if h₂ : j > a then 0
       else
         eqToHom
             (by
+              -- Porting note: `dsimp only` to beta reduce the goal
+              dsimp only
               rw [if_neg, CategoryTheory.Projective.replacementAux_right_eq, Functor.id_obj]
               subst h₁
               suffices (a - i).natAbs = (a - (i + 1)).natAbs + 1 by rw [this]
@@ -286,7 +295,7 @@ theorem kernel_ι_replacementAux_eq_zero (i : ℕ) :
       0 :=
   by
   cases i
-  · dsimp [replacement_aux]; simp
+  · dsimp [replacementAux]; simp
   · have : a - i.succ + 1 = a - i := by norm_num [sub_add]
     rw [this, ← CategoryTheory.Projective.replacementAux_snd_comm, kernel.condition_assoc, zero_comp]
 
@@ -294,7 +303,7 @@ instance replacement_kernel_map_epi (i : ℕ) :
     Epi
       (kernel.lift (X.d (a - i) (a - i + 1))
         (kernel.ι (replacementAux X a H i).fst.hom ≫ (replacementAux X a H i).snd)
-        (by rw [Category.assoc, kernel_ι_replacement_aux_eq_zero])) :=
+        (by rw [Category.assoc, kernel_ι_replacementAux_eq_zero])) :=
   by
   cases i
   · apply epi_of_isZero
@@ -304,7 +313,7 @@ instance replacement_kernel_map_epi (i : ℕ) :
     intro x
     obtain ⟨y, h₁, h₂⟩ :=
       @Pseudoelement.pseudo_pullback _ _ _ _ _ _ _ (X.d (a - i - 1) (a - i))
-        (kernel.ι (replacement_aux X a H i).fst.hom ≫ (replacement_aux X a H i).snd)
+        (kernel.ι (replacementAux X a H i).fst.hom ≫ (replacementAux X a H i).snd)
         ((X.X_eq_to_iso (by norm_num [sub_sub])).hom (kernel.ι (X.d _ _) x)) 0 _
     swap
     · simp only [← Pseudoelement.comp_apply, Category.assoc, HomologicalComplex.xEqToIso_d,
@@ -313,10 +322,10 @@ instance replacement_kernel_map_epi (i : ℕ) :
       have : a - ↑i = a - ↑(i + 1) + 1 := by norm_num [← sub_sub]
       convert kernel.condition _
     obtain ⟨z, rfl⟩ := Pseudoelement.pseudo_surjective_of_epi (projective.π _) y
-    apply_fun kernel.ι (replacement_aux X a H i).fst.hom at h₂ 
+    apply_fun kernel.ι (replacementAux X a H i).fst.hom at h₂ 
     simp only [← Pseudoelement.comp_apply, Category.assoc, Pseudoelement.apply_zero] at h₂ 
     obtain ⟨w, rfl⟩ := (@Pseudoelement.pseudo_exact_of_exact _ _ _ _ _ _ _ _ exact_kernel_ι).2 z h₂
-    dsimp [replacement_aux]
+    dsimp [replacementAux]
     use w
     simp only [← Pseudoelement.comp_apply] at h₁ 
     apply
@@ -331,7 +340,7 @@ instance replacement_kernel_map_epi (i : ℕ) :
 
 instance (i : ℕ) : Epi (replacementAux X a H i).snd :=
   by
-  cases i <;> dsimp [replacement_aux]
+  cases i <;> dsimp [replacementAux]
   · apply epi_of_isZero; apply H; simp
   · apply (config := { instances := false }) epi_comp
     · infer_instance
@@ -339,13 +348,13 @@ instance (i : ℕ) : Epi (replacementAux X a H i).snd :=
     swap; · infer_instance
     let e :
       pullback (X.d (a - i - 1) (a - i))
-          (kernel.ι (replacement_aux X a H i).fst.hom ≫ (replacement_aux X a H i).snd) ≅
+          (kernel.ι (replacementAux X a H i).fst.hom ≫ (replacementAux X a H i).snd) ≅
         pullback (kernel.lift (X.d (a - i) (a - i + 1)) _ _) (kernel.lift _ _ _) :=
       by
       refine'
         pullback.congrHom (kernel.lift_ι _ _ (X.d_comp_d _ _ _)).symm (kernel.lift_ι _ _ _).symm ≪≫
           CategoryTheory.Projective.pullbackCompMonoIso _ _ (kernel.ι _)
-      rw [Category.assoc, kernel_ι_replacement_aux_eq_zero]
+      rw [Category.assoc, kernel_ι_replacementAux_eq_zero]
     have : e.hom ≫ pullback.fst = pullback.fst := by simp
     refine' (eq_iff_iff.mp (congr_arg epi this)).mp _
     infer_instance
@@ -373,8 +382,8 @@ theorem homology'Functor_map_iso {X Y : CochainComplex V ℤ} (f : X ⟶ Y) (i :
 
 theorem mono_homology'Functor_of_pseudoelement (i : ℤ) {X Y : CochainComplex V ℤ} (f : X ⟶ Y)
     (H :
-      ∀ (x : X.pt i) (y : Y.pt (i - 1)),
-        X.d i (i + 1) x = 0 → Y.d (i - 1) i y = f.f i x → ∃ z : X.pt (i - 1), X.d (i - 1) i z = x) :
+      ∀ (x : X.X i) (y : Y.X (i - 1)),
+        X.d i (i + 1) x = 0 → Y.d (i - 1) i y = f.f i x → ∃ z : X.X (i - 1), X.d (i - 1) i z = x) :
     Mono ((homology'Functor V (ComplexShape.up ℤ) i).map f) :=
   by
   haveI :=
@@ -396,15 +405,15 @@ theorem Pseudoelement.id_apply {X : V} (x : X) : @coeFn _ Pseudoelement.homToFun
 
 theorem replacementAux_comp_eq_zero (i : ℕ) :
     (replacementAux X a H (i + 1)).fst.hom ≫
-        eqToHom (by dsimp [replacement_aux]; rfl) ≫ (replacementAux X a H i).fst.hom =
+        eqToHom (by dsimp [replacementAux]; rfl) ≫ (replacementAux X a H i).fst.hom =
       0 :=
   by
-  dsimp [replacement_aux]
+  dsimp [replacementAux]
   simp only [Category.assoc, Category.id_comp]
   refine' (Category.assoc _ _ _).symm.trans (Eq.trans _ comp_zero)
   pick_goal 3
   congr 1
-  exact kernel.condition (replacement_aux X a H i).fst.hom
+  exact kernel.condition (replacementAux X a H i).fst.hom
 
 noncomputable def replacementHomologyMap (i : ℕ) :
     homology' _ _ ((Category.assoc _ _ _).trans (replacementAux_comp_eq_zero X a H (i + 1))) ⟶
@@ -420,7 +429,7 @@ noncomputable def replacementHomologyMap (i : ℕ) :
 instance (i : ℕ) : Mono (replacementHomologyMap X a H i) :=
   by
   apply CategoryTheory.Projective.mono_homology'_map_of_epi_pullback_lift
-  dsimp [replacement_aux]
+  dsimp [replacementAux]
   convert projective.π_epi _
   apply pullback.hom_ext
   ·
@@ -446,7 +455,7 @@ instance replacement_kernel_map_epi' (i : ℕ) :
         (kernel.ι (replacementAux X a H (i + 1)).fst.hom ≫ (replacementAux X a H (i + 1)).snd)
         (by
           rw [Category.assoc]
-          convert kernel_ι_replacement_aux_eq_zero X a H _ <;> norm_num [sub_add])) :=
+          convert kernel_ι_replacementAux_eq_zero X a H _ <;> norm_num [sub_add])) :=
   by convert Projective.replacement_kernel_map_epi X a H _ <;> norm_num [sub_add]
 
 instance (i : ℕ) : Epi (replacementHomologyMap X a H i) :=
@@ -471,11 +480,11 @@ theorem replacementAux_eq_of_eq (i j : ℕ) (e : i + 1 = j) :
     (replacementAux X a H j).1.right = (replacementAux X a H i).1.left :=
   by
   subst e
-  dsimp [replacement_aux]
+  dsimp [replacementAux]
   rfl
 
 theorem replacementAux_fst_hom_congr (i j : ℕ) (e : i = j) :
-    HEq (replacementAux X a H i).1.Hom (replacementAux X a H j).1.Hom := by subst e
+    HEq (replacementAux X a H i).1.hom (replacementAux X a H j).1.hom := by subst e
 
 theorem replacementAux_snd_congr (i j : ℕ) (e : i = j) :
     HEq (replacementAux X a H i).2 (replacementAux X a H j).2 := by subst e
@@ -520,7 +529,7 @@ theorem replacement_hom_homology'_iso (i : ℕ) :
     · norm_num [← sub_add]; exact (Int.natAbs_ofNat_core _).symm
     · simp only [gt_iff_lt, tsub_le_iff_right, not_lt]; linarith
   any_goals
-    rw [if_neg]; dsimp [replacement_aux]; congr; · ext; congr; norm_num; · norm_num
+    rw [if_neg]; dsimp [replacementAux]; congr; · ext; congr; norm_num; · norm_num
     · simp only [gt_iff_lt, tsub_le_iff_right, not_lt]; linarith
   any_goals rw [Category.comp_id]
   any_goals rw [hEq_eqToHom_comp_iff]
@@ -567,13 +576,13 @@ theorem homology_isZero_of_bounded (i : ℤ) (e : a ≤ i) :
   apply H i e
   all_goals infer_instance
 
-theorem replacement_is_projective (i : ℤ) : Projective ((replacement X a H).pt i) :=
+theorem replacement_is_projective (i : ℤ) : Projective ((replacement X a H).X i) :=
   by
   dsimp [replacement]
   split_ifs
   · infer_instance
-  · dsimp [replacement_aux]
-    induction (a - i).natAbs <;> dsimp [replacement_aux] <;> infer_instance
+  · dsimp [replacementAux]
+    induction (a - i).natAbs <;> dsimp [replacementAux] <;> infer_instance
 
 instance (i : ℤ) : Epi ((replacement.hom X a H).f i) :=
   by
@@ -582,7 +591,7 @@ instance (i : ℤ) : Epi ((replacement.hom X a H).f i) :=
   · apply epi_of_isZero; apply H; exact le_of_lt h
   · infer_instance
 
-theorem replacement_is_bounded : ∀ (i) (h : a ≤ i), IsZero ((replacement X a H).pt i) :=
+theorem replacement_is_bounded : ∀ (i) (h : a ≤ i), IsZero ((replacement X a H).X i) :=
   by
   intro i h
   dsimp [replacement]
@@ -590,7 +599,7 @@ theorem replacement_is_bounded : ∀ (i) (h : a ≤ i), IsZero ((replacement X a
   · exact is_zero_zero _
   · have : a = i := by linarith; subst this
     rw [sub_self, Int.natAbs_zero]
-    dsimp [replacement_aux]
+    dsimp [replacementAux]
     exact is_zero_zero _
 
 instance : QuasiIso' (replacement.hom X a H) :=
@@ -613,7 +622,7 @@ instance : QuasiIso' (replacement.hom X a H) :=
 @[simps]
 def CochainComplex.asNatChainComplex (X : CochainComplex V ℤ) (a : ℤ) : ChainComplex V ℕ
     where
-  pt i := X.pt (a - i)
+  X i := X.X (a - i)
   d i j := X.d _ _
   shape i j r := by
     refine' X.shape _ _ fun e => r _; dsimp at e ⊢
@@ -636,7 +645,7 @@ theorem Preadditive.exact_iff_homology'_isZero {X Y Z : V} (f : X ⟶ Y) (g : Y 
   simp_rw [CategoryTheory.Projective.isZero_iff_iso_zero]
 
 noncomputable def nullHomotopicOfProjectiveToAcyclicAux {X Y : CochainComplex V ℤ} (f : X ⟶ Y)
-    (a : ℤ) (h₁ : ∀ i, Projective (X.pt i)) (h₂ : ∀ i, a ≤ i → IsZero (X.pt i))
+    (a : ℤ) (h₁ : ∀ i, Projective (X.X i)) (h₂ : ∀ i, a ≤ i → IsZero (X.X i))
     (h₃ : ∀ i, IsZero ((homology'Functor _ _ i).obj Y)) :
     Homotopy ((CochainComplex.toNatChainComplex a).map f) 0 :=
   by
@@ -676,10 +685,10 @@ noncomputable def nullHomotopicOfProjectiveToAcyclicAux {X Y : CochainComplex V 
       erw [← Category.assoc, Projective.factorThru_comp, kernel.lift_ι]; rfl
 
 noncomputable def nullHomotopicOfProjectiveToAcyclic {X Y : CochainComplex V ℤ} (f : X ⟶ Y) (a : ℤ)
-    (h₁ : ∀ i, Projective (X.pt i)) (h₂ : ∀ i, a ≤ i → IsZero (X.pt i))
+    (h₁ : ∀ i, Projective (X.X i)) (h₂ : ∀ i, a ≤ i → IsZero (X.X i))
     (h₃ : ∀ i, IsZero ((homology'Functor _ _ i).obj Y)) : Homotopy f 0
     where
-  Hom i j :=
+  hom i j :=
     if h : i ≤ a ∧ j ≤ a then
       by
       refine'

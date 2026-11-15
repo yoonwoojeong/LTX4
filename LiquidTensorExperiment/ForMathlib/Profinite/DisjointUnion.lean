@@ -4,6 +4,7 @@ import Mathlib.Topology.Category.Profinite.AsLimit
 import Mathlib.Topology.Category.Profinite.Basic
 import Mathlib.Topology.Category.Profinite.CofilteredLimit
 import Mathlib.Topology.Category.Profinite.Projective
+import Mathlib.Topology.Category.Profinite.Limits
 import LiquidTensorExperiment.ForMathlib.QuotientMap
 import Mathlib.CategoryTheory.Limits.Shapes.FiniteLimits
 
@@ -21,6 +22,9 @@ namespace Profinite
 
 universe u
 
+-- Porting note: Lean 3 had `≫` available globally; here it is scoped.
+open CategoryTheory
+
 variable {α : Type u} [Fintype α] (X : α → Profinite.{u})
 
 def empty : Profinite.{u} :=
@@ -31,16 +35,22 @@ def empty.elim (X : Profinite.{u}) : empty ⟶ X where toFun := PEmpty.elim
 def sum (X Y : Profinite.{u}) : Profinite.{u} :=
   Profinite.of <| Sum X Y
 
-def sum.inl (X Y : Profinite.{u}) : X ⟶ sum X Y where toFun := Sum.inl
+def sum.inl (X Y : Profinite.{u}) : X ⟶ sum X Y where
+  toFun := Sum.inl
+  -- Porting note: `continuous_toFun` is no longer filled in by an auto-param
+  continuous_toFun := continuous_inl
 
-def sum.inr (X Y : Profinite.{u}) : Y ⟶ sum X Y where toFun := Sum.inr
+def sum.inr (X Y : Profinite.{u}) : Y ⟶ sum X Y where
+  toFun := Sum.inr
+  -- Porting note: `continuous_toFun` is no longer filled in by an auto-param
+  continuous_toFun := continuous_inr
 
 def sum.desc {Z} (X Y : Profinite.{u}) (f : X ⟶ Z) (g : Y ⟶ Z) : sum X Y ⟶ Z
     where
   toFun x := Sum.recOn x f g
   continuous_toFun := by
-    simp only [continuous_sup_dom, continuous_coinduced_dom]
-    exact ⟨f.continuous, g.continuous⟩
+    -- Porting note: the Lean 3 `simp only [continuous_sup_dom, continuous_coinduced_dom]` no longer applies
+    exact continuous_sum_dom.2 ⟨f.continuous, g.continuous⟩
 
 @[reassoc (attr := simp)]
 theorem sum.inl_desc {Z} (X Y : Profinite.{u}) (f : X ⟶ Z) (g : Y ⟶ Z) :
@@ -67,7 +77,8 @@ def sigma.ι (a : α) : X a ⟶ sigma X where
     exact ⟨a, rfl⟩
     apply continuous_coinduced_rng
 
-theorem sigma.ι_injective (a : α) : Function.Injective (sigma.ι X a) := by dsimp [sigma.ι];
+theorem sigma.ι_injective (a : α) : Function.Injective (sigma.ι X a) := by
+  dsimp [sigma.ι]
   exact sigma_mk_injective
 
 theorem sigma.ι_jointly_surjective (t : sigma X) : ∃ (a : _) (x : X a), sigma.ι X a x = t := by
@@ -116,53 +127,11 @@ def sigmaCofanIsColimit : Limits.IsColimit (sigmaCofan X)
     apply sigma.hom_ext
     intro a
     convert h ⟨a⟩
-    simp
 
-def pullback {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : Profinite
-    where
-  toCompHaus :=
-    { toTop := TopCat.of {a : X × Y | f a.1 = g a.2}
-      IsCompact := by
-        erw [← isCompact_iff_compactSpace]
-        apply IsClosed.isCompact
-        apply isClosed_eq
-        all_goals continuity
-      is_hausdorff := by
-        change T2Space {a : X × Y | f a.1 = g a.2}
-        infer_instance }
-  IsTotallyDisconnected := Subtype.totallyDisconnectedSpace
-
-def pullback.fst {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : pullback f g ⟶ X where
-  toFun a := a.1.1
-
-def pullback.snd {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) : pullback f g ⟶ Y where
-  toFun a := a.1.2
-
-@[reassoc]
-theorem pullback.condition {X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) :
-    pullback.fst f g ≫ f = pullback.snd f g ≫ g := by ext ⟨t, ht⟩; exact ht
-
-def pullback.lift {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X) (e₂ : W ⟶ Y)
-    (w : e₁ ≫ f = e₂ ≫ g) : W ⟶ pullback f g where
-  toFun t := ⟨(e₁ t, e₂ t), by apply_fun fun ee => ee t at w ; exact w⟩
-
-@[reassoc (attr := simp)]
-theorem pullback.lift_fst {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X)
-    (e₂ : W ⟶ Y) (w : e₁ ≫ f = e₂ ≫ g) : pullback.lift f g e₁ e₂ w ≫ pullback.fst f g = e₁ := by
-  ext; rfl
-
-@[reassoc (attr := simp)]
-theorem pullback.lift_snd {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B) (e₁ : W ⟶ X)
-    (e₂ : W ⟶ Y) (w : e₁ ≫ f = e₂ ≫ g) : pullback.lift f g e₁ e₂ w ≫ pullback.snd f g = e₂ := by
-  ext; rfl
-
-theorem pullback.hom_ext {W X Y B : Profinite.{u}} (f : X ⟶ B) (g : Y ⟶ B)
-    (e₁ e₂ : W ⟶ pullback f g) (w₁ : e₁ ≫ pullback.fst f g = e₂ ≫ pullback.fst f g)
-    (w₂ : e₁ ≫ pullback.snd f g = e₂ ≫ pullback.snd f g) : e₁ = e₂ :=
-  by
-  ext t
-  · apply_fun fun e => e t at w₁ ; exact w₁
-  · apply_fun fun e => e t at w₂ ; exact w₂
+/-! Porting note: `Profinite.pullback`, `pullback.fst`, `pullback.snd`, `pullback.condition`,
+`pullback.lift`, `pullback.lift_fst`, `pullback.lift_snd` and `pullback.hom_ext` were upstreamed to
+mathlib (`Mathlib.Topology.Category.Profinite.Limits`) with the same explicit signatures
+(only the order of the implicit arguments differs); LTE's copies were removed. -/
 
 def sigmaPullbackToPullbackSigma {B} (f : ∀ a, X a ⟶ B) :
     (sigma fun a : α × α => pullback (f a.1) (f a.2)) ⟶
@@ -185,21 +154,26 @@ instance {B} (f : ∀ a, X a ⟶ B) : IsIso (sigmaPullbackToPullbackSigma X f) :
 @[simp]
 theorem sigmaPullbackToPullbackSigma_fst {B} (f : ∀ a, X a ⟶ B) :
     sigmaPullbackToPullbackSigma X f ≫ pullback.fst _ _ =
-      sigma.desc _ fun a => pullback.fst _ _ ≫ sigma.ι _ a.1 :=
+      sigma.desc (fun a : α × α => pullback (f a.1) (f a.2))
+        fun a => pullback.fst (f a.1) (f a.2) ≫ sigma.ι X a.1 :=
   by ext ⟨_, _⟩ <;> rfl
 
 @[simp]
 theorem sigmaPullbackToPullbackSigma_snd {B} (f : ∀ a, X a ⟶ B) :
     sigmaPullbackToPullbackSigma X f ≫ pullback.snd _ _ =
-      sigma.desc _ fun a => pullback.snd _ _ ≫ sigma.ι _ a.2 :=
+      sigma.desc (fun a : α × α => pullback (f a.1) (f a.2))
+        fun a => pullback.snd (f a.1) (f a.2) ≫ sigma.ι X a.2 :=
   by ext ⟨_, _⟩ <;> rfl
 
 theorem sigma_iso_of_equiv_aux {α β : Type u} [Fintype α] [Fintype β] (e : α ≃ β)
     (X : β → Profinite.{u}) (b : β) (h : b = e (e.symm b)) :
     eqToHom (by rw [h]) ≫ sigma.ι _ _ = sigma.ι X b :=
   by
-  induction h
-  simp
+  -- Porting note: Lean 3 `induction h` generalised the right hand side; do it by hand.
+  have key : ∀ b' (h' : b = b'), eqToHom (by rw [h']) ≫ sigma.ι X b' = sigma.ι X b := by
+    rintro _ rfl
+    simp
+  exact key _ h
 
 def sigmaIsoOfEquiv {α β : Type u} [Fintype α] [Fintype β] (e : α ≃ β) (X : β → Profinite.{u}) :
     sigma (X ∘ e) ≅ sigma X
