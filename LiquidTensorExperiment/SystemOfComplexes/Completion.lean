@@ -125,7 +125,7 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
       congr 1
       simp only [K', if_neg hK]
       rw [mul_div_cancel' _ (two_ne_zero : (2 : ℝ) ≠ 0),
-        mul_div_cancel' _ (nnreal.coe_ne_zero.mpr hK)]
+        mul_div_cancel' _ (NNReal.coe_ne_zero.mpr hK)]
   set i₀ := i - 1 with hi₀
   have seq :
     ∀ j : ℕ,
@@ -141,7 +141,7 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
   let y : ℕ → C c i := fun j => res (w j) - ∑ l in range j, C.d _ _ (z l)
   have cau_y : CauchySeq y :=
     by
-    apply cauchySeq_of_le_geometric (2⁻¹ : ℝ) 1 nnreal.two_inv_lt_one
+    apply cauchySeq_of_le_geometric (2⁻¹ : ℝ) 1 NNReal.two_inv_lt_one
     intro j
     have fact : ‖(C.d _ (i + 1) (w (j + 1) - w j))‖ ≤ 2 * ε j :=
       calc
@@ -163,8 +163,9 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
       _ = ‖(res (w (j + 1) - w j) - C.d _ _ (z j))‖ := by
         simp [_root_.map_sub, sum_range_succ]
       _ ≤ K * ‖(C.d _ _ (w (j + 1) - w j))‖ + δ j := (hz j)
-      _ ≤ K * (2 * ε j) + δ j := by apply add_le_add_right;
-        apply mul_le_mul_of_nonneg_left Fact (NNReal.coe_nonneg K)
+      _ ≤ K * (2 * ε j) + δ j := by
+        apply add_le_add_right
+        apply mul_le_mul_of_nonneg_left fact (NNReal.coe_nonneg K)
       _ ≤ 1 * 2⁻¹ ^ j := hεδ j
   have hdyj : ∀ j, C.d _ _ (y j) = res (C.d _ _ <| w j) :=
     by

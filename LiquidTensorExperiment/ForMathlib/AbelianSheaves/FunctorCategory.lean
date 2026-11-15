@@ -344,9 +344,9 @@ instance functor_category_additiveCategory_general {C' : Type u₁} [Category.{v
       intro n
       constructor
       intro F
-      letI : Preadditive (C' ⥤ D') := functorCategoryPreadditive
       haveI : HasLimitsOfShape (Discrete (Fin n)) (C' ⥤ D') := functorCategoryHasLimitsOfShape
-      apply Limits.HasBiproduct.of_hasProduct }
+      haveI : HasProduct F := hasLimitOfHasLimitsOfShape (Discrete.functor F)
+      exact @Limits.HasBiproduct.of_hasProduct _ _ functorCategoryPreadditive _ _ F _ }
 
 end Additivity
 

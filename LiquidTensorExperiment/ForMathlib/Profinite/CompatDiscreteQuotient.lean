@@ -27,7 +27,7 @@ theorem makeRelImpl (S : DiscreteQuotient X) (x y : X) : S.Rel x y → S.MakeRel
   MakeRel.of _ _
 
 -- Porting note: `include surj` is not available in Lean 4; the hypothesis is now explicit
-theorem makeRel_equiv (S : DiscreteQuotient X) (surj : Function.Surjective f) :
+theorem makeRel_equiv (surj : Function.Surjective f) (S : DiscreteQuotient X) :
     Equivalence (S.MakeRel f) := by
   refine' ⟨fun x => _, fun {x y} h => _, fun {x y z} h1 h2 => MakeRel.trans h1 h2⟩
   · obtain ⟨x, rfl⟩ := surj x
@@ -37,26 +37,26 @@ theorem makeRel_equiv (S : DiscreteQuotient X) (surj : Function.Surjective f) :
     | trans _ _ h3 h4 => exact MakeRel.trans h4 h3
 
 /-- The setoid assoc. to make_rel. -/
-def makeSetoid (S : DiscreteQuotient X) (surj : Function.Surjective f) : Setoid Y :=
+def makeSetoid (surj : Function.Surjective f) (S : DiscreteQuotient X) : Setoid Y :=
   ⟨S.MakeRel f, S.makeRel_equiv f surj⟩
 
 /-- The quotient of make_rel. -/
 -- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
-def MakeQuotient (S : DiscreteQuotient X) (surj : Function.Surjective f) : Type _ :=
+def MakeQuotient (surj : Function.Surjective f) (S : DiscreteQuotient X) : Type _ :=
   Quotient (S.makeSetoid f surj)
 
 /-- The projection onto make_rel. -/
-def makeProj (S : DiscreteQuotient X) (surj : Function.Surjective f) : Y → S.MakeQuotient f surj :=
+def makeProj (surj : Function.Surjective f) (S : DiscreteQuotient X) : Y → S.MakeQuotient f surj :=
   Quotient.mk''
 
-theorem makeProj_comm (S : DiscreteQuotient X) (surj : Function.Surjective f) :
+theorem makeProj_comm (surj : Function.Surjective f) (S : DiscreteQuotient X) :
     S.makeProj f surj ∘ f = (Quotient.map' f <| by exact makeRelImpl _ _) ∘ S.proj := by
   funext x
   rfl
 
 /-- Given a discrete quotient S of f.left, this is the compatible quotient
  of f where f.right is as large as possible. -/
-def make (S : DiscreteQuotient X) (surj : Function.Surjective f) : DiscreteQuotient Y
+def make (surj : Function.Surjective f) (S : DiscreteQuotient X) : DiscreteQuotient Y
     where
   toSetoid := S.makeSetoid f surj
   isOpen_setOf_rel := by
@@ -78,11 +78,11 @@ def make (S : DiscreteQuotient X) (surj : Function.Surjective f) : DiscreteQuoti
     exact continuous_of_discreteTopology
 
 -- Porting note: the Lean 3 `clopen` field is only `isOpen_setOf_rel` in Lean 4
-theorem makeLeComap (S : DiscreteQuotient X) (surj : Function.Surjective f) :
+theorem makeLeComap (surj : Function.Surjective f) (S : DiscreteQuotient X) :
     LEComap f S (S.make f surj) :=
   makeRelImpl _ _
 
-theorem make_right_le (S : DiscreteQuotient X) (surj : Function.Surjective f)
+theorem make_right_le (surj : Function.Surjective f) (S : DiscreteQuotient X)
     (T : DiscreteQuotient Y)
     (compat : LEComap f S T) : S.make f surj ≤ T := by
   intro x y h
@@ -90,7 +90,7 @@ theorem make_right_le (S : DiscreteQuotient X) (surj : Function.Surjective f)
   | of a b hab => exact compat hab
   | trans _ _ h1 h2 => exact T.trans _ _ _ h1 h2
 
-theorem make_right_mono (S1 S2 : DiscreteQuotient X) (surj : Function.Surjective f)
+theorem make_right_mono (surj : Function.Surjective f) (S1 S2 : DiscreteQuotient X)
     (h : S1 ≤ S2) : S1.make f surj ≤ S2.make f surj := by
   intro x y hxy
   induction hxy with
