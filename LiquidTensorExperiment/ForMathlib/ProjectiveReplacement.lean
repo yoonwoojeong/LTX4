@@ -415,43 +415,53 @@ theorem mono_homology'Functor_of_pseudoelement (i : ℤ) {X Y : CochainComplex V
 
 attribute [local instance] Pseudoelement.setoid
 
-theorem Pseudoelement.id_apply {X : V} (x : X) : @coeFn _ Pseudoelement.homToFun (𝟙 X) x = x :=
+theorem Pseudoelement.id_apply {X : V} (x : X) : @CoeFun.coe _ _ Pseudoelement.homToFun (𝟙 X) x = x :=
   by
-  apply Quot.inductionOn x
-  intro a
-  change ⟦Over.mk _⟧ = ⟦a⟧
+  -- Porting note: `Quot.inductionOn` replaced by `Quotient.inductionOn`
+  refine Quotient.inductionOn x (fun a => ?_)
+  change Quot.mk _ (Over.mk (a.hom ≫ 𝟙 X)) = Quot.mk _ a
   erw [Category.comp_id]
   rcases a with ⟨_, ⟨⟨⟩⟩, _⟩
   congr
 
 theorem replacementAux_comp_eq_zero (i : ℕ) :
     (replacementAux X a H (i + 1)).fst.hom ≫
-        eqToHom (by dsimp [replacementAux]; rfl) ≫ (replacementAux X a H i).fst.hom =
+        eqToHom (by dsimp [replacementAux]) ≫ (replacementAux X a H i).fst.hom =
       0 :=
   by
   dsimp [replacementAux]
   simp only [Category.assoc, Category.id_comp]
-  refine' (Category.assoc _ _ _).symm.trans (Eq.trans _ comp_zero)
-  pick_goal 3
-  congr 1
-  exact kernel.condition (replacementAux X a H i).fst.hom
+  -- Porting note: the `refine'`/`congr` steps replaced by `simp`
+  simp
 
 noncomputable def replacementHomologyMap (i : ℕ) :
     homology' _ _ ((Category.assoc _ _ _).trans (replacementAux_comp_eq_zero X a H (i + 1))) ⟶
       homology' _ _ (X.d_comp_d (a - (i + 1 : ℕ) - 1) (a - (i + 1 : ℕ)) (a - i)) :=
   by
-  refine' homology'.map _ _ _ (Arrow.homMk (CategoryTheory.Projective.replacementAux_snd_comm X a H i).symm) _
-  · have := (CategoryTheory.Projective.replacementAux_snd_comm X a H (i + 1)).symm.trans (Category.assoc _ _ _).symm
-    have hai : a - ↑(i + 2) = a - ↑(i + 1) - 1 := by push_cast; ring
-    rw [← X.xEqToIso_d hai, ← Category.assoc] at this 
-    exact Arrow.homMk this
-  · infer_instance; · rfl
+  -- Porting note: the first arrow morphism is built first, so that the `HasImageMap` instance can be found
+  have h1 := (CategoryTheory.Projective.replacementAux_snd_comm X a H (i + 1)).symm.trans
+    (Category.assoc _ _ _).symm
+  have hai : a - ↑(i + 2) = a - ↑(i + 1) - 1 := by push_cast; ring
+  rw [← X.xEqToIso_d hai, ← Category.assoc] at h1
+  have h2 := (CategoryTheory.Projective.replacementAux_snd_comm X a H i).symm
+  let α : Arrow.mk ((replacementAux X a H (i + 1 + 1)).fst.hom ≫
+      eqToHom (by dsimp [replacementAux])) ⟶ Arrow.mk (X.d (a - ↑(i + 1) - 1) (a - ↑(i + 1))) :=
+    Arrow.homMk h1
+  let β : Arrow.mk (replacementAux X a H (i + 1)).fst.hom ⟶ Arrow.mk (X.d (a - ↑(i + 1)) (a - ↑i)) :=
+    Arrow.homMk h2
+  exact homology'.map _ _ α β rfl
 
+-- Porting note: the terms involved are large, so more heartbeats are needed in Lean 4
+set_option maxHeartbeats 1000000 in
 instance (i : ℕ) : Mono (replacementHomologyMap X a H i) :=
   by
+  -- Porting note: `delta` needed to expose `homology'.map`
+  delta replacementHomologyMap
   apply CategoryTheory.Projective.mono_homology'_map_of_epi_pullback_lift
   dsimp [replacementAux]
-  convert projective.π_epi _
+  -- Porting note: `convert` is very slow here, so we use an explicit auxiliary statement
+  have key : ∀ {S T : V} (u v : S ⟶ T), u = v → Epi v → Epi u := fun u v h _ => h ▸ ‹Epi v›
+  refine key _ (Projective.π _) ?_ inferInstance
   apply pullback.hom_ext
   ·
     simpa only [Category.comp_id, Category.assoc, Arrow.homMk_left, X.xEqToIso_trans,
@@ -459,16 +469,14 @@ instance (i : ℕ) : Mono (replacementHomologyMap X a H i) :=
   · refine' (cancel_mono (kernel.ι _)).mp _
     simp only [Category.comp_id, Category.assoc, Arrow.homMk_left, kernel.lift_ι,
       X.xEqToIso_trans, pullback.lift_snd, X.xEqToIso_refl]
-    simp_rw [← Category.assoc]
-    exact Category.comp_id _
 
 theorem comp_left_epi_iff {V : Type _} [Category V] {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) [Epi f] :
     Epi (f ≫ g) ↔ Epi g :=
-  ⟨fun h => @epi_of_epi _ _ _ h, fun h => @epi_comp _ _ _ _ h⟩
+  ⟨fun h => by haveI := h; exact epi_of_epi f g, fun h => by haveI := h; exact epi_comp f g⟩
 
 theorem comp_right_epi_iff {V : Type _} [Category V] {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) [IsIso g] :
     Epi (f ≫ g) ↔ Epi f :=
-  ⟨fun h => by simpa using @epi_comp _ (f ≫ g) h (inv g) _, fun h => @epi_comp _ _ h _ _⟩
+  ⟨fun h => by haveI := h; simpa using epi_comp (f ≫ g) (inv g), fun h => by haveI := h; exact epi_comp f g⟩
 
 instance replacement_kernel_map_epi' (i : ℕ) :
     Epi
@@ -476,15 +484,33 @@ instance replacement_kernel_map_epi' (i : ℕ) :
         (kernel.ι (replacementAux X a H (i + 1)).fst.hom ≫ (replacementAux X a H (i + 1)).snd)
         (by
           rw [Category.assoc]
-          convert kernel_ι_replacementAux_eq_zero X a H _ <;> norm_num [sub_add])) :=
-  by convert Projective.replacement_kernel_map_epi X a H _ <;> norm_num [sub_add]
+          -- Porting note: `convert ... <;> norm_num [sub_add]` replaced by an explicit rewrite
+          have e : a - (i : ℤ) = a - ((i + 1 : ℕ) : ℤ) + 1 := by push_cast; ring
+          rw [e]
+          exact kernel_ι_replacementAux_eq_zero X a H (i + 1))) :=
+  by
+  -- Porting note: `convert` replaced by the explicit equation of the indices
+  have e : a - (i : ℤ) = a - ((i + 1 : ℕ) : ℤ) + 1 := by push_cast; ring
+  have := Projective.replacement_kernel_map_epi X a H (i + 1)
+  have key : ∀ (b : ℤ) (hb : b = a - ((i + 1 : ℕ) : ℤ) + 1)
+      (h0 : (kernel.ι (replacementAux X a H (i + 1)).fst.hom ≫ (replacementAux X a H (i + 1)).snd) ≫
+        X.d (a - ((i + 1 : ℕ) : ℤ)) b = 0),
+      Epi (kernel.lift (X.d (a - ((i + 1 : ℕ) : ℤ)) b)
+        (kernel.ι (replacementAux X a H (i + 1)).fst.hom ≫ (replacementAux X a H (i + 1)).snd) h0) := by
+    intro b hb h0
+    subst hb
+    exact this
+  exact key _ e _
 
+set_option maxHeartbeats 1000000 in
 instance (i : ℕ) : Epi (replacementHomologyMap X a H i) :=
   by
-  apply (config := { instances := false }) epi_of_epi (homology'.π _ _ _)
+  -- Porting note: `delta` needed to expose `homology'.map`; `apply_with ... { instances := ff }`
+  -- replaced by explicit `refine`s
+  delta replacementHomologyMap
+  refine @epi_of_epi _ _ _ _ _ (homology'.π _ _ _) _ ?_
   erw [homology'.π_map]
-  apply (config := { instances := false }) epi_comp
-  swap; · infer_instance
+  refine @epi_comp _ _ _ _ _ _ ?_ _ inferInstance
   rw [← comp_left_epi_iff (CategoryTheory.Limits.kernelSubobjectIso _).inv, ←
     comp_right_epi_iff _ (CategoryTheory.Limits.kernelSubobjectIso _).hom]
   convert Projective.replacement_kernel_map_epi' X a H _ using 1
@@ -492,7 +518,6 @@ instance (i : ℕ) : Epi (replacementHomologyMap X a H i) :=
   simp only [CategoryTheory.Limits.kernelSubobject_arrow'_assoc, Category.assoc, CategoryTheory.Limits.kernelSubobjectMap_arrow,
     CategoryTheory.Limits.kernelSubobject_arrow, Arrow.homMk_left]
   erw [kernel.lift_ι]
-  infer_instance
 
 instance (i : ℕ) : IsIso (replacementHomologyMap X a H i) :=
   isIso_of_mono_of_epi _
@@ -502,17 +527,31 @@ theorem replacementAux_eq_of_eq (i j : ℕ) (e : i + 1 = j) :
   by
   subst e
   dsimp [replacementAux]
-  rfl
 
 theorem replacementAux_fst_hom_congr (i j : ℕ) (e : i = j) :
-    HEq (replacementAux X a H i).1.hom (replacementAux X a H j).1.hom := by subst e
+    HEq (replacementAux X a H i).1.hom (replacementAux X a H j).1.hom := by
+  subst e
+  rfl
 
 theorem replacementAux_snd_congr (i j : ℕ) (e : i = j) :
-    HEq (replacementAux X a H i).2 (replacementAux X a H j).2 := by subst e
+    HEq (replacementAux X a H i).2 (replacementAux X a H j).2 := by
+  subst e
+  rfl
+
+-- Porting note: auxiliary lemma replacing the Lean 3 `congr' 1` in `replacement_homology_eq`
+theorem homology'_congr_heq {A B C A' B' C' : V} {f : A ⟶ B} {g : B ⟶ C} {f' : A' ⟶ B'}
+    {g' : B' ⟶ C'} (w : f ≫ g = 0) (w' : f' ≫ g' = 0) (hA : A = A') (hB : B = B') (hC : C = C')
+    (hf : HEq f f') (hg : HEq g g') : homology' f g w = homology' f' g' w' := by
+  subst hA hB hC
+  cases hf
+  cases hg
+  rfl
 
 theorem replacement_homology'_eq (i : ℕ) :
     homology' _ _ ((replacement X a H).d_comp_d (a - ↑(i + 1) - 1) (a - ↑(i + 1)) (a - i)) =
-      homology' _ _ (ReplacementHomologyMap._proof_4 X a H i) :=
+      homology' _ _
+        -- Porting note: Lean 3's auto-generated `replacement_homology_map._proof_4`
+        ((Category.assoc _ _ _).trans (replacementAux_comp_eq_zero X a H (i + 1))) :=
   by
   dsimp only [replacement]
   have e₁ : a - (↑i + 1) - 1 + 1 = a - (↑i + 1) := by norm_num [sub_add]
@@ -520,20 +559,44 @@ theorem replacement_homology'_eq (i : ℕ) :
   have e₃ : ¬a < a - (↑i + 1) - 1 := by simp only [tsub_le_iff_right, not_lt]; linarith
   have e₄ : ¬a - (↑i + 1) > a := by simp only [gt_iff_lt, tsub_le_iff_right, not_lt]; linarith
   have e₅ : ¬a - i > a := by simp only [gt_iff_lt, tsub_le_iff_right, not_lt]; linarith
-  have e₆ : (a - (a - (↑i + 1))).natAbs = i + 1 := by rw [← sub_add, sub_self, zero_add];
-    exact Int.natAbs_ofNat_core _
+  have e₆ : (a - (a - (↑i + 1))).natAbs = i + 1 := by
+    rw [← sub_add, sub_self, zero_add]
+    exact Int.natAbs_ofNat (i + 1)
   have e₇ : (a - (a - (↑i + 1) - 1)).natAbs = i + 1 + 1 := by
-    rw [sub_sub, ← sub_add, sub_self, zero_add]; exact Int.natAbs_ofNat_core _
+    rw [sub_sub, ← sub_add, sub_self, zero_add]
+    exact Int.natAbs_ofNat (i + 1 + 1)
   have e₈ : (a - (a - i)).natAbs = i := by norm_num
   simp only [Nat.cast_add, Nat.cast_one, sub_add_cancel, eq_self_iff_true, gt_iff_lt, dif_pos,
     not_lt, sub_le_self_iff, Nat.cast_nonneg, dif_neg, CategoryTheory.eqToHom_refl, Category.comp_id]
   simp only [dif_pos e₁, dif_pos e₂, dif_neg e₄, dif_neg e₅]
-  congr 1
-  · erw [if_neg e₃]; apply CategoryTheory.Projective.replacementAux_eq_of_eq; erw [e₇]
-  · erw [if_neg e₄]; apply CategoryTheory.Projective.replacementAux_eq_of_eq; erw [e₆]
-  · erw [if_neg e₅]; · congr; · ext; congr; exact e₈; · exact e₈
-  · erw [eqToHom_comp_hEq_iff, comp_eqToHom_hEq_iff, e₆]
-  · erw [eqToHom_comp_hEq_iff, comp_eqToHom_hEq_iff, e₈]
+  -- Porting note: the equations below are restated with the casts `((i + 1 : ℕ) : ℤ)` that appear in the goals
+  have e₃' : ¬a < a - ((i + 1 : ℕ) : ℤ) - 1 := by push_cast; linarith
+  have e₄' : ¬a - ((i + 1 : ℕ) : ℤ) > a := by push_cast; linarith
+  have e₆' : (a - (a - ((i + 1 : ℕ) : ℤ))).natAbs = i + 1 := by
+    have : a - (a - ((i + 1 : ℕ) : ℤ)) = ((i + 1 : ℕ) : ℤ) := by ring
+    rw [this]
+    exact Int.natAbs_ofNat _
+  have e₇' : (a - (a - ((i + 1 : ℕ) : ℤ) - 1)).natAbs = i + 1 + 1 := by
+    have : a - (a - ((i + 1 : ℕ) : ℤ) - 1) = ((i + 1 + 1 : ℕ) : ℤ) := by push_cast; ring
+    rw [this]
+    exact Int.natAbs_ofNat _
+  have e₈' : (a - (a - (i : ℤ))).natAbs = i := by
+    have : a - (a - (i : ℤ)) = (i : ℤ) := by ring
+    rw [this]
+    exact Int.natAbs_ofNat _
+  have e₅' : ¬a < a - (i : ℤ) := by linarith
+  -- Porting note: `congr 1` in Lean 4 produces many more goals than in Lean 3, so we use `homology'_congr_heq`
+  refine homology'_congr_heq _ _ ?_ ?_ ?_ ?_ ?_
+  · rw [if_neg e₃']
+    exact replacementAux_eq_of_eq X a H (i + 1 + 1) _ (by rw [e₇'])
+  · rw [if_neg e₄']
+    exact replacementAux_eq_of_eq X a H (i + 1) _ (by rw [e₆'])
+  · rw [if_neg e₅', e₈']
+    rfl
+  · rw [eqToHom_comp_hEq_iff, comp_eqToHom_hEq_iff]
+    exact replacementAux_fst_hom_congr X a H _ _ (by rw [e₆'])
+  · rw [eqToHom_comp_hEq_iff, comp_eqToHom_hEq_iff]
+    exact replacementAux_fst_hom_congr X a H _ _ (by rw [e₈'])
 
 theorem replacement_hom_homology'_iso (i : ℕ) :
     homology'.map ((replacement X a H).d_comp_d _ _ _) (X.d_comp_d _ _ _)

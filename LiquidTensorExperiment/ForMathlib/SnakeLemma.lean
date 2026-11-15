@@ -96,9 +96,15 @@ theorem o_le_o (i j : Fin 4) (k l : Fin 3) : o i k ≤ o j l ↔ i ≤ j ∧ k �
 -- Porting note: Lean 3 `meta def hom_tac` was the tactic block
 -- `simp only [o_le_o, o_fst, o_snd, prod.le_def, and_true, true_and, le_refl], dec_trivial!`;
 -- mathport cannot translate Lean 3 metaprograms, so it is re-expressed as a Lean 4 macro.
+-- (`simp only [Prod.le_def]` does not fire on `SnakeDiagram`, which is not reducible to a product,
+-- so the goal is split with `refine ⟨_, _⟩` instead.  The leading `done` handles the case where the
+-- proof argument has already been assigned by unification, when Lean 4 would run the tactic on
+-- no goals.)
 macro "hom_tac" : tactic =>
-  `(tactic| (simp only [CategoryTheory.SnakeDiagram.o_le_o, CategoryTheory.SnakeDiagram.o_fst,
-    CategoryTheory.SnakeDiagram.o_snd, Prod.le_def, and_true, true_and, le_refl]; decide))
+  `(tactic| (first
+    | done
+    | decide
+    | (refine ⟨?_, ?_⟩ <;> (try dsimp only) <;> first | exact le_refl _ | decide)))
 
 def hom (i j : SnakeDiagram)
     (hij : i ≤ j := by
@@ -209,37 +215,28 @@ set_option hygiene true
 
 theorem squareCommutes_row (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i : Fin 4) (k l : Fin 3) (hkl : k ≤ l) :
-    SqC i i k l le_rfl hkl :=
-  by
+    SqC i i k l le_rfl hkl := by
   dsimp [SquareCommutes, map']
-  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
-    Category.id_comp, Category.comp_id, Category.assoc]
-  erw [CategoryTheory.homOfLE_refl]
-  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
-    Category.id_comp, Category.comp_id, Category.assoc]
-  rw [← Category.assoc, eq_comm]
-  convert Category.comp_id _
+  simp only [CategoryTheory.eqToHom_refl, Category.comp_id, Functor.map_id, Category.id_comp,
+    eqToHom_trans, eqToHom_trans_assoc, Category.assoc]
 
 theorem squareCommutes_col (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i j : Fin 4) (k : Fin 3) (hij : i ≤ j) :
-    SqC i j k k hij le_rfl :=
-  by
+    SqC i j k k hij le_rfl := by
   dsimp [SquareCommutes, map']
-  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
-    Category.id_comp, Category.comp_id, Category.assoc]
-  erw [CategoryTheory.homOfLE_refl]
-  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
-    Category.id_comp, Category.comp_id, Category.assoc]
-  rw [eq_comm]
-  convert Category.id_comp _
+  simp only [CategoryTheory.eqToHom_refl, Category.comp_id, Functor.map_id, Category.id_comp,
+    eqToHom_trans, eqToHom_trans_assoc, Category.assoc]
 
 theorem squareCommutes_one (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i : Fin 4) (j : Fin 3) (hi : i < 3) (hj : j < 2) :
-    SqC i (i + 1) j (j + 1) (by revert hi; revert i; decide) (by revert hj; revert j; decide) :=
-  by
-  fin_cases i; pick_goal 4; · exfalso; revert hi; decide
+    SqC i (i + 1) j (j + 1) (by revert hi; revert i; decide) (by revert hj; revert j; decide) := by
+  fin_cases i
+  pick_goal 4
+  · exfalso; revert hi; decide
   all_goals
-    fin_cases j; pick_goal 3; · exfalso; revert hj; decide
+    fin_cases j
+    pick_goal 3
+    · exfalso; revert hj; decide
     all_goals
       simp only [SquareCommutes, map', CategoryTheory.eqToHom_refl, Category.comp_id, Category.id_comp]
       assumption
@@ -247,70 +244,43 @@ theorem squareCommutes_one (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0
 theorem squareCommutes_comp_row (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i j k : Fin 4) (l m : Fin 3) (hij : i ≤ j) (hjk : j ≤ k)
     (hlm : l ≤ m) (h1 : SqC i j l m hij hlm) (h2 : SqC j k l m hjk hlm) :
-    SqC i k l m (hij.trans hjk) hlm :=
-  by
+    SqC i k l m (hij.trans hjk) hlm := by
   dsimp [SquareCommutes, map'] at h1 h2 ⊢
-  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
-    Category.id_comp, Category.comp_id, Category.assoc] at h1 h2 ⊢
-  let φ : _ := _; let ψ : _ := _
-  calc
-    _ = φ ≫ h2.lhs := _
-    _ = φ ≫ h2.rhs := by congr 1
-    _ = h1.lhs ≫ ψ := _
-    _ = h1.rhs ≫ ψ := by congr 1
-    _ = _ := _
-  pick_goal 5; · exact Functor.map _ hij.hom
-  pick_goal 4;
-  · refine' eq_to_hom _ ≫ _ ≫ eq_to_hom _
-    swap; · apply row_eq_col_obj <;> assumption
-    pick_goal 3; · symm; apply row_eq_col_obj <;> assumption
-    exact Functor.map _ hjk.hom
-  all_goals dsimp [φ, ψ, Eq.lhs_def, Eq.rhs_def]
-  · simp only [← Functor.map_comp_assoc]; rfl
-  · simp only [Category.assoc]; rfl
-  · simp only [CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc, Category.assoc]
-    dsimp
-    simp only [CategoryTheory.homOfLE_refl, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc, Category.id_comp,
-      Category.comp_id, Category.assoc, ← Functor.map_comp_assoc]
-    rfl
+  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans,
+    CategoryTheory.eqToHom_trans_assoc, Category.id_comp, Category.comp_id, Category.assoc] at h1 h2 ⊢
+  -- Porting note: the Lean 3 proof used `calc` with unification-assigned `_` steps; rewritten
+  have hik : (colF l).map (hij.trans hjk).hom = (colF l).map hij.hom ≫ (colF l).map hjk.hom := by
+    rw [← Functor.map_comp]; rfl
+  rw [hik, Category.assoc, h2, reassoc_of% h1]
+  simp only [Category.assoc, CategoryTheory.eqToHom_trans_assoc, CategoryTheory.eqToHom_refl,
+    Category.id_comp, ← Functor.map_comp_assoc]
+  rfl
 
 theorem squareCommutes_comp_col (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i j : Fin 4) (l m n : Fin 3) (hij : i ≤ j) (hlm : l ≤ m)
     (hmn : m ≤ n) (h1 : SqC i j l m hij hlm) (h2 : SqC i j m n hij hmn) :
-    SqC i j l n hij (hlm.trans hmn) :=
-  by
+    SqC i j l n hij (hlm.trans hmn) := by
   dsimp [SquareCommutes, map'] at h1 h2 ⊢
-  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
-    Category.id_comp, Category.comp_id, Category.assoc] at h1 h2 ⊢
-  let φ : _ := _; let ψ : _ := _
-  calc
-    _ = h1.lhs ≫ φ := _
-    _ = h1.rhs ≫ φ := by congr 1
-    _ = ψ ≫ h2.lhs := _
-    _ = ψ ≫ h2.rhs := by congr 1
-    _ = _ := _
-  pick_goal 5; · exact Functor.map _ hmn.hom
-  pick_goal 4;
-  · refine' eq_to_hom _ ≫ _ ≫ eq_to_hom _
-    swap; · symm; apply row_eq_col_obj <;> assumption
-    pick_goal 3; · apply row_eq_col_obj <;> assumption
-    exact Functor.map _ hlm.hom
-  all_goals dsimp [φ, ψ, Eq.lhs_def, Eq.rhs_def]
-  · simp only [Category.assoc, ← Functor.map_comp]; rfl
-  · simp only [Category.assoc]; rfl
-  · simp only [CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc, Category.assoc]
-    dsimp
-    simp only [CategoryTheory.homOfLE_refl, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc, Category.id_comp,
-      Category.comp_id, Category.assoc, ← Functor.map_comp_assoc]
-    rfl
+  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans,
+    CategoryTheory.eqToHom_trans_assoc, Category.id_comp, Category.comp_id, Category.assoc] at h1 h2 ⊢
+  have hln : (rowF j).map (hlm.trans hmn).hom = (rowF j).map hlm.hom ≫ (rowF j).map hmn.hom := by
+    rw [← Functor.map_comp]; rfl
+  rw [hln, reassoc_of% h1, h2]
+  simp only [Category.assoc, CategoryTheory.eqToHom_trans_assoc, CategoryTheory.eqToHom_refl,
+    Category.id_comp, ← Functor.map_comp_assoc]
+  rfl
+
 
 theorem col_comp_row (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i j : Fin 4) (k l : Fin 3) (hij : i ≤ j) (hkl : k ≤ l) :
-    (col k).map hij.hom ≫ eqToHom (by rw [row_obj, col_obj]) ≫ (row j).map hkl.hom =
+    (colF k).map hij.hom ≫ eqToHom (by rw [row_obj, col_obj]) ≫ (rowF j).map hkl.hom =
       eqToHom (by rw [col_obj] <;> rfl) ≫
         mapF' (o i k) (o j l) ⟨hij, hkl⟩ ≫ eqToHom (by rw [row_obj] <;> rfl) :=
   by
-  cases' i with i hi; cases' j with j hj; cases' k with k hk; cases' l with l hl
+  cases' i with i hi
+  cases' j with j hj
+  cases' k with k hk
+  cases' l with l hl
   have hkl' := hkl
   rw [← Fin.val_fin_le, Fin.val_mk, Fin.val_mk] at hij hkl 
   obtain ⟨j, rfl⟩ := Nat.exists_eq_add_of_le hij
@@ -340,10 +310,15 @@ theorem col_comp_row (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c
     CategoryTheory.SnakeDiagram.MkFunctor.squareCommutes_one F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11
       sq20 sq21 _ _ _ _ using
     2
-  · rw [Nat.one_mod, add_assoc, Nat.mod_eq_of_lt hj]
-  · rw [Nat.one_mod, add_assoc, Nat.mod_eq_of_lt hl]
-  · rw [← Fin.val_fin_lt, Fin.val_mk]; refine' Nat.lt_of_succ_lt_succ hj
-  · rw [← Fin.val_fin_lt, Fin.val_mk]; refine' Nat.lt_of_succ_lt_succ hl
+  · -- Porting note: `Fin.val_add`/`Fin.val_one` replace the Lean 3 `nat.one_mod` rewriting
+    rw [Fin.val_add, Fin.val_one]
+    exact (Nat.mod_eq_of_lt hj).symm
+  · rw [Fin.val_add, Fin.val_one]
+    exact (Nat.mod_eq_of_lt hl).symm
+  · rw [← Fin.val_fin_lt, Fin.val_mk]
+    exact Nat.lt_of_succ_lt_succ hj
+  · rw [← Fin.val_fin_lt, Fin.val_mk]
+    exact Nat.lt_of_succ_lt_succ hl
 
 theorem map'_comp (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (x y z : SnakeDiagram) (hxy : x ≤ y) (hyz : y ≤ z) :
@@ -365,112 +340,128 @@ def mkFunctor (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq1
   map {x y} h := MkFunctor.map' F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 x y h.le
   map_id x := MkFunctor.map'_id F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 x
   map_comp {x y z} hxy hyz := by
-    rw [MkFunctor.map'_comp] <;> assumption
-
-set_option hygiene false
-local notation "mkF" => mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21
-set_option hygiene true
+    -- Porting note: Lean 4 needs the `dsimp only` and the explicit `.symm`
+    dsimp only
+    exact (MkFunctor.map'_comp F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10
+      sq11 sq20 sq21 x y z hxy.le hyz.le).symm
 
 @[simp]
 theorem mkFunctor_map_f0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (0, 0) (0, 1)) = f0 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (0, 0) (0, 1)) = f0 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_g0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (0, 1) (0, 2)) = g0 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (0, 1) (0, 2)) = g0 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_a0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (0, 0) (1, 0)) = a0 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (0, 0) (1, 0)) = a0 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_b0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (0, 1) (1, 1)) = b0 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (0, 1) (1, 1)) = b0 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_c0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (0, 2) (1, 2)) = c0 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (0, 2) (1, 2)) = c0 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_f1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (1, 0) (1, 1)) = f1 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (1, 0) (1, 1)) = f1 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_g1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (1, 1) (1, 2)) = g1 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (1, 1) (1, 2)) = g1 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_a1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (1, 0) (2, 0)) = a1 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (1, 0) (2, 0)) = a1 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_b1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (1, 1) (2, 1)) = b1 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (1, 1) (2, 1)) = b1 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_c1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (1, 2) (2, 2)) = c1 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (1, 2) (2, 2)) = c1 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_f2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (2, 0) (2, 1)) = f2 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (2, 0) (2, 1)) = f2 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_g2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (2, 1) (2, 2)) = g2 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (2, 1) (2, 2)) = g2 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_a2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (2, 0) (3, 0)) = a2 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (2, 0) (3, 0)) = a2 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_b2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (2, 1) (3, 1)) = b2 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (2, 1) (3, 1)) = b2 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_c2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (2, 2) (3, 2)) = c2 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (2, 2) (3, 2)) = c2 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_f3 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (3, 0) (3, 1)) = f3 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (3, 0) (3, 1)) = f3 := by
   map_tac
 
 @[simp]
 theorem mkFunctor_map_g3 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
-    (mkF).map (hom (3, 1) (3, 2)) = g3 := by
+    (mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21).map
+      (hom (3, 1) (3, 2)) = g3 := by
   map_tac
 
 end
@@ -556,7 +547,9 @@ variable {𝒜 : Type _} [Category 𝒜] [Abelian 𝒜]
 
 -- move (ang generalize) this
 theorem exact_kernel_ι_self {A B : 𝒜} (f : A ⟶ B) : Exact (kernel.ι f) f := by
-  rw [Abelian.exact_iff]; tidy
+  rw [Abelian.exact_iff]
+  -- Porting note: `tidy` is replaced by an explicit proof
+  exact ⟨kernel.condition f, by simp⟩
 
 -- why do we not have abelian.exact_kernel?
 -- move this
@@ -610,12 +603,18 @@ end
 
 end SnakeDiagram
 
-open SnakeDiagram (o hom)
+-- Porting note: the namespace is given in full, since `SnakeDiagram` is found twice (once through
+-- `namespace CategoryTheory`, once through `open CategoryTheory`), which makes `o` ambiguous.
+open CategoryTheory.SnakeDiagram (o hom)
 
 example (i : Fin 4) : o i 0 ⟶ o i 1 :=
   hom (i, 0) (i, 1)
 
-local notation x "⟶[" D "]" y => D.map (hom x y)
+-- Porting note: `D.map` is written `(D).map`, since the dotted identifier `D.map` is not recognised
+-- as a projection of the notation variable `D` in Lean 4 (and the precheck does not know projections).
+set_option quotPrecheck false
+local notation x "⟶[" D "]" y => (D).map (hom x y)
+set_option quotPrecheck true
 
 section Definitions
 
@@ -649,18 +648,25 @@ theorem hom_eq_zero₁ (hD : IsSnakeInput D) {x y : SnakeDiagram} (f : x ⟶ y)
     (h : x.1 < 2 ∧ x.1 + 1 < y.1 := by
       hom_tac) :
     D.map f = 0 := by
-  cases' x with i j; cases' y with k l; cases' h with h₀ h₁; rcases f with ⟨⟨⟨hik, hjl⟩⟩⟩
-  dsimp at h₀ h₁ hik hjl 
-  let f₁ := hom (i, j) (i + 1, j)
-  let f₂ := hom (i + 1, j) (i + 2, j)
-  let f₃ := hom (i + 2, j) (k, l)
-  calc
-    D.map _ = D.map ((f₁ ≫ f₂) ≫ f₃) := hD.map_eq _ _
-    _ = (D.map f₁ ≫ D.map f₂) ≫ D.map f₃ := by simp only [D.map_comp]
-    _ = 0 ≫ D.map f₃ := _
-    _ = 0 := zero_comp
-  congr 1
-  obtain rfl | rfl : i = 0 ∨ i = 1 := by decide!
+  cases' x with i j
+  cases' y with k l
+  cases' h with h₀ h₁
+  rcases f with ⟨⟨⟨hik, hjl⟩⟩⟩
+  dsimp at h₀ h₁ hik hjl
+  -- Porting note: Lean 3 `dec_trivial!` proved the order facts needed for `hom` by reverting
+  -- everything; in Lean 4 they are stated and decided explicitly.
+  have key : ∀ i k : Fin 4, i < 2 → i + 1 < k → (i ≤ i + 1 ∧ i + 1 ≤ i + 2 ∧ i + 2 ≤ k) := by
+    decide
+  have key2 : ∀ i : Fin 4, i < 2 → i = 0 ∨ i = 1 := by decide
+  obtain ⟨k₁, k₂, k₃⟩ := key i k h₀ h₁
+  let f₁ := hom (i, j) (i + 1, j) ⟨k₁, le_rfl⟩
+  let f₂ := hom (i + 1, j) (i + 2, j) ⟨k₂, le_rfl⟩
+  let f₃ := hom (i + 2, j) (k, l) ⟨k₃, hjl⟩
+  -- Porting note: the Lean 3 `calc` with a `_` step is rewritten
+  refine (hD.map_eq _ ((f₁ ≫ f₂) ≫ f₃)).trans ?_
+  rw [D.map_comp, D.map_comp]
+  suffices h : D.map f₁ ≫ D.map f₂ = 0 by rw [h, zero_comp]
+  obtain rfl | rfl := key2 i h₀
   · exact (hD.col_exact₁ j).w
   · exact (hD.col_exact₂ j).w
 
@@ -671,46 +677,52 @@ open SnakeDiagram
 -- re-expressed as a Lean 4 macro.
 set_option hygiene false in
 macro "aux_simp" : tactic =>
-  `(tactic| (dsimp only [CategoryTheory.SnakeDiagram.mkOfShortExactSequenceHom]
-    simp only [CategoryTheory.SnakeDiagram.mkFunctor_map_f0, CategoryTheory.SnakeDiagram.mkFunctor_map_g0, CategoryTheory.SnakeDiagram.mkFunctor_map_a0, CategoryTheory.SnakeDiagram.mkFunctor_map_b0, CategoryTheory.SnakeDiagram.mkFunctor_map_c0, CategoryTheory.SnakeDiagram.mkFunctor_map_f1, CategoryTheory.SnakeDiagram.mkFunctor_map_g1, CategoryTheory.SnakeDiagram.mkFunctor_map_a1, CategoryTheory.SnakeDiagram.mkFunctor_map_b1, CategoryTheory.SnakeDiagram.mkFunctor_map_c1, CategoryTheory.SnakeDiagram.mkFunctor_map_f2, CategoryTheory.SnakeDiagram.mkFunctor_map_g2, CategoryTheory.SnakeDiagram.mkFunctor_map_a2, CategoryTheory.SnakeDiagram.mkFunctor_map_b2, CategoryTheory.SnakeDiagram.mkFunctor_map_c2, CategoryTheory.SnakeDiagram.mkFunctor_map_f3, CategoryTheory.SnakeDiagram.mkFunctor_map_g3]))
+  `(tactic|
+    (dsimp only [CategoryTheory.SnakeDiagram.mkOfShortExactSequenceHom]
+     simp only [CategoryTheory.SnakeDiagram.mkFunctor_map_f0, CategoryTheory.SnakeDiagram.mkFunctor_map_g0, CategoryTheory.SnakeDiagram.mkFunctor_map_a0,
+      CategoryTheory.SnakeDiagram.mkFunctor_map_b0, CategoryTheory.SnakeDiagram.mkFunctor_map_c0, CategoryTheory.SnakeDiagram.mkFunctor_map_f1,
+      CategoryTheory.SnakeDiagram.mkFunctor_map_g1, CategoryTheory.SnakeDiagram.mkFunctor_map_a1, CategoryTheory.SnakeDiagram.mkFunctor_map_b1,
+      CategoryTheory.SnakeDiagram.mkFunctor_map_c1, CategoryTheory.SnakeDiagram.mkFunctor_map_f2, CategoryTheory.SnakeDiagram.mkFunctor_map_g2,
+      CategoryTheory.SnakeDiagram.mkFunctor_map_a2, CategoryTheory.SnakeDiagram.mkFunctor_map_b2, CategoryTheory.SnakeDiagram.mkFunctor_map_c2,
+      CategoryTheory.SnakeDiagram.mkFunctor_map_f3, CategoryTheory.SnakeDiagram.mkFunctor_map_g3]))
 
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
-/- ./././Mathport/Syntax/Translate/Tactic/Builtin.lean:69:18: unsupported non-interactive tactic category_theory.is_snake_input.aux_simp -/
 theorem mkOfShortExactSequenceHom {𝒜 : Type _} [Category 𝒜] [Abelian 𝒜] (A B : ShortExactSequence 𝒜)
     (f : A ⟶ B) : IsSnakeInput (SnakeDiagram.mkOfShortExactSequenceHom A B f) :=
   { row_exact₁ := by
-      aux_simp;
+      aux_simp
       exact A.exact'
     row_exact₂ := by
-      aux_simp;
+      aux_simp
       exact B.exact'
     col_exact₁ := fun j => by
-      fin_cases j <;>
-        aux_simp;
+      -- Porting note: `fin_cases j` is replaced by an explicit case split, since after `fin_cases` the
+      -- indices are `⟨0, _⟩` rather than the numerals `0`, `1`, `2` appearing in the `simp` lemmas.
+      obtain rfl | rfl | rfl : j = 0 ∨ j = 1 ∨ j = 2 := by revert j; decide
+      all_goals aux_simp
       all_goals apply exact_kernel_ι_self
     col_exact₂ := fun j => by
-      fin_cases j <;>
-        aux_simp;
+      -- Porting note: `fin_cases j` is replaced by an explicit case split, since after `fin_cases` the
+      -- indices are `⟨0, _⟩` rather than the numerals `0`, `1`, `2` appearing in the `simp` lemmas.
+      obtain rfl | rfl | rfl : j = 0 ∨ j = 1 ∨ j = 2 := by revert j; decide
+      all_goals aux_simp
       all_goals apply exact_self_cokernel_π
     col_mono := fun j => by
-      fin_cases j <;>
-        aux_simp;
+      -- Porting note: `fin_cases j` is replaced by an explicit case split, since after `fin_cases` the
+      -- indices are `⟨0, _⟩` rather than the numerals `0`, `1`, `2` appearing in the `simp` lemmas.
+      obtain rfl | rfl | rfl : j = 0 ∨ j = 1 ∨ j = 2 := by revert j; decide
+      all_goals aux_simp
       all_goals infer_instance
     col_epi := fun j => by
-      fin_cases j <;>
-        aux_simp;
+      -- Porting note: `fin_cases j` is replaced by an explicit case split, since after `fin_cases` the
+      -- indices are `⟨0, _⟩` rather than the numerals `0`, `1`, `2` appearing in the `simp` lemmas.
+      obtain rfl | rfl | rfl : j = 0 ∨ j = 1 ∨ j = 2 := by revert j; decide
+      all_goals aux_simp
       all_goals infer_instance
     row_mono := by
-      aux_simp;
+      aux_simp
       exact B.mono'
     row_epi := by
-      aux_simp;
+      aux_simp
       exact A.epi' }
 
 end IsSnakeInput
@@ -787,7 +799,7 @@ theorem cokernel_π_surjective {P Q : 𝒜} (f : P ⟶ Q) : Function.Surjective 
 theorem exact_isIso_iff {P Q Q' R : 𝒜} (f : P ⟶ Q) (g : Q' ⟶ R) (e : Q ⟶ Q') [IsIso e] :
     Exact f (e ≫ g) ↔ Exact (f ≫ e) g := by
   let E := CategoryTheory.asIso e
-  change exact f (E.hom ≫ g) ↔ exact (f ≫ E.hom) g
+  change Exact f (E.hom ≫ g) ↔ Exact (f ≫ E.hom) g
   conv_rhs => rw [show g = E.inv ≫ E.hom ≫ g by simp]
   rw [exact_comp_hom_inv_comp_iff]
 
@@ -877,7 +889,7 @@ theorem hom_eq_zero₂ (hD : IsSnakeInput D) {x y : SnakeDiagram} (f : x ⟶ y)
   dsimp at h hik hjl ; rcases h with ⟨rfl, rfl⟩
   let f₁ := hom (i, 0) (i, 1)
   let f₂ := hom (i, 1) (i, 2)
-  let f₃ := hom (i, 2) (k, 2)
+  let f₃ := hom (i, 2) (k, 2) ⟨hik, le_rfl⟩
   calc
     D.map _ = D.map ((f₁ ≫ f₂) ≫ f₃) := hD.map_eq _ _
     _ = (D.map f₁ ≫ D.map f₂) ≫ D.map f₃ := by simp only [D.map_comp]
@@ -888,7 +900,9 @@ section LongSnake
 theorem ker_row₁_to_row₂ (hD : IsSnakeInput D) :
     (kernel.ι ((1, 0)⟶[D](1, 1)) ≫ (1, 0)⟶[D](2, 0)) = 0 :=
   by
-  refine' zero_morphism_ext _ fun a => (injective_iff_mono ((2, 0)⟶[D](2, 1))).2 hD.row_mono _
+  refine' zero_morphism_ext _ fun a => _
+  -- Porting note: `apply` instead of an application to a placeholder
+  apply (injective_iff_mono ((2, 0)⟶[D](2, 1))).2 hD.row_mono
   rw [apply_zero, ← Abelian.Pseudoelement.comp_apply, Category.assoc,
     Abelian.Pseudoelement.comp_apply, ← D.map_comp,
     map_eq hD (hom (1, 0) (2, 0) ≫ hom _ (2, 1)) (hom _ (1, 1) ≫ hom _ _), D.map_comp,
@@ -903,7 +917,7 @@ def kerRow₁ToTopLeft (hD : IsSnakeInput D) : kernel ((1, 0)⟶[D](1, 1)) ⟶ D
 theorem kerRow₁ToTopLeft_mono (hD : IsSnakeInput D) : Mono (kerRow₁ToTopLeft hD) :=
   by
   suffices
-    mono
+    Mono
       (Limits.kernel.lift _ _ (ker_row₁_to_row₂ hD) ≫
         Limits.kernel.lift _ _ ((Abelian.exact_iff _ _).1 (hD.col_exact₁ 0)).2)
     by letI := this; exact mono_comp _ _
@@ -917,16 +931,16 @@ theorem kerRow₁ToTopLeft_comp_eq_ι (hD : IsSnakeInput D) :
     (inv (Abelian.factorThruImage ((0, 0)⟶[D](1, 0))) ≫ (0, 0)⟶[D](1, 0)) =
       CategoryTheory.Abelian.image.ι _ :=
     by simp
-  rw [ker_row₁_to_top_left, Category.assoc, Category.assoc, this]
+  rw [kerRow₁ToTopLeft, Category.assoc, Category.assoc, this]
   simp
 
 theorem long_row₀_exact (hD : IsSnakeInput D) : Exact (kerRow₁ToTopLeft hD) ((0, 0)⟶[D](0, 1)) :=
   by
   refine' Abelian.Pseudoelement.exact_of_pseudo_exact _ _ ⟨fun a => _, fun a ha => _⟩
-  · refine' (injective_iff_mono _).2 (hD.col_mono _) _
+  · apply (injective_iff_mono _).2 (hD.col_mono _)
     rw [apply_zero, ← Abelian.Pseudoelement.comp_apply, ← D.map_comp,
       map_eq hD (hom (0, 0) (0, 1) ≫ hom _ (1, 1)) (hom _ (1, 0) ≫ hom _ _), D.map_comp, ←
-      Abelian.Pseudoelement.comp_apply, ← Category.assoc, ker_row₁_to_top_left_comp_eq_ι hD,
+      Abelian.Pseudoelement.comp_apply, ← Category.assoc, kerRow₁ToTopLeft_comp_eq_ι hD,
       Abelian.Pseudoelement.comp_apply, kernel_ι_apply]
   · let b := ((0, 0)⟶[D](1, 0)) a
     have hb : ((1, 0)⟶[D](1, 1)) b = 0 := by
@@ -934,8 +948,8 @@ theorem long_row₀_exact (hD : IsSnakeInput D) : Exact (kerRow₁ToTopLeft hD) 
         map_eq hD (hom (0, 0) (1, 0) ≫ hom _ (1, 1)) (hom _ (0, 1) ≫ hom _ _), D.map_comp,
         Abelian.Pseudoelement.comp_apply, ha, apply_zero]
     obtain ⟨c, hc⟩ := exists_of_exact CategoryTheory.exact_kernel_ι _ hb
-    refine' ⟨c, (injective_iff_mono _).2 (hD.col_mono _) _⟩
-    rw [← Abelian.Pseudoelement.comp_apply, ker_row₁_to_top_left_comp_eq_ι hD, hc]
+    refine ⟨c, (injective_iff_mono _).2 (hD.col_mono _) ?_⟩
+    rw [← Abelian.Pseudoelement.comp_apply, kerRow₁ToTopLeft_comp_eq_ι hD, hc]
 
 theorem row₁_middle_to_coker_row₂_eq_zero (hD : IsSnakeInput D) :
     ((1, 1)⟶[D](1, 2)) ≫ ((1, 2)⟶[D](2, 2)) ≫ Limits.cokernel.π ((2, 1)⟶[D](2, 2)) = 0 :=
@@ -970,7 +984,7 @@ def bottomRightToCokerRow₂ (hD : IsSnakeInput D) : D.obj (3, 2) ⟶ cokernel (
 theorem bottomRightToCokerRow₂_epi (hD : IsSnakeInput D) : Epi (bottomRightToCokerRow₂ hD) :=
   by
   suffices
-    epi
+    Epi
       (Limits.cokernel.desc _ _ (ker_col₂_to_coker_row₂_eq_zero hD) ≫
         Limits.cokernel.desc _ _ (row₁_to_coker_row₂_eq_zero hD))
     by letI := this; exact epi_comp _ _
@@ -984,7 +998,7 @@ theorem bottomRightToCokerRow₂_comp_eq_π (hD : IsSnakeInput D) :
     ((2, 2)⟶[D](3, 2)) ≫ inv (Abelian.factorThruCoimage ((2, 2)⟶[D](3, 2))) =
       CategoryTheory.Abelian.coimage.π _ :=
     by simp
-  rw [bottom_right_to_coker_row₂, ← Category.assoc, ← Category.assoc, this]
+  rw [bottomRightToCokerRow₂, ← Category.assoc, ← Category.assoc, this]
   simp
 
 theorem long_row₃_exact (hD : IsSnakeInput D) :
@@ -996,11 +1010,11 @@ theorem long_row₃_exact (hD : IsSnakeInput D) :
     rw [← hb, ← Abelian.Pseudoelement.comp_apply, ← Abelian.Pseudoelement.comp_apply, ←
       Category.assoc, ← D.map_comp,
       map_eq hD (hom (2, 1) (3, 1) ≫ hom _ (3, 2)) (hom _ (2, 2) ≫ hom _ _), D.map_comp,
-      Category.assoc, bottom_right_to_coker_row₂_comp_eq_π hD,
+      Category.assoc, bottomRightToCokerRow₂_comp_eq_π hD,
       (SnakeDiagram.exact_self_cokernel_π _).w, zero_apply]
   · letI := hD.col_epi 2
     obtain ⟨b, hb⟩ := Abelian.Pseudoelement.pseudo_surjective_of_epi ((2, 2)⟶[D](3, 2)) a
-    rw [← hb, ← Abelian.Pseudoelement.comp_apply, bottom_right_to_coker_row₂_comp_eq_π hD] at ha 
+    rw [← hb, ← Abelian.Pseudoelement.comp_apply, bottomRightToCokerRow₂_comp_eq_π hD] at ha 
     obtain ⟨c, hc⟩ := exists_of_exact (Abelian.exact_cokernel _) _ ha
     refine' ⟨((2, 1)⟶[D](3, 1)) c, _⟩
     rw [← hb, ← hc, ← Abelian.Pseudoelement.comp_apply, ← Abelian.Pseudoelement.comp_apply, ←
@@ -1033,7 +1047,8 @@ def cokernelToTopRightKernelToRightKernel :
         simp [Abelian.Pseudoelement.comp_apply]))
     (by
       dsimp only [CategoryTheory.IsSnakeInput.toTopRightKernel]
-      ext a
+      -- Porting note: Lean 3 `ext a` used `zero_morphism_ext`, which is no longer an `ext` lemma
+      refine zero_morphism_ext _ fun a => ?_
       apply_fun kernel.ι (D.map (hom (1, 2) (2, 2)))
       swap; · rw [injective_iff_mono]; infer_instance
       simp [← Abelian.Pseudoelement.comp_apply, hD.row_exact₁.1])
@@ -1093,7 +1108,7 @@ instance : Epi hD.cokernelToTopRightKernelToRightKernel :=
     apply hD.row_epi
   obtain ⟨c, hc⟩ : ∃ c, kernel.ι ((1, 1)⟶[D](2, 2)) c = b :=
     by
-    have : exact (kernel.ι ((1, 1)⟶[D](2, 2))) ((1, 1)⟶[D](2, 2)) := exact_kernel_ι
+    have : Exact (kernel.ι ((1, 1)⟶[D](2, 2))) ((1, 1)⟶[D](2, 2)) := exact_kernel_ι
     apply exists_of_exact this
     rw [show hom (1, 1) (2, 2) = hom (1, 1) (1, 2) ≫ hom (1, 2) (2, 2) by rfl, D.map_comp,
       Abelian.Pseudoelement.comp_apply, hb]
@@ -1130,7 +1145,8 @@ def leftCokernelToKernelBottomLeftCokernelTo :
         simp [Abelian.Pseudoelement.comp_apply]))
     (by
       dsimp only [CategoryTheory.IsSnakeInput.bottomLeftCokernelTo]
-      ext a
+      -- Porting note: Lean 3 `ext a` used `zero_morphism_ext`, which is no longer an `ext` lemma
+      refine zero_morphism_ext _ fun a => ?_
       obtain ⟨b, rfl⟩ : ∃ b, cokernel.π ((1, 0)⟶[D](2, 0)) b = a :=
         by
         have : Function.Surjective (cokernel.π ((1, 0)⟶[D](2, 0))) := by rw [surjective_iff_epi];
@@ -1208,7 +1224,7 @@ def toKernel : D.obj (0, 2) ⟶ kernel ((1, 2)⟶[D](2, 2)) :=
 
 instance : Mono hD.toKernel := by
   dsimp [CategoryTheory.IsSnakeInput.toKernel]
-  haveI : mono ((0, 2)⟶[D](1, 2)) := hD.col_mono _
+  haveI : Mono ((0, 2)⟶[D](1, 2)) := hD.col_mono _
   infer_instance
 
 instance : Epi hD.toKernel :=
@@ -1224,8 +1240,8 @@ instance : Mono hD.cokernelTo :=
   Abelian.CategoryTheory.Limits.Cokernel.Desc.CategoryTheory.mono _ _ (hD.col_exact₂ _)
 
 instance : Epi hD.cokernelTo := by
-  dsimp [cokernel_to]
-  haveI : epi ((2, 0)⟶[D](3, 0)) := hD.col_epi _
+  dsimp [cokernelTo]
+  haveI : Epi ((2, 0)⟶[D](3, 0)) := hD.col_epi _
   infer_instance
 
 instance : IsIso hD.cokernelTo :=
@@ -1261,14 +1277,14 @@ theorem exact_toδAux : Exact hD.toδAux hD.δAux :=
   apply exact_of_pseudo_exact
   constructor
   · intro a
-    dsimp [δ_aux, to_δ_aux]
+    dsimp [δAux, toδAux]
     rw [← eq_zero_iff_kernel_ι_eq_zero]
     simp only [← Abelian.Pseudoelement.comp_apply, cokernel.π_desc, kernel.lift_ι_assoc,
       Category.assoc, kernel.lift_ι]
     simp [Abelian.Pseudoelement.comp_apply, eq_zero_of_exact (hD.col_exact₁ _)]
   · intro b hb
     obtain ⟨b, rfl⟩ := cokernel_π_surjective _ b
-    dsimp [δ_aux] at hb 
+    dsimp [δAux] at hb 
     rw [← eq_zero_iff_kernel_ι_eq_zero] at hb 
     simp only [← Abelian.Pseudoelement.comp_apply, cokernel.π_desc, kernel.lift_ι] at hb 
     simp only [Abelian.Pseudoelement.comp_apply] at hb 
@@ -1283,7 +1299,7 @@ theorem exact_toδAux : Exact hD.toδAux hD.δAux :=
     clear h1
     use w
     dsimp only [b'] at h2 
-    dsimp only [to_δ_aux]
+    dsimp only [toδAux]
     simp only [Abelian.Pseudoelement.comp_apply]
     apply_fun hD.cokernelToTopRightKernelToRightKernel
     swap; · rw [injective_iff_mono]; infer_instance
@@ -1302,7 +1318,7 @@ theorem exact_fromδAux : Exact hD.δAux hD.fromδAux :=
   apply exact_of_pseudo_exact
   constructor
   · intro a
-    dsimp [δ_aux, from_δ_aux]
+    dsimp [δAux, fromδAux]
     obtain ⟨a, rfl⟩ := cokernel_π_surjective _ a
     simp only [← Abelian.Pseudoelement.comp_apply, cokernel.π_desc, kernel.lift_ι_assoc,
       Category.assoc]
@@ -1310,7 +1326,7 @@ theorem exact_fromδAux : Exact hD.δAux hD.fromδAux :=
   · intro b hb
     let b' := kernel.ι hD.bottomLeftCokernelTo b
     obtain ⟨c, hc⟩ := cokernel_π_surjective _ b'
-    simp only [from_δ_aux, Abelian.Pseudoelement.comp_apply] at hb 
+    simp only [fromδAux, Abelian.Pseudoelement.comp_apply] at hb 
     change cokernel.desc ((1, 0)⟶[D](2, 1)) _ _ b' = 0 at hb 
     rw [← hc] at hb 
     simp only [← Abelian.Pseudoelement.comp_apply, cokernel.π_desc] at hb 
@@ -1331,7 +1347,7 @@ theorem exact_fromδAux : Exact hD.δAux hD.fromδAux :=
     apply_fun kernel.ι hD.bottomLeftCokernelTo
     swap; · rw [injective_iff_mono]; infer_instance
     change _ = b'
-    dsimp [δ_aux]
+    dsimp [δAux]
     simp only [← Abelian.Pseudoelement.comp_apply, cokernel.π_desc, kernel.lift_ι]
     simp only [Abelian.Pseudoelement.comp_apply]
     rw [he, hd, hc]
@@ -1342,7 +1358,7 @@ theorem exact_to_δ : Exact ((0, 1)⟶[D](0, 2)) hD.δ :=
   rw [CategoryTheory.IsSnakeInput.exact_isIso_iff, CategoryTheory.IsSnakeInput.exact_isIso_iff, exact_comp_iso]
   convert hD.exact_toδAux using 1
   rw [IsIso.comp_inv_eq]
-  dsimp [CategoryTheory.IsSnakeInput.toKernel, to_δ_aux, CategoryTheory.IsSnakeInput.cokernelToTopRightKernelToRightKernel]
+  dsimp [CategoryTheory.IsSnakeInput.toKernel, toδAux, CategoryTheory.IsSnakeInput.cokernelToTopRightKernelToRightKernel]
   ext
   simp only [cokernel.π_desc, kernel.lift_ι_assoc, Category.assoc, kernel.lift_ι]
   simpa only [← D.map_comp]
@@ -1353,7 +1369,7 @@ theorem exact_from_δ : Exact hD.δ ((3, 0)⟶[D](3, 1)) :=
   rw [← Category.assoc, ← Category.assoc, ← CategoryTheory.IsSnakeInput.exact_isIso_iff, exact_iso_comp]
   convert hD.exact_fromδAux using 1
   rw [Category.assoc, IsIso.inv_comp_eq]
-  dsimp [cokernel_to, CategoryTheory.IsSnakeInput.leftCokernelToKernelBottomLeftCokernelTo, from_δ_aux]
+  dsimp [cokernelTo, CategoryTheory.IsSnakeInput.leftCokernelToKernelBottomLeftCokernelTo, fromδAux]
   ext
   simp only [cokernel.π_desc, kernel.lift_ι_assoc, cokernel.π_desc_assoc, Category.assoc]
   simpa only [← D.map_comp]
@@ -1373,14 +1389,14 @@ instance to_kernel_epi : Epi hD.toKernel' :=
   by
   dsimp [CategoryTheory.IsSnakeInput.toKernel']
   apply (config := { instances := false }) epi_comp; swap; infer_instance
-  haveI : epi ((1, 1)⟶[D](1, 2)) := hD.row_epi
+  haveI : Epi ((1, 1)⟶[D](1, 2)) := hD.row_epi
   replace hh := pseudo_surjective_of_epi ((1, 1)⟶[D](1, 2))
   apply epi_of_pseudo_surjective
   intro t
   obtain ⟨s, hs⟩ := hh (kernel.ι ((1, 2)⟶[D](2, 2)) t)
   obtain ⟨w, hw⟩ : ∃ w, kernel.ι ((1, 1)⟶[D](2, 2)) w = s :=
     by
-    have : exact (kernel.ι ((1, 1)⟶[D](2, 2))) ((1, 1)⟶[D](2, 2)) := exact_kernel_ι
+    have : Exact (kernel.ι ((1, 1)⟶[D](2, 2))) ((1, 1)⟶[D](2, 2)) := exact_kernel_ι
     replace this := pseudo_exact_of_exact this
     apply this.2
     rw [show hom (1, 1) (2, 2) = hom (1, 1) (1, 2) ≫ hom (1, 2) (2, 2) by rfl, Functor.map_comp,
@@ -1406,13 +1422,13 @@ instance cokernelTo'_mono : Mono hD.cokernelTo' :=
   rw [← Abelian.Pseudoelement.comp_apply, cokernel.π_desc, Abelian.Pseudoelement.comp_apply] at ha 
   obtain ⟨c, hc⟩ : ∃ c, ((1, 0)⟶[D](2, 1)) c = ((2, 0)⟶[D](2, 1)) b :=
     by
-    have : exact ((1, 0)⟶[D](2, 1)) (cokernel.π _) := Abelian.exact_cokernel _
+    have : Exact ((1, 0)⟶[D](2, 1)) (cokernel.π _) := Abelian.exact_cokernel _
     replace this := pseudo_exact_of_exact this
     apply this.2
     exact ha
   have hc' : ((1, 0)⟶[D](2, 0)) c = b :=
     by
-    haveI : mono ((2, 0)⟶[D](2, 1)) := hD.row_mono
+    haveI : Mono ((2, 0)⟶[D](2, 1)) := hD.row_mono
     apply Abelian.Pseudoelement.pseudo_injective_of_mono ((2, 0)⟶[D](2, 1))
     rw [← Abelian.Pseudoelement.comp_apply, ← D.map_comp]
     exact hc
@@ -1422,11 +1438,11 @@ instance cokernelTo'_mono : Mono hD.cokernelTo' :=
 theorem δ_spec :
     hD.toKernel' ≫ hD.δ ≫ hD.cokernelTo' = kernel.ι _ ≫ D.map (hom (1, 1) (2, 1)) ≫ cokernel.π _ :=
   by
-  dsimp only [is_snake_input.δ, IsSnakeInput.toKernel', IsSnakeInput.cokernelTo']
+  dsimp only [IsSnakeInput.δ, IsSnakeInput.toKernel', IsSnakeInput.cokernelTo']
   simp only [Category.assoc, IsIso.hom_inv_id_assoc, IsIso.inv_hom_id_assoc]
   dsimp only [IsSnakeInput.cokernelToTopRightKernelToRightKernel]
   dsimp only [IsSnakeInput.leftCokernelToKernelBottomLeftCokernelTo]
-  dsimp only [is_snake_input.δ_aux]
+  dsimp only [IsSnakeInput.δAux]
   let t := _; change _ ≫ _ ≫ _ ≫ t = _
   have ht : t = kernel.ι _ := by
     dsimp [t]
@@ -1459,14 +1475,14 @@ attribute [local instance] Limits.HasZeroObject.zero'
 theorem exact_zero_to_kerRow₁ToTopLeft (hD : IsSnakeInput D) :
     Exact (0 : 0 ⟶ kernel ((1, 0)⟶[D](1, 1))) hD.kerRow₁ToTopLeft :=
   by
-  haveI : mono hD.kerRow₁ToTopLeft := ker_row₁_to_top_left_mono hD
+  haveI : Mono hD.kerRow₁ToTopLeft := kerRow₁ToTopLeft_mono hD
   apply exact_zero_left_of_mono
 
 theorem exact_bottomRightToCokerRow₂_to_zero (hD : IsSnakeInput D) :
     Exact hD.bottomRightToCokerRow₂ (0 : cokernel ((2, 1)⟶[D](2, 2)) ⟶ 0) :=
   by
   rw [← epi_iff_exact_zero_right]
-  apply bottom_right_to_coker_row₂_epi hD
+  apply bottomRightToCokerRow₂_epi hD
 
 theorem ten_term_exactSeq (hD : IsSnakeInput D) :
     ExactSeq 𝒜
@@ -1524,7 +1540,7 @@ def kernelSequence (D : SnakeInput 𝒜) (h1 : Mono ((1, 0)⟶[D](1, 1))) (h2 : 
     letI := h1
     refine' Abelian.Pseudoelement.mono_of_zero_of_map_zero _ fun a ha => _
     obtain ⟨b, hb⟩ :=
-      IsSnakeInput.exists_of_exact (IsSnakeInput.long_row₀_exact D.is_snake_input) a ha
+      IsSnakeInput.exists_of_exact (IsSnakeInput.long_row₀_exact D.IsSnakeInput) a ha
     rw [← hb]
     simp [IsSnakeInput.kerRow₁ToTopLeft, Limits.kernel.ι_of_mono ((1, 0)⟶[D](1, 1))]
   epi' := by
