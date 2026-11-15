@@ -99,7 +99,11 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
     calc
       mnew₁' = M'.d i (i + 1) (res m' - f m₀) := rfl
       _ = res (M'.d i (i + 1) m') - f (M.d i (i + 1) m₀) := by
-        rw [NormedAddGroupHom.map_sub, d_res _, d_apply]
+        -- Porting note: `rw [map_sub, d_res _, d_apply]` times out in Lean 4
+        refine (map_sub (M'.d i (i + 1)) _ _).trans ?_
+        congr 1
+        · exact d_res _ _ _
+        · exact d_apply _ _
       _ = res (M'.d i (i + 1) m') - f (res m₁) + (f (res m₁) - f (M.d i (i + 1) m₀)) := by abel
       _ = res m₁'' + f (res m₁ - M.d i (i + 1) m₀) := by
         rw [← SystemOfComplexes.map_sub, ← res_apply, ← _root_.map_sub, ←

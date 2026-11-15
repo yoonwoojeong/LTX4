@@ -48,8 +48,11 @@ noncomputable def isColimitColimMapCocone {K : Type v} [SmallCategory K] (F : K 
     specialize hm k
     dsimp at hm 
     apply_fun fun e => colimit.ι _ j ≫ e at hm 
-    simp only [colimit.ι_map_assoc] at hm 
+    simp only [ι_colimMap_assoc] at hm 
     rw [hm]
+    -- Porting note: Lean 3 `ext` had already simplified with `colimit.ι_desc`
+    rw [colimit.ι_desc]
+    dsimp only
     erw [(Limits.isColimitOfPreserves ((evaluation J C).obj j) hT).fac]
 
 noncomputable instance colimPreservesColimits : PreservesColimits (colim : (J ⥤ C) ⥤ C) :=

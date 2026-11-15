@@ -8,20 +8,22 @@ open CategoryTheory
 
 namespace CategoryTheory.Limits
 
-attribute [local instance] concrete_category.hasCoeToFun ConcreteCategory.hasCoeToSort
+attribute [local instance] ConcreteCategory.funLike ConcreteCategory.hasCoeToSort
 
 variable {C : Type u} [Category.{v} C] [ConcreteCategory.{v} C]
 
 section Equalizer
 
 theorem Concrete.equalizer_ext {X Y : C} (f g : X ⟶ Y) [HasEqualizer f g]
-    [PreservesLimit (parallelPair f g) (forget C)] (x y : equalizer f g)
+    [PreservesLimit (parallelPair f g) (forget C)] (x y : ↥(equalizer f g))
     (h : equalizer.ι f g x = equalizer.ι f g y) : x = y :=
   by
   apply Concrete.limit_ext
   rintro (a | a)
   · apply h
-  · rw [← limit.w (CategoryTheory.Limits.parallelPair f g) WalkingParallelPairHom.right, comp_apply, comp_apply, h]
+  · -- Porting note: `comp_apply` rewriting replaced by a definitional `congrArg`
+    rw [← limit.w (CategoryTheory.Limits.parallelPair f g) WalkingParallelPairHom.right, comp_apply, comp_apply]
+    exact congrArg ((parallelPair f g).map WalkingParallelPairHom.right) h
 
 def Concrete.equalizerEquivAux {X Y : C} (f g : X ⟶ Y) :
     (parallelPair f g ⋙ forget C).sections ≃ { x : X // f x = g x }
@@ -32,12 +34,13 @@ def Concrete.equalizerEquivAux {X Y : C} (f g : X ⟶ Y) :
       have h1 := x.2 CategoryTheory.Limits.WalkingParallelPairHom.left
       have h2 := x.2 CategoryTheory.Limits.WalkingParallelPairHom.right
       dsimp at h1 h2 
-      erw [h1, h2]⟩
+      -- Porting note: `erw [h1, h2]` replaced by a term (defeq up to `forget`)
+      exact h1.trans h2.symm⟩
   invFun x :=
     { val := fun j =>
         match j with
         | WalkingParallelPair.zero => x.1
-        | WalkingParallelPair.one => f x.1
+        | WalkingParallelPair.one => (f : X ⟶ Y) x.1
       property := by
         dsimp [CategoryTheory.Functor.sections]
         rintro (a | a) (b | b) (f | f)
@@ -63,7 +66,7 @@ noncomputable def Concrete.equalizerEquiv {X Y : C} (f g : X ⟶ Y) [HasEqualize
 
 @[simp]
 theorem Concrete.equalizerEquiv_apply {X Y : C} (f g : X ⟶ Y) [HasEqualizer f g]
-    [PreservesLimit (parallelPair f g) (forget C)] (x : equalizer f g) :
+    [PreservesLimit (parallelPair f g) (forget C)] (x : ↥(equalizer f g)) :
     (Concrete.equalizerEquiv f g x : X) = equalizer.ι f g x :=
   rfl
 

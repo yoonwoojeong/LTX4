@@ -307,14 +307,14 @@ variable [HasZeroMorphisms D] [HasCokernels D] [HasKernels D]
 theorem NatTrans.coimageImageComparison_app {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
     (NatTrans.cokernelKernelιIso.{w, v, u} _ _).inv ≫
         (NatTrans.cokernelObjIso.{w, v, u} _ _).inv ≫
-          (Abelian.coimageImageComparison η).app X ≫
+          NatTrans.app (Abelian.coimageImageComparison.{max u v, max (max u v) w} η) X ≫
             (NatTrans.kernelObjIso.{w, v, u} _ _).hom ≫ (NatTrans.kernelCokernelπIso.{w, v, u} _ _).hom =
-      Abelian.coimageImageComparison (η.app X) :=
+      Abelian.coimageImageComparison.{max v u, w} (η.app X) :=
   by
   dsimp [Abelian.coimageImageComparison]
   ext
-  dsimp [NatTrans.cokernelObjIso.{w, v, u}, IsColimit.coconePointUniqueUpToIso]
-  dsimp [NatTrans.kernelObjIso.{w, v, u}, IsLimit.conePointUniqueUpToIso]
+  dsimp [NatTrans.cokernelObjIso, IsColimit.coconePointUniqueUpToIso]
+  dsimp [NatTrans.kernelObjIso, IsLimit.conePointUniqueUpToIso]
   simp
 
 end CokernelsAndKernels
@@ -326,8 +326,20 @@ variable [AdditiveCategory D]
 instance : AdditiveCategory (C ⥤ D) :=
   {-- without the infer instance, this becomes REALLY slow...
     (inferInstance : Preadditive (C ⥤ D)) with
-    HasBiproductsOfShape := by
-      intro J _
+    -- Porting note: the Lean 4 field of `HasFiniteBiproducts` is `out`
+    out := by
+      intro n
+      constructor
+      intro F
+      apply Limits.HasBiproduct.of_hasProduct }
+
+-- Porting note: general-universe version of the instance above, see the note on
+-- `functor_category_hasKernels_general`.
+instance functor_category_additiveCategory_general {C' : Type u₁} [Category.{v₁} C'] {D' : Type w₁}
+    [Category.{v₂} D'] [AdditiveCategory D'] : AdditiveCategory (C' ⥤ D') :=
+  { (inferInstance : Preadditive (C' ⥤ D')) with
+    out := by
+      intro n
       constructor
       intro F
       apply Limits.HasBiproduct.of_hasProduct }
@@ -339,31 +351,47 @@ section Abelian
 variable [Abelian D]
 
 instance additiveCategoryOfAbelian : AdditiveCategory D :=
-  { (inferInstance : Preadditive D) with }
+  -- Porting note: `HasFiniteBiproducts D` is not an instance in mathlib 4 (it is the theorem
+  -- `Abelian.hasFiniteBiproducts`), so it has to be given explicitly
+  { (inferInstance : Preadditive D) with toHasFiniteBiproducts := Abelian.hasFiniteBiproducts }
+
+-- Porting note: general-universe version of the instance above, see the note on
+-- `functor_category_hasKernels_general`.
+instance additiveCategoryOfAbelian_general {D' : Type w₁} [Category.{v₂} D'] [Abelian D'] :
+    AdditiveCategory D' :=
+  { (inferInstance : Preadditive D') with toHasFiniteBiproducts := Abelian.hasFiniteBiproducts }
 
 -- without the infer instance, this becomes REALLY slow...
 instance functor_category_isIso_coim_to_im_app {F G : C ⥤ D} (η : F ⟶ G) (X : C) :
-    IsIso ((Abelian.coimageImageComparison η).app X) :=
+    IsIso (NatTrans.app (Abelian.coimageImageComparison.{max u v, max (max u v) w} η) X) :=
   by
   have :
-    (Abelian.coimageImageComparison η).app X =
+    NatTrans.app (Abelian.coimageImageComparison.{max u v, max (max u v) w} η) X =
       (NatTrans.cokernelObjIso.{w, v, u} _ _).hom ≫
         (NatTrans.cokernelKernelιIso.{w, v, u} _ _).hom ≫
-          Abelian.coimageImageComparison _ ≫
+          Abelian.coimageImageComparison.{max v u, w} (η.app X) ≫
             (NatTrans.kernelCokernelπIso.{w, v, u} _ _).inv ≫ (NatTrans.kernelObjIso.{w, v, u} _ _).inv :=
     by
-    rw [← NatTrans.coimageImageComparison_app]
+    rw [← NatTrans.coimageImageComparison_app.{w, v, u} η X]
     simp only [Category.assoc, Iso.inv_hom_id, Iso.inv_hom_id_assoc, Iso.hom_inv_id,
       Iso.hom_inv_id_assoc, Category.comp_id]
   rw [this]
   apply IsIso.comp_isIso
 
 instance functor_category_isIso_coim_to_im {F G : C ⥤ D} (η : F ⟶ G) :
-    IsIso (Abelian.coimageImageComparison η) :=
-  NatIso.isIso_of_isIso_app _
+    IsIso (Abelian.coimageImageComparison.{max u v, max (max u v) w} η) := by
+  -- Porting note: the instance has to be provided explicitly because of universe unification
+  haveI : ∀ X : C,
+      IsIso (NatTrans.app (Abelian.coimageImageComparison.{max u v, max (max u v) w} η) X) :=
+    fun X => functor_category_isIso_coim_to_im_app.{w, v, u} η X
+  exact NatIso.isIso_of_isIso_app _
 
-instance functorCategoryIsAbelian : Abelian (C ⥤ D) :=
-  Abelian.ofCoimageImageComparisonIsIso
+instance functorCategoryIsAbelian : Abelian (C ⥤ D) := by
+  -- Porting note: the instance has to be provided explicitly because of universe unification
+  haveI : ∀ {F G : C ⥤ D} (η : F ⟶ G),
+      IsIso (Abelian.coimageImageComparison.{max u v, max (max u v) w} η) :=
+    fun η => functor_category_isIso_coim_to_im.{w, v, u} η
+  exact Abelian.ofCoimageImageComparisonIsIso
 
 theorem NatTrans.exact_iff_forall {F G H : C ⥤ D} (η : F ⟶ G) (γ : G ⟶ H) :
     Exact η γ ↔ ∀ j, Exact (η.app j) (γ.app j) :=

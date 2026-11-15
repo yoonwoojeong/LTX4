@@ -17,82 +17,101 @@ universe u
 
 variable {X Y : Profinite.{u}} (f : X ⟶ Y) (surj : Function.Surjective f)
 
+import Mathlib.Topology.DiscreteQuotient
+import Mathlib.Topology.Category.Profinite.AsLimit
+import Mathlib.Topology.Category.Profinite.Basic
+import Mathlib.Topology.Category.Profinite.CofilteredLimit
+import Mathlib.Topology.Category.Profinite.Projective
+import Mathlib.CategoryTheory.Arrow
+import Mathlib.Data.Setoid.Partition
+import LiquidTensorExperiment.ForMathlib.Profinite.QuotientMap
+
+#align_import for_mathlib.Profinite.compat_discrete_quotient
+
+open CategoryTheory
+
+namespace DiscreteQuotient
+
+universe u
+
+variable {X Y : Profinite.{u}} (f : X ⟶ Y) (surj : Function.Surjective f)
+
 /-- The relation defining the largest quotient of f.right compatible with S. -/
 inductive MakeRel (S : DiscreteQuotient X) : Y → Y → Prop
-  | of (x y : X) (h : S.Rel x y) : DiscreteQuotient.MakeRel (f x) (f y)
-  | trans {x y z : Y} : DiscreteQuotient.MakeRel x y → DiscreteQuotient.MakeRel y z → DiscreteQuotient.MakeRel x z
+  | of (x y : X) (h : S.Rel x y) : MakeRel S (f x) (f y)
+  | trans {x y z : Y} : MakeRel S x y → MakeRel S y z → MakeRel S x z
 
 theorem makeRelImpl (S : DiscreteQuotient X) (x y : X) : S.Rel x y → S.MakeRel f (f x) (f y) :=
   MakeRel.of _ _
 
-theorem makeRel_equiv (S : DiscreteQuotient X) : Equivalence (S.MakeRel f) :=
-  by
-  refine' ⟨fun x => _, fun x y h => _, fun x y z h1 h2 => MakeRel.trans h1 h2⟩
+-- Porting note: `include surj` is not available in Lean 4; the hypothesis is now explicit
+theorem makeRel_equiv (S : DiscreteQuotient X) (surj : Function.Surjective f) :
+    Equivalence (S.MakeRel f) := by
+  refine' ⟨fun x => _, fun {x y} h => _, fun {x y z} h1 h2 => MakeRel.trans h1 h2⟩
   · obtain ⟨x, rfl⟩ := surj x
     exact MakeRel.of _ _ (S.refl _)
-  · induction' h with x y h1 x y z h1 h2 h3 h4
-    exact MakeRel.of y x (S.symm x y h1)
-    exact MakeRel.trans h4 h3
+  · induction h with
+    | of x y h1 => exact MakeRel.of y x (S.symm x y h1)
+    | trans _ _ h3 h4 => exact MakeRel.trans h4 h3
 
 /-- The setoid assoc. to make_rel. -/
-def makeSetoid (S : DiscreteQuotient X) : Setoid Y :=
+def makeSetoid (S : DiscreteQuotient X) (surj : Function.Surjective f) : Setoid Y :=
   ⟨S.MakeRel f, S.makeRel_equiv f surj⟩
 
 /-- The quotient of make_rel. -/
 -- Porting note: removed `@[nolint has_inhabited_instance]` (no such linter in Lean 4)
-def MakeQuotient (S : DiscreteQuotient X) : Type _ :=
+def MakeQuotient (S : DiscreteQuotient X) (surj : Function.Surjective f) : Type _ :=
   Quotient (S.makeSetoid f surj)
 
 /-- The projection onto make_rel. -/
-def makeProj (S : DiscreteQuotient X) : Y → S.MakeQuotient f surj :=
+def makeProj (S : DiscreteQuotient X) (surj : Function.Surjective f) : Y → S.MakeQuotient f surj :=
   Quotient.mk''
 
-theorem makeProj_comm (S : DiscreteQuotient X) :
-    S.makeProj f surj ∘ f = (Quotient.map' f <| DiscreteQuotient.makeRelImpl _ _) ∘ S.proj := by ext; rfl
+theorem makeProj_comm (S : DiscreteQuotient X) (surj : Function.Surjective f) :
+    S.makeProj f surj ∘ f = (Quotient.map' f <| DiscreteQuotient.makeRelImpl _ _) ∘ S.proj := by
+  funext x
+  rfl
 
 variable (f)
 
 /-- Given a discrete quotient S of f.left, this is the compatible quotient
  of f where f.right is as large as possible. -/
-def make (S : DiscreteQuotient X) : DiscreteQuotient Y
+def make (S : DiscreteQuotient X) (surj : Function.Surjective f) : DiscreteQuotient Y
     where
-  Rel := S.MakeRel f
-  Equiv := S.makeRel_equiv f surj
-  clopen := by
+  toSetoid := S.makeSetoid f surj
+  isOpen_setOf_rel := by
     intro x
-    have : setOf (S.make_rel f x) = S.make_proj f surj ⁻¹' {S.make_proj f surj x} :=
-      by
+    have : setOf (S.MakeRel f x) = S.makeProj f surj ⁻¹' {S.makeProj f surj x} := by
       dsimp [DiscreteQuotient.makeProj]
       ext
       simp only [Set.mem_preimage, Set.mem_singleton_iff, Quotient.eq'', Set.mem_setOf_eq]
-      refine' ⟨fun h => Setoid.symm' _ h, fun h => Setoid.symm' _ h⟩
+      exact ⟨fun h => Setoid.symm' _ h, fun h => Setoid.symm' _ h⟩
     rw [this]
-    letI : TopologicalSpace (S.make_quotient f surj) := ⊥
-    haveI : DiscreteTopology (S.make_quotient f surj) := ⟨rfl⟩
-    suffices Continuous (S.make_proj f surj) by
-      refine' ⟨IsOpen.preimage this trivial, IsClosed.preimage this ⟨trivial⟩⟩
-    rw [(Profinite.quotientMap f surj).continuous_iff, S.make_proj_comm f surj]
-    exact continuous_bot.comp (proj_continuous S)
+    letI : TopologicalSpace (S.MakeQuotient f surj) := ⊥
+    haveI : DiscreteTopology (S.MakeQuotient f surj) := ⟨rfl⟩
+    suffices Continuous (S.makeProj f surj) by
+      exact IsOpen.preimage this (isOpen_discrete _)
+    rw [(Profinite.quotientMap f surj).continuous_iff, S.makeProj_comm f surj]
+    exact continuous_bot.comp S.proj_continuous
 
-theorem makeLeComap (S : DiscreteQuotient X) : LEComap f.continuous S (S.make f surj) :=
+-- Porting note: the Lean 3 `clopen` field is only `isOpen_setOf_rel` in Lean 4
+theorem makeLeComap (S : DiscreteQuotient X) (surj : Function.Surjective f) :
+    LEComap f.continuous.toContinuousMap S (S.make f surj) :=
   makeRelImpl _ _
 
-theorem make_right_le (S : DiscreteQuotient X) (T : DiscreteQuotient Y)
-    (compat : LEComap f.continuous S T) : S.make f surj ≤ T :=
-  by
+theorem make_right_le (S : DiscreteQuotient X) (surj : Function.Surjective f)
+    (T : DiscreteQuotient Y)
+    (compat : LEComap f.continuous.toContinuousMap S T) : S.make f surj ≤ T := by
   intro x y h
-  induction' h with a b hab a b c _ _ h1 h2
-  · exact compat a b hab
-  · exact trans T a b c h1 h2
+  induction h with
+  | of a b hab => exact compat a b hab
+  | trans _ _ h1 h2 => exact T.trans _ _ _ h1 h2
 
-theorem make_right_mono (S1 S2 : DiscreteQuotient X) (h : S1 ≤ S2) :
-    S1.make f surj ≤ S2.make f surj := by
-  intro x y h
-  induction h
-  · refine' MakeRel.of _ _ (h _ _ _)
-    assumption
-  · apply MakeRel.trans
-    assumption'
+theorem make_right_mono (S1 S2 : DiscreteQuotient X) (surj : Function.Surjective f)
+    (h : S1 ≤ S2) : S1.make f surj ≤ S2.make f surj := by
+  intro x y hxy
+  induction hxy with
+  | of a b hab => exact MakeRel.of _ _ (h hab)
+  | trans _ _ h1 h2 => exact MakeRel.trans h1 h2
 
 end DiscreteQuotient
-

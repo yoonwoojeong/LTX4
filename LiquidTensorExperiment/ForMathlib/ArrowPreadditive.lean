@@ -82,11 +82,14 @@ instance Arrow.addCommGroup (P Q : Arrow A) : AddCommGroup (P ⟶ Q) :=
     zero_add := fun f => by ext <;> apply zero_add
     add_zero := fun f => by ext <;> apply add_zero
     add_left_neg := fun f => by ext <;> apply add_left_neg
-    add_comm := fun f g => by ext <;> apply add_comm }
+    add_comm := fun f g => by ext <;> apply add_comm
+    -- Porting note: Lean 4 uses the `Sub` instance `Arrow.hasSub` for the `sub` field, so the
+    -- default proof of `sub_eq_add_neg` (by `rfl`) has to be replaced.
+    sub_eq_add_neg := fun f g => by ext <;> apply sub_eq_add_neg }
 
 instance Arrow.preadditive : Preadditive (Arrow A) :=
-  ⟨inferInstance, by introv P; ext <;> apply Preadditive.add_comp, by introv P;
-    ext <;> apply Preadditive.comp_add⟩
+  ⟨inferInstance, by intros; ext <;> apply Preadditive.add_comp,
+    by intros; ext <;> apply Preadditive.comp_add⟩
 
 end CategoryTheory
 

@@ -17,18 +17,18 @@ theorem exact_iff_imageToKernel'_isIso {A B C : 𝓐} (f : A ⟶ B) (g : B ⟶ C
     Exact f g ↔ IsIso (imageToKernel' f g w) :=
   by
   refine' ⟨fun h => _, fun h => ⟨w, _⟩⟩
-  · suffices is_iso (imageToKernel f g w)
+  · suffices IsIso (imageToKernel f g w)
       by
-      have hiso : is_iso (imageToKernel f g w ≫ (CategoryTheory.Limits.kernelSubobjectIso g).hom) :=
+      have hiso : IsIso (imageToKernel f g w ≫ (CategoryTheory.Limits.kernelSubobjectIso g).hom) :=
         IsIso.comp_isIso
       rw [← imageSubobjectIso_imageToKernel'] at hiso 
       exact IsIso.of_isIso_comp_left (CategoryTheory.Limits.imageSubobjectIso f).hom _
     exact
       CategoryTheory.imageToKernel_isIso_of_image_eq_kernel _ _ ((Abelian.exact_iff_image_eq_kernel _ _).1 h)
-  · have hiso : is_iso ((CategoryTheory.Limits.imageSubobjectIso f).hom ≫ imageToKernel' f g w) :=
+  · have hiso : IsIso ((CategoryTheory.Limits.imageSubobjectIso f).hom ≫ imageToKernel' f g w) :=
       IsIso.comp_isIso
     rw [imageSubobjectIso_imageToKernel'] at hiso 
-    suffices is_iso (imageToKernel f g w) by haveI := this; infer_instance
+    suffices IsIso (imageToKernel f g w) by haveI := this; infer_instance
     exact IsIso.of_isIso_comp_right _ (CategoryTheory.Limits.kernelSubobjectIso g).hom
 
 theorem homology'_isZero_iff_imageToKernel'_isIso {A B C : 𝓐} (f : A ⟶ B) (g : B ⟶ C)
