@@ -49,6 +49,8 @@ variable [HasZeroObject C] [HasShift C ℤ] [∀ n : ℤ, (shiftFunctor C n).Add
 /- ./././Mathport/Syntax/Translate/Command.lean:394:30: infer kinds are unsupported in Lean 4: #[`cond] [] -/
 /-- A functor `F` is a *homological* functor if for every distinguished triangle
 `A ⟶ B ⟶ C ⟶ A[1]` the sequence `F(A) ⟶ F(B) ⟶ F(C)` is exact. -/
+-- Porting note: in Lean 4 the projection `homologicalFunctor.cond` takes `F` implicitly, so it is
+-- used below as `homologicalFunctor.cond (F := F)`
 class homologicalFunctor {A : Type _} [Category A] [Abelian A] (F : C ⥤ A) [F.Additive] : Prop where
   cond : ∀ (T : Triangle C) (hT : T ∈ (distTriang C)), Exact (F.map T.mor₁) (F.map T.mor₂)
 
@@ -131,6 +133,7 @@ instance preadditiveYonedaOpHomological (X : C) :
   rw [AddCommGroupCat.exact_iff]
   apply le_antisymm
   · rintro _ ⟨q : _ ⟶ X, rfl⟩
+    -- Porting note: explicit `show` instead of `change _ ≫ _ = 0; dsimp`
     show T.mor₁ ≫ (T.mor₂ ≫ q) = 0
     have :=
       complete_distinguished_triangle_morphism T.rotate (contractibleTriangle X)
@@ -142,15 +145,16 @@ instance preadditiveYonedaOpHomological (X : C) :
     rw [← (shiftFunctor C (1 : ℤ)).map_zero] at h2 
     exact (shiftFunctor C (1 : ℤ)).map_injective h2
   · rintro (q : _ ⟶ X) (hq : _ ≫ _ = 0)
-    change ∃ p, _
-    dsimp at hq ⊢
+    -- Porting note: explicit `change`s instead of `dsimp`, which unfolds too much in Lean 4
+    change ∃ p : T.obj₃ ⟶ X, T.mor₂ ≫ p = q
+    change T.mor₁ ≫ q = 0 at hq
     obtain ⟨c, h1, h2⟩ :=
       complete_distinguished_triangle_morphism T (contractibleTriangle X).invRotate hT
         (inv_rot_of_distTriang _ (contractible_distinguished X)) 0 q
         (by simp [hq])
     use c
-    simp only [h1, Triangle.invRotate_mor₂, contractibleTriangle_mor₁]
-    erw [Category.comp_id]
+    rw [h1]
+    simp
 
 -- Prove this using the above theorem.
 instance linearYonedaFlipHomological (X : C) :
@@ -173,75 +177,69 @@ instance linearYonedaFlipHomological (X : C) :
 
 theorem isIso_triangle_hom_of_isIso (T₁ T₂ : Triangle C) (e : T₁ ⟶ T₂) [IsIso e.hom₁] [IsIso e.hom₂]
     [IsIso e.hom₃] : IsIso e := by
-  constructor
-  refine' ⟨⟨inv e.hom₁, inv e.hom₂, inv e.hom₃, _, _⟩, _, _⟩
-  · dsimp
-    rw [IsIso.comp_inv_eq, Category.assoc, IsIso.eq_inv_comp, e.comm₁]
-  · dsimp
-    rw [IsIso.comp_inv_eq, Category.assoc, IsIso.eq_inv_comp, e.comm₂]
-  · ext <;> dsimp <;> simp
-  · ext <;> dsimp <;> simp
+  -- Porting note: Lean 3 proof replaced by the corresponding mathlib lemma
+  exact Triangle.isIso_of_isIsos e inferInstance inferInstance inferInstance
 
 theorem isIso_of_isIso_rotate (T₁ T₂ : Triangle C) (e : T₁ ⟶ T₂) [h : IsIso ((rotate C).map e)] :
     IsIso e := by
-  haveI : IsIso ((CategoryTheory.Pretriangulated.triangleRotation C).Functor.map e) := h
-  apply CategoryTheory.isIso_of_fully_faithful ((CategoryTheory.Pretriangulated.triangleRotation C).Functor : Triangle C ⥤ Triangle C)
+  haveI : IsIso ((triangleRotation C).functor.map e) := h
+  apply CategoryTheory.isIso_of_fully_faithful ((triangleRotation C).functor : Triangle C ⥤ Triangle C)
 
 theorem isIso_of_isIso_inv_rotate (T₁ T₂ : Triangle C) (e : T₁ ⟶ T₂)
-    [h : IsIso ((inv_rotate C).map e)] : IsIso e :=
+    [h : IsIso ((invRotate C).map e)] : IsIso e :=
   by
-  haveI : IsIso ((CategoryTheory.Pretriangulated.triangleRotation C).inverse.map e) := h
-  apply CategoryTheory.isIso_of_fully_faithful ((CategoryTheory.Pretriangulated.triangleRotation C).inverse : Triangle C ⥤ Triangle C)
+  haveI : IsIso ((triangleRotation C).inverse.map e) := h
+  apply CategoryTheory.isIso_of_fully_faithful ((triangleRotation C).inverse : Triangle C ⥤ Triangle C)
 
 theorem isIso_of_isIso_of_isIso (T₁ T₂ : Triangle C) (h₁ : T₁ ∈ (distTriang C))
     (h₂ : T₂ ∈ (distTriang C)) (e : T₁ ⟶ T₂) [IsIso e.hom₁] [IsIso e.hom₃] : IsIso e :=
   by
-  apply (config := { instances := false }) CategoryTheory.Triangulated.isIso_triangle_hom_of_isIso
-  any_goals infer_instance
-  infer_instance
-  apply (config := { instances := false }) CategoryTheory.isIso_of_isIso_preadditiveYoneda_map_app
-  swap; infer_instance
-  intro W
-  let Y := preadditiveYoneda.flip.obj (Opposite.op W)
-  have H1 := CategoryTheory.Triangulated.five_term_exactSeq Y _ h₁
-  have H2 := CategoryTheory.Triangulated.five_term_exactSeq Y _ h₂
-  have sq1 := e.invRotate.comm₁
-  apply_fun fun e => Y.map e at sq1 
-  simp only [Functor.map_comp] at sq1 
-  have sq2 := e.comm₁
-  apply_fun fun e => Y.map e at sq2 
-  simp only [Functor.map_comp] at sq2 
-  have sq3 := e.comm₂
-  apply_fun fun e => Y.map e at sq3 
-  simp only [Functor.map_comp] at sq3 
-  have sq4 := e.comm₃
-  apply_fun fun e => Y.map e at sq4 
-  simp only [Functor.map_comp] at sq4 
-  have : IsIso (Y.map (triangulated.TriangleMorphism.invRotate e).hom₁) :=
-    by
-    dsimp only [triangulated.TriangleMorphism.invRotate]
-    rw [← Functor.comp_map]
-    apply Functor.map_isIso
-  have : IsIso (Y.map (triangulated.TriangleMorphism.invRotate e).hom₂) :=
-    by
-    dsimp only [triangulated.TriangleMorphism.invRotate]
-    apply Functor.map_isIso
-  have : IsIso (Y.map e.hom₃) := by apply Functor.map_isIso
-  have : IsIso (Y.map ((shiftFunctor C (1 : ℤ)).map e.hom₁)) :=
-    by
-    rw [← Functor.comp_map]
-    apply Functor.map_isIso
-  exact
-    @Abelian.isIso_of_epi_of_isIso_of_isIso_of_mono _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-      _ sq1.symm sq2.symm sq3.symm _ _ _ _ _ sq4.symm
-      ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H1.extract 0 2))
-      ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H1.extract 1 2))
-      ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H1.extract 2 3))
-      ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H2.extract 0 2))
-      ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H2.extract 1 2))
-      ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H2.extract 2 3)) _ _ _ _
+  -- Porting note: `apply (config := { instances := false })` replaced by a `haveI`
+  haveI : IsIso e.hom₂ := by
+    suffices h : ∀ W : C, IsIso ((preadditiveYoneda.map e.hom₂).app (Opposite.op W)) by
+      exact CategoryTheory.isIso_of_isIso_preadditiveYoneda_map_app C e.hom₂
+    intro W
+    let Y := preadditiveYoneda.flip.obj (Opposite.op W)
+    have H1 := CategoryTheory.Triangulated.five_term_exactSeq Y _ h₁
+    have H2 := CategoryTheory.Triangulated.five_term_exactSeq Y _ h₂
+    have sq1 := ((invRotate C).map e).comm₁
+    apply_fun fun e => Y.map e at sq1 
+    simp only [Functor.map_comp] at sq1 
+    have sq2 := e.comm₁
+    apply_fun fun e => Y.map e at sq2 
+    simp only [Functor.map_comp] at sq2 
+    have sq3 := e.comm₂
+    apply_fun fun e => Y.map e at sq3 
+    simp only [Functor.map_comp] at sq3 
+    have sq4 := e.comm₃
+    apply_fun fun e => Y.map e at sq4 
+    simp only [Functor.map_comp] at sq4 
+    have : IsIso (Y.map ((invRotate C).map e).hom₁) :=
+      by
+      dsimp only [invRotate]
+      rw [← Functor.comp_map]
+      apply Functor.map_isIso
+    have : IsIso (Y.map ((invRotate C).map e).hom₂) :=
+      by
+      dsimp only [invRotate]
+      apply Functor.map_isIso
+    have : IsIso (Y.map e.hom₃) := by apply Functor.map_isIso
+    have : IsIso (Y.map ((shiftFunctor C (1 : ℤ)).map e.hom₁)) :=
+      by
+      rw [← Functor.comp_map]
+      apply Functor.map_isIso
+    exact
+      @Abelian.isIso_of_epi_of_isIso_of_isIso_of_mono _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        _ sq1.symm sq2.symm sq3.symm _ _ _ _ _ sq4.symm
+        ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H1.extract 0 2))
+        ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H1.extract 1 2))
+        ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H1.extract 2 3))
+        ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H2.extract 0 2))
+        ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H2.extract 1 2))
+        ((CategoryTheory.exact_iff_exactSeq _ _).mpr (H2.extract 2 3)) _ _ _ _
+  exact isIso_triangle_hom_of_isIso T₁ T₂ e
 
-theorem isIso_of_isIso_of_IsIso' (T₁ T₂ : Triangle C) (h₁ : T₁ ∈ (distTriang C))
+theorem isIso_of_isIso_of_is_iso' (T₁ T₂ : Triangle C) (h₁ : T₁ ∈ (distTriang C))
     (h₂ : T₂ ∈ (distTriang C)) (e : T₁ ⟶ T₂) [h1 : IsIso e.hom₁] [h2 : IsIso e.hom₂] : IsIso e :=
   by
   suffices IsIso ((rotate C).map e) by skip; apply CategoryTheory.Triangulated.isIso_of_isIso_rotate
@@ -251,16 +249,19 @@ theorem isIso_of_isIso_of_IsIso' (T₁ T₂ : Triangle C) (h₁ : T₁ ∈ (dist
   all_goals erw [← rotate_distinguished_triangle]; assumption
 
 instance isIso_hom₁ (T₁ T₂ : Triangle C) (e : T₁ ⟶ T₂) [IsIso e] : IsIso e.hom₁ :=
-  ⟨⟨(inv e).hom₁, show (e ≫ inv e).hom₁ = _ by simpa only [IsIso.hom_inv_id],
-      show (inv e ≫ e).hom₁ = _ by simpa only [IsIso.inv_hom_id]⟩⟩
+  -- Porting note: proof rewritten using `congrArg`
+  ⟨⟨(inv e).hom₁, congrArg TriangleMorphism.hom₁ (IsIso.hom_inv_id e),
+    congrArg TriangleMorphism.hom₁ (IsIso.inv_hom_id e)⟩⟩
 
 instance isIso_hom₂ (T₁ T₂ : Triangle C) (e : T₁ ⟶ T₂) [IsIso e] : IsIso e.hom₂ :=
-  ⟨⟨(inv e).hom₂, show (e ≫ inv e).hom₂ = _ by simpa only [IsIso.hom_inv_id],
-      show (inv e ≫ e).hom₂ = _ by simpa only [IsIso.inv_hom_id]⟩⟩
+  -- Porting note: proof rewritten using `congrArg`
+  ⟨⟨(inv e).hom₂, congrArg TriangleMorphism.hom₂ (IsIso.hom_inv_id e),
+    congrArg TriangleMorphism.hom₂ (IsIso.inv_hom_id e)⟩⟩
 
 instance isIso_hom₃ (T₁ T₂ : Triangle C) (e : T₁ ⟶ T₂) [IsIso e] : IsIso e.hom₃ :=
-  ⟨⟨(inv e).hom₃, show (e ≫ inv e).hom₃ = _ by simpa only [IsIso.hom_inv_id],
-      show (inv e ≫ e).hom₃ = _ by simpa only [IsIso.inv_hom_id]⟩⟩
+  -- Porting note: proof rewritten using `congrArg`
+  ⟨⟨(inv e).hom₃, congrArg TriangleMorphism.hom₃ (IsIso.hom_inv_id e),
+    congrArg TriangleMorphism.hom₃ (IsIso.inv_hom_id e)⟩⟩
 
 theorem homological_of_exists_aux {A : Type _} [Category A] [Abelian A] (F : C ⥤ A) [F.Additive]
     (T₁ T₂ : Triangle C) (e : T₁ ⟶ T₂) [IsIso e] (H : Exact (F.map T₁.mor₁) (F.map T₁.mor₂)) :
@@ -280,23 +281,23 @@ theorem homological_of_exists_aux {A : Type _} [Category A] [Abelian A] (F : C �
   simp only [exact_iso_comp]
   simp only [← Category.assoc]
   simp only [exact_comp_iso]
-  change exact (_ ≫ (CategoryTheory.asIso (F.map e.hom₂)).hom) ((CategoryTheory.asIso (F.map e.hom₂)).inv ≫ _)
+  change Exact (_ ≫ (CategoryTheory.asIso (F.map e.hom₂)).hom) ((CategoryTheory.asIso (F.map e.hom₂)).inv ≫ _)
   rwa [exact_comp_hom_inv_comp_iff]
 
 theorem homologicalOfExists {A : Type _} [Category A] [Abelian A] (F : C ⥤ A) [F.Additive]
     (h :
       ∀ (X Y : C) (f : X ⟶ Y),
-        ∃ (Z : C) (g : Y ⟶ Z) (h : Z ⟶ X⟦(1 : ℤ)⟧) (hT : Triangle.mk _ f g h ∈ (distTriang C)),
+        ∃ (Z : C) (g : Y ⟶ Z) (h : Z ⟶ X⟦(1 : ℤ)⟧) (hT : Triangle.mk f g h ∈ (distTriang C)),
           Exact (F.map f) (F.map g)) :
     homologicalFunctor F := by
   constructor
   intro T hT
   specialize h T.obj₁ T.obj₂ T.mor₁
   obtain ⟨Z, g, h, hT', hE⟩ := h
-  let T' := Triangle.mk _ T.mor₁ g h
+  let T' := Triangle.mk T.mor₁ g h
   obtain ⟨e, h1, h2⟩ := complete_distinguished_triangle_morphism T' T hT' hT (𝟙 _) (𝟙 _) (by simp)
-  let E : T' ⟶ T := ⟨𝟙 _, 𝟙 _, e, by simp, h1⟩
-  have : IsIso E := by apply CategoryTheory.Triangulated.isIso_of_isIso_of_IsIso' _ _ hT' hT
+  let E : T' ⟶ T := ⟨𝟙 _, 𝟙 _, e, by simp, h1, h2⟩
+  have : IsIso E := by apply CategoryTheory.Triangulated.isIso_of_isIso_of_is_iso' _ _ hT' hT
   exact homological_of_exists_aux F T' T E hE
 
 theorem homologicalOfRotate {A : Type _} [Category A] [Abelian A] (F : C ⥤ A) [F.Additive]
@@ -306,8 +307,8 @@ theorem homologicalOfRotate {A : Type _} [Category A] [Abelian A] (F : C ⥤ A) 
     homologicalFunctor F := by
   constructor
   intro T hT
-  specialize h T.inv_rotate (inv_rot_of_distTriang T hT)
-  let E : T.inv_rotate.rotate ≅ T := inv_rot_comp_rot.app _
+  specialize h T.invRotate (inv_rot_of_distTriang T hT)
+  let E : T.invRotate.rotate ≅ T := invRotCompRot.app _
   apply homological_of_exists_aux _ _ _ E.hom
   assumption'
 
@@ -319,7 +320,7 @@ theorem homologicalOfInvRotate {A : Type _} [Category A] [Abelian A] (F : C ⥤ 
   constructor
   intro T hT
   specialize h T.rotate (rot_of_distTriang T hT)
-  let E : T.rotate.invRotate ≅ T := (rot_comp_inv_rot.app _).symm
+  let E : T.rotate.invRotate ≅ T := (rotCompInvRot.app _).symm
   apply homological_of_exists_aux _ _ _ E.hom
   assumption'
 
@@ -333,8 +334,8 @@ theorem homologicalOfNatIso {A : Type _} [Category A] [Abelian A] (F G : C ⥤ A
   rw [← IsIso.inv_comp_eq] at h₁ h₂ 
   rw [← h₁, ← h₂, exact_iso_comp, ← Category.assoc, exact_comp_iso]
   let E := CategoryTheory.asIso (e.hom.app T.obj₂)
-  change exact (F.map T.mor₁ ≫ E.hom) (E.inv ≫ _)
-  have : exact (F.map T.mor₁) (F.map T.mor₂) := by apply homologicalFunctor.cond (F := F) _ hT
+  change Exact (F.map T.mor₁ ≫ E.hom) (E.inv ≫ _)
+  have : Exact (F.map T.mor₁) (F.map T.mor₂) := by apply homologicalFunctor.cond (F := F) _ hT
   rwa [exact_comp_hom_inv_comp_iff]
 
 end CategoryTheory.Triangulated
