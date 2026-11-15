@@ -213,6 +213,10 @@ set_option hygiene false
 local notation "SqC" => SquareCommutes F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3
 set_option hygiene true
 
+-- Porting note: the proofs of `squareCommutes_row`, `squareCommutes_col`, `squareCommutes_one`,
+-- `squareCommutes_comp_row` and `squareCommutes_comp_col` were reworked, since the Lean 3 proofs
+-- (`erw [hom_of_le_refl]`, `calc` with `_` steps assigned by unification, `dec_trivial!`) do not
+-- carry over.
 theorem squareCommutes_row (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
     (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i : Fin 4) (k l : Fin 3) (hkl : k ≤ l) :
     SqC i i k l le_rfl hkl := by
@@ -948,6 +952,7 @@ theorem long_row₀_exact (hD : IsSnakeInput D) : Exact (kerRow₁ToTopLeft hD) 
         map_eq hD (hom (0, 0) (1, 0) ≫ hom _ (1, 1)) (hom _ (0, 1) ≫ hom _ _), D.map_comp,
         Abelian.Pseudoelement.comp_apply, ha, apply_zero]
     obtain ⟨c, hc⟩ := exists_of_exact CategoryTheory.exact_kernel_ι _ hb
+    -- Porting note: `?_` instead of `_`
     refine ⟨c, (injective_iff_mono _).2 (hD.col_mono _) ?_⟩
     rw [← Abelian.Pseudoelement.comp_apply, kerRow₁ToTopLeft_comp_eq_ι hD, hc]
 
@@ -1058,42 +1063,38 @@ instance : Mono hD.cokernelToTopRightKernelToRightKernel :=
   apply mono_of_zero_of_map_zero
   intro a h
   obtain ⟨b, rfl⟩ := cokernel_π_surjective _ a
-  rw [← eq_zero_iff_kernel_ι_eq_zero] at h 
-  simp [← Abelian.Pseudoelement.comp_apply, CategoryTheory.IsSnakeInput.cokernelToTopRightKernelToRightKernel] at h 
-  simp [Abelian.Pseudoelement.comp_apply] at h 
-  have : ∃ c, ((1, 0)⟶[D](1, 1)) c = kernel.ι ((1, 1)⟶[D](2, 2)) b :=
-    by
+  rw [← eq_zero_iff_kernel_ι_eq_zero] at h
+  simp [← Abelian.Pseudoelement.comp_apply, CategoryTheory.IsSnakeInput.cokernelToTopRightKernelToRightKernel] at h
+  simp [Abelian.Pseudoelement.comp_apply] at h
+  have : ∃ c, ((1, 0)⟶[D](1, 1)) c = kernel.ι ((1, 1)⟶[D](2, 2)) b := by
     apply exists_of_exact _ _ h
     exact hD.row_exact₁
   obtain ⟨c, hc⟩ := this
-  let f : cokernel hD.toTopRightKernel ⟶ cokernel ((1, 0)⟶[D](1, 1)) := cokernel.desc _ _ _
-  swap; · refine' kernel.ι _ ≫ cokernel.π _
-  swap; · simp [CategoryTheory.IsSnakeInput.toTopRightKernel]
+  -- Porting note: the `let f := cokernel.desc _ _ _` with goals to be filled afterwards is made explicit
+  let f : cokernel hD.toTopRightKernel ⟶ cokernel ((1, 0)⟶[D](1, 1)) :=
+    cokernel.desc _ (kernel.ι _ ≫ cokernel.π _) (by simp [CategoryTheory.IsSnakeInput.toTopRightKernel])
   apply_fun f
-  swap;
+  swap
   · rw [injective_iff_mono]
     apply mono_of_zero_of_map_zero
     intro a ha
-    dsimp [f] at ha 
+    dsimp [f] at ha
     obtain ⟨a, rfl⟩ := cokernel_π_surjective _ a
-    simp [← Abelian.Pseudoelement.comp_apply] at ha 
-    simp [Abelian.Pseudoelement.comp_apply] at ha 
-    have : ∃ c, ((1, 0)⟶[D](1, 1)) c = kernel.ι ((1, 1)⟶[D](2, 2)) a :=
-      by
+    simp [← Abelian.Pseudoelement.comp_apply] at ha
+    simp [Abelian.Pseudoelement.comp_apply] at ha
+    have : ∃ c, ((1, 0)⟶[D](1, 1)) c = kernel.ι ((1, 1)⟶[D](2, 2)) a := by
       apply exists_of_exact _ _ ha
       apply SnakeDiagram.exact_self_cokernel_π
     obtain ⟨c, hc⟩ := this
-    have : hD.toTopRightKernel c = a :=
-      by
+    have : hD.toTopRightKernel c = a := by
       apply_fun kernel.ι ((1, 1)⟶[D](2, 2))
       swap; · rw [injective_iff_mono]; infer_instance
       dsimp [CategoryTheory.IsSnakeInput.toTopRightKernel]
       simp [← Abelian.Pseudoelement.comp_apply]
-      erw [kernel.lift_ι]
       exact hc
     simp [← this]
   dsimp only [f]
-  simp [← Abelian.Pseudoelement.comp_apply, CategoryTheory.IsSnakeInput.toTopRightKernel]
+  simp only [← Abelian.Pseudoelement.comp_apply, cokernel.π_desc]
   simp [Abelian.Pseudoelement.comp_apply, ← hc]
 
 instance : Epi hD.cokernelToTopRightKernelToRightKernel :=
@@ -1147,45 +1148,42 @@ def leftCokernelToKernelBottomLeftCokernelTo :
       dsimp only [CategoryTheory.IsSnakeInput.bottomLeftCokernelTo]
       -- Porting note: Lean 3 `ext a` used `zero_morphism_ext`, which is no longer an `ext` lemma
       refine zero_morphism_ext _ fun a => ?_
-      obtain ⟨b, rfl⟩ : ∃ b, cokernel.π ((1, 0)⟶[D](2, 0)) b = a :=
-        by
-        have : Function.Surjective (cokernel.π ((1, 0)⟶[D](2, 0))) := by rw [surjective_iff_epi];
+      obtain ⟨b, rfl⟩ : ∃ b, cokernel.π ((1, 0)⟶[D](2, 0)) b = a := by
+        have : Function.Surjective (cokernel.π ((1, 0)⟶[D](2, 0))) := by
+          rw [surjective_iff_epi]
           infer_instance
         apply this
       simp [← Abelian.Pseudoelement.comp_apply, hD.row_exact₂.1])
 
-instance : Mono hD.leftCokernelToKernelBottomLeftCokernelTo :=
-  by
+instance : Mono hD.leftCokernelToKernelBottomLeftCokernelTo := by
   apply mono_of_zero_of_map_zero
   intro a ha
   obtain ⟨a, rfl⟩ := cokernel_π_surjective _ a
-  dsimp [CategoryTheory.IsSnakeInput.leftCokernelToKernelBottomLeftCokernelTo] at ha 
-  rw [← eq_zero_iff_kernel_ι_eq_zero] at ha 
-  simp [← Abelian.Pseudoelement.comp_apply] at ha 
-  simp [Abelian.Pseudoelement.comp_apply] at ha 
-  obtain ⟨c, hc⟩ : ∃ c, ((1, 0)⟶[D](2, 1)) c = ((2, 0)⟶[D](2, 1)) a :=
-    by
+  dsimp [CategoryTheory.IsSnakeInput.leftCokernelToKernelBottomLeftCokernelTo] at ha
+  rw [← eq_zero_iff_kernel_ι_eq_zero] at ha
+  simp [← Abelian.Pseudoelement.comp_apply] at ha
+  simp [Abelian.Pseudoelement.comp_apply] at ha
+  obtain ⟨c, hc⟩ : ∃ c, ((1, 0)⟶[D](2, 1)) c = ((2, 0)⟶[D](2, 1)) a := by
     apply exists_of_exact _ _ ha
     apply Abelian.exact_cokernel
   have : ((1, 0)⟶[D](2, 0)) c = a := by
     apply_fun (2, 0)⟶[D](2, 1)
     swap; · rw [injective_iff_mono]; apply hD.row_mono
-    simpa only [← hc, ← Abelian.Pseudoelement.comp_apply, ← D.map_comp]
+    -- Porting note: `simpa only [...]` replaced by `rw` followed by `rfl`
+    rw [← hc, ← Abelian.Pseudoelement.comp_apply, ← D.map_comp]
+    rfl
   simp [← this]
 
-instance : Epi hD.leftCokernelToKernelBottomLeftCokernelTo :=
-  by
+instance : Epi hD.leftCokernelToKernelBottomLeftCokernelTo := by
   apply epi_of_pseudo_surjective
   intro a
   let a' := kernel.ι hD.bottomLeftCokernelTo a
   obtain ⟨b, hb⟩ := cokernel_π_surjective _ a'
-  have : ((2, 1)⟶[D](2, 2)) b = 0 :=
-    by
-    apply_fun hD.bottomLeftCokernelTo at hb 
-    dsimp [a', CategoryTheory.IsSnakeInput.bottomLeftCokernelTo] at hb 
+  have : ((2, 1)⟶[D](2, 2)) b = 0 := by
+    apply_fun hD.bottomLeftCokernelTo at hb
+    dsimp [a', CategoryTheory.IsSnakeInput.bottomLeftCokernelTo] at hb
     simpa [← Abelian.Pseudoelement.comp_apply] using hb
-  obtain ⟨c, hc⟩ : ∃ c, ((2, 0)⟶[D](2, 1)) c = b :=
-    by
+  obtain ⟨c, hc⟩ : ∃ c, ((2, 0)⟶[D](2, 1)) c = b := by
     apply exists_of_exact _ _ this
     exact hD.row_exact₂
   use cokernel.π ((1, 0)⟶[D](2, 0)) c
@@ -1211,7 +1209,8 @@ def δAux : cokernel hD.toTopRightKernel ⟶ kernel hD.bottomLeftCokernelTo :=
     (by
       dsimp only [CategoryTheory.IsSnakeInput.toTopRightKernel]
       simp
-      ext
+      -- Porting note: Lean 3 `ext` used `zero_morphism_ext`, which is no longer an `ext` lemma
+      refine zero_morphism_ext _ fun a => ?_
       apply_fun kernel.ι hD.bottomLeftCokernelTo
       swap; · rw [injective_iff_mono]; infer_instance
       simp [← Abelian.Pseudoelement.comp_apply]
@@ -1228,7 +1227,7 @@ instance : Mono hD.toKernel := by
   infer_instance
 
 instance : Epi hD.toKernel :=
-  kernel.lift.epi (hD.col_exact₁ _)
+  (hD.col_exact₁ _).epi_kernel_lift
 
 instance : IsIso hD.toKernel :=
   isIso_of_mono_of_epi _
@@ -1237,7 +1236,7 @@ def cokernelTo : cokernel ((1, 0)⟶[D](2, 0)) ⟶ D.obj (3, 0) :=
   cokernel.desc _ (_⟶[D]_) (hD.col_exact₂ _).1
 
 instance : Mono hD.cokernelTo :=
-  Abelian.CategoryTheory.Limits.Cokernel.Desc.CategoryTheory.mono _ _ (hD.col_exact₂ _)
+  Abelian.mono_cokernel_desc_of_exact _ _ (hD.col_exact₂ _)
 
 instance : Epi hD.cokernelTo := by
   dsimp [cokernelTo]
@@ -1361,7 +1360,9 @@ theorem exact_to_δ : Exact ((0, 1)⟶[D](0, 2)) hD.δ :=
   dsimp [CategoryTheory.IsSnakeInput.toKernel, toδAux, CategoryTheory.IsSnakeInput.cokernelToTopRightKernelToRightKernel]
   ext
   simp only [cokernel.π_desc, kernel.lift_ι_assoc, Category.assoc, kernel.lift_ι]
-  simpa only [← D.map_comp]
+  -- Porting note: `simpa only [← D.map_comp]` replaced by `simp only` followed by `rfl`
+  simp only [← D.map_comp]
+  rfl
 
 theorem exact_from_δ : Exact hD.δ ((3, 0)⟶[D](3, 1)) :=
   by
@@ -1372,7 +1373,8 @@ theorem exact_from_δ : Exact hD.δ ((3, 0)⟶[D](3, 1)) :=
   dsimp [cokernelTo, CategoryTheory.IsSnakeInput.leftCokernelToKernelBottomLeftCokernelTo, fromδAux]
   ext
   simp only [cokernel.π_desc, kernel.lift_ι_assoc, cokernel.π_desc_assoc, Category.assoc]
-  simpa only [← D.map_comp]
+  simp only [← D.map_comp]
+  rfl
 
 end Delta
 
@@ -1388,7 +1390,8 @@ def toKernel' : kernel ((1, 1)⟶[D](2, 2)) ⟶ D.obj (0, 2) :=
 instance to_kernel_epi : Epi hD.toKernel' :=
   by
   dsimp [CategoryTheory.IsSnakeInput.toKernel']
-  apply (config := { instances := false }) epi_comp; swap; infer_instance
+  -- Porting note: `apply_with epi_comp {instances := ff}` replaced by an explicit `refine`
+  refine @epi_comp _ _ _ _ _ _ ?_ _ inferInstance
   haveI : Epi ((1, 1)⟶[D](1, 2)) := hD.row_epi
   replace hh := pseudo_surjective_of_epi ((1, 1)⟶[D](1, 2))
   apply epi_of_pseudo_surjective
@@ -1414,7 +1417,8 @@ def cokernelTo' : D.obj (3, 0) ⟶ cokernel ((1, 0)⟶[D](2, 1)) :=
 instance cokernelTo'_mono : Mono hD.cokernelTo' :=
   by
   dsimp [CategoryTheory.IsSnakeInput.cokernelTo']
-  apply (config := { instances := false }) mono_comp; infer_instance
+  -- Porting note: `apply_with mono_comp {instances := ff}` replaced by an explicit `refine`
+  refine @mono_comp _ _ _ _ _ _ inferInstance _ ?_
   apply Abelian.Pseudoelement.mono_of_zero_of_map_zero
   intro a ha
   obtain ⟨b, rfl⟩ : ∃ b, cokernel.π ((1, 0)⟶[D](2, 0)) b = a := by
@@ -1440,25 +1444,20 @@ theorem δ_spec :
   by
   dsimp only [IsSnakeInput.δ, IsSnakeInput.toKernel', IsSnakeInput.cokernelTo']
   simp only [Category.assoc, IsIso.hom_inv_id_assoc, IsIso.inv_hom_id_assoc]
-  dsimp only [IsSnakeInput.cokernelToTopRightKernelToRightKernel]
-  dsimp only [IsSnakeInput.leftCokernelToKernelBottomLeftCokernelTo]
-  dsimp only [IsSnakeInput.δAux]
-  let t := _; change _ ≫ _ ≫ _ ≫ t = _
-  have ht : t = kernel.ι _ := by
-    dsimp [t]
-    rw [IsIso.inv_comp_eq]
+  -- Porting note: the Lean 3 `let t := _, change _ ≫ _ ≫ _ ≫ t = _` pattern is replaced by
+  -- rewriting with `IsIso.inv_comp_eq` and `IsIso.comp_inv_eq`
+  rw [(IsIso.inv_comp_eq hD.leftCokernelToKernelBottomLeftCokernelTo).2
+    (?ht : _ = hD.leftCokernelToKernelBottomLeftCokernelTo ≫ kernel.ι hD.bottomLeftCokernelTo)]
+  · rw [← Category.assoc, (IsIso.comp_inv_eq hD.cokernelToTopRightKernelToRightKernel).2
+      (?hst : _ = cokernel.π hD.toTopRightKernel ≫ hD.cokernelToTopRightKernelToRightKernel)]
+    · dsimp only [IsSnakeInput.δAux]
+      simp only [cokernel.π_desc_assoc, kernel.lift_ι]
+    · dsimp only [IsSnakeInput.cokernelToTopRightKernelToRightKernel]
+      apply equalizer.hom_ext
+      simp only [cokernel.π_desc]
+  · dsimp only [IsSnakeInput.leftCokernelToKernelBottomLeftCokernelTo]
     apply coequalizer.hom_ext
     simp only [cokernel.π_desc, Category.assoc, kernel.lift_ι, cokernel.π_desc_assoc]
-  rw [ht]; clear ht; clear t
-  let t := _; change t ≫ _ = _
-  let s := _; change t ≫ s ≫ _ = _
-  have hst : t ≫ s = cokernel.π _ := by
-    dsimp [s, t]
-    rw [IsIso.comp_inv_eq]
-    apply equalizer.hom_ext
-    simp only [cokernel.π_desc]
-  rw [reassoc_of hst]; clear hst; clear s; clear t
-  simp only [cokernel.π_desc_assoc, kernel.lift_ι]
 
 theorem eq_δ_of_spec (e : D.obj (0, 2) ⟶ D.obj (3, 0))
     (he :
@@ -1515,7 +1514,9 @@ end IsSnakeInput
 variable (𝒜)
 
 structure SnakeInput extends SnakeDiagram ⥤ 𝒜 where
-  IsSnakeInput : IsSnakeInput to_functor
+  -- Porting note: mathport capitalised this field (`IsSnakeInput`); it is `isSnakeInput` as in
+  -- the alignment table (`snake_input.is_snake_input`)
+  isSnakeInput : IsSnakeInput toFunctor
 
 namespace SnakeInput
 
@@ -1540,11 +1541,13 @@ def kernelSequence (D : SnakeInput 𝒜) (h1 : Mono ((1, 0)⟶[D](1, 1))) (h2 : 
     letI := h1
     refine' Abelian.Pseudoelement.mono_of_zero_of_map_zero _ fun a ha => _
     obtain ⟨b, hb⟩ :=
-      IsSnakeInput.exists_of_exact (IsSnakeInput.long_row₀_exact D.IsSnakeInput) a ha
+      IsSnakeInput.exists_of_exact (IsSnakeInput.long_row₀_exact D.isSnakeInput) a ha
     rw [← hb]
     simp [IsSnakeInput.kerRow₁ToTopLeft, Limits.kernel.ι_of_mono ((1, 0)⟶[D](1, 1))]
   epi' := by
-    rw [(Abelian.tfae_epi (D.obj (3, 0)) ((0, 1)⟶[D](0, 2))).out 0 2]
+    -- Porting note: Lean 4 needs the statement of the `TFAE` item pair
+    rw [((Abelian.tfae_epi (D.obj (3, 0)) ((0, 1)⟶[D](0, 2))).out 0 2 :
+      Epi ((0, 1)⟶[D](0, 2)) ↔ Exact ((0, 1)⟶[D](0, 2)) (0 : D.obj (0, 2) ⟶ D.obj (3, 0)))]
     convert D.2.exact_to_δ
     apply h2.eq_of_tgt
   exact' := D.2.row_exact _

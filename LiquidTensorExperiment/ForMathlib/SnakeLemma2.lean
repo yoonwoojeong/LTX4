@@ -119,10 +119,10 @@ theorem isSnakeInput : IsSnakeInput S.SnakeDiagram :=
     row_epi := by dsimp only [snake_diagram]; simpa using S.row_epi }
 
 def snakeInput : SnakeInput 𝒜 :=
-  ⟨S.SnakeDiagram, S.IsSnakeInput⟩
+  ⟨S.SnakeDiagram, S.isSnakeInput⟩
 
 def δ : C₀ ⟶ A₃ :=
-  S.IsSnakeInput.δ
+  S.isSnakeInput.δ
 
 theorem six_term_exactSeq : ExactSeq 𝒜 [f₀, g₀, S.δ, f₃, g₃] :=
   by
