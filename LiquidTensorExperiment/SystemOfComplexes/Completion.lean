@@ -95,9 +95,10 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
     intro j
     dsimp [ε]
     -- Porting note: replaced `field_simp; apply one_div_le_one_div_of_le` by `gcongr`
+    have h2 : (2⁻¹ : ℝ) ^ (j + 1) ≤ 2⁻¹ ^ j :=
+      pow_le_pow_of_le_one (by norm_num) (by norm_num) (Nat.le_succ j)
     gcongr
-    exact pow_le_pow_of_le_one (by norm_num) (by norm_num) (Nat.le_succ j)
-  have seq : ∀ j : ℕ, ∃ w : C (k * c) i, ‖((res x : C (k * c) (i + 1)) - C.d i (i + 1) w)‖ ≤ ε j :=
+  have seq : ∀ j : ℕ, ∃ w : C (k * c) i, ‖(res x - C.d i (i + 1) w : C (k * c) (i + 1))‖ ≤ ε j :=
     by
     intro j
     specialize hC (k * c) ⟨hc₀kc⟩ _ hi (res x) (ε j) (ε_pos j)

@@ -37,6 +37,8 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
     intro n₁ ε hε
     haveI hc : Fact (k'' * k * k' * c = c₁) :=
       { out := (mul_assoc _ _ _).trans ((mul_assoc _ _ _).trans rfl) }
+    -- Porting note: `Fact (_ ≤ _)` from an equality is no longer an instance
+    haveI : Fact (c₁ ≤ k'' * k * k' * c) := ⟨hc.out.ge⟩
     rcases this (res n₁) ε hε with ⟨i₀, hi₀, y, hy⟩
     rw [res_res, d_res] at hy 
     refine' ⟨i₀, _, hi₀, rfl, _⟩
@@ -46,7 +48,7 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
   intro n ε hε
   let ε₁ := ε / (K' * (K * K'' + 2) + 1)
   have hε₁ : 0 < ε₁ :=
-    div_pos hε (lt_of_lt_of_le zero_lt_one (nnreal.one_le_add'.out : 1 ≤ K' * (K * K'' + 2) + 1))
+    div_pos hε (lt_of_lt_of_le zero_lt_one (NNReal.one_le_add'.out : 1 ≤ K' * (K * K'' + 2) + 1))
   obtain ⟨m' : M' c₁ i, rfl : g m' = n⟩ := (hgquot _ _).surjective _
   let m₁' := M'.d i (i + 1) m'
   have hm₁' : g m₁' = N.d i (i + 1) (g m') := (d_apply _ _ g m').symm
@@ -146,7 +148,7 @@ theorem weakNormedSnake {k k' k'' K K' K'' : ℝ≥0} [hk : Fact (1 ≤ k)] [hk'
     mul_div_cancel' _
       (by
         refine' (lt_of_lt_of_le zero_lt_one _).ne'
-        exact (nnreal.one_le_add'.out : 1 ≤ K' * (K * K'' + 2) + 1))
+        exact (NNReal.one_le_add'.out : 1 ≤ K' * (K * K'' + 2) + 1))
   rw [← hε₁_ε]
   ring
 

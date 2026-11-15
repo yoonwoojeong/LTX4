@@ -398,8 +398,15 @@ instance functorCategoryIsAbelian : Abelian (C ⥤ D) := by
   exact Abelian.ofCoimageImageComparisonIsIso
 
 theorem NatTrans.exact_iff_forall {F G H : C ⥤ D} (η : F ⟶ G) (γ : G ⟶ H) :
-    Exact η γ ↔ ∀ j, Exact (η.app j) (γ.app j) :=
+    -- Porting note: the `HasImages (C ⥤ D)` instance is given explicitly, because Lean 4 cannot
+    -- solve the universe constraint arising when synthesising it (see `functor_category_hasKernels_general`)
+    @Exact (C ⥤ D) _
+        (hasImages_of_hasStrongEpiMonoFactorisations
+          (C := C ⥤ D) (inst := @Abelian.instHasStrongEpiMonoFactorisations (C ⥤ D) _
+            functorCategoryIsAbelian.{w, v, u})) _ _ F G H η γ ↔
+      ∀ j, Exact (η.app j) (γ.app j) :=
   by
+  haveI : Abelian (C ⥤ D) := functorCategoryIsAbelian.{w, v, u}
   simp_rw [Abelian.exact_iff]
   constructor
   · rintro ⟨h1, h2⟩ j
@@ -433,6 +440,8 @@ instance functorCategoryIsAbelian' {A : Type u} [Category.{v} A] [Abelian A] {J 
   @CategoryTheory.functorCategoryIsAbelian.{u, v, v} J _ A _ _
 
 end Abelian
+
+end
 
 end CategoryTheory
 

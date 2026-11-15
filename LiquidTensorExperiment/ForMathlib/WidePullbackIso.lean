@@ -69,7 +69,12 @@ def uliftWidePullbackIso (i : ℕ) (T B X : C) (f : X ⟶ B) :
   hom_inv_id :=
     by
     dsimp [CategoryTheory.uliftWidePullbackIsoHomAux, CategoryTheory.uliftWidePullbackIsoInvAux]
-    ext t : 2; dsimp; apply WidePullback.hom_ext; rintro ⟨j⟩
+    ext t : 2
+    -- Porting note: `ext` does not apply `ULift.ext` automatically in Lean 4
+    apply ULift.ext
+    dsimp
+    apply WidePullback.hom_ext
+    rintro ⟨j⟩
     · simp only [WidePullback.lift_π]
       have :=
         types_comp_apply
@@ -78,10 +83,10 @@ def uliftWidePullbackIso (i : ℕ) (T B X : C) (f : X ⟶ B) :
               ((yoneda.{u, u + 1}.map (WidePullback.base fun _x : Fin i => f)).app (op.{u + 2} T)))
             (fun q : Fin i =>
               uliftFunctor.{u + 1, u}.map
-                ((yoneda.{u, u + 1}.map (wide_pullback.π (fun _x : Fin i => f) q)).app
+                ((yoneda.{u, u + 1}.map (WidePullback.π (fun _x : Fin i => f) q)).app
                   (op.{u + 2} T)))
             _)
-          (wide_pullback.π
+          (WidePullback.π
             (fun _x : Fin i =>
               uliftFunctor.{u + 1, u}.map ((yoneda.{u, u + 1}.map f).app (op.{u + 2} T)))
             _)
@@ -95,7 +100,7 @@ def uliftWidePullbackIso (i : ℕ) (T B X : C) (f : X ⟶ B) :
               ((yoneda.{u, u + 1}.map (WidePullback.base fun _x : Fin i => f)).app (op.{u + 2} T)))
             (fun q : Fin i =>
               uliftFunctor.{u + 1, u}.map
-                ((yoneda.{u, u + 1}.map (wide_pullback.π (fun _x : Fin i => f) q)).app
+                ((yoneda.{u, u + 1}.map (WidePullback.π (fun _x : Fin i => f) q)).app
                   (op.{u + 2} T)))
             _)
           (WidePullback.base fun _x : Fin i =>
