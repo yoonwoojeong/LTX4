@@ -93,14 +93,17 @@ variable (Hd : CategoryTheory.Functor.IsCoverDense G K) (Hp : CoverPreserving J 
 -- (in mathlib4, `sheafEquivOfCoverPreservingCoverLifting` takes these as instance arguments).
 /-- The isomorphism exhibiting the compatibiility of
 `Sheaf_equiv_of_cover_preserving_cover_lifting` with sheafification. -/
-noncomputable abbrev
-  CategoryTheory.Functor.IsCoverDense.sheafEquivOfCoverPreservingCoverLiftingSheafificationCompatibility :
+-- Porting note: Lean 3 `cover_dense.Sheaf_equiv_of_cover_preserving_cover_lifting_sheafification_compatibility`
+-- was upstreamed to mathlib4 under that name, with the hypotheses as instance arguments; LTE's
+-- version (explicit hypotheses `Hd Hp Hl`) is kept under a primed name.
+noncomputable abbrev sheafEquivOfCoverPreservingCoverLiftingSheafificationCompatibility' :
     (whiskeringLeft _ _ A).obj G.op ⋙ presheafToSheaf J A ≅
       presheafToSheaf K A ⋙
+        Equivalence.inverse
         (letI : G.IsCoverDense K := Hd
          letI : G.IsCocontinuous J K := Hl
          letI : G.IsContinuous J K := IsCoverDense.isContinuous (G := G) (J := J) (K := K) Hp
-         sheafEquivOfCoverPreservingCoverLifting G J K A).inverse :=
+         sheafEquivOfCoverPreservingCoverLifting G J K A) :=
   letI : G.IsCoverDense K := Hd
   CategoryTheory.Sites.pullbackSheafificationCompatibility _ Hp Hl
     (IsCoverDense.compatiblePreserving K G)

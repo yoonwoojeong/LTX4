@@ -24,7 +24,7 @@ def coboundary (n : ℕ) : M.obj [n] ⟶ M.obj [n + 1] :=
 theorem coboundary_zero : coboundary M 0 = M.δ 0 - M.δ 1 := by
   simp only [coboundary, Fin.sum_univ_succ, Fin.default_eq_zero, Fin.val_zero, one_zsmul,
     Fin.val_succ, univ_unique, neg_zsmul, pow_one, Fin.succ_zero_eq_one', sum_singleton, pow_zero,
-    sub_eq_add_neg]
+    sub_eq_add_neg, zero_add]
 
 @[reassoc]
 theorem coboundary_coboundary (n : ℕ) : coboundary M n ≫ coboundary M (n + 1) = 0 :=
@@ -35,14 +35,15 @@ theorem coboundary_coboundary (n : ℕ) : coboundary M n ≫ coboundary M (n + 1
         comp_hom (∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • M.δ i)
           (∑ i : Fin (n + 3), (-1 : ℤ) ^ (i : ℕ) • M.δ i) :=
       rfl
-    _ = ∑ (i : Fin (n + 2)) (j : Fin (n + 3)), (-1 : ℤ) ^ (i + j : ℕ) • M.δ i ≫ M.δ j := _
+    -- Porting note: Lean 4 does not support `∑ (i : α) (j : β), _`
+    _ = ∑ i : Fin (n + 2), ∑ j : Fin (n + 3), (-1 : ℤ) ^ (i + j : ℕ) • M.δ i ≫ M.δ j := ?_
     _ = ∑ ij : Fin (n + 2) × Fin (n + 3), (-1 : ℤ) ^ (ij.1 + ij.2 : ℕ) • M.δ ij.1 ≫ M.δ ij.2 := by
       rw [← univ_product_univ, sum_product]
     _ =
         ∑ ij in s, (-1 : ℤ) ^ (ij.1 + ij.2 : ℕ) • M.δ ij.1 ≫ M.δ ij.2 +
           ∑ ij in sᶜ, (-1 : ℤ) ^ (ij.1 + ij.2 : ℕ) • M.δ ij.1 ≫ M.δ ij.2 :=
       by rw [sum_add_sum_compl]
-    _ = 0 := _
+    _ = 0 := ?_
   · simp only [map_sum, map_zsmul, finset_sum_apply, smul_apply, smul_sum, pow_add, mul_smul]
     rfl
   erw [← eq_neg_iff_add_eq_zero, ← Finset.sum_neg_distrib]
@@ -103,8 +104,8 @@ def cocomplex : CosimplicialObject C ⥤ CochainComplex C ℕ
     { f := fun i => f.app _
       comm' := by
         rintro i j (rfl : i + 1 = j)
-        dsimp [to_cocomplex, CochainComplex.of]
-        simp only [if_pos rfl, Category.comp_id, CategoryTheory.eqToHom_refl, coboundary, δ,
+        dsimp [toCocomplex, CochainComplex.of]
+        simp only [if_pos rfl, ite_true, Category.comp_id, CategoryTheory.eqToHom_refl, coboundary, δ,
           Preadditive.sum_comp, Preadditive.comp_sum, comp_zsmul, zsmul_comp,
           NatTrans.naturality] }
 
@@ -144,8 +145,8 @@ def cocomplex : Augmented C ⥤ CochainComplex C ℕ
         | n + 1 => (drop.map f).app _
       comm' := by
         rintro i j (rfl : i + 1 = j)
-        dsimp [to_cocomplex, CochainComplex.of]
-        simp only [if_pos rfl, CategoryTheory.eqToHom_refl, Category.comp_id]
+        dsimp [toCocomplex, CochainComplex.of]
+        simp only [if_pos rfl, ite_true, CategoryTheory.eqToHom_refl, Category.comp_id]
         cases i
         · dsimp [CategoryTheory.CosimplicialObject.Augmented.toCocomplexD]
           erw [← NatTrans.comp_app, ← f.w]
@@ -156,8 +157,8 @@ def cocomplex : Augmented C ⥤ CochainComplex C ℕ
           intro i
           erw [(drop.map f).naturality]
           rfl }
-  map_id M := by ext (_ | _); tidy
-  map_comp {M N K} f g := by ext (_ | _); tidy
+  map_id M := by ext (_ | _) <;> aesop_cat
+  map_comp {M N K} f g := by ext (_ | _) <;> aesop_cat
 
 end Augmented
 
@@ -182,7 +183,7 @@ def boundary (n : ℕ) : M.obj (Opposite.op [n + 1]) ⟶ M.obj (Opposite.op [n])
 theorem boundary_zero : boundary M 0 = M.δ 0 - M.δ 1 := by
   simp only [boundary, Fin.sum_univ_succ, Fin.default_eq_zero, Fin.val_zero, one_zsmul,
     Fin.val_succ, univ_unique, neg_zsmul, pow_one, Fin.succ_zero_eq_one', sum_singleton, pow_zero,
-    sub_eq_add_neg]
+    sub_eq_add_neg, zero_add]
 
 theorem coboundary_rightOp (n : ℕ) :
     (CosimplicialObject.coboundary M.rightOp n).unop = boundary M n :=
@@ -194,7 +195,7 @@ theorem coboundary_rightOp (n : ℕ) :
 @[reassoc]
 theorem boundary_boundary (n : ℕ) : boundary M (n + 1) ≫ boundary M n = 0 := by
   rw [← CategoryTheory.SimplicialObject.coboundary_rightOp, ← CategoryTheory.SimplicialObject.coboundary_rightOp, ← unop_comp,
-    CosimplicialObject.coboundary_coboundary, unop_zero]
+    CosimplicialObject.coboundary_coboundary, CategoryTheory.Limits.unop_zero]
 
 /-- Make a chain complex from a simplicial object. -/
 def toComplex : ChainComplex C ℕ :=
@@ -208,8 +209,8 @@ def complex : SimplicialObject C ⥤ ChainComplex C ℕ
     { f := fun i => f.app _
       comm' := by
         rintro i j (rfl : j + 1 = i)
-        dsimp [to_complex, ChainComplex.of]
-        simp only [if_pos rfl, Category.id_comp, CategoryTheory.eqToHom_refl, boundary, δ, Preadditive.sum_comp,
+        dsimp [toComplex, ChainComplex.of]
+        simp only [if_pos rfl, ite_true, Category.id_comp, CategoryTheory.eqToHom_refl, boundary, δ, Preadditive.sum_comp,
           Preadditive.comp_sum, comp_zsmul, zsmul_comp, NatTrans.naturality] }
 
 namespace Augmented
@@ -247,8 +248,8 @@ def complex : Augmented C ⥤ ChainComplex C ℕ
         | n + 1 => (drop.map f).app _
       comm' := by
         rintro i j (rfl : j + 1 = i)
-        dsimp [to_complex, ChainComplex.of]
-        simp only [if_pos rfl, CategoryTheory.eqToHom_refl, Category.id_comp]
+        dsimp [toComplex, ChainComplex.of]
+        simp only [if_pos rfl, ite_true, CategoryTheory.eqToHom_refl, Category.id_comp]
         cases j
         · dsimp [CategoryTheory.SimplicialObject.Augmented.toComplexD]
           erw [← NatTrans.comp_app, f.w]
@@ -259,8 +260,8 @@ def complex : Augmented C ⥤ ChainComplex C ℕ
           intro i
           erw [(drop.map f).naturality]
           rfl }
-  map_id M := by ext (_ | _); tidy
-  map_comp {M N K} f g := by ext (_ | _); tidy
+  map_id M := by ext (_ | _) <;> aesop_cat
+  map_comp {M N K} f g := by ext (_ | _) <;> aesop_cat
 
 end Augmented
 
