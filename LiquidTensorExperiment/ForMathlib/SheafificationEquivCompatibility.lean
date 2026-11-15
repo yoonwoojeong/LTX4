@@ -61,7 +61,7 @@ theorem toSheafify_pullbackSheafificationCompatibility {G : C ⥤ D} (Hp : Cover
     (Hl : Functor.IsCocontinuous G J K) (Hc : CompatiblePreserving.{max v u} K G) (F) :
     J.toSheafify (G.op ⋙ F) ≫
         ((pullbackSheafificationCompatibility.{w, v, u} A Hp Hl Hc).hom.app F).val =
-      whiskerLeft _ (K.toSheafify _) := by
+      whiskerLeft G.op (K.toSheafify F) := by
   -- Porting note: the proof is now the corresponding statement from mathlib
   letI := Hl
   letI := Functor.isContinuous_of_coverPreserving Hc Hp
@@ -71,7 +71,7 @@ theorem toSheafify_pullbackSheafificationCompatibility {G : C ⥤ D} (Hp : Cover
 theorem pullbackSheafificationCompatibility_hom_apply_val {G : C ⥤ D} (Hp : CoverPreserving J K G)
     (Hl : Functor.IsCocontinuous G J K) (Hc : CompatiblePreserving.{max v u} K G) (F) :
     ((pullbackSheafificationCompatibility.{w, v, u} A Hp Hl Hc).hom.app F).val =
-      J.sheafifyLift (whiskerLeft _ <| K.toSheafify _)
+      J.sheafifyLift (whiskerLeft G.op <| K.toSheafify F)
         -- Porting note: the `Sheaf.cond _` argument is given explicitly (elaboration timed out)
         (by
           letI := Hl
@@ -95,13 +95,13 @@ variable (Hd : CategoryTheory.Functor.IsCoverDense G K) (Hp : CoverPreserving J 
 `Sheaf_equiv_of_cover_preserving_cover_lifting` with sheafification. -/
 noncomputable abbrev
   CategoryTheory.Functor.IsCoverDense.sheafEquivOfCoverPreservingCoverLiftingSheafificationCompatibility :
-    (whiskeringLeft _ _ A).obj G.op ⋙ presheafToSheaf _ _ ≅
-      presheafToSheaf _ _ ⋙
-        (letI := Hd
-         letI := Hl
-         letI := IsCoverDense.isContinuous (G := G) (J := J) (K := K) Hp
+    (whiskeringLeft _ _ A).obj G.op ⋙ presheafToSheaf J A ≅
+      presheafToSheaf K A ⋙
+        (letI : G.IsCoverDense K := Hd
+         letI : G.IsCocontinuous J K := Hl
+         letI : G.IsContinuous J K := IsCoverDense.isContinuous (G := G) (J := J) (K := K) Hp
          sheafEquivOfCoverPreservingCoverLifting G J K A).inverse :=
-  letI := Hd
+  letI : G.IsCoverDense K := Hd
   CategoryTheory.Sites.pullbackSheafificationCompatibility _ Hp Hl
     (IsCoverDense.compatiblePreserving K G)
 

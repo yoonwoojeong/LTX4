@@ -29,7 +29,7 @@ theorem isIso_of [IsIso f.left] [IsIso f.right] : IsIso f :=
     out :=
       ⟨{  left := inv f.left
           right := inv f.right
-          w' := by
+          w := by
             dsimp
             simp only [IsIso.eq_comp_inv, Functor.map_inv, CommaMorphism.w, IsIso.inv_comp_eq,
               Category.assoc]
@@ -50,16 +50,16 @@ theorem isIso_of [hf : ∀ n, IsIso (f.app n)] : IsIso f :=
   {
     out :=
       by
+      -- Porting note: the naturality proof is given inline, since `_` placeholders do not
+      -- create new goals in Lean 4
       let g : Y ⟶ X :=
         { app := fun n => inv (f.app n)
-          naturality := fun m n φ => _ }
-      ·
-        refine' ⟨g, _, _⟩ <;>
-          · ext n
-            simp only [NatTrans.id_app, NatTrans.comp_app, IsIso.hom_inv_id, IsIso.inv_hom_id]
-      ·
-        simp only [IsIso.inv_hom_id_assoc, NatTrans.naturality, IsIso.comp_inv_eq,
-          Category.assoc] }
+          naturality := fun m n φ => by
+            simp only [IsIso.inv_hom_id_assoc, NatTrans.naturality, IsIso.comp_inv_eq,
+              Category.assoc] }
+      refine' ⟨g, _, _⟩ <;>
+        · ext n
+          simp only [NatTrans.id_app, NatTrans.comp_app, IsIso.hom_inv_id, IsIso.inv_hom_id] }
 
 end
 
