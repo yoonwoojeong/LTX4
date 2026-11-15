@@ -20,6 +20,9 @@ open Finset Filter
 
 open scoped NNReal BigOperators TopologicalSpace
 
+-- Porting note: `⋙` is scoped notation in Lean 4
+open CategoryTheory
+
 namespace SystemOfComplexes
 
 universe u
@@ -48,7 +51,7 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
     ∀ δ > 0, C.IsBoundedExact (k ^ 2) (K + δ) m c₀ :=
   by
   intro δ hδ
-  refine' (hC.of_le hC' _ ⟨le_rfl⟩ le_rfl ⟨le_rfl⟩).toExact hδ _
+  refine' (hC.ofLe hC' _ ⟨le_rfl⟩ le_rfl ⟨le_rfl⟩).toExact hδ _
   · constructor
     calc
       k = k * 1 := by rw [mul_one]
@@ -58,7 +61,9 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
   haveI : Fact (k * c ≤ k ^ 2 * c) := by rw [pow_two, mul_assoc]; infer_instance
   haveI : Fact (k * (k * c) ≤ k ^ 2 * c) := by rw [pow_two, mul_assoc]; exact ⟨le_rfl⟩
   -- we need to consider the case `i = 0` separately
-  obtain rfl | ⟨i, rfl⟩ : i = 0 ∨ ∃ i', i = i' + 1 := by cases i; · left; rfl;
+  obtain rfl | ⟨i, rfl⟩ : i = 0 ∨ ∃ i', i = i' + 1 := by
+    cases i
+    · left; rfl
     · right; exact ⟨_, rfl⟩
   · refine' ⟨0, rfl, 0, _⟩
     rw [map_zero, ← norm_le_zero_iff']
@@ -70,11 +75,11 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
       zero_add] at hy 
     decide
   -- we continue with the case `i + 1`
-  have hc₀kc : k * c ≥ c₀
-  calc
-    c₀ ≤ c := hc
-    _ ≤ 1 * c := by rw [one_mul]
-    _ ≤ k * c := mul_le_mul' hk.out (le_refl _)
+  have hc₀kc : k * c ≥ c₀ :=
+    calc
+      c₀ ≤ c := hc
+      _ ≤ 1 * c := by rw [one_mul]
+      _ ≤ k * c := mul_le_mul' hk.out (le_refl _)
   let K' := if K = 0 then 1 else K
   have hK' : (0 : ℝ) < K' := by
     dsimp [K']

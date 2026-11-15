@@ -17,7 +17,9 @@ instance SemiNormedGroupCat.forget₂ : HasForget₂ SemiNormedGroupCat.{u} Ab.{
     where
   forget₂ :=
     { obj := fun V => AddCommGroupCat.of V
-      map f := NormedAddGroupHom.toAddMonoidHom f
+      map := fun {X Y} (f : X ⟶ Y) =>
+        -- Porting note: explicit types needed since `⟶` in `SemiNormedGroupCat` is not unfolded
+        (NormedAddGroupHom.toAddMonoidHom (V₁ := X) (V₂ := Y) f : (X : Type u) →+ (Y : Type u))
       map_id := fun _ => rfl
       map_comp := fun _ _ => rfl }
   forget_comp := rfl
@@ -25,7 +27,11 @@ instance SemiNormedGroupCat.forget₂ : HasForget₂ SemiNormedGroupCat.{u} Ab.{
 -- move me
 instance SemiNormedGroupCat.forget₂_additive :
     (CategoryTheory.forget₂ SemiNormedGroupCat.{u} Ab.{u}).Additive where
-  map_add := by intros; exact rfl
+  map_add := by
+    intros
+    apply AddMonoidHom.ext
+    intro x
+    rfl
 
 instance SemiNormedGroupCat.metricSpace : MetricSpace V :=
   MetricSpace.ofT0PseudoMetricSpace _

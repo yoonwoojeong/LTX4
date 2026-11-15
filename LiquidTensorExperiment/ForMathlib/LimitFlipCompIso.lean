@@ -10,6 +10,8 @@ universe v u
 
 variable {C : Type u} [Category.{v} C]
 
+-- Porting note: the proofs in this definition need more than the default heartbeats in Lean 4
+set_option maxHeartbeats 400000 in
 noncomputable def limitFlipCompLimIsoLimitCompLim' {J : Type _} [Category J] [HasLimitsOfShape J C]
     {K : Type _} [Category K] [HasLimitsOfShape K C] (F : J ⥤ K ⥤ C) :
     limit (F.flip ⋙ lim) ≅ limit (F ⋙ lim)
