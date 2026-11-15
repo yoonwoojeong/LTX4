@@ -32,7 +32,7 @@ theorem coboundary_coboundary (n : ℕ) : coboundary M n ≫ coboundary M (n + 1
   let s : Finset (Fin (n + 2) × Fin (n + 3)) := univ.filter fun ij => (ij.2 : ℕ) ≤ ij.1
   calc
     coboundary M n ≫ coboundary M (n + 1) =
-        comp_hom (∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • M.δ i)
+        compHom (∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • M.δ i)
           (∑ i : Fin (n + 3), (-1 : ℤ) ^ (i : ℕ) • M.δ i) :=
       rfl
     -- Porting note: Lean 4 does not support `∑ (i : α) (j : β), _`
