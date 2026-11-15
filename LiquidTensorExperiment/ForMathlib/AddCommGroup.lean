@@ -406,16 +406,21 @@ theorem isIso_of_preserves {𝓐 : Type u'} [Category.{u} 𝓐] [Preadditive �
     -- does not go through in Lean 4; here is a direct proof using the universal property of `eF`, `eG`.
     have hF : ∀ i : ι, Limits.biproduct.ι (fun _ : ι => F.obj tunit.{u}) i ≫ eF.inv =
         F.map (Limits.biproduct.ι (fun _ : ι => tunit.{u}) i) := fun i =>
-      Limits.IsColimit.comp_coconePointUniqueUpToIso_inv _ _ ⟨i⟩
+      Limits.IsColimit.comp_coconePointUniqueUpToIso_inv
+        (Limits.isBilimitOfPreserves F (Limits.biproduct.isBilimit fun _ : ι => tunit.{u})).isColimit
+        (Limits.biproduct.isBilimit fun _ : ι => F.obj tunit.{u}).isColimit (Discrete.mk i)
     have hG : ∀ i : ι, Limits.biproduct.ι (fun _ : ι => G.obj tunit.{u}) i ≫ eG.inv =
         G.map (Limits.biproduct.ι (fun _ : ι => tunit.{u}) i) := fun i =>
-      Limits.IsColimit.comp_coconePointUniqueUpToIso_inv _ _ ⟨i⟩
+      Limits.IsColimit.comp_coconePointUniqueUpToIso_inv
+        (Limits.isBilimitOfPreserves G (Limits.biproduct.isBilimit fun _ : ι => tunit.{u})).isColimit
+        (Limits.biproduct.isBilimit fun _ : ι => G.obj tunit.{u}).isColimit (Discrete.mk i)
     have key : eF.inv ≫ F.map e.hom ≫ η.app (A.diagram.obj I) =
         (Limits.biproduct.map fun i : ι => η.app tunit.{u}) ≫ eG.inv ≫ G.map e.hom := by
       apply Limits.biproduct.hom_ext'
       intro i
-      rw [reassoc_of% (hF i), ← F.map_comp_assoc, η.naturality, G.map_comp,
-        Limits.biproduct.ι_map_assoc, reassoc_of% (hG i)]
+      rw [reassoc_of% (hF i), ← F.map_comp_assoc]
+      erw [η.naturality]
+      rw [G.map_comp, Limits.biproduct.ι_map_assoc, reassoc_of% (hG i)]
     calc
       η.app (A.diagram.obj I) = (F.map e.inv ≫ F.map e.hom) ≫ η.app (A.diagram.obj I) := by
         rw [← F.map_comp, e.inv_hom_id, F.map_id, Category.id_comp]
@@ -423,7 +428,8 @@ theorem isIso_of_preserves {𝓐 : Type u'} [Category.{u} 𝓐] [Preadditive �
         rw [eF.hom_inv_id, Category.id_comp, Category.assoc]
       _ = F.map e.inv ≫ eF.hom ≫ (Limits.biproduct.map fun i : ι => η.app tunit.{u}) ≫ eG.inv ≫
           G.map e.hom := by
-        rw [Category.assoc, Category.assoc, ← Category.assoc eF.inv, key]
+        simp only [Category.assoc]
+        erw [key]
   rw [this]
   -- Porting note: the `apply_with is_iso.comp_is_iso { instances := ff }` steps of the Lean 3 proof
   -- are replaced by an explicit proof that the middle map is an isomorphism

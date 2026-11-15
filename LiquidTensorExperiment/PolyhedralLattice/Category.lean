@@ -37,7 +37,7 @@ def toSemiNormedGroup : SemiNormedGroupCat :=
 instance bundledHom : BundledHom @PolyhedralLatticeHom where
   toFun _ _ f := f
   id _ := PolyhedralLatticeHom.id
-  comp {_ _ _} g f := g.comp f
+  comp _ _ _ g f := g.comp f
   hom_ext _ _ _ _ h := PolyhedralLatticeHom.coe_inj h
   id_toFun _ := rfl
   comp_toFun _ _ _ _ _ := rfl

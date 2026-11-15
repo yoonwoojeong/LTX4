@@ -15,24 +15,7 @@ namespace DiscreteQuotient
 
 universe u
 
-variable {X Y : Profinite.{u}} (f : X ⟶ Y) (surj : Function.Surjective f)
-
-import Mathlib.Topology.DiscreteQuotient
-import Mathlib.Topology.Category.Profinite.AsLimit
-import Mathlib.Topology.Category.Profinite.Basic
-import Mathlib.Topology.Category.Profinite.CofilteredLimit
-import Mathlib.Topology.Category.Profinite.Projective
-import Mathlib.CategoryTheory.Arrow
-import Mathlib.Data.Setoid.Partition
-import LiquidTensorExperiment.ForMathlib.Profinite.QuotientMap
-
-#align_import for_mathlib.Profinite.compat_discrete_quotient
-
-open CategoryTheory
-
-namespace DiscreteQuotient
-
-universe u
+variable {X Y : Profinite.{u}} (f : X ⟶ Y)
 
 variable {X Y : Profinite.{u}} (f : X ⟶ Y) (surj : Function.Surjective f)
 

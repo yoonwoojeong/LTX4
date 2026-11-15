@@ -25,7 +25,7 @@ variable (r' : ℝ≥0)
 def bundledHom : BundledHom (@ComphausFilteredPseudoNormedGroupWithTinvHom r') where
   toFun _ _ f := f
   id _ := ComphausFilteredPseudoNormedGroupWithTinvHom.id
-  comp {_ _ _} g f := g.comp f
+  comp _ _ _ g f := g.comp f
   hom_ext _ _ _ _ h := ComphausFilteredPseudoNormedGroupWithTinvHom.coe_inj h
   id_toFun _ := rfl
   comp_toFun _ _ _ _ _ := rfl

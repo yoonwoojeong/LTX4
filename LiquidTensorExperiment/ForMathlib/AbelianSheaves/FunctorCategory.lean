@@ -337,7 +337,7 @@ instance : AdditiveCategory (C ⥤ D) :=
 -- `functor_category_hasKernels_general`.
 instance functor_category_additiveCategory_general {C' : Type u₁} [Category.{v₁} C'] {D' : Type w₁}
     [Category.{v₂} D'] [AdditiveCategory D'] : AdditiveCategory (C' ⥤ D') :=
-  { (inferInstance : Preadditive (C' ⥤ D')) with
+  { (functorCategoryPreadditive : Preadditive (C' ⥤ D')) with
     out := by
       intro n
       constructor

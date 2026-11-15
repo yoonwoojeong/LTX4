@@ -57,14 +57,16 @@ theorem NNReal.inv_hMul_le_iff {a b c : ℝ≥0} (hb0 : b ≠ 0) : b⁻¹ * a �
   rw [← NNReal.coe_le_coe]
   push_cast
   apply inv_mul_le_iff
-  obtain hb | (hb : 0 < b) := eq_zero_or_pos
+  obtain hb | (hb : 0 < b) := (eq_zero_or_pos : b = 0 ∨ 0 < b)
   · subst hb; exfalso; apply hb0; rfl
   · assumption_mod_cast
 
 theorem ENNReal.inv_hMul_le_iff {a b c : ℝ≥0∞} (hb0 : b ≠ 0) (hb : b ≠ ∞) :
     b⁻¹ * a ≤ c ↔ a ≤ b * c := by
   rw [mul_comm, mul_comm b]
-  apply ENNReal.div_le_iff_le_mul <;> cc
+  -- Porting note: `cc` replaced by explicit disjunctions
+  apply ENNReal.div_le_iff_le_mul
+  exacts [Or.inl hb0, Or.inl hb]
 
 theorem ENNReal.zero_le (a : ℝ≥0∞) : 0 ≤ a :=
   bot_le
@@ -83,7 +85,9 @@ theorem ENNReal.inv_eq_of_hMul_eq_one {a b : ℝ≥0∞} (h : a * b = 1) : a⁻�
     rw [ENNReal.top_mul'] at h 
     split_ifs at h  with ha <;> · revert h; norm_num
   norm_cast at h 
-  have ha : A ≠ 0 := by rintro rfl; rw [MulZeroClass.zero_mul] at h ; revert h; norm_num
+  -- Porting note: name the case variables
+  rename_i b a
+  have ha : a ≠ 0 := by rintro rfl; rw [MulZeroClass.zero_mul] at h ; revert h; norm_num
   rw [← ENNReal.coe_inv ha]
   norm_cast
   rwa [← inv_mul_eq_one₀, inv_inv]
