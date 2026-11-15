@@ -5,6 +5,9 @@ import Mathlib.Algebra.Group.ULift
 
 universe u
 
+-- Porting note: `≫` and `⟶` are scoped notations in Lean 4
+open CategoryTheory
+
 def Ab.pt {X : Ab.{u}} (x : X) : AddCommGroupCat.of (ULift.{u} ℤ) ⟶ X
     where
   toFun a := zmultiplesAddHom _ x a.down

@@ -14,13 +14,16 @@ open scoped BigOperators NNReal Classical
 
 open Set
 
+-- Porting note: needed for `⟶`, `𝟙`, `≫`
+open CategoryTheory
+
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (s i) -/
 /-- `laurent_measures_bdd r S T c` is functions from `S` to the space of Laurent polynomials
   whose coefficients are supported in the `finset` T, and whose `r`-norm is at most `c`.
   Note that this is a finite type.  -/
 structure LaurentMeasuresBdd (r : ℝ≥0) (S : FintypeCat) (T : Finset ℤ) (c : ℝ≥0) where
   toFun : S → T → ℤ
-  bound' : ∑ (s) (i), ‖toFun s i‖₊ * r ^ (i : ℤ) ≤ c
+  bound' : ∑ s, ∑ i, ‖toFun s i‖₊ * r ^ (i : ℤ) ≤ c
 
 namespace LaurentMeasuresBdd
 
@@ -30,31 +33,34 @@ instance : CoeFun (LaurentMeasuresBdd r S T c) fun _ => S → T → ℤ :=
   ⟨fun F => F.1⟩
 
 @[ext]
-theorem ext (F G : LaurentMeasuresBdd r S T c) : (F : S → T → ℤ) = G → F = G := by intro h; cases F;
-  cases G; simpa
+theorem ext (F G : LaurentMeasuresBdd r S T c) : (F : S → T → ℤ) = G → F = G := by
+  intro h
+  cases F
+  cases G
+  simpa
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (s i) -/
 instance : NNNorm (LaurentMeasuresBdd r S T c) :=
-  ⟨fun F => ∑ (s) (i), ‖F s i‖₊ * r ^ (i : ℤ)⟩
+  ⟨fun F => ∑ s, ∑ i, ‖F s i‖₊ * r ^ (i : ℤ)⟩
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:107:6: warning: expanding binder group (s i) -/
 @[simp]
 theorem nnnorm_def (F : LaurentMeasuresBdd r S T c) :
-    ‖F‖₊ = ∑ (s) (i), ‖F s i‖₊ * r ^ (i : ℤ) :=
+    ‖F‖₊ = ∑ s, ∑ i, ‖F s i‖₊ * r ^ (i : ℤ) :=
   rfl
 
 theorem bound (F : LaurentMeasuresBdd r S T c) : ‖F‖₊ ≤ c :=
   F.2
 
 def map (f : S ⟶ S') : LaurentMeasuresBdd r S T c → LaurentMeasuresBdd r S' T c := fun F =>
-  { toFun := fun s' k => ∑ s in Finset.univ.filterₓ fun t => f t = s', F s k
+  { toFun := fun s' k => ∑ s in Finset.univ.filter fun t => f t = s', F s k
     bound' :=
       calc
-        ∑ (s : S') (i : T),
-              ‖(∑ s : S.α in Finset.univ.filterₓ fun t : S => f t = s, F s i)‖₊ *
+        ∑ s : S', ∑ i : T,
+              ‖(∑ s : S in Finset.univ.filter fun t : S => f t = s, F s i)‖₊ *
                 r ^ (i : ℤ) ≤
-            ∑ (s' : S') (i : T),
-              ∑ s in Finset.univ.filterₓ fun t => f t = s', ‖F s i‖₊ * r ^ (i : ℤ) :=
+            ∑ s' : S', ∑ i : T,
+              ∑ s in Finset.univ.filter fun t => f t = s', ‖F s i‖₊ * r ^ (i : ℤ) :=
           by
           apply Finset.sum_le_sum
           intro s' hs'
@@ -64,7 +70,7 @@ def map (f : S ⟶ S') : LaurentMeasuresBdd r S T c → LaurentMeasuresBdd r S' 
           exact mul_le_mul' (nnnorm_sum_le _ _) (le_refl _)
         _ =
             ∑ s' : S',
-              ∑ s in Finset.univ.filterₓ fun t => f t = s', ∑ i, ‖F s i‖₊ * r ^ (i : ℤ) :=
+              ∑ s in Finset.univ.filter fun t => f t = s', ∑ i, ‖F s i‖₊ * r ^ (i : ℤ) :=
           by
           apply Finset.sum_congr rfl
           intro s' hs'
@@ -89,7 +95,7 @@ def map (f : S ⟶ S') : LaurentMeasuresBdd r S T c → LaurentMeasuresBdd r S' 
 
 @[simp]
 theorem map_apply (f : S ⟶ S') (F : LaurentMeasuresBdd r S T c) (s' : S') (t : T) :
-    map f F s' t = ∑ s in Finset.univ.filterₓ fun i => f i = s', F s t :=
+    map f F s' t = ∑ s in Finset.univ.filter fun i => f i = s', F s t :=
   rfl
 
 @[simp]
@@ -97,7 +103,7 @@ theorem map_id : (map (𝟙 S) : LaurentMeasuresBdd r S T c → LaurentMeasuresB
   by
   ext F s t
   dsimp
-  change ∑ s in finset.univ.filter fun i => i = s, F s t = _
+  change ∑ s in Finset.univ.filter fun i => i = s, F s t = _
   simp [Finset.sum_filter]
 
 @[simp]
@@ -124,7 +130,7 @@ theorem coeff_bound (F : LaurentMeasuresBdd r S T c) [hr : Fact (0 < r)] (s : S)
   suffices ‖F s i‖₊ * r ^ (i : ℤ) ≤ c
     by
     convert mul_le_mul' this le_rfl using 1
-    have hh : 0 < (r ^ (i : ℤ))⁻¹ := by rw [nnreal.inv_pos]; exact NNReal.zpow_pos hr.out.ne' _
+    have hh : 0 < (r ^ (i : ℤ))⁻¹ := by rw [inv_pos]; exact NNReal.zpow_pos hr.out.ne' _
     have hh' : r ^ (i : ℤ) ≠ 0 := zpow_ne_zero _ hr.out.ne'
     field_simp [this]
   calc

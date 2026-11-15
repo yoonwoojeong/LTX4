@@ -28,7 +28,9 @@ noncomputable def limitFlipCompLimIsoLimitCompLim' {J : Type _} [Category J] [Ha
                     simp }⟩
           naturality := by
             intro j1 j2 f
-            ext
+            -- Porting note: `ext` is not recursive in Lean 4
+            apply limit.hom_ext
+            intro k
             dsimp
             simp only [Category.id_comp, Category.assoc, limit.lift_π, limit.lift_map,
               Cones.postcompose_obj_π, NatTrans.comp_app]
@@ -48,29 +50,44 @@ noncomputable def limitFlipCompLimIsoLimitCompLim' {J : Type _} [Category J] [Ha
                     simp }⟩
           naturality := by
             intro k1 k2 f
-            ext
+            -- Porting note: `ext` is not recursive in Lean 4
+            apply limit.hom_ext
+            intro j
             dsimp
             simp only [Category.id_comp, Category.assoc, limit.lift_π, limit.lift_map,
               Cones.postcompose_obj_π, NatTrans.comp_app]
             rw [← limit.w _ f]
             rfl }⟩
-  hom_inv_id := by ext; dsimp; simp
-  inv_hom_id := by ext; dsimp; simp
+  hom_inv_id := by
+    -- Porting note: `ext` is not recursive in Lean 4
+    apply limit.hom_ext
+    intro k
+    apply limit.hom_ext
+    intro j
+    dsimp
+    simp
+  inv_hom_id := by
+    apply limit.hom_ext
+    intro j
+    apply limit.hom_ext
+    intro k
+    dsimp
+    simp
 
 @[reassoc (attr := simp)]
 theorem limitFlipCompLimIsoLimitCompLim'_hom_π_π {J : Type _} [Category J] [HasLimitsOfShape J C]
-    {K : Type _} [Category K] [HasLimitsOfShape K C] (F : J ⥤ K ⥤ C) (j) (k) :
-    (limitFlipCompLimIsoLimitCompLim' F).hom ≫ limit.π _ j ≫ limit.π _ k =
-      limit.π _ k ≫ limit.π _ j :=
+    {K : Type _} [Category K] [HasLimitsOfShape K C] (F : J ⥤ K ⥤ C) (j : J) (k : K) :
+    (limitFlipCompLimIsoLimitCompLim' F).hom ≫ limit.π (F ⋙ lim) j ≫ limit.π (F.obj j) k =
+      limit.π (F.flip ⋙ lim) k ≫ limit.π (F.flip.obj k) j :=
   by
   dsimp [CategoryTheory.Limits.limitFlipCompLimIsoLimitCompLim']
   simp
 
 @[reassoc (attr := simp)]
 theorem limitFlipCompLimIsoLimitCompLim'_inv_π_π {J : Type _} [Category J] [HasLimitsOfShape J C]
-    {K : Type _} [Category K] [HasLimitsOfShape K C] (F : J ⥤ K ⥤ C) (j) (k) :
-    (limitFlipCompLimIsoLimitCompLim' F).inv ≫ limit.π _ j ≫ limit.π _ k =
-      limit.π _ k ≫ limit.π _ j :=
+    {K : Type _} [Category K] [HasLimitsOfShape K C] (F : J ⥤ K ⥤ C) (j : K) (k : J) :
+    (limitFlipCompLimIsoLimitCompLim' F).inv ≫ limit.π (F.flip ⋙ lim) j ≫ limit.π (F.flip.obj j) k =
+      limit.π (F ⋙ lim) k ≫ limit.π (F.obj k) j :=
   by
   dsimp [CategoryTheory.Limits.limitFlipCompLimIsoLimitCompLim']
   simp

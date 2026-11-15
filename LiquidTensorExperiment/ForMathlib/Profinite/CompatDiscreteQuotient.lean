@@ -17,8 +17,6 @@ universe u
 
 variable {X Y : Profinite.{u}} (f : X ⟶ Y)
 
-variable {X Y : Profinite.{u}} (f : X ⟶ Y) (surj : Function.Surjective f)
-
 /-- The relation defining the largest quotient of f.right compatible with S. -/
 inductive MakeRel (S : DiscreteQuotient X) : Y → Y → Prop
   | of (x y : X) (h : S.Rel x y) : MakeRel S (f x) (f y)

@@ -17,18 +17,21 @@ instance SemiNormedGroupCat.forget₂ : HasForget₂ SemiNormedGroupCat.{u} Ab.{
     where
   forget₂ :=
     { obj := fun V => AddCommGroupCat.of V
-      map := fun V W f => f.toAddMonoidHom
-      map_id := fun V => rfl
-      map_comp := fun _ _ _ f g => rfl }
+      map f := NormedAddGroupHom.toAddMonoidHom f
+      map_id _ := rfl
+      map_comp _ _ := rfl }
   forget_comp := rfl
 
 -- move me
-instance SemiNormedGroupCat.forget₂_additive : (forget₂ SemiNormedGroupCat.{u} Ab.{u}).Additive where
-  map_add' := by intros; rfl
+instance SemiNormedGroupCat.forget₂_additive : (CategoryTheory.forget₂ SemiNormedGroupCat.{u} Ab.{u}).Additive where
+  map_add := by intros; rfl
 
 instance SemiNormedGroupCat.metricSpace : MetricSpace V :=
-  metric.ofT0PseudoMetricSpace _
+  MetricSpace.ofT0PseudoMetricSpace _
 
 instance SemiNormedGroupCat.normedAddCommGroup : NormedAddCommGroup V :=
-  { (by infer_instance : SeminormedAddCommGroup V) with dist_eq := SeminormedAddCommGroup.dist_eq }
+  { (by infer_instance : SeminormedAddCommGroup V) with
+    dist_eq := SeminormedAddCommGroup.dist_eq
+    -- Porting note: in Lean 4 the `MetricSpace` field `eq_of_dist_eq_zero` must be supplied
+    eq_of_dist_eq_zero := fun {x y} h => (SemiNormedGroupCat.metricSpace V).eq_of_dist_eq_zero h }
 

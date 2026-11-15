@@ -316,6 +316,8 @@ theorem NatTrans.coimageImageComparison_app {F G : C ⥤ D} (η : F ⟶ G) (X : 
   dsimp [NatTrans.cokernelObjIso, IsColimit.coconePointUniqueUpToIso]
   dsimp [NatTrans.kernelObjIso, IsLimit.conePointUniqueUpToIso]
   simp
+  exact congrArg (fun e => NatTrans.app e X)
+    (Abelian.coimage_image_factorisation.{max u v, max (max u v) w} η)
 
 end CokernelsAndKernels
 
@@ -342,6 +344,7 @@ instance functor_category_additiveCategory_general {C' : Type u₁} [Category.{v
       intro n
       constructor
       intro F
+      haveI : HasLimitsOfShape (Discrete (Fin n)) (C' ⥤ D') := functorCategoryHasLimitsOfShape
       apply Limits.HasBiproduct.of_hasProduct }
 
 end Additivity

@@ -4,6 +4,9 @@ import Mathlib.CategoryTheory.Monoidal.Functor
 
 open CategoryTheory
 
+-- Porting note: notation `⊗`, `α_` is scoped in Lean 4
+open scoped MonoidalCategory
+
 variable {C D : Type _} [Category C] [Category D] [MonoidalCategory C] [MonoidalCategory D]
 
 namespace CategoryTheory.MonoidalFunctor
@@ -21,7 +24,7 @@ theorem map_associator_hom {X Y Z : C} :
           (α_ (F.obj X) (F.obj Y) (F.obj Z)).hom ≫ (𝟙 (F.obj X) ⊗ F.μ Y Z) ≫ F.μ X (Y ⊗ Z) :=
   by
   rw [CategoryTheory.IsIso.eq_inv_comp, IsIso.eq_inv_comp]
-  exact F.to_lax_monoidal_functor.associativity X Y Z
+  exact F.toLaxMonoidalFunctor.associativity X Y Z
 
 /- ./././Mathport/Syntax/Translate/Expr.lean:177:8: unsupported: ambiguous notation -/
 /- ./././Mathport/Syntax/Translate/Expr.lean:177:8: unsupported: ambiguous notation -/
@@ -34,7 +37,7 @@ theorem map_associator_inv {X Y Z : C} :
           (α_ (F.obj X) (F.obj Y) (F.obj Z)).inv ≫ (F.μ X Y ⊗ 𝟙 (F.obj Z)) ≫ F.μ (X ⊗ Y) Z :=
   by
   rw [CategoryTheory.IsIso.eq_inv_comp, IsIso.eq_inv_comp]
-  exact F.to_lax_monoidal_functor.associativity_inv X Y Z
+  exact F.toLaxMonoidalFunctor.associativity_inv X Y Z
 
 end CategoryTheory.MonoidalFunctor
 

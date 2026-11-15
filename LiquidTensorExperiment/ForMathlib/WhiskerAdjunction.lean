@@ -22,9 +22,9 @@ variable (C : Type _) {D E : Type _} [Category C] [Category D] [Category E] {F :
 
 def whiskeringRight (adj : F ⊣ G) : (whiskeringRight C D E).obj F ⊣ (whiskeringRight C E D).obj G :=
   mkOfUnitCounit
-    { Unit :=
+    { unit :=
         { app := fun X =>
-            (Functor.rightUnitor _).inv ≫ whiskerLeft X adj.Unit ≫ (Functor.associator _ _ _).inv
+            (Functor.rightUnitor _).inv ≫ whiskerLeft X adj.unit ≫ (Functor.associator _ _ _).inv
           naturality := by intros; ext; dsimp; simp }
       counit :=
         { app := fun X =>
@@ -35,8 +35,8 @@ def whiskeringRight (adj : F ⊣ G) : (whiskeringRight C D E).obj F ⊣ (whisker
 
 @[simp]
 theorem whiskeringRight_unit (adj : F ⊣ G) (X : C ⥤ D) :
-    (adj.whiskeringRight C).Unit.app X =
-      (Functor.rightUnitor _).inv ≫ whiskerLeft X adj.Unit ≫ (Functor.associator _ _ _).inv :=
+    (adj.whiskeringRight C).unit.app X =
+      (Functor.rightUnitor _).inv ≫ whiskerLeft X adj.unit ≫ (Functor.associator _ _ _).inv :=
   rfl
 
 @[simp]

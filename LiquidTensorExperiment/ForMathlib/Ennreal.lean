@@ -84,9 +84,11 @@ theorem ENNReal.inv_eq_of_hMul_eq_one {a b : ℝ≥0∞} (h : a * b = 1) : a⁻�
   · exfalso
     rw [ENNReal.top_mul'] at h 
     split_ifs at h  with ha <;> · revert h; norm_num
-  norm_cast at h 
-  -- Porting note: name the case variables
+  -- Porting note: name the case variables and restate with `ENNReal` coercions
   rename_i b a
+  change (a : ℝ≥0∞)⁻¹ = (b : ℝ≥0∞)
+  change (a : ℝ≥0∞) * (b : ℝ≥0∞) = 1 at h
+  norm_cast at h
   have ha : a ≠ 0 := by rintro rfl; rw [MulZeroClass.zero_mul] at h ; revert h; norm_num
   rw [← ENNReal.coe_inv ha]
   norm_cast

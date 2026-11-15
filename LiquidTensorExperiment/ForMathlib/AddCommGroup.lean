@@ -434,8 +434,10 @@ theorem isIso_of_preserves {𝓐 : Type u'} [Category.{u} 𝓐] [Preadditive �
   -- Porting note: the `apply_with is_iso.comp_is_iso { instances := ff }` steps of the Lean 3 proof
   -- are replaced by an explicit proof that the middle map is an isomorphism
   haveI : IsIso (Limits.biproduct.map fun i : ι => η.app tunit.{u}) :=
-    ⟨⟨Limits.biproduct.desc fun i => inv (η.app _) ≫ Limits.biproduct.ι _ i,
-      by ext; simp, by ext; simp⟩⟩
+    ⟨⟨Limits.biproduct.desc fun i : ι =>
+        inv (η.app tunit.{u}) ≫ Limits.biproduct.ι (fun _ : ι => F.obj tunit.{u}) i,
+      by apply Limits.biproduct.hom_ext'; intro j; simp,
+      by apply Limits.biproduct.hom_ext'; intro j; simp⟩⟩
   infer_instance
 
 def IsTensorUnit (A : AddCommGroupCat.{u}) : Prop :=
@@ -492,7 +494,7 @@ theorem isTensorUnit_tunit : tunit.{u}.IsTensorUnit :=
       (adj'.unit.app _ ≫ (forget _).map ((free'.map fun x : ⊤_ Type u => t) ≫ adj'.counit.app B))
           _ =
         _
-    simp only [Functor.map_comp, Adjunction.unit_naturality_assoc]
+    erw [Adjunction.unit_naturality_assoc]
     -- Porting note: `erw [adj'.right_triangle_components]; rfl` timed out; use the lemma directly
     have h2 := adj'.right_triangle_components (Y := B)
     exact congrArg (fun k =>

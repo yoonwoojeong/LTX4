@@ -16,7 +16,7 @@ variable {ι : Type _} {c : ComplexShape ι}
 @[simps]
 protected def op (X : HomologicalComplex C c) : HomologicalComplex Cᵒᵖ c.symm
     where
-  X i := op (X.pt i)
+  X i := op (X.X i)
   d i j := (X.d j i).op
   shape i j hij := by rw [X.shape j i hij, op_zero]
   d_comp_d' := by intros; rw [← op_comp, X.d_comp_d, op_zero]
@@ -24,7 +24,7 @@ protected def op (X : HomologicalComplex C c) : HomologicalComplex Cᵒᵖ c.sym
 @[simps]
 protected def unop (X : HomologicalComplex Cᵒᵖ c) : HomologicalComplex C c.symm
     where
-  X i := unop (X.pt i)
+  X i := unop (X.X i)
   d i j := (X.d j i).unop
   shape i j hij := by rw [X.shape j i hij, unop_zero]
   d_comp_d' := by intros; rw [← unop_comp, X.d_comp_d, unop_zero]

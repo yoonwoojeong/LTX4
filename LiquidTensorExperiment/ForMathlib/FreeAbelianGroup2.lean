@@ -27,7 +27,8 @@ theorem coeff_of_not_mem_support {X : Type _} (a : FreeAbelianGroup X) (x : X) (
 theorem lift_eq_sum {A B : Type _} [AddCommGroup B] (f : A → B) (x) :
     FreeAbelianGroup.lift f x = ∑ a in x.support, FreeAbelianGroup.coeff a x • f a :=
   by
-  apply FreeAbelianGroup.induction_on'' x <;> clear x
+  -- Porting note: `apply <eliminator>` needs an expected type in Lean 4
+  refine FreeAbelianGroup.induction_on'' x ?_ ?_ ?_ <;> clear x
   · simp only [AddMonoidHom.map_zero, zero_smul, Finset.sum_const_zero]
   · intro n hn a
     simp only [map_zsmul, smul_assoc, ← Finset.smul_sum, FreeAbelianGroup.lift.of,

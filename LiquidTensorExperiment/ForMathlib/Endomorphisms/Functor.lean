@@ -26,7 +26,9 @@ end Functor
 
 @[simps]
 def NatTrans.mapEndomorphisms {F G : C ⥤ D} (η : F ⟶ G) : F.mapEndomorphisms ⟶ G.mapEndomorphisms where
-  app T := ⟨η.app _, by tidy⟩
+  app T := ⟨η.app _, by
+    -- Porting note: `tidy` is not available in Lean 4
+    aesop_cat⟩
 
 end CategoryTheory
 
