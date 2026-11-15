@@ -4,6 +4,8 @@ import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.AlgebraicTopology.SimplicialObject
 import Mathlib.CategoryTheory.Preadditive.Opposite
 import Mathlib.Algebra.Homology.HomologicalComplex
+-- Porting note: `Finset.smul_sum` is not imported by the other imports in Lean 4 mathlib
+import Mathlib.GroupTheory.GroupAction.BigOperators
 
 #align_import for_mathlib.simplicial.complex
 
@@ -32,7 +34,7 @@ theorem coboundary_coboundary (n : ℕ) : coboundary M n ≫ coboundary M (n + 1
   let s : Finset (Fin (n + 2) × Fin (n + 3)) := univ.filter fun ij => (ij.2 : ℕ) ≤ ij.1
   calc
     coboundary M n ≫ coboundary M (n + 1) =
-        compHom (∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • M.δ i)
+        Preadditive.compHom (∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • M.δ i)
           (∑ i : Fin (n + 3), (-1 : ℤ) ^ (i : ℕ) • M.δ i) :=
       rfl
     -- Porting note: Lean 4 does not support `∑ (i : α) (j : β), _`
@@ -44,7 +46,11 @@ theorem coboundary_coboundary (n : ℕ) : coboundary M n ≫ coboundary M (n + 1
           ∑ ij in sᶜ, (-1 : ℤ) ^ (ij.1 + ij.2 : ℕ) • M.δ ij.1 ≫ M.δ ij.2 :=
       by rw [sum_add_sum_compl]
     _ = 0 := ?_
-  · simp only [map_sum, map_zsmul, finset_sum_apply, smul_apply, smul_sum, pow_add, mul_smul]
+  · simp only [map_sum, map_zsmul, finset_sum_apply, smul_apply, Finset.smul_sum, pow_add, mul_smul]
+    -- Porting note: the order of the double sum and of the scalars comes out differently in Lean 4
+    rw [Finset.sum_comm]
+    refine' Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => _
+    rw [smul_comm]
     rfl
   erw [← eq_neg_iff_add_eq_zero, ← Finset.sum_neg_distrib]
   -- The sums are equal because we can give a bijection
@@ -70,9 +76,9 @@ theorem coboundary_coboundary (n : ℕ) : coboundary M n ≫ coboundary M (n + 1
     rw [← neg_zsmul]
     congr 1
     calc
-      (-1) ^ (i + j : ℕ) = -(-1) ^ (i + j + 1 : ℕ) := _
-      _ = -(-1) ^ (j + (i + 1) : ℕ) := _
-      _ = _ := _
+      (-1) ^ (i + j : ℕ) = -(-1) ^ (i + j + 1 : ℕ) := ?_
+      _ = -(-1) ^ (j + (i + 1) : ℕ) := ?_
+      _ = _ := ?_
     · rw [pow_succ, neg_one_mul, neg_neg]
     · rw [add_assoc, add_left_comm]
     · simp only [Fin.val_succ]
@@ -80,10 +86,10 @@ theorem coboundary_coboundary (n : ℕ) : coboundary M n ≫ coboundary M (n + 1
     rintro ⟨i₁, j₁⟩ ⟨i₂, j₂⟩ hij₁ hij₂ h
     rw [Prod.mk.inj_iff, Fin.eq_iff_veq, Fin.eq_iff_veq] at h ⊢
     simp at h 
-    rwa [and_comm'] at h 
+    rwa [and_comm] at h 
   · -- Show that our function is surjective
     rintro ⟨i, j⟩ hij
-    refine' ⟨⟨j.pred _, i.cast_succ⟩, _, _⟩
+    refine' ⟨⟨j.pred _, i.castSucc⟩, _, _⟩
     · intro H
       rw [H, mem_compl, mem_filter, not_and] at hij 
       exact hij (mem_univ _) (Nat.zero_le _)
@@ -157,6 +163,7 @@ def cocomplex : Augmented C ⥤ CochainComplex C ℕ
           intro i
           erw [(drop.map f).naturality]
           rfl }
+  -- Porting note: `tidy` is replaced by `aesop_cat`; `if_pos rfl` leaves `if True`, hence `ite_true`
   map_id M := by ext (_ | _) <;> aesop_cat
   map_comp {M N K} f g := by ext (_ | _) <;> aesop_cat
 
@@ -260,6 +267,7 @@ def complex : Augmented C ⥤ ChainComplex C ℕ
           intro i
           erw [(drop.map f).naturality]
           rfl }
+  -- Porting note: `tidy` is replaced by `aesop_cat`; `if_pos rfl` leaves `if True`, hence `ite_true`
   map_id M := by ext (_ | _) <;> aesop_cat
   map_comp {M N K} f g := by ext (_ | _) <;> aesop_cat
 
