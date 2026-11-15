@@ -417,11 +417,10 @@ private theorem exact_iff_forall_aux {F G H : C ⥤ D} (η : F ⟶ G) (γ : G �
   · rintro ⟨h1, h2⟩ j
     constructor
     · apply_fun fun e => e.app j at h1
-      exact h1
+      simpa using h1
     · apply_fun fun e => e.app j at h2 
-      -- Porting note: `0.app j = 0` holds by `rfl`, but `simp` does not see it because of the
-      -- different `HasZeroMorphisms` instances
-      replace h2 : NatTrans.app (kernel.ι γ) j ≫ NatTrans.app (cokernel.π η) j = 0 := h2
+      replace h2 : NatTrans.app (kernel.ι γ) j ≫ NatTrans.app (cokernel.π η) j = 0 := by
+        simpa using h2
       let eK : (kernel γ).obj j ≅ kernel (γ.app j) := NatTrans.kernelObjIso.{w, v, u} γ j
       let eQ : (cokernel η).obj j ≅ cokernel (η.app j) := NatTrans.cokernelObjIso.{w, v, u} η j
       have : kernel.ι (γ.app j) = eK.inv ≫ (NatTrans.app (kernel.ι γ) j) := by simp
@@ -434,9 +433,10 @@ private theorem exact_iff_forall_aux {F G H : C ⥤ D} (η : F ⟶ G) (γ : G �
   · intro h
     constructor
     · ext j
-      convert (h j).1 using 1
+      simpa using (h j).1
     · ext j
-      change NatTrans.app (kernel.ι γ) j ≫ NatTrans.app (cokernel.π η) j = 0
+      suffices key : NatTrans.app (kernel.ι γ) j ≫ NatTrans.app (cokernel.π η) j = 0 by
+        simpa using key
       let eK : (kernel γ).obj j ≅ kernel (γ.app j) := NatTrans.kernelObjIso.{w, v, u} γ j
       let eQ : (cokernel η).obj j ≅ cokernel (η.app j) := NatTrans.cokernelObjIso.{w, v, u} η j
       have : (NatTrans.app (kernel.ι γ) j) = eK.hom ≫ kernel.ι _ := by simp

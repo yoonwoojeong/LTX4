@@ -48,7 +48,9 @@ variable {k k' K K' : ℝ≥0} {m m' : ℕ} {c₀ c₀' : ℝ≥0}
 -- by admit
 -- Porting note: Lean 4 instance search does not see through `(forget SemiNormedGroupCat).obj A`,
 -- which is the type of the image of an element under a morphism `A ⟶ B` (e.g. `res x`, `d x`).
-attribute [local reducible] CategoryTheory.forget
+local instance (A : SemiNormedGroupCat) :
+    SeminormedAddCommGroup ((CategoryTheory.forget SemiNormedGroupCat).obj A) :=
+  inferInstanceAs (SeminormedAddCommGroup A)
 
 theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
     (hC : C.IsWeakBoundedExact k K m c₀) (hC' : Admissible C) [∀ c i, CompleteSpace (C c i)] :
@@ -156,7 +158,10 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
       calc
         ‖(C.d _ (i + 1) (w (j + 1) - w j))‖ =
             ‖(C.d _ _ (w (j + 1)) - res x + (res x - C.d _ _ (w j)))‖ :=
-          by simp only [sub_add_sub_cancel, _root_.map_sub]
+          by
+          simp only [sub_add_sub_cancel]
+          congr 1
+          exact map_sub _ _ _
         _ ≤ ‖(C.d _ _ (w (j + 1)) - res x)‖ + ‖(res x - C.d _ _ (w j))‖ :=
           (norm_add_le _ _)
         _ = ‖(res x - C.d _ _ (w (j + 1)))‖ + ‖(res x - C.d _ _ (w j))‖ := by
@@ -168,9 +173,14 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
       _ =
           ‖(res (w (j + 1)) - res (w j) -
               (∑ l : ℕ in range (j + 1), C.d _ _ (z l) - ∑ l : ℕ in range j, C.d _ _ (z l)))‖ :=
-        by dsimp [y]; congr 1; abel
+        by
+        dsimp [y]
+        congr 1
+        exact sub_sub_sub_comm _ _ _ _
       _ = ‖(res (w (j + 1) - w j) - C.d _ _ (z j))‖ := by
-        simp [_root_.map_sub, sum_range_succ]
+        simp only [sum_range_succ, add_sub_cancel']
+        congr 2
+        exact (map_sub _ _ _).symm
       _ ≤ K * ‖(C.d _ _ (w (j + 1) - w j))‖ + δ j := (hz j)
       _ ≤ K * (2 * ε j) + δ j := by
         apply add_le_add_right
