@@ -398,7 +398,8 @@ theorem π_descendToTop {X B : Profinite} {Y : TopCat} (π : X ⟶ B) (t : Profi
     QuotientMap.homeomorph]
   let c : pullback π π := ⟨(Function.surjInv hπ (π i), i), Function.surjInv_eq hπ (π i)⟩
   -- Porting note: `apply_fun … at w` cannot clear `w` here, since the goal depends on it
-  have w' : (pullback.fst π π ≫ t) c = (pullback.snd π π ≫ t) c := by rw [w]
+  have w' : (Profinite.toTopCat.map (pullback.fst π π) ≫ t) c =
+      (Profinite.toTopCat.map (pullback.snd π π) ≫ t) c := by rw [w]
   exact w'
 
 def product {α : Type} (X : α → Profinite.{u}) : Profinite :=
@@ -435,7 +436,7 @@ def punit.elim (X : Profinite.{u}) : X ⟶ punit :=
 
 theorem punit.hom_ext (X : Profinite.{u}) (f g : X ⟶ punit) : f = g := by
   ext
-  exact Subsingleton.elim _ _
+  exact PUnit.ext _ _
 
 def fromPunit {X : Profinite.{u}} (x : X) : punit ⟶ X :=
   ⟨fun _ => x, continuous_const⟩

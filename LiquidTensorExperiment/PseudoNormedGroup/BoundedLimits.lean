@@ -298,14 +298,15 @@ noncomputable def levelConeIso (c) :
       funext t
       rfl)
 
--- Porting note: `noncomputable` is needed in Lean 4 (it was not checked in Lean 3)
+-- Porting note: `noncomputable` is needed in Lean 4 (it was not checked in Lean 3), and the
+-- universe levels are stated explicitly
 noncomputable instance preservesLimitsLevelObj (c) : PreservesLimits (level.obj c) :=
-  by
-  constructor; intro J hJ; constructor; intro K
-  apply
-    CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
-      (boundedConeIsLimit ⟨_, Ab.explicitLimitConeIsLimit.{u, u} (K ⋙ toAb)⟩)
-  apply IsLimit.ofIsoLimit (Types.limitConeIsLimit _) (PseuNormGrp₁.levelConeIso _ _).symm
+  ⟨fun {J} _ =>
+    ⟨fun {K} =>
+      CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
+        (boundedConeIsLimit ⟨_, Ab.explicitLimitConeIsLimit.{u, u} (K ⋙ toAb)⟩)
+        (IsLimit.ofIsoLimit (Types.limitConeIsLimit.{u, u} _)
+          (PseuNormGrp₁.levelConeIso _ _).symm)⟩⟩
 
 def negNatTrans (c) : level.obj c ⟶ level.obj c
     where
@@ -334,20 +335,22 @@ def toPNG₁ : CompHausFiltPseuNormGrp₁.{u} ⥤ PseuNormGrp₁.{u}
   obj M :=
     { carrier := M
       exhaustive' := M.exhaustive }
-  map {X Y} f := { f.toAddMonoidHom with strict' := fun c x h => f.strict h }
+  map {X Y} f :=
+    ⟨StrictComphausFilteredPseudoNormedGroupHom.toAddMonoidHom f,
+      fun c x h => StrictComphausFilteredPseudoNormedGroupHom.strict f h⟩
 
-instance : Faithful toPNG₁.{u} :=
-  Faithful.mk <| by
-    intro X Y f g h
-    ext
-    apply_fun fun e => e x at h 
-    exact h
+instance : Faithful toPNG₁.{u} where
+  map_injective {X Y f g} h := by
+    apply StrictComphausFilteredPseudoNormedGroupHom.ext
+    intro x
+    exact congrArg (fun e : toPNG₁.obj X ⟶ toPNG₁.obj Y => e x) h
 
 variable {K : J ⥤ CompHausFiltPseuNormGrp₁.{u}}
 
 variable (C : Limits.LimitCone ((K ⋙ toPNG₁) ⋙ PseuNormGrp₁.toAb))
 
-def filtrationEquiv (c : NNReal) :
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable def filtrationEquiv (c : NNReal) :
     PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c ≃
       (CompHaus.limitCone.{u, u} (K ⋙ level.obj c)).pt :=
   ((Cones.forget _).mapIso (PseuNormGrp₁.levelConeIso C c)).toEquiv
@@ -356,28 +359,34 @@ instance (c) :
     TopologicalSpace (PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c) :=
   TopologicalSpace.induced (filtrationEquiv C c) inferInstance
 
-def filtrationHomeo (c : NNReal) :
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable def filtrationHomeo (c : NNReal) :
     PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c ≃ₜ
       (CompHaus.limitCone.{u, u} (K ⋙ level.obj c)).pt :=
   Homeomorph.homeomorphOfContinuousOpen (filtrationEquiv _ _) continuous_induced_dom
     (by
       intro U hU
-      have : Inducing (filtration_equiv C c) := ⟨rfl⟩
+      have : Inducing (filtrationEquiv C c) := ⟨rfl⟩
       rw [this.isOpen_iff] at hU 
       obtain ⟨U, hU, rfl⟩ := hU
       simpa)
 
 instance (c) : T2Space (PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c) :=
-  (filtrationHomeo C c).symm.T2Space
+  (filtrationHomeo C c).symm.t2Space
 
 instance (c) : CompactSpace (PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c) :=
-  (filtrationHomeo C c).symm.CompactSpace
+  (filtrationHomeo C c).symm.compactSpace
 
 /-
 instance (c) : totally_disconnected_space
   (pseudo_normed_group.filtration (PseuNormGrp₁.bounded_cone_point C) c) :=
-(filtration_homeo C c).symm.totally_disconnected_space
+(filtrationHomeo C c).symm.totally_disconnected_space
 -/
+-- Porting note: Lean 4 does not unfold `toPNG₁.obj` when searching for instances
+instance (j : J) (c : NNReal) :
+    TopologicalSpace (((K ⋙ toPNG₁) ⋙ PseuNormGrp₁.level.obj c).obj j) :=
+  inferInstanceAs (TopologicalSpace (PseudoNormedGroup.filtration (K.obj j) c))
+
 def levelπ (j c) :
     PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c →
       PseudoNormedGroup.filtration (K.obj j) c :=
@@ -385,15 +394,15 @@ def levelπ (j c) :
 
 theorem levelπ_continuous (j c) : Continuous (levelπ C j c) :=
   by
-  have : level_π C j c ∘ (filtration_homeo C c).symm = (CompHaus.limitCone.{u, u} _).π.app j :=
+  have : levelπ C j c ∘ (filtrationHomeo C c).symm = (CompHaus.limitCone.{u, u} _).π.app j :=
     by
     ext
-    change (C.is_limit.lift _ ≫ C.cone.π.app j) _ = _
-    rw [C.is_limit.fac]
+    change (C.isLimit.lift _ ≫ C.cone.π.app j) _ = _
+    rw [C.isLimit.fac]
     rfl
-  suffices Continuous (level_π C j c ∘ (filtration_homeo C c).symm) by simpa using this
+  suffices Continuous (levelπ C j c ∘ (filtrationHomeo C c).symm) by simpa using this
   rw [this]
-  continuity
+  exact ContinuousMap.continuous ((CompHaus.limitCone.{u, u} _).π.app j)
 
 theorem boundedConePoint_continuous_add'_aux {J : Type u} [SmallCategory J]
     {K : J ⥤ CompHausFiltPseuNormGrp₁}
@@ -412,21 +421,20 @@ theorem boundedConePoint_continuous_add'_aux {J : Type u} [SmallCategory J]
       PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) (c₁ + c₂) :=
     PseudoNormedGroup.add'
   change Continuous g
-  suffices Continuous (filtration_homeo C _ ∘ g) by simpa using this
+  suffices Continuous (filtrationHomeo C _ ∘ g) by simpa using this
   apply Continuous.subtype_mk
   apply continuous_pi
   intro j
-  let e := PseudoNormedGroup.add' ∘ Prod.map (level_π C j c₁) (level_π C j c₂)
+  let e := PseudoNormedGroup.add' ∘ Prod.map (levelπ C j c₁) (levelπ C j c₂)
   have he : Continuous e := by
     apply Continuous.comp
     apply ComphausFilteredPseudoNormedGroup.continuous_add'
     apply Continuous.prod_map
-    apply level_π_continuous
-    apply level_π_continuous
+    apply levelπ_continuous
+    apply levelπ_continuous
   convert he
-  ext
-  dsimp
-  simpa
+  -- Porting note: `ext; dsimp; simpa` replaced by an explicit term
+  exact AddMonoidHom.map_add (C.cone.π.app j) _ _
 
 theorem boundedConePoint_continuous_neg'_aux {J : Type u} [SmallCategory J]
     {K : J ⥤ CompHausFiltPseuNormGrp₁}
@@ -443,20 +451,18 @@ theorem boundedConePoint_continuous_neg'_aux {J : Type u} [SmallCategory J]
       PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c :=
     PseudoNormedGroup.neg'
   change Continuous g
-  suffices Continuous (filtration_homeo C c ∘ g) by simpa using this
+  suffices Continuous (filtrationHomeo C c ∘ g) by simpa using this
   apply Continuous.subtype_mk
   apply continuous_pi
   dsimp [g]
   intro j
-  let e := PseudoNormedGroup.neg' ∘ level_π C j c
+  let e := PseudoNormedGroup.neg' ∘ levelπ C j c
   have he : Continuous e := by
     apply Continuous.comp
     apply ComphausFilteredPseudoNormedGroup.continuous_neg'
-    apply level_π_continuous
+    apply levelπ_continuous
   convert he
-  ext
-  dsimp
-  simpa
+  exact AddMonoidHom.map_neg (C.cone.π.app j) _
 
 theorem boundedConePoint_continuous_cast_le_aux {J : Type u} [SmallCategory J]
     {K : J ⥤ CompHausFiltPseuNormGrp₁}
@@ -473,17 +479,17 @@ theorem boundedConePoint_continuous_cast_le_aux {J : Type u} [SmallCategory J]
       PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c₂ :=
     PseudoNormedGroup.castLe' h
   change Continuous g
-  suffices Continuous (filtration_homeo C _ ∘ g) by simpa using this
+  suffices Continuous (filtrationHomeo C _ ∘ g) by simpa using this
   apply Continuous.subtype_mk
   apply continuous_pi
   intro j
   dsimp [g]
-  let e := PseudoNormedGroup.castLe' h ∘ level_π C j c₁
+  let e := PseudoNormedGroup.castLe' h ∘ levelπ C j c₁
   have he : Continuous e := by
     apply Continuous.comp
     haveI : Fact (c₁ ≤ c₂) := ⟨h⟩
     apply ComphausFilteredPseudoNormedGroup.continuous_castLe
-    apply level_π_continuous
+    apply levelπ_continuous
   exact he
 
 def boundedConePoint : CompHausFiltPseuNormGrp₁
@@ -508,71 +514,71 @@ def boundedCone : Cone K where
           continuous' := fun c => levelπ_continuous _ _ _ }
       naturality := by
         intro i j f
-        ext
-        dsimp
-        rw [← (PseuNormGrp₁.boundedCone C).w f]
-        rfl }
+        apply StrictComphausFilteredPseudoNormedGroupHom.ext
+        intro x
+        exact (congrArg (fun g : PseuNormGrp₁.boundedConePoint C ⟶ toPNG₁.obj (K.obj j) => g x)
+          ((PseuNormGrp₁.boundedCone C).w f)).symm }
 
-def boundedConeIsLimit : IsLimit (boundedCone C)
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable def boundedConeIsLimit : IsLimit (boundedCone C)
     where
   lift S :=
-    { (PseuNormGrp₁.boundedConeIsLimit C).lift (toPNG₁.mapCone S) with
+    -- Porting note: the underlying morphism is named so that structure-instance notation applies
+    let l : StrictPseudoNormedGroupHom S.pt (PseuNormGrp₁.boundedConePoint C) :=
+      (PseuNormGrp₁.boundedConeIsLimit C).lift (toPNG₁.mapCone S)
+    { l with
       continuous' := by
         intro c
         let t :
-          PseudoNormedGroup.filtration S.X c → PseudoNormedGroup.filtration (bounded_cone C).pt c :=
-          ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S)).level _
+          PseudoNormedGroup.filtration S.pt c →
+            PseudoNormedGroup.filtration (boundedCone C).pt c :=
+          StrictPseudoNormedGroupHom.level l _
         change Continuous t
-        suffices Continuous (filtration_homeo C c ∘ t) by simpa using this
+        suffices Continuous (filtrationHomeo C c ∘ t) by
+          exact (Homeomorph.comp_continuous_iff (filtrationHomeo C c)).mp this
         have :
-          ⇑(filtration_homeo C c) ∘ t =
-            (CompHaus.limitConeIsLimit.{u, u} _).lift ((level.obj c).mapCone S) :=
-          by
-          ext
-          change (C.is_limit.lift _ ≫ C.cone.π.app _) _ = _
-          rw [C.is_limit.fac]; rfl
+          ⇑(filtrationHomeo C c) ∘ t =
+            (CompHaus.limitConeIsLimit.{u, u} _).lift ((level.obj c).mapCone S) := by
+          funext x
+          apply Subtype.ext
+          funext j
+          apply Subtype.ext
+          exact FunLike.congr_fun
+            (C.isLimit.fac (PseuNormGrp₁.toAb.mapCone (toPNG₁.mapCone S)) j) x.1
         rw [this]
-        continuity }
+        exact ContinuousMap.continuous _ }
   fac := by
     intro S j
-    ext
-    dsimp [bounded_cone]
-    change
-      ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S) ≫
-            (PseuNormGrp₁.boundedCone C).π.app j)
-          _ =
-        _
-    rw [(PseuNormGrp₁.boundedConeIsLimit C).fac]
-    rfl
+    apply StrictComphausFilteredPseudoNormedGroupHom.ext
+    intro x
+    exact congrArg (fun g : toPNG₁.obj S.pt ⟶ toPNG₁.obj (K.obj j) => g x)
+      ((PseuNormGrp₁.boundedConeIsLimit C).fac (toPNG₁.mapCone S) j)
   uniq := by
     intro S m hm
-    ext
-    dsimp
-    have : to_PNG₁.map m = (PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S) :=
-      by
-      apply (PseuNormGrp₁.boundedConeIsLimit C).uniq (to_PNG₁.mapCone S)
+    apply StrictComphausFilteredPseudoNormedGroupHom.ext
+    intro x
+    have : toPNG₁.map m = (PseuNormGrp₁.boundedConeIsLimit C).lift (toPNG₁.mapCone S) := by
+      apply (PseuNormGrp₁.boundedConeIsLimit C).uniq (toPNG₁.mapCone S)
       intro j
-      ext t
-      specialize hm j
-      apply_fun fun e => e t at hm 
-      exact hm
-    rw [← this]
-    rfl
+      apply PseuNormGrp₁.hom_ext
+      intro t
+      exact congrArg (fun e : S.pt ⟶ K.obj j => e t) (hm j)
+    exact congrArg (fun e : toPNG₁.obj S.pt ⟶ PseuNormGrp₁.boundedConePoint C => e x) this
 
-instance : PreservesLimit K toPNG₁ :=
-  by
-  apply CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
-  rotate_left 2
-  exact bounded_cone ⟨_, Ab.explicitLimitConeIsLimit.{u, u} _⟩
-  exact bounded_cone_is_limit _
-  exact PseuNormGrp₁.boundedConeIsLimit _
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable instance : PreservesLimit K toPNG₁ :=
+  CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
+    (boundedConeIsLimit
+      ⟨_, Ab.explicitLimitConeIsLimit.{u, u} ((K ⋙ toPNG₁) ⋙ PseuNormGrp₁.toAb)⟩)
+    (PseuNormGrp₁.boundedConeIsLimit _)
 
 /-
 Remark: This functor even creates limits, as can be shown using the fact that the forgetful
 functor from `Profinite` to `Type*` creates limits.
 I don't think we actually need that strong statement, so we only prove the following.
 -/
-instance : PreservesLimits toPNG₁ := by constructor; intro J hJ; constructor
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable instance : PreservesLimits toPNG₁ := ⟨fun {J} _ => ⟨fun {K} => inferInstance⟩⟩
 
 end CompHausFiltPseuNormGrp₁
 
@@ -592,20 +598,22 @@ def toPNG₁ : ProFiltPseuNormGrp₁.{u} ⥤ PseuNormGrp₁.{u}
   obj M :=
     { carrier := M
       exhaustive' := M.exhaustive }
-  map {X Y} f := { f.toAddMonoidHom with strict' := fun c x h => f.strict h }
+  map {X Y} f :=
+    ⟨StrictComphausFilteredPseudoNormedGroupHom.toAddMonoidHom f,
+      fun c x h => StrictComphausFilteredPseudoNormedGroupHom.strict f h⟩
 
-instance : Faithful toPNG₁.{u} :=
-  Faithful.mk <| by
-    intro X Y f g h
-    ext
-    apply_fun fun e => e x at h 
-    exact h
+instance : Faithful toPNG₁.{u} where
+  map_injective {X Y f g} h := by
+    apply StrictComphausFilteredPseudoNormedGroupHom.ext
+    intro x
+    exact congrArg (fun e : toPNG₁.obj X ⟶ toPNG₁.obj Y => e x) h
 
 variable {K : J ⥤ ProFiltPseuNormGrp₁.{u}}
 
 variable (C : Limits.LimitCone ((K ⋙ toPNG₁) ⋙ PseuNormGrp₁.toAb))
 
-def filtrationEquiv (c : NNReal) :
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable def filtrationEquiv (c : NNReal) :
     PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c ≃
       (Profinite.limitCone (K ⋙ level.obj c)).pt :=
   ((Cones.forget _).mapIso (PseuNormGrp₁.levelConeIso C c)).toEquiv
@@ -614,26 +622,34 @@ instance (c) :
     TopologicalSpace (PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c) :=
   TopologicalSpace.induced (filtrationEquiv C c) inferInstance
 
-def filtrationHomeo (c : NNReal) :
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable def filtrationHomeo (c : NNReal) :
     PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c ≃ₜ
       (Profinite.limitCone (K ⋙ level.obj c)).pt :=
   Homeomorph.homeomorphOfContinuousOpen (filtrationEquiv _ _) continuous_induced_dom
     (by
       intro U hU
-      have : Inducing (filtration_equiv C c) := ⟨rfl⟩
+      have : Inducing (filtrationEquiv C c) := ⟨rfl⟩
       rw [this.isOpen_iff] at hU 
       obtain ⟨U, hU, rfl⟩ := hU
       simpa)
 
 instance (c) : T2Space (PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c) :=
-  (filtrationHomeo C c).symm.T2Space
+  (filtrationHomeo C c).symm.t2Space
 
 instance (c) : CompactSpace (PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c) :=
-  (filtrationHomeo C c).symm.CompactSpace
+  (filtrationHomeo C c).symm.compactSpace
 
+-- Porting note: mathlib has no `Homeomorph.totallyDisconnectedSpace`
 instance (c) :
     TotallyDisconnectedSpace (PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c) :=
-  (filtrationHomeo C c).symm.TotallyDisconnectedSpace
+  (filtrationHomeo C c).embedding.isTotallyDisconnected_range.mp
+    (isTotallyDisconnected_of_totallyDisconnectedSpace _)
+
+-- Porting note: Lean 4 does not unfold `toPNG₁.obj` when searching for instances
+instance (j : J) (c : NNReal) :
+    TopologicalSpace (((K ⋙ toPNG₁) ⋙ PseuNormGrp₁.level.obj c).obj j) :=
+  inferInstanceAs (TopologicalSpace (PseudoNormedGroup.filtration (K.obj j) c))
 
 def levelπ (j c) :
     PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c →
@@ -642,15 +658,15 @@ def levelπ (j c) :
 
 theorem levelπ_continuous (j c) : Continuous (levelπ C j c) :=
   by
-  have : level_π C j c ∘ (filtration_homeo C c).symm = (Profinite.limitCone _).π.app j :=
+  have : levelπ C j c ∘ (filtrationHomeo C c).symm = (Profinite.limitCone _).π.app j :=
     by
     ext
-    change (C.is_limit.lift _ ≫ C.cone.π.app j) _ = _
-    rw [C.is_limit.fac]
+    change (C.isLimit.lift _ ≫ C.cone.π.app j) _ = _
+    rw [C.isLimit.fac]
     rfl
-  suffices Continuous (level_π C j c ∘ (filtration_homeo C c).symm) by simpa using this
+  suffices Continuous (levelπ C j c ∘ (filtrationHomeo C c).symm) by simpa using this
   rw [this]
-  continuity
+  exact ContinuousMap.continuous ((Profinite.limitCone _).π.app j)
 
 theorem boundedConePoint_continuous_add'_aux {J : Type u} [SmallCategory J]
     {K : J ⥤ ProFiltPseuNormGrp₁}
@@ -669,21 +685,20 @@ theorem boundedConePoint_continuous_add'_aux {J : Type u} [SmallCategory J]
       PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) (c₁ + c₂) :=
     PseudoNormedGroup.add'
   change Continuous g
-  suffices Continuous (filtration_homeo C _ ∘ g) by simpa using this
+  suffices Continuous (filtrationHomeo C _ ∘ g) by simpa using this
   apply Continuous.subtype_mk
   apply continuous_pi
   intro j
-  let e := PseudoNormedGroup.add' ∘ Prod.map (level_π C j c₁) (level_π C j c₂)
+  let e := PseudoNormedGroup.add' ∘ Prod.map (levelπ C j c₁) (levelπ C j c₂)
   have he : Continuous e := by
     apply Continuous.comp
     apply ComphausFilteredPseudoNormedGroup.continuous_add'
     apply Continuous.prod_map
-    apply level_π_continuous
-    apply level_π_continuous
+    apply levelπ_continuous
+    apply levelπ_continuous
   convert he
-  ext
-  dsimp
-  simpa
+  -- Porting note: `ext; dsimp; simpa` replaced by an explicit term
+  exact AddMonoidHom.map_add (C.cone.π.app j) _ _
 
 theorem boundedConePoint_continuous_neg'_aux {J : Type u} [SmallCategory J]
     {K : J ⥤ ProFiltPseuNormGrp₁}
@@ -700,20 +715,18 @@ theorem boundedConePoint_continuous_neg'_aux {J : Type u} [SmallCategory J]
       PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c :=
     PseudoNormedGroup.neg'
   change Continuous g
-  suffices Continuous (filtration_homeo C c ∘ g) by simpa using this
+  suffices Continuous (filtrationHomeo C c ∘ g) by simpa using this
   apply Continuous.subtype_mk
   apply continuous_pi
   dsimp [g]
   intro j
-  let e := PseudoNormedGroup.neg' ∘ level_π C j c
+  let e := PseudoNormedGroup.neg' ∘ levelπ C j c
   have he : Continuous e := by
     apply Continuous.comp
     apply ComphausFilteredPseudoNormedGroup.continuous_neg'
-    apply level_π_continuous
+    apply levelπ_continuous
   convert he
-  ext
-  dsimp
-  simpa
+  exact AddMonoidHom.map_neg (C.cone.π.app j) _
 
 theorem boundedConePoint_continuous_cast_le_aux {J : Type u} [SmallCategory J]
     {K : J ⥤ ProFiltPseuNormGrp₁}
@@ -730,17 +743,17 @@ theorem boundedConePoint_continuous_cast_le_aux {J : Type u} [SmallCategory J]
       PseudoNormedGroup.filtration (PseuNormGrp₁.boundedConePoint C) c₂ :=
     PseudoNormedGroup.castLe' h
   change Continuous g
-  suffices Continuous (filtration_homeo C _ ∘ g) by simpa using this
+  suffices Continuous (filtrationHomeo C _ ∘ g) by simpa using this
   apply Continuous.subtype_mk
   apply continuous_pi
   intro j
   dsimp [g]
-  let e := PseudoNormedGroup.castLe' h ∘ level_π C j c₁
+  let e := PseudoNormedGroup.castLe' h ∘ levelπ C j c₁
   have he : Continuous e := by
     apply Continuous.comp
     haveI : Fact (c₁ ≤ c₂) := ⟨h⟩
     apply ComphausFilteredPseudoNormedGroup.continuous_castLe
-    apply level_π_continuous
+    apply levelπ_continuous
   exact he
 
 def boundedConePoint : ProFiltPseuNormGrp₁
@@ -765,71 +778,71 @@ def boundedCone : Cone K where
           continuous' := fun c => levelπ_continuous _ _ _ }
       naturality := by
         intro i j f
-        ext
-        dsimp
-        rw [← (PseuNormGrp₁.boundedCone C).w f]
-        rfl }
+        apply StrictComphausFilteredPseudoNormedGroupHom.ext
+        intro x
+        exact (congrArg (fun g : PseuNormGrp₁.boundedConePoint C ⟶ toPNG₁.obj (K.obj j) => g x)
+          ((PseuNormGrp₁.boundedCone C).w f)).symm }
 
-def boundedConeIsLimit : IsLimit (boundedCone C)
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable def boundedConeIsLimit : IsLimit (boundedCone C)
     where
   lift S :=
-    { (PseuNormGrp₁.boundedConeIsLimit C).lift (toPNG₁.mapCone S) with
+    -- Porting note: the underlying morphism is named so that structure-instance notation applies
+    let l : StrictPseudoNormedGroupHom S.pt (PseuNormGrp₁.boundedConePoint C) :=
+      (PseuNormGrp₁.boundedConeIsLimit C).lift (toPNG₁.mapCone S)
+    { l with
       continuous' := by
         intro c
         let t :
-          PseudoNormedGroup.filtration S.X c → PseudoNormedGroup.filtration (bounded_cone C).pt c :=
-          ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S)).level _
+          PseudoNormedGroup.filtration S.pt c →
+            PseudoNormedGroup.filtration (boundedCone C).pt c :=
+          StrictPseudoNormedGroupHom.level l _
         change Continuous t
-        suffices Continuous (filtration_homeo C c ∘ t) by simpa using this
+        suffices Continuous (filtrationHomeo C c ∘ t) by
+          exact (Homeomorph.comp_continuous_iff (filtrationHomeo C c)).mp this
         have :
-          ⇑(filtration_homeo C c) ∘ t =
-            (Profinite.limitConeIsLimit _).lift ((level.obj c).mapCone S) :=
-          by
-          ext
-          change (C.is_limit.lift _ ≫ C.cone.π.app _) _ = _
-          rw [C.is_limit.fac]; rfl
+          ⇑(filtrationHomeo C c) ∘ t =
+            (Profinite.limitConeIsLimit _).lift ((level.obj c).mapCone S) := by
+          funext x
+          apply Subtype.ext
+          funext j
+          apply Subtype.ext
+          exact FunLike.congr_fun
+            (C.isLimit.fac (PseuNormGrp₁.toAb.mapCone (toPNG₁.mapCone S)) j) x.1
         rw [this]
-        continuity }
+        exact ContinuousMap.continuous _ }
   fac := by
     intro S j
-    ext
-    dsimp [bounded_cone]
-    change
-      ((PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S) ≫
-            (PseuNormGrp₁.boundedCone C).π.app j)
-          _ =
-        _
-    rw [(PseuNormGrp₁.boundedConeIsLimit C).fac]
-    rfl
+    apply StrictComphausFilteredPseudoNormedGroupHom.ext
+    intro x
+    exact congrArg (fun g : toPNG₁.obj S.pt ⟶ toPNG₁.obj (K.obj j) => g x)
+      ((PseuNormGrp₁.boundedConeIsLimit C).fac (toPNG₁.mapCone S) j)
   uniq := by
     intro S m hm
-    ext
-    dsimp
-    have : to_PNG₁.map m = (PseuNormGrp₁.boundedConeIsLimit C).lift (to_PNG₁.mapCone S) :=
-      by
-      apply (PseuNormGrp₁.boundedConeIsLimit C).uniq (to_PNG₁.mapCone S)
+    apply StrictComphausFilteredPseudoNormedGroupHom.ext
+    intro x
+    have : toPNG₁.map m = (PseuNormGrp₁.boundedConeIsLimit C).lift (toPNG₁.mapCone S) := by
+      apply (PseuNormGrp₁.boundedConeIsLimit C).uniq (toPNG₁.mapCone S)
       intro j
-      ext t
-      specialize hm j
-      apply_fun fun e => e t at hm 
-      exact hm
-    rw [← this]
-    rfl
+      apply PseuNormGrp₁.hom_ext
+      intro t
+      exact congrArg (fun e : S.pt ⟶ K.obj j => e t) (hm j)
+    exact congrArg (fun e : toPNG₁.obj S.pt ⟶ PseuNormGrp₁.boundedConePoint C => e x) this
 
-instance : PreservesLimit K toPNG₁ :=
-  by
-  apply CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
-  rotate_left 2
-  exact bounded_cone ⟨_, Ab.explicitLimitConeIsLimit.{u, u} _⟩
-  exact bounded_cone_is_limit _
-  exact PseuNormGrp₁.boundedConeIsLimit _
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable instance : PreservesLimit K toPNG₁ :=
+  CategoryTheory.Limits.preservesLimitOfPreservesLimitCone
+    (boundedConeIsLimit
+      ⟨_, Ab.explicitLimitConeIsLimit.{u, u} ((K ⋙ toPNG₁) ⋙ PseuNormGrp₁.toAb)⟩)
+    (PseuNormGrp₁.boundedConeIsLimit _)
 
 /-
 Remark: This functor even creates limits, as can be shown using the fact that the forgetful
 functor from `Profinite` to `Type*` creates limits.
 I don't think we actually need that strong statement, so we only prove the following.
 -/
-instance : PreservesLimits toPNG₁ := by constructor; intro J hJ; constructor
+-- Porting note: `noncomputable` is needed in Lean 4
+noncomputable instance : PreservesLimits toPNG₁ := ⟨fun {J} _ => ⟨fun {K} => inferInstance⟩⟩
 
 end ProFiltPseuNormGrp₁
 

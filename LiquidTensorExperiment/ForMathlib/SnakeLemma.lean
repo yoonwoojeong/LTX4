@@ -53,11 +53,11 @@ abbrev lhs (h : x = y) :=
 abbrev rhs (h : x = y) :=
   y
 
-@[simp]
+-- Porting note: `lhs`/`rhs` are reducible, so Lean 4 rejects `lhs_def`/`rhs_def` as `simp`
+-- lemmas (`x = x`); they are kept as plain lemmas (the unfolding is done by `dsimp only [Eq.lhs]`).
 theorem lhs_def : h.lhs = x :=
   rfl
 
-@[simp]
 theorem rhs_def : h.rhs = y :=
   rfl
 
@@ -106,7 +106,9 @@ def hom (i j : SnakeDiagram)
     i ⟶ j :=
   homOfLE hij
 
-theorem hom_ext {i j : SnakeDiagram} (f g : i ⟶ j) : f = g := by ext
+-- Porting note: Lean 3 `ext` closed this goal (the hom-types of a preorder are subsingletons).
+theorem hom_ext {i j : SnakeDiagram} (f g : i ⟶ j) : f = g :=
+  Subsingleton.elim f g
 
 section
 
@@ -116,35 +118,36 @@ section
 -- re-expressed as a Lean 4 macro (hygiene off: the lemmas are declared after this point).
 set_option hygiene false in
 macro "map_tac" : tactic =>
-  `(tactic| (dsimp only [CategoryTheory.SnakeDiagram.mkFunctor, CategoryTheory.SnakeDiagram.MkFunctor.map', CategoryTheory.eqToHom_refl,
+  `(tactic|
+    (dsimp only [CategoryTheory.SnakeDiagram.mkFunctor,
+      CategoryTheory.SnakeDiagram.MkFunctor.map', CategoryTheory.eqToHom_refl,
       CategoryTheory.homOfLE_refl, true_and, le_refl]
-    simp only [CategoryTheory.Category.id_comp, CategoryTheory.Category.comp_id,
+     simp only [CategoryTheory.Category.id_comp, CategoryTheory.Category.comp_id,
       CategoryTheory.Functor.map_id]
-    rfl))
+     rfl))
 
-parameter {C : Type u} [Category.{v} C]
+variable {C : Type u} [Category.{v} C]
 
-parameter (F : Fin 4 → Fin 3 → C)
+variable (F : Fin 4 → Fin 3 → C)
 
-parameter (f0 : F 0 0 ⟶ F 0 1) (g0 : F 0 1 ⟶ F 0 2)
+variable (f0 : F 0 0 ⟶ F 0 1) (g0 : F 0 1 ⟶ F 0 2)
 
-parameter (a0 : F 0 0 ⟶ F 1 0) (b0 : F 0 1 ⟶ F 1 1) (c0 : F 0 2 ⟶ F 1 2)
+variable (a0 : F 0 0 ⟶ F 1 0) (b0 : F 0 1 ⟶ F 1 1) (c0 : F 0 2 ⟶ F 1 2)
 
-parameter (f1 : F 1 0 ⟶ F 1 1) (g1 : F 1 1 ⟶ F 1 2)
+variable (f1 : F 1 0 ⟶ F 1 1) (g1 : F 1 1 ⟶ F 1 2)
 
-parameter (a1 : F 1 0 ⟶ F 2 0) (b1 : F 1 1 ⟶ F 2 1) (c1 : F 1 2 ⟶ F 2 2)
+variable (a1 : F 1 0 ⟶ F 2 0) (b1 : F 1 1 ⟶ F 2 1) (c1 : F 1 2 ⟶ F 2 2)
 
-parameter (f2 : F 2 0 ⟶ F 2 1) (g2 : F 2 1 ⟶ F 2 2)
+variable (f2 : F 2 0 ⟶ F 2 1) (g2 : F 2 1 ⟶ F 2 2)
 
-parameter (a2 : F 2 0 ⟶ F 3 0) (b2 : F 2 1 ⟶ F 3 1) (c2 : F 2 2 ⟶ F 3 2)
+variable (a2 : F 2 0 ⟶ F 3 0) (b2 : F 2 1 ⟶ F 3 1) (c2 : F 2 2 ⟶ F 3 2)
 
-parameter (f3 : F 3 0 ⟶ F 3 1) (g3 : F 3 1 ⟶ F 3 2)
+variable (f3 : F 3 0 ⟶ F 3 1) (g3 : F 3 1 ⟶ F 3 2)
 
-parameter (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0)
-
-parameter (sq10 : a1 ≫ f2 = f1 ≫ b1) (sq11 : b1 ≫ g2 = g1 ≫ c1)
-
-parameter (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2)
+-- Porting note: Lean 3 `parameters` are fixed arguments that are applied automatically when a
+-- declaration of the same section is used; in Lean 4 they have to be passed explicitly, so we use
+-- local notations below. Moreover the squares `sq00`, ..., `sq21` were `include`d in Lean 3, and
+-- Lean 4 has no `include`, so they are explicit binders of each declaration that needs them.
 
 namespace MkFunctor
 
@@ -152,42 +155,63 @@ def col : ∀ j : Fin 3, Fin 4 ⥤ C
   | ⟨0, h⟩ => fin4FunctorMk (flip F 0) a0 a1 a2
   | ⟨1, h⟩ => fin4FunctorMk (flip F 1) b0 b1 b2
   | ⟨2, h⟩ => fin4FunctorMk (flip F 2) c0 c1 c2
-  | ⟨j + 3, h⟩ => by exfalso; revert h; decide
+  | ⟨j + 3, h⟩ => by
+    -- Porting note: `dec_trivial` replaced by an explicit arithmetic argument
+    exact absurd h (Nat.not_lt.2 (Nat.le_add_left _ _))
 
 def row : ∀ i : Fin 4, Fin 3 ⥤ C
   | ⟨0, h⟩ => fin3FunctorMk (F 0) f0 g0
   | ⟨1, h⟩ => fin3FunctorMk (F 1) f1 g1
   | ⟨2, h⟩ => fin3FunctorMk (F 2) f2 g2
   | ⟨3, h⟩ => fin3FunctorMk (F 3) f3 g3
-  | ⟨j + 4, h⟩ => by exfalso; revert h; decide
+  | ⟨j + 4, h⟩ => by
+    -- Porting note: `dec_trivial` replaced by an explicit arithmetic argument
+    exact absurd h (Nat.not_lt.2 (Nat.le_add_left _ _))
 
-theorem col_obj (i : Fin 4) (j : Fin 3) : (col j).obj i = F i j := by
+set_option hygiene false
+local notation "colF" => col F a0 b0 c0 a1 b1 c1 a2 b2 c2
+set_option hygiene true
+
+set_option hygiene false
+local notation "rowF" => row F f0 g0 f1 g1 f2 g2 f3 g3
+set_option hygiene true
+
+theorem col_obj (i : Fin 4) (j : Fin 3) : (colF j).obj i = F i j := by
   fin_cases i <;> fin_cases j <;> rfl
 
-theorem row_obj (i : Fin 4) (j : Fin 3) : (row i).obj j = F i j := by
+theorem row_obj (i : Fin 4) (j : Fin 3) : (rowF i).obj j = F i j := by
   fin_cases i <;> fin_cases j <;> rfl
 
-theorem row_eq_col_obj (i : Fin 4) (j : Fin 3) : (row i).obj j = (col j).obj i :=
-  (row_obj i j).trans (col_obj i j).symm
+theorem row_eq_col_obj (i : Fin 4) (j : Fin 3) : (rowF i).obj j = (colF j).obj i :=
+  (row_obj F f0 g0 f1 g1 f2 g2 f3 g3 i j).trans (col_obj F a0 b0 c0 a1 b1 c1 a2 b2 c2 i j).symm
 
 def map' (x y : SnakeDiagram) (h : x ≤ y) : F x.1 x.2 ⟶ F y.1 y.2 :=
   eqToHom (by rw [row_obj]) ≫
-    (row x.1).map h.2.hom ≫
-      eqToHom (by rw [row_obj, col_obj]) ≫ (col y.2).map h.1.hom ≫ eqToHom (by rw [col_obj])
+    (rowF x.1).map h.2.hom ≫
+      eqToHom (by rw [row_obj, col_obj]) ≫ (colF y.2).map h.1.hom ≫ eqToHom (by rw [col_obj])
 
-theorem map'_id (x : SnakeDiagram) : map' x x le_rfl = 𝟙 _ := by
-  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, Category.id_comp,
-    CategoryTheory.eqToHom_refl]
+set_option hygiene false
+local notation "mapF'" => map' F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3
+set_option hygiene true
+
+theorem map'_id (x : SnakeDiagram) : mapF' x x le_rfl = 𝟙 _ := by
+  simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans,
+    Category.id_comp, CategoryTheory.eqToHom_refl]
 
 def SquareCommutes (i j : Fin 4) (k l : Fin 3) (hij : i ≤ j) (hkl : k ≤ l) : Prop :=
-  (col k).map hij.hom ≫ eqToHom (by rw [row_obj, col_obj]) ≫ (row j).map hkl.hom =
+  (colF k).map hij.hom ≫ eqToHom (by rw [row_obj, col_obj]) ≫ (rowF j).map hkl.hom =
     eqToHom (by rw [col_obj] <;> rfl) ≫
-      map' (o i k) (o j l) ⟨hij, hkl⟩ ≫ eqToHom (by rw [row_obj] <;> rfl)
+      mapF' (o i k) (o j l) ⟨hij, hkl⟩ ≫ eqToHom (by rw [row_obj] <;> rfl)
 
-theorem squareCommutes_row (i : Fin 4) (k l : Fin 3) (hkl : k ≤ l) :
-    square_commutes i i k l le_rfl hkl :=
+set_option hygiene false
+local notation "SqC" => SquareCommutes F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3
+set_option hygiene true
+
+theorem squareCommutes_row (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i : Fin 4) (k l : Fin 3) (hkl : k ≤ l) :
+    SqC i i k l le_rfl hkl :=
   by
-  dsimp [square_commutes, map']
+  dsimp [SquareCommutes, map']
   simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
     Category.id_comp, Category.comp_id, Category.assoc]
   erw [CategoryTheory.homOfLE_refl]
@@ -196,10 +220,11 @@ theorem squareCommutes_row (i : Fin 4) (k l : Fin 3) (hkl : k ≤ l) :
   rw [← Category.assoc, eq_comm]
   convert Category.comp_id _
 
-theorem squareCommutes_col (i j : Fin 4) (k : Fin 3) (hij : i ≤ j) :
-    square_commutes i j k k hij le_rfl :=
+theorem squareCommutes_col (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i j : Fin 4) (k : Fin 3) (hij : i ≤ j) :
+    SqC i j k k hij le_rfl :=
   by
-  dsimp [square_commutes, map']
+  dsimp [SquareCommutes, map']
   simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
     Category.id_comp, Category.comp_id, Category.assoc]
   erw [CategoryTheory.homOfLE_refl]
@@ -208,21 +233,23 @@ theorem squareCommutes_col (i j : Fin 4) (k : Fin 3) (hij : i ≤ j) :
   rw [eq_comm]
   convert Category.id_comp _
 
-theorem squareCommutes_one (i : Fin 4) (j : Fin 3) (hi : i < 3) (hj : j < 2) :
-    square_commutes i (i + 1) j (j + 1) (by decide!) (by decide!) :=
+theorem squareCommutes_one (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i : Fin 4) (j : Fin 3) (hi : i < 3) (hj : j < 2) :
+    SqC i (i + 1) j (j + 1) (by revert hi; revert i; decide) (by revert hj; revert j; decide) :=
   by
   fin_cases i; pick_goal 4; · exfalso; revert hi; decide
   all_goals
     fin_cases j; pick_goal 3; · exfalso; revert hj; decide
     all_goals
-      simp only [square_commutes, map', CategoryTheory.eqToHom_refl, Category.comp_id, Category.id_comp]
+      simp only [SquareCommutes, map', CategoryTheory.eqToHom_refl, Category.comp_id, Category.id_comp]
       assumption
 
-theorem squareCommutes_comp_row (i j k : Fin 4) (l m : Fin 3) (hij : i ≤ j) (hjk : j ≤ k)
-    (hlm : l ≤ m) (h1 : square_commutes i j l m hij hlm) (h2 : square_commutes j k l m hjk hlm) :
-    square_commutes i k l m (hij.trans hjk) hlm :=
+theorem squareCommutes_comp_row (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i j k : Fin 4) (l m : Fin 3) (hij : i ≤ j) (hjk : j ≤ k)
+    (hlm : l ≤ m) (h1 : SqC i j l m hij hlm) (h2 : SqC j k l m hjk hlm) :
+    SqC i k l m (hij.trans hjk) hlm :=
   by
-  dsimp [square_commutes, map'] at h1 h2 ⊢
+  dsimp [SquareCommutes, map'] at h1 h2 ⊢
   simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
     Category.id_comp, Category.comp_id, Category.assoc] at h1 h2 ⊢
   let φ : _ := _; let ψ : _ := _
@@ -247,11 +274,12 @@ theorem squareCommutes_comp_row (i j k : Fin 4) (l m : Fin 3) (hij : i ≤ j) (h
       Category.comp_id, Category.assoc, ← Functor.map_comp_assoc]
     rfl
 
-theorem squareCommutes_comp_col (i j : Fin 4) (l m n : Fin 3) (hij : i ≤ j) (hlm : l ≤ m)
-    (hmn : m ≤ n) (h1 : square_commutes i j l m hij hlm) (h2 : square_commutes i j m n hij hmn) :
-    square_commutes i j l n hij (hlm.trans hmn) :=
+theorem squareCommutes_comp_col (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i j : Fin 4) (l m n : Fin 3) (hij : i ≤ j) (hlm : l ≤ m)
+    (hmn : m ≤ n) (h1 : SqC i j l m hij hlm) (h2 : SqC i j m n hij hmn) :
+    SqC i j l n hij (hlm.trans hmn) :=
   by
-  dsimp [square_commutes, map'] at h1 h2 ⊢
+  dsimp [SquareCommutes, map'] at h1 h2 ⊢
   simp only [map', CategoryTheory.homOfLE_refl, Functor.map_id, CategoryTheory.eqToHom_trans, CategoryTheory.eqToHom_trans_assoc,
     Category.id_comp, Category.comp_id, Category.assoc] at h1 h2 ⊢
   let φ : _ := _; let ψ : _ := _
@@ -276,10 +304,11 @@ theorem squareCommutes_comp_col (i j : Fin 4) (l m n : Fin 3) (hij : i ≤ j) (h
       Category.comp_id, Category.assoc, ← Functor.map_comp_assoc]
     rfl
 
-theorem col_comp_row (i j : Fin 4) (k l : Fin 3) (hij : i ≤ j) (hkl : k ≤ l) :
+theorem col_comp_row (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (i j : Fin 4) (k l : Fin 3) (hij : i ≤ j) (hkl : k ≤ l) :
     (col k).map hij.hom ≫ eqToHom (by rw [row_obj, col_obj]) ≫ (row j).map hkl.hom =
       eqToHom (by rw [col_obj] <;> rfl) ≫
-        map' (o i k) (o j l) ⟨hij, hkl⟩ ≫ eqToHom (by rw [row_obj] <;> rfl) :=
+        mapF' (o i k) (o j l) ⟨hij, hkl⟩ ≫ eqToHom (by rw [row_obj] <;> rfl) :=
   by
   cases' i with i hi; cases' j with j hj; cases' k with k hk; cases' l with l hl
   have hkl' := hkl
@@ -316,8 +345,9 @@ theorem col_comp_row (i j : Fin 4) (k l : Fin 3) (hij : i ≤ j) (hkl : k ≤ l)
   · rw [← Fin.val_fin_lt, Fin.val_mk]; refine' Nat.lt_of_succ_lt_succ hj
   · rw [← Fin.val_fin_lt, Fin.val_mk]; refine' Nat.lt_of_succ_lt_succ hl
 
-theorem map'_comp (x y z : SnakeDiagram) (hxy : x ≤ y) (hyz : y ≤ z) :
-    map' x y hxy ≫ map' y z hyz = map' x z (hxy.trans hyz) :=
+theorem map'_comp (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) (x y z : SnakeDiagram) (hxy : x ≤ y) (hyz : y ≤ z) :
+    mapF' x y hxy ≫ mapF' y z hyz = mapF' x z (hxy.trans hyz) :=
   by
   delta map'
   slice_lhs 4 7 => rw [CategoryTheory.eqToHom_trans_assoc]
@@ -327,81 +357,120 @@ theorem map'_comp (x y z : SnakeDiagram) (hxy : x ≤ y) (hyz : y ≤ z) :
       Category.id_comp, ← Functor.map_comp_assoc]
     rfl
   all_goals assumption
-
 end MkFunctor
 
-def mkFunctor : SnakeDiagram ⥤ C where
+def mkFunctor (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) : SnakeDiagram ⥤ C where
   obj := Function.uncurry F
   map {x y} h := MkFunctor.map' F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 x y h.le
   map_id x := MkFunctor.map'_id F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 x
-  map_comp {x y z} hxy hyz := by rw [MkFunctor.map'_comp] <;> assumption
+  map_comp {x y z} hxy hyz := by
+    rw [MkFunctor.map'_comp] <;> assumption
+
+set_option hygiene false
+local notation "mkF" => mkFunctor F f0 g0 a0 b0 c0 f1 g1 a1 b1 c1 f2 g2 a2 b2 c2 f3 g3 sq00 sq01 sq10 sq11 sq20 sq21
+set_option hygiene true
 
 @[simp]
-theorem mkFunctor_map_f0 : mk_functor.map (hom (0, 0) (0, 1)) = f0 := by
+theorem mkFunctor_map_f0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (0, 0) (0, 1)) = f0 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_g0 : mk_functor.map (hom (0, 1) (0, 2)) = g0 := by
+theorem mkFunctor_map_g0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (0, 1) (0, 2)) = g0 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_a0 : mk_functor.map (hom (0, 0) (1, 0)) = a0 := by
+theorem mkFunctor_map_a0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (0, 0) (1, 0)) = a0 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_b0 : mk_functor.map (hom (0, 1) (1, 1)) = b0 := by
+theorem mkFunctor_map_b0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (0, 1) (1, 1)) = b0 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_c0 : mk_functor.map (hom (0, 2) (1, 2)) = c0 := by
+theorem mkFunctor_map_c0 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (0, 2) (1, 2)) = c0 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_f1 : mk_functor.map (hom (1, 0) (1, 1)) = f1 := by
+theorem mkFunctor_map_f1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (1, 0) (1, 1)) = f1 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_g1 : mk_functor.map (hom (1, 1) (1, 2)) = g1 := by
+theorem mkFunctor_map_g1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (1, 1) (1, 2)) = g1 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_a1 : mk_functor.map (hom (1, 0) (2, 0)) = a1 := by
+theorem mkFunctor_map_a1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (1, 0) (2, 0)) = a1 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_b1 : mk_functor.map (hom (1, 1) (2, 1)) = b1 := by
+theorem mkFunctor_map_b1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (1, 1) (2, 1)) = b1 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_c1 : mk_functor.map (hom (1, 2) (2, 2)) = c1 := by
+theorem mkFunctor_map_c1 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (1, 2) (2, 2)) = c1 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_f2 : mk_functor.map (hom (2, 0) (2, 1)) = f2 := by
+theorem mkFunctor_map_f2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (2, 0) (2, 1)) = f2 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_g2 : mk_functor.map (hom (2, 1) (2, 2)) = g2 := by
+theorem mkFunctor_map_g2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (2, 1) (2, 2)) = g2 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_a2 : mk_functor.map (hom (2, 0) (3, 0)) = a2 := by
+theorem mkFunctor_map_a2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (2, 0) (3, 0)) = a2 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_b2 : mk_functor.map (hom (2, 1) (3, 1)) = b2 := by
+theorem mkFunctor_map_b2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (2, 1) (3, 1)) = b2 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_c2 : mk_functor.map (hom (2, 2) (3, 2)) = c2 := by
+theorem mkFunctor_map_c2 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (2, 2) (3, 2)) = c2 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_f3 : mk_functor.map (hom (3, 0) (3, 1)) = f3 := by
+theorem mkFunctor_map_f3 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (3, 0) (3, 1)) = f3 := by
   map_tac
 
 @[simp]
-theorem mkFunctor_map_g3 : mk_functor.map (hom (3, 1) (3, 2)) = g3 := by
+theorem mkFunctor_map_g3 (sq00 : a0 ≫ f1 = f0 ≫ b0) (sq01 : b0 ≫ g1 = g0 ≫ c0) (sq10 : a1 ≫ f2 = f1 ≫ b1)
+    (sq11 : b1 ≫ g2 = g1 ≫ c1) (sq20 : a2 ≫ f3 = f2 ≫ b2) (sq21 : b2 ≫ g3 = g2 ≫ c2) :
+    (mkF).map (hom (3, 1) (3, 2)) = g3 := by
   map_tac
 
 end

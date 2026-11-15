@@ -200,10 +200,10 @@ theorem _root_.Nat.nnnorm_coe_int (n : ℕ) : ‖(n : ℤ)‖₊ = n := by
   ext <;> simp only [coe_nnnorm, Nat.norm_coe_int, NNReal.coe_nat_cast]
 
 instance : AddCommMonoid (ℒ S) :=
-  {-- aahrg, why is `n` an implicit variable here???
-    (inferInstance : Add _),
-    (inferInstance :
-      Zero _) with
+  {-- Porting note: the ascriptions `(ℒ S)` are needed since `_` is not unified in Lean 4
+    -- aahrg, why is `n` an implicit variable here???
+    (inferInstance : Add (ℒ S)),
+    (inferInstance : Zero (ℒ S)) with
     add_assoc := fun a b c => by ext; simp only [add_assoc, add_apply]
     add_comm := fun F G => by ext; simp only [add_comm, add_apply]
     zero_add := fun a => by ext; simp only [zero_add, add_apply, zero_apply]
@@ -219,9 +219,9 @@ instance : AddCommMonoid (ℒ S) :=
 
 instance : AddCommGroup (ℒ S) :=
   {-- aahrg, why is `n.nat_abs` an implicit variable here???
-    (inferInstance : AddCommMonoid _),
-    (inferInstance : Neg _),
-    (inferInstance : Sub _) with
+    (inferInstance : AddCommMonoid (ℒ S)),
+    (inferInstance : Neg (ℒ S)),
+    (inferInstance : Sub (ℒ S)) with
     neg := neg
     sub := sub
     sub_eq_add_neg := fun F G => by ext; rfl
@@ -243,7 +243,7 @@ instance : AddCommGroup (ℒ S) :=
       ext; rw [neg_apply];
       simp only [neg_apply, Int.ofNat_succ, Int.ofNat_eq_coe, Int.negSucc_coe, add_comm,
         zsmul_eq_smul, smul_eq_mul]
-      dsimp; ring_nf
+      ring_nf
     add_left_neg := fun F => by ext; exact add_left_neg _
     add_comm := fun a b => by ext; dsimp; rw [add_comm] }
 
@@ -495,8 +495,6 @@ theorem mkSeq_compat {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
   dsimp [mkSeq]
   rw [← compat]
   change (F A) s _ = _
-  congr
-  ext
   rfl
 
 theorem mkSeq_compat_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c)
@@ -509,11 +507,12 @@ theorem mkSeq_compat_summable {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r 
     refine' mul_nonneg (norm_nonneg _) (zpow_nonneg (NNReal.coe_nonneg _) _)
   · intro A
     rw [← Finset.sum_attach]
-    refine' le_trans _ (F A).bound
+    refine' le_trans _ (NNReal.coe_le_coe.mpr (F A).bound)
     simp_rw [LaurentMeasures.mkSeq_compat _ compat]
-    simp only [LaurentMeasuresBdd.nnnorm_def, Finset.univ_eq_attach, NNReal.coe_sum, NNReal.coe_mul,
-      NNReal.coe_zpow]
-    apply @Finset.single_le_sum S ℝ _ fun s => ∑ i : A, ‖F A s i‖ * (r : ℝ) ^ (i : ℤ)
+    -- Porting note: `push_cast` is needed to move the coercion inside the sums
+    simp only [LaurentMeasuresBdd.nnnorm_def, Finset.univ_eq_attach]
+    push_cast
+    apply @Finset.single_le_sum S ℝ _ fun s => ∑ i in A.attach, ‖F A s i‖ * (r : ℝ) ^ (i : ℤ)
     swap; · simp
     rintro s -
     apply Finset.sum_nonneg
@@ -563,12 +562,9 @@ theorem exists_of_compat {c} (F : ∀ A : Finset ℤ, LaurentMeasuresBdd r S A c
   · intro k
     ext s i
     change F _ _ _ = _
-    have := compat k {i} (by simp)
-    apply_fun fun e => e s ⟨i, by simp⟩ at this 
-    erw [← this]
-    change F k _ _ = F k _ _
-    congr
-    ext; rfl
+    have := compat k {(i : ℤ)} (by simp)
+    apply_fun fun e => e s ⟨i, by simp⟩ at this
+    exact this.symm
 
 variable (r S)
 
@@ -587,7 +583,11 @@ over `T : finset ℤ` of the finite types `laurent_measures_bdd r S T c`. -/
 def laurentMeasuresBddEquiv (c : ℝ≥0) [Fact (0 < r)] :
     {F : ℒ S | ‖F‖₊ ≤ c} ≃
       (Profinite.limitCone (laurentMeasuresBddFunctor r S c ⋙ FintypeCat.toProfinite)).pt :=
-  Equiv.ofBijective (fun F => ⟨fun A => truncate (ULift.down A.unop) F, fun A B f => by ext; rfl⟩)
+  Equiv.ofBijective (fun F => ⟨fun A => truncate (ULift.down A.unop) F, fun f => by
+      -- Porting note: the implicit arguments of the compatibility condition changed
+      apply LaurentMeasuresBdd.ext
+      funext s i
+      rfl⟩)
     (by
       constructor
       · intro F G h
@@ -598,20 +598,18 @@ def laurentMeasuresBddEquiv (c : ℝ≥0) [Fact (0 < r)] :
         exact h
       · rintro ⟨F, hF⟩
         dsimp at F hF 
-        obtain ⟨G, hG⟩ := exists_of_compat (fun A => F (Opposite.op ⟨A⟩)) _
-        · use G
-          ext : 2
-          dsimp
-          have := hG (ULift.down x.unop)
-          convert this
-          rw [← x.op_unop]
-          congr 1
-          ext
-          rfl
-        · intro A B h
-          let e : (Opposite.op <| as_small.up.obj A) ⟶ Opposite.op <| as_small.up.obj B :=
-            Quiver.Hom.op (as_small.up.map (hom_of_le h))
-          exact hF e)
+        -- Porting note: the side goal of `exists_of_compat` is proved first
+        have compat : ∀ (A B : Finset ℤ) (h : B ≤ A),
+            transition h (F (Opposite.op ⟨A⟩)) = F (Opposite.op ⟨B⟩) := by
+          intro A B h
+          let e : (Opposite.op <| AsSmall.up.obj A) ⟶ Opposite.op <| AsSmall.up.obj B :=
+            Quiver.Hom.op (AsSmall.up.map (homOfLE h))
+          exact hF e
+        obtain ⟨G, hG⟩ := exists_of_compat (fun A => F (Opposite.op ⟨A⟩)) compat
+        refine' ⟨G, _⟩
+        apply Subtype.ext
+        funext x
+        exact hG (ULift.down x.unop))
 
 /-- The profinite topology on the Laurent measures with norm at most `c`. -/
 instance (c : ℝ≥0) [Fact (0 < r)] : TopologicalSpace {F : ℒ S | ‖F‖₊ ≤ c} :=
@@ -650,7 +648,8 @@ theorem truncate_continuous (c : ℝ≥0) [Fact (0 < r)] (A : Finset ℤ) :
       (Opposite.op <| ULift.up A)
   let g₂ := LaurentMeasures.laurentMeasuresBddHomeo r S c
   change Continuous (g₁ ∘ g₂)
-  continuity
+  -- Porting note: `continuity` no longer closes this goal
+  exact (ContinuousMap.continuous g₁).comp g₂.continuous
 
 theorem continuous_iff (c : ℝ≥0) [Fact (0 < r)] {α : Type _} [TopologicalSpace α]
     (f : α → {F : ℒ S | ‖F‖₊ ≤ c}) :
@@ -691,21 +690,22 @@ theorem mem_filtration_iff (F : ℒ S) (c : ℝ≥0) :
   Iff.rfl
 
 instance [Fact (0 < r)] : ProfinitelyFilteredPseudoNormedGroup (ℒ S) :=
-  {
-    (inferInstance :
-      PseudoNormedGroup
-        (ℒ
-          S)) with
+  { (inferInstance : PseudoNormedGroup (ℒ S)) with
+    -- Porting note: instance search does not unfold `PseudoNormedGroup.filtration`, so the
+    -- topological structure on the filtration is given explicitly
+    topology := fun c => (inferInstance : TopologicalSpace {F : ℒ S | ‖F‖₊ ≤ c})
+    t2 := fun c => (inferInstance : T2Space {F : ℒ S | ‖F‖₊ ≤ c})
+    compact := fun c => (inferInstance : CompactSpace {F : ℒ S | ‖F‖₊ ≤ c})
+    td := fun c => (inferInstance : TotallyDisconnectedSpace {F : ℒ S | ‖F‖₊ ≤ c})
     continuous_add' := by
       intro c₁ c₂
-      rw [continuous_iff]
+      refine' (continuous_iff r S _ _).2 _
       intro A
-      let E :
-        LaurentMeasuresBdd r S A c₁ × LaurentMeasuresBdd r S A c₂ →
-          LaurentMeasuresBdd r S A (c₁ + c₂) :=
-        fun G => ⟨G.1 + G.2, _⟩
-      swap;
-      · refine' le_trans _ (add_le_add G.fst.2 G.snd.2)
+      -- Porting note: `_` placeholders in `let` are no longer turned into new goals
+      have hE : ∀ G : LaurentMeasuresBdd r S A c₁ × LaurentMeasuresBdd r S A c₂,
+          ∑ s, ∑ i, ‖(G.1.toFun + G.2.toFun) s i‖₊ * r ^ (i : ℤ) ≤ c₁ + c₂ := by
+        intro G
+        refine' le_trans _ (add_le_add G.fst.2 G.snd.2)
         rw [← Finset.sum_add_distrib]
         apply Finset.sum_le_sum
         intro i hi
@@ -713,11 +713,20 @@ instance [Fact (0 < r)] : ProfinitelyFilteredPseudoNormedGroup (ℒ S) :=
         apply Finset.sum_le_sum
         intro j hj
         rw [← add_mul]
-        refine' mul_le_mul' (norm_add_le _ _) le_rfl
+        exact mul_le_mul' (nnnorm_add_le _ _) le_rfl
+      let E :
+        LaurentMeasuresBdd r S A c₁ × LaurentMeasuresBdd r S A c₂ →
+          LaurentMeasuresBdd r S A (c₁ + c₂) :=
+        fun G => ⟨G.1.toFun + G.2.toFun, hE G⟩
       have :
-        (truncate A : _ → LaurentMeasuresBdd r S A (c₁ + c₂)) ∘ PseudoNormedGroup.add' =
-          E ∘ Prod.map (truncate A) (truncate A) :=
-        by ext; rfl
+        (truncate A : _ → LaurentMeasuresBdd r S A (c₁ + c₂)) ∘
+            (PseudoNormedGroup.add' : PseudoNormedGroup.filtration (ℒ S) c₁ ×
+              PseudoNormedGroup.filtration (ℒ S) c₂ → PseudoNormedGroup.filtration (ℒ S) (c₁ + c₂)) =
+          E ∘ Prod.map (truncate A) (truncate A) := by
+        funext x
+        apply LaurentMeasuresBdd.ext
+        funext s i
+        rfl
       rw [this]
       apply Continuous.comp
       · exact continuous_of_discreteTopology
@@ -725,34 +734,45 @@ instance [Fact (0 < r)] : ProfinitelyFilteredPseudoNormedGroup (ℒ S) :=
         all_goals apply truncate_continuous
     continuous_neg' := by
       intro c
-      rw [continuous_iff]
+      refine' (continuous_iff r S _ _).2 _
       intro A
-      let E : LaurentMeasuresBdd r S A c → LaurentMeasuresBdd r S A c := fun G => ⟨-G, _⟩
-      swap;
-      · convert G.2 using 1
+      have hE : ∀ G : LaurentMeasuresBdd r S A c,
+          ∑ s, ∑ i, ‖(-G.toFun) s i‖₊ * r ^ (i : ℤ) ≤ c := by
+        intro G
+        convert G.2 using 1
         apply Finset.sum_congr rfl
         intro s hs
         apply Finset.sum_congr rfl
         intro x hx
-        congr 1
-        simpa
+        simp
+      let E : LaurentMeasuresBdd r S A c → LaurentMeasuresBdd r S A c := fun G => ⟨-G.toFun, hE G⟩
       have :
-        (truncate A : _ → LaurentMeasuresBdd r S A c) ∘ PseudoNormedGroup.neg' = E ∘ truncate A :=
-        by ext; rfl
+        (truncate A : _ → LaurentMeasuresBdd r S A c) ∘
+            (PseudoNormedGroup.neg' : PseudoNormedGroup.filtration (ℒ S) c →
+              PseudoNormedGroup.filtration (ℒ S) c) = E ∘ truncate A := by
+        funext x
+        apply LaurentMeasuresBdd.ext
+        funext s i
+        rfl
       rw [this]
       apply Continuous.comp
       · exact continuous_of_discreteTopology
       · apply truncate_continuous
     continuous_castLe := by
       intro c₁ c₂ h
-      rw [continuous_iff]
+      refine' (continuous_iff r S _ _).2 _
       intro A
       let g : LaurentMeasuresBdd r S A c₁ → LaurentMeasuresBdd r S A c₂ := fun g =>
-        ⟨g, le_trans g.2 h.out⟩
+        ⟨g.toFun, le_trans g.2 h.out⟩
       have :
-        (truncate A : _ → LaurentMeasuresBdd r S A c₂) ∘ PseudoNormedGroup.castLe =
-          g ∘ truncate A :=
-        by ext; rfl
+        (truncate A : _ → LaurentMeasuresBdd r S A c₂) ∘
+            (PseudoNormedGroup.castLe : PseudoNormedGroup.filtration (ℒ S) c₁ →
+              PseudoNormedGroup.filtration (ℒ S) c₂) =
+          g ∘ truncate A := by
+        funext x
+        apply LaurentMeasuresBdd.ext
+        funext s i
+        rfl
       rw [this]
       apply Continuous.comp
       · exact continuous_of_discreteTopology
@@ -766,11 +786,11 @@ def shiftAddMonoidHom [hr : Fact (0 < r)] (k : ℤ) : ℒ S →+ ℒ S :=
       { toFun := fun s n => F s (n + k)
         summable' := fun s =>
           by
-          convert
+          -- Porting note: `convert` goes too deep here, so use `Summable.congr` instead
+          refine'
             (NNReal.summable_comp_injective (F.nnreal_summable s)
-                  (add_left_injective (k : ℤ))).hMul_right
-              (r ^ (-k))
-          ext n
+                  (add_left_injective (k : ℤ))).mul_right (r ^ (-k)) |>.congr _
+          intro n
           simp only [Function.comp, ← zpow_add₀ hr.out.ne', mul_assoc, add_neg_cancel_right] })
     fun F G => by ext; rfl
 
@@ -782,58 +802,71 @@ theorem _root_.Finset.prod_attach' {α M : Type _} [CommMonoid M] (s : Finset α
   rw [eq_comm, ← Finset.prod_attach, Finset.prod_congr rfl]
   intros; simp only [Finset.coe_mem, Finset.mk_coe, dite_eq_ite, if_true]
 
+-- Porting note: Lean 3 used `abstract shift_spec` inside the definition of `shift`; this
+-- is now a separate theorem with the same name and statement
+theorem shift.shift_spec [hr : Fact (0 < r)] (k : ℤ) (c : ℝ≥0) :
+    ∃ H : ∀ x : ℒ S, x ∈ PseudoNormedGroup.filtration (ℒ S) c →
+        shiftAddMonoidHom k x ∈ PseudoNormedGroup.filtration (ℒ S) (r ^ (-k) * c),
+      Continuous fun x : PseudoNormedGroup.filtration (ℒ S) c =>
+        (⟨shiftAddMonoidHom k x, H x x.2⟩ :
+          PseudoNormedGroup.filtration (ℒ S) (r ^ (-k) * c)) := by
+  have H : ∀ x : ℒ S, x ∈ PseudoNormedGroup.filtration (ℒ S) c →
+      shiftAddMonoidHom k x ∈ PseudoNormedGroup.filtration (ℒ S) (r ^ (-k) * c) := by
+    intro F hF
+    rw [mem_filtration_iff] at hF ⊢
+    rw [mul_comm]
+    refine' le_trans _ (mul_le_mul' hF le_rfl)
+    simp only [nnnorm_def, Finset.sum_mul]
+    refine' Finset.sum_le_sum fun s _ => le_of_eq _
+    trans ∑' n, ‖F s n‖₊ * r ^ n * r ^ (-k)
+    · refine' ((Equiv.addLeft (-k : ℤ)).tsum_eq _).symm.trans _
+      simp only [Equiv.coe_addLeft, shiftAddMonoidHom_apply_toFun, neg_add_cancel_comm,
+        zpow_add₀ hr.out.ne', zpow_neg_one, mul_comm (r ^ (-k)), mul_assoc]
+    · exact NNReal.tsum_mul_right _ _
+  refine' ⟨H, _⟩
+  refine' (continuous_iff r S _ _).2 _
+  intro A
+  let B : Finset ℤ := A.map (Equiv.toEmbedding (Equiv.addLeft (k : ℤ)))
+  -- Porting note: the `_` placeholders of Lean 3 are now explicit `have`s
+  have hmem : ∀ a : A, (a : ℤ) + k ∈ B := fun a =>
+    Finset.mem_map.2 ⟨a, a.2, by simp [add_comm]⟩
+  have hb : ∀ F : LaurentMeasuresBdd r S B c,
+      ∑ s, ∑ a : A, ‖F s ⟨a + k, hmem a⟩‖₊ * r ^ (a : ℤ) ≤ r ^ (-k) * c := by
+    intro F
+    refine' le_trans _ (mul_le_mul' le_rfl F.bound)
+    rw [LaurentMeasuresBdd.nnnorm_def, mul_comm, Finset.sum_mul]
+    refine' Finset.sum_le_sum fun s hs => _
+    simp only [B, Finset.univ_eq_attach]
+    erw [Finset.sum_mul, Finset.sum_attach', Finset.sum_attach', Finset.sum_map]
+    refine' Finset.sum_le_sum fun n hn => _
+    simp only [Finset.mem_map_equiv, Equiv.addLeft_symm, Equiv.coe_addLeft, Subtype.coe_mk,
+      Equiv.toEmbedding_apply, neg_add_cancel_left]
+    simp only [add_comm k, mul_assoc, ← zpow_add₀ hr.out.ne', add_neg_cancel_right]
+    exact le_rfl
+  let g : LaurentMeasuresBdd r S B c → LaurentMeasuresBdd r S A (r ^ (-k) * c) := fun F =>
+    ⟨fun s a => F s ⟨a + k, hmem a⟩, hb F⟩
+  refine'
+    (continuous_of_discreteTopology.comp (truncate_continuous r S _ B) :
+        Continuous (g ∘ truncate B)).congr _
+  intro F
+  apply LaurentMeasuresBdd.ext
+  funext s a
+  rfl
+
 @[simps]
 def shift [hr : Fact (0 < r)] (k : ℤ) : ComphausFilteredPseudoNormedGroupHom (ℒ S) (ℒ S) :=
   ComphausFilteredPseudoNormedGroupHom.mkOfBound (shiftAddMonoidHom k) (r ^ (-k))
-    (by
-      abstract shift_spec 
-        intro c
-        have H : _ := _
-        refine' ⟨H, _⟩
-        · rw [continuous_iff]
-          intro A
-          let B : Finset ℤ := A.map (Equiv.toEmbedding (Equiv.addLeft (k : ℤ)))
-          let g : LaurentMeasuresBdd r S B c → LaurentMeasuresBdd r S A (r ^ (-k) * c) := fun F =>
-            { toFun := fun s a => F s ⟨a + k, _⟩
-              bound' := _ }
-          · suffices truncate A ∘ _ = g ∘ truncate B by rw [this];
-              exact continuous_of_discrete_topology.comp (truncate_continuous r S _ B)
-            ext F s a; rfl
-          ·
-            simp only [Finset.mem_map_equiv, Equiv.addLeft_symm, neg_neg, Equiv.coe_addLeft,
-              neg_add_cancel_comm_assoc, Finset.coe_mem]
-          · refine' le_trans _ (mul_le_mul' le_rfl F.bound)
-            rw [LaurentMeasuresBdd.nnnorm_def, mul_comm, Finset.sum_mul]
-            refine' Finset.sum_le_sum fun s hs => _
-            simp only [B, Finset.univ_eq_attach]
-            erw [Finset.sum_mul, Finset.sum_attach', Finset.sum_attach', Finset.sum_map]
-            refine' Finset.sum_le_sum fun n hn => _
-            simp only [Finset.mem_map_equiv, Equiv.addLeft_symm, Equiv.coe_addLeft, Subtype.coe_mk,
-              Equiv.toEmbedding_apply, neg_add_cancel_left]
-            simp only [add_comm k, mul_assoc, ← zpow_add₀ hr.out.ne', add_neg_cancel_right]
-        · intro F hF
-          rw [mul_comm]
-          refine' le_trans _ (mul_le_mul' hF le_rfl)
-          simp only [nnnorm_def, Finset.sum_mul]
-          refine' Finset.sum_le_sum fun s _ => le_of_eq _
-          trans ∑' n, ‖F s n‖₊ * r ^ n * r ^ (-k)
-          · refine' ((Equiv.addLeft (-k : ℤ)).tsum_eq _).symm.trans _
-            simp only [Equiv.coe_addLeft, LaurentMeasures.shiftAddMonoidHom_apply_to_fun, neg_add_cancel_comm,
-              zpow_add₀ hr.out.ne', zpow_neg_one, mul_comm (r ^ (-k)), mul_assoc]
-          ext
-          simp only [Nonneg.coe_mul, NNReal.coe_tsum, coe_nnnorm, NNReal.coe_zpow, tsum_mul_right])
+    (shift.shift_spec k)
 
 instance [Fact (0 < r)] : ProfinitelyFilteredPseudoNormedGroupWithTinv r (ℒ S) :=
-  {
-    (_ : ProfinitelyFilteredPseudoNormedGroup
-        (ℒ S)) with
+  { (inferInstance : ProfinitelyFilteredPseudoNormedGroup (ℒ S)) with
     tinv := shift 1
     tinv_mem_filtration := fun c F hF =>
       by
       refine' ComphausFilteredPseudoNormedGroupHom.mkOfBoundBoundBy _ _ _ hF
       intro c'
-      have := @Shift.shift_spec r S _ 1 c'
-      rwa [zpow_neg_one] at this  }
+      have := @shift.shift_spec r S _ 1 c'
+      rwa [zpow_neg_one] at this }
 
 @[simp]
 theorem tinv_apply [Fact (0 < r)] (F : ℒ S) :
@@ -850,16 +883,23 @@ def mapHom [Fact (0 < r)] (f : S ⟶ S') : ComphausFilteredPseudoNormedGroupWith
   toFun := map f
   map_zero' := by ext; simp only [map_apply, zero_apply, Finset.sum_const_zero]
   map_add' F G := by ext s i; simp only [← Finset.sum_add_distrib, map_apply, add_apply]
-  map_Tinv' F := by ext s i; simp only [map_apply, Tinv_apply, shift_to_fun_to_fun]
-  strict' c F (hF : ‖F‖₊ ≤ c) := (map_bound _ _).trans hF
+  map_Tinv' F := by
+    ext s i
+    simp only [map_apply, tinv_apply]
+    rfl
+  strict' := fun ⦃c F⦄ (hF : ‖F‖₊ ≤ c) => (map_bound _ _).trans hF
   continuous' c := by
-    rw [continuous_iff]
+    refine' (continuous_iff r S' _ _).2 _
     intro T
     let f₀ : filtration (LaurentMeasures r S) c → filtration (LaurentMeasures r S') c :=
-      level (map f) (fun c F (hF : ‖F‖₊ ≤ c) => (map_bound f F).trans hF) c
-    have : truncate T ∘ f₀ = LaurentMeasuresBdd.map f ∘ truncate T := by ext F s' t; rfl
+      level (map f) (fun ⦃c F⦄ (hF : ‖F‖₊ ≤ c) => (map_bound f F).trans hF) c
+    have : truncate T ∘ f₀ = LaurentMeasuresBdd.map f ∘ truncate T := by
+      funext F
+      apply LaurentMeasuresBdd.ext
+      funext s' t
+      rfl
     rw [this]
-    exact continuous_of_discrete_topology.comp (truncate_continuous r S _ T)
+    exact continuous_of_discreteTopology.comp (truncate_continuous r S _ T)
 
 /-- Let `F : ℒ S` be a Laurent measure.  `laurent_measures.d` chooses a bound `d ∈ ℤ` for `F`,
 such that, for all `s : S`, the sequence `F s` is zero from `d-1` and below. -/

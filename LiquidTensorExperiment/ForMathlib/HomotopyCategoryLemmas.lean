@@ -20,7 +20,7 @@ theorem kernel_ι_comp_comp_cokernel_π_of_homotopy (h : Homotopy f₁ f₂) (i 
     kernel.ι (C₁.dFrom i) ≫ f₁.f i ≫ cokernel.π (C₂.dTo i) = kernel.ι _ ≫ f₂.f i ≫ cokernel.π _ :=
   by
   have := h.comm i
-  apply_fun fun e => kernel.ι (C₁.d_from i) ≫ e ≫ cokernel.π (C₂.d_to i) at this 
+  apply_fun fun e => kernel.ι (C₁.dFrom i) ≫ e ≫ cokernel.π (C₂.dTo i) at this 
   simpa using this
 
 def homotopyUnopFunctorRightOpMapUnopOfHomotopy (C₁ C₂ : HomologicalComplex Aᵒᵖ c) (f₁ f₂ : C₁ ⟶ C₂)
@@ -28,11 +28,12 @@ def homotopyUnopFunctorRightOpMapUnopOfHomotopy (C₁ C₂ : HomologicalComplex 
     Homotopy (HomologicalComplex.unopFunctor.rightOp.map f₁).unop
       (HomologicalComplex.unopFunctor.rightOp.map f₂).unop
     where
-  Hom i j := (h.hom _ _).unop
-  zero' i j hh := by
-    let z := _; change _ = z; rw [← z.unop_op]
-    congr 1
-    exact h.zero _ _ hh
+  hom i j := (h.hom _ _).unop
+  -- Porting note: Lean 3 used `let z := _; change _ = z; rw ← z.unop_op`
+  zero i j hh := by
+    dsimp only
+    rw [h.zero _ _ hh]
+    rfl
   comm := by
     intro i
     dsimp

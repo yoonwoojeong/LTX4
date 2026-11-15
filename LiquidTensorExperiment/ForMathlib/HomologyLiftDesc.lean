@@ -17,8 +17,9 @@ theorem homology'.lift_desc (X Y Z : 𝓐) (f : X ⟶ Y) (g : Y ⟶ Z) (w) (U : 
         homology'.desc' _ _ _ (kernel.ι _ ≫ e) (by simp [he]) =
       t ≫ e :=
   by
-  let s := _; change s ≫ _ = _
-  have hs : s = kernel.lift _ t ht ≫ homology'.π' _ _ _ :=
+  -- Porting note: Lean 3 used `let s := _; change s ≫ _ = _`; we state `s` explicitly
+  have hs : homology'.lift f g w (t ≫ cokernel.π _) (by simp [ht]) =
+      kernel.lift _ t ht ≫ homology'.π' _ _ _ :=
     by
     apply homology'.hom_to_ext
     simp only [homology'.lift_ι, Category.assoc, homology'.π'_ι, kernel.lift_ι_assoc]

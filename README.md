@@ -175,6 +175,8 @@ Apache 2.0, as the original project (see `LICENSE`).
 ### Upstreamed to mathlib (LTE copy removed)
 
 * `quotient_map.homeomorph` → mathlib4 `QuotientMap.homeomorph` (same statement).
+* `Profinite.pullback`, `pullback.fst/snd/condition/lift/lift_fst/lift_snd/hom_ext` → mathlib4 (same statements; implicit arguments ordered differently).
+* LTE's shift on triangles (`triangle_shift_functor`, `triangle.has_shift`, …) and preadditive structure on the homotopy category → mathlib4 `Mathlib.CategoryTheory.Triangulated.TriangleShift`, `HomotopyCategory` instances.
 * `category_theory.functor.map_is_zero` → mathlib4 `CategoryTheory.Functor.map_isZero` (more general).
 
 ### Renamed because of later mathlib declarations
