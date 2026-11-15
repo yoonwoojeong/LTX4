@@ -18,7 +18,7 @@ then it's bounded exact (for some slightly different constants).
 
 open Finset Filter
 
-open scoped NNReal BigOperators TopologicalSpace
+open scoped NNReal BigOperators Topology
 
 -- Porting note: `⋙` is scoped notation in Lean 4
 open CategoryTheory
@@ -161,7 +161,7 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
           by
           simp only [sub_add_sub_cancel]
           congr 1
-          exact map_sub _ _ _
+          exact _root_.map_sub (C.d i (i + 1)) _ _
         _ ≤ ‖(C.d _ _ (w (j + 1)) - res x)‖ + ‖(res x - C.d _ _ (w j))‖ :=
           (norm_add_le _ _)
         _ = ‖(res x - C.d _ _ (w (j + 1)))‖ + ‖(res x - C.d _ _ (w j))‖ := by
@@ -180,43 +180,53 @@ theorem strongOfComplete [hk : Fact (1 ≤ k)] [∀ c i, SeparatedSpace (C c i)]
       _ = ‖(res (w (j + 1) - w j) - C.d _ _ (z j))‖ := by
         simp only [sum_range_succ, add_sub_cancel']
         congr 2
-        exact (map_sub _ _ _).symm
+        exact (_root_.map_sub res _ _).symm
       _ ≤ K * ‖(C.d _ _ (w (j + 1) - w j))‖ + δ j := (hz j)
       _ ≤ K * (2 * ε j) + δ j := by
         apply add_le_add_right
         apply mul_le_mul_of_nonneg_left fact (NNReal.coe_nonneg K)
       _ ≤ 1 * 2⁻¹ ^ j := hεδ j
+  -- Porting note: in the next steps `rw`/`simp` do not see through `(forget _).obj`, so `erw`,
+  -- `_root_.map_sub` (not `SystemOfComplexes.map_sub`) and explicit `rfl`s are used
   have hdyj : ∀ j, C.d _ _ (y j) = res (C.d _ _ <| w j) :=
     by
     intro j
     calc
       C.d _ _ (y j) = C.d _ _ (res (w j) - ∑ l in range j, C.d _ i (z l)) := rfl
       _ = C.d _ _ (res (w j)) - ∑ l in range j, C.d i (i + 1) (C.d _ _ (z l)) := by
-        rw [_root_.map_sub, map_sum]
-      _ = res (C.d _ _ (w j)) := by simp only [d_res, d_d, sum_const_zero, sub_zero]
+        erw [_root_.map_sub (C.d i (i + 1)), map_sum]
+        rfl
+      _ = res (C.d _ _ (w j)) := by
+        have h0 : ∑ l in range j, C.d i (i + 1) (C.d i₀ i (z l)) = 0 :=
+          Finset.sum_eq_zero fun l _ => C.d_d _ _ _ _ _
+        erw [d_res, h0, sub_zero]
+        rfl
   have hblop : ∀ j, ‖(res x - C.d _ _ (y j))‖ ≤ ε j :=
     by
     intro j
     calc
       ‖(res x - C.d _ _ (y j))‖ = ‖(res x - res (C.d _ _ <| w j))‖ := by rw [hdyj]
       _ = ‖(res (res x : C (k * c) (i + 1)) - res (C.d _ _ <| w j) : C c _)‖ := by
-        rw [C.res_res]
-      _ = ‖(res (res x - (C.d _ _ <| w j)))‖ := by simp only [_root_.map_sub]
+        erw [C.res_res]
+        rfl
+      _ = ‖(res (res x - (C.d _ _ <| w j)))‖ := by
+        congr 1
+        exact (_root_.map_sub res _ _).symm
       _ ≤ ‖(res x - C.d _ _ (w j))‖ := by apply hC'.res_normNoninc
       _ ≤ ε j := hw _
   rcases cauchySeq_tendsto_of_complete cau_y with ⟨y₀, hy₀⟩
   refine' ⟨_, rfl, y₀, _⟩
   refine' sub_eq_zero.1 (norm_le_zero_iff'.1 _)
   have lim_norm :
-    tendsto (fun j => ‖(res x - C.d _ _ (y j))‖) Filter.atTop
+    Tendsto (fun j => ‖(res x - C.d _ _ (y j))‖) Filter.atTop
       (𝓝 (‖res x - C.d _ _ y₀‖)) :=
     haveI cont : Continuous fun y : C c i => ‖res x - C.d _ _ y‖ :=
       continuous_norm.comp (continuous_const.sub <| NormedAddGroupHom.continuous _)
     (cont.tendsto y₀).comp hy₀
-  have lim_ε : tendsto ε Filter.atTop (𝓝 0) :=
+  have lim_ε : Tendsto ε Filter.atTop (𝓝 0) :=
     by
     rw [show (0 : ℝ) = 2⁻¹ * 0 / K' / 2 by norm_num]
-    refine' (tendsto.const_mul 2⁻¹ (tendsto_pow_atTop_nhds_0_of_lt_1 _ _)).div_const.div_const <;>
+    refine' ((Filter.Tendsto.const_mul (2⁻¹ : ℝ) (tendsto_pow_atTop_nhds_0_of_lt_1 _ _)).div_const _).div_const _ <;>
       norm_num
   exact le_of_tendsto_of_tendsto' lim_norm lim_ε hblop
 

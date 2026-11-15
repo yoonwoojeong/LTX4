@@ -397,8 +397,7 @@ instance functorCategoryIsAbelian : Abelian (C ⥤ D) := by
     fun η => functor_category_isIso_coim_to_im.{w, v, u} η
   exact Abelian.ofCoimageImageComparisonIsIso
 
--- Porting note: the proof is given outside of the namespace `NatTrans`, where it elaborates
--- differently (the zero morphisms of the functor category are not recognised by `exact`)
+-- Porting note: auxiliary theorem carrying the proof of `NatTrans.exact_iff_forall`
 private theorem exact_iff_forall_aux {F G H : C ⥤ D} (η : F ⟶ G) (γ : G ⟶ H) :
     -- Porting note: the `HasImages (C ⥤ D)` instance is given explicitly, because Lean 4 cannot
     -- solve the universe constraint arising when synthesising it (see `functor_category_hasKernels_general`)
@@ -408,7 +407,8 @@ private theorem exact_iff_forall_aux {F G H : C ⥤ D} (η : F ⟶ G) (γ : G �
             functorCategoryIsAbelian.{w, v, u})) _ _ F G H η γ ↔
       ∀ j, Exact (η.app j) (γ.app j) :=
   by
-  haveI : Abelian (C ⥤ D) := functorCategoryIsAbelian.{w, v, u}
+  -- Porting note: `letI` (not `haveI`) so that the instance can be unfolded
+  letI : Abelian (C ⥤ D) := functorCategoryIsAbelian.{w, v, u}
   have h := Abelian.exact_iff η γ
   -- Porting note: the two `HasZeroMorphisms (C ⥤ D)` instances are not syntactically equal
   refine Iff.trans (by convert h) ?_
