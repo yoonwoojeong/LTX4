@@ -24,6 +24,8 @@ theorem coeff_of_not_mem_support {X : Type _} (a : FreeAbelianGroup X) (x : X) (
   dsimp [FreeAbelianGroup.coeff]
   rwa [← Finsupp.not_mem_support_iff]
 
+-- Porting note: Lean 3 found `decidable_eq` for `insert` via the global classical instance
+open scoped Classical in
 theorem lift_eq_sum {A B : Type _} [AddCommGroup B] (f : A → B) (x) :
     FreeAbelianGroup.lift f x = ∑ a in x.support, FreeAbelianGroup.coeff a x • f a :=
   by

@@ -494,6 +494,7 @@ theorem isTensorUnit_tunit : tunit.{u}.IsTensorUnit :=
       (adj'.unit.app _ ≫ (forget _).map ((free'.map fun x : ⊤_ Type u => t) ≫ adj'.counit.app B))
           _ =
         _
+    rw [Functor.map_comp]
     erw [Adjunction.unit_naturality_assoc]
     -- Porting note: `erw [adj'.right_triangle_components]; rfl` timed out; use the lemma directly
     have h2 := adj'.right_triangle_components (Y := B)

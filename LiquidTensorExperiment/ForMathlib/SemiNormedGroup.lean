@@ -18,13 +18,14 @@ instance SemiNormedGroupCat.forget₂ : HasForget₂ SemiNormedGroupCat.{u} Ab.{
   forget₂ :=
     { obj := fun V => AddCommGroupCat.of V
       map f := NormedAddGroupHom.toAddMonoidHom f
-      map_id _ := rfl
-      map_comp _ _ := rfl }
+      map_id := fun _ => rfl
+      map_comp := fun _ _ => rfl }
   forget_comp := rfl
 
 -- move me
-instance SemiNormedGroupCat.forget₂_additive : (CategoryTheory.forget₂ SemiNormedGroupCat.{u} Ab.{u}).Additive where
-  map_add := by intros; rfl
+instance SemiNormedGroupCat.forget₂_additive :
+    (CategoryTheory.forget₂ SemiNormedGroupCat.{u} Ab.{u}).Additive where
+  map_add := by intros; exact rfl
 
 instance SemiNormedGroupCat.metricSpace : MetricSpace V :=
   MetricSpace.ofT0PseudoMetricSpace _

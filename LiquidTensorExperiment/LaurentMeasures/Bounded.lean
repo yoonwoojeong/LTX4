@@ -87,10 +87,13 @@ def map (f : S ⟶ S') : LaurentMeasuresBdd r S T c → LaurentMeasuresBdd r S' 
                   Finset.mem_filter]
                 use f e
             · tauto
-          · intro x hx y hy h i hi
+          · intro x hx y hy h
+            -- Porting note: `Disjoint` is unfolded differently in Lean 4
+            rw [Function.onFun, Finset.disjoint_left]
+            intro e he he'
             apply h
-            simp at hi 
-            rw [← hi.1, ← hi.2]
+            simp only [Finset.mem_filter, Finset.mem_univ, true_and] at he he'
+            rw [← he, ← he']
         _ ≤ c := F.bound }
 
 @[simp]
@@ -119,10 +122,13 @@ theorem map_comp (f : S ⟶ S') (g : S' ⟶ S'') :
       · intro h; simpa using h
       · intro h; simpa using h
     · tauto
-  · intro i hi j hj h e he
-    simp at he 
+  · intro i hi j hj h
+    -- Porting note: `Disjoint` is unfolded differently in Lean 4
+    rw [Function.onFun, Finset.disjoint_left]
+    intro e he he'
     apply h
-    rw [← he.1, ← he.2]
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at he he'
+    rw [← he, ← he']
 
 theorem coeff_bound (F : LaurentMeasuresBdd r S T c) [hr : Fact (0 < r)] (s : S) (i : T) :
     ‖F s i‖₊ ≤ c * (r ^ (i : ℤ))⁻¹ :=
@@ -135,14 +141,13 @@ theorem coeff_bound (F : LaurentMeasuresBdd r S T c) [hr : Fact (0 < r)] (s : S)
     field_simp [this]
   calc
     ‖F s i‖₊ * r ^ (i : ℤ) ≤ ∑ i, ‖F s i‖₊ * r ^ (i : ℤ) :=
-      @Finset.single_le_sum T _ _ (fun i => ‖F s i‖₊ * r ^ (i : ℤ)) _ _ _ _
+      -- Porting note: explicit arguments instead of `all_goals` side goals
+      Finset.single_le_sum (f := fun i => ‖F s i‖₊ * r ^ (i : ℤ)) (fun _ _ => zero_le')
+        (Finset.mem_univ i)
     _ ≤ ‖F‖₊ :=
-      (@Finset.single_le_sum S _ _ (fun s => ∑ i, ‖F s i‖₊ * r ^ (i : ℤ)) _ _ _ _)
+      (Finset.single_le_sum (f := fun s => ∑ i, ‖F s i‖₊ * r ^ (i : ℤ)) (fun _ _ => zero_le')
+        (Finset.mem_univ s))
     _ ≤ c := F.bound
-  all_goals
-    first
-    | exact Finset.mem_univ _
-    | · intros; exact zero_le'
 
 open scoped Classical
 
@@ -151,24 +156,31 @@ instance (r : ℝ≥0) [Fact (0 < r)] (S : FintypeCat) (T : Finset ℤ) :
   by
   let lb : T → ℤ := fun i => Int.floor (-((c : ℝ) * ((r : ℝ) ^ (i : ℤ))⁻¹))
   let ub : T → ℤ := fun i => Int.ceil ((c : ℝ) * ((r : ℝ) ^ (i : ℤ))⁻¹)
-  let ι : LaurentMeasuresBdd r S T c → ∀ (s : S) (i : T), Icc (lb i) (ub i) := fun F s i =>
-    ⟨F s i, _⟩
-  apply Fintype.ofInjective ι _
-  · intro F G h
-    ext s i
-    apply_fun fun e => (e s i : ℤ) at h 
-    exact h
-  · have := F.coeff_bound s i
-    change (abs (F s i) : ℝ) ≤ _ at this 
-    simp only [abs_le, NNReal.coe_mul, NNReal.coe_inv, NNReal.coe_zpow] at this 
+  -- Porting note: the membership proof is established before `ι` is defined
+  have hmem : ∀ (F : LaurentMeasuresBdd r S T c) (s : S) (i : T), F s i ∈ Icc (lb i) (ub i) := by
+    intro F s i
+    have := F.coeff_bound s i
+    change (abs (F s i) : ℝ) ≤ _ at this
+    simp only [abs_le, NNReal.coe_mul, NNReal.coe_inv, NNReal.coe_zpow] at this
     constructor
     · replace := le_trans (Int.floor_le _) this.1
-      rwa [Int.cast_le] at this 
+      rwa [Int.cast_le] at this
     · replace := le_trans this.2 (Int.le_ceil _)
-      rwa [Int.cast_le] at this 
+      rwa [Int.cast_le] at this
+  let ι : LaurentMeasuresBdd r S T c → ∀ (s : S) (i : T), Icc (lb i) (ub i) := fun F s i =>
+    ⟨F s i, hmem F s i⟩
+  apply Fintype.ofInjective ι _
+  intro F G h
+  ext s i
+  -- Porting note: `apply_fun` fails here in Lean 4
+  exact congrArg (fun e => (e s i).1) h
 
 instance : TopologicalSpace (LaurentMeasuresBdd r S T c) :=
   ⊥
+
+-- Porting note: Lean 4 does not see `⊥` as a discrete topology automatically
+instance : DiscreteTopology (LaurentMeasuresBdd r S T c) :=
+  ⟨rfl⟩
 
 example [Fact (0 < r)] : CompactSpace (LaurentMeasuresBdd r S T c) := by infer_instance
 
