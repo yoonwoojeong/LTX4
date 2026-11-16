@@ -16,7 +16,7 @@ theorem filtration_rescale (r' c N : ℝ≥0) [Fact (0 < r')] (M)
       ((filtration r').obj (c * N⁻¹)).obj (of r' M) :=
   rfl
 
-@[simps Hom inv]
+@[simps hom inv]
 def filtrationCastEq (r' c₁ c₂ : ℝ≥0) (h : c₁ = c₂) [Fact (0 < r')] (M) :
     ((filtration r').obj c₁).obj M ≅ ((filtration r').obj c₂).obj M :=
   ((filtration r').mapIso <| CategoryTheory.eqToIso h).app M

@@ -28,7 +28,7 @@ theorem CategoryTheory.Homology.π_eq_zero {A B C : Ab.{u}} {f : A ⟶ B} {g : B
   have : (Ab.pt a ≫ CategoryTheory.Limits.factorThruImageSubobject f) ≫ imageToKernel f g w = Ab.pt x :=
     by
     rw [← cancel_mono (CategoryTheory.Limits.kernelSubobject g).arrow]
-    let e : ℤ ≃+ ULift.{u} ℤ := add_equiv.ulift.symm
+    let e : ℤ ≃+ ULift.{u} ℤ := AddEquiv.ulift.symm
     have he : Function.Surjective e.toAddMonoidHom := e.surjective
     refine' (AddMonoidHom.cancel_right he).mp _
     ext; exact ha
@@ -66,37 +66,38 @@ theorem shift_eq_zero (hf : Monotone f) {k K c₀ : ℝ≥0} [Fact (1 ≤ k)]
     ShiftSubId.shift (C.toAbH i) f hf = 0 :=
   by
   apply CategoryTheory.Limits.limit.hom_ext; intro j
-  rw [zero_comp, ShiftSubId.shift, to_AbH, limit.lift_π, Fan.mk_π_app, Functor.comp_map,
+  rw [zero_comp, ShiftSubId.shift, toAbH, limit.lift_π, Fan.mk_π_app, Functor.comp_map,
     homology'Functor_map]
   convert comp_zero using 2
   apply homology'.ext
   rw [comp_zero, homology'.π_map]
   apply AddCommGroupCat.ext; intro x
-  let d := HomologicalComplex.dFrom (C.to_Ab.obj (op (f (j.1 + 1)))) i
+  let d := HomologicalComplex.dFrom (C.toAb.obj (op (f (j.1 + 1)))) i
   let x' : C (f (j.1 + 1)) i := (CategoryTheory.Limits.kernelSubobject d).arrow x
   have aux : Fact (c₀ ≤ f j.1) := ⟨hc₀ _⟩
   haveI : Fact (k * f j.1 ≤ f (j.1 + 1)) := ⟨hk _⟩
   obtain ⟨_, _, rfl, rfl, y, hy⟩ := hC (f j.1) aux i le_rfl (res x')
   have hdx' : C.d i (i + 1) x' = 0 :=
     by
-    show ((CategoryTheory.Limits.kernelSubobject d).arrow ≫ (C.to_Ab.obj (op (f (j.1 + 1)))).d i (i + 1)) x = 0
-    suffices (CategoryTheory.Limits.kernelSubobject d).arrow ≫ (C.to_Ab.obj (op (f (j.1 + 1)))).d i (i + 1) = 0 by
+    show ((CategoryTheory.Limits.kernelSubobject d).arrow ≫ (C.toAb.obj (op (f (j.1 + 1)))).d i (i + 1)) x = 0
+    suffices (CategoryTheory.Limits.kernelSubobject d).arrow ≫ (C.toAb.obj (op (f (j.1 + 1)))).d i (i + 1) = 0 by
       rw [this]; rfl
-    rw [← (C.to_Ab.obj (op (f (j.1 + 1)))).dFrom_comp_xNextIso, ← Category.assoc,
+    rw [← (C.toAb.obj (op (f (j.1 + 1)))).dFrom_comp_xNextIso, ← Category.assoc,
       CategoryTheory.Limits.kernelSubobject_arrow_comp, zero_comp]
-    dsimp; rfl
+    dsimp
   rw [res_res, d_res, hdx', map_zero, norm_zero, MulZeroClass.mul_zero, ← coe_nnnorm, ←
     NNReal.coe_zero, NNReal.coe_le_coe, le_zero_iff, nnnorm_eq_zero, sub_eq_zero] at hy 
   apply CategoryTheory.Homology.π_eq_zero
   cases i
   · refine' ⟨0, _⟩
     rw [d_eq_zero] at hy ; swap; · decide
-    rw [CategoryTheory.Limits.kernelSubobjectMap_arrow_apply, HomologicalComplex.Hom.sqFrom_left,
+    erw [CategoryTheory.Limits.kernelSubobjectMap_arrow_apply, HomologicalComplex.Hom.sqFrom_left,
       HomologicalComplex.dTo_eq_zero, AddCommGroupCat.zero_apply]
-    · exact hy.symm; · rw [CochainComplex.prev_nat_zero]; dsimp; decide
-  · refine' ⟨((C.to_Ab.obj (op (f j.1))).xPrevIso _).inv y, _⟩
+    · exact hy.symm
+    · rw [CochainComplex.prev_nat_zero]; simp [ComplexShape.Rel]
+  · refine' ⟨((C.toAb.obj (op (f j.1))).xPrevIso _).inv y, _⟩
     · dsimp; rfl
-    rw [← comp_apply, ← comp_apply, HomologicalComplex.xPrevIso_comp_dTo,
+    erw [← comp_apply, ← comp_apply, HomologicalComplex.xPrevIso_comp_dTo,
       CategoryTheory.Limits.kernelSubobjectMap_arrow]
     exact hy.symm
 

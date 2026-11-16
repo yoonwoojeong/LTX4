@@ -18,7 +18,7 @@ open LaurentMeasures
 
 def FintypeCat.laurentMeasure (r : ℝ≥0) [Fact (0 < r)] (S : FintypeCat.{u}) :
     ProFiltPseuNormGrpWithTinv₁.{u} r :=
-  ⟨LaurentMeasures r S, fun F => ⟨‖F‖₊, le_rfl⟩⟩
+  ⟨LaurentMeasures r S, fun F => ⟨‖F‖₊, (LaurentMeasures.mem_filtration_iff F _).2 le_rfl⟩⟩
 
 /-- `Laurent_measures r'` is an explicit functor from finite types to the category of profinitely
   exhaustively-filtered pseudo-normed groups with an action of T⁻¹, and strict morphisms. It sends
@@ -27,10 +27,10 @@ def FintypeCat.laurentMeasure (r : ℝ≥0) [Fact (0 < r)] (S : FintypeCat.{u}) 
 def fintypeLaurentMeasures (r : ℝ≥0) [Fact (0 < r)] :
     FintypeCat.{u} ⥤ ProFiltPseuNormGrpWithTinv₁.{u} r
     where
-  obj S := ⟨LaurentMeasures r S, fun F => ⟨‖F‖₊, le_rfl⟩⟩
+  obj S := ⟨LaurentMeasures r S, fun F => ⟨‖F‖₊, (LaurentMeasures.mem_filtration_iff F _).2 le_rfl⟩⟩
   map {S T} f := mapHom f
-  map_id S := by ext1; simp only [map_hom, map_id]; rfl
-  map_comp {S S' S''} f g := by ext1; simp only [map_hom, map_comp]; rfl
+  map_id S := by ext1; simp only [mapHom, map_id]; rfl
+  map_comp {S S' S''} f g := by ext1; simp only [mapHom, map_comp]; rfl
 
 end LaurentMeasuresDef
 
