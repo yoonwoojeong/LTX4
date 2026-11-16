@@ -26,14 +26,13 @@ namespace HomologicalComplex
 theorem opFunctorMapHomotopy {ι C : Type _} {c : ComplexShape ι} [Category C] [Preadditive C]
     {X Y : HomologicalComplex C c} (f₁ f₂ : X ⟶ Y) (H : Homotopy f₁ f₂) :
     Homotopy (HomologicalComplex.opFunctor.map f₁.op) (HomologicalComplex.opFunctor.map f₂.op) :=
-  { hom := fun i j => (H.Hom j i).op
-    zero' := fun i j hij => by rw [H.zero j i hij, op_zero]
+  { hom := fun i j => (H.hom j i).op
+    zero := fun i j hij => by dsimp only; rw [H.zero j i hij, op_zero]
     comm := fun i =>
       by
       simp only [HomologicalComplex.opFunctor_map_f, Quiver.Hom.unop_op, H.comm i, op_add,
         add_left_inj]
-      conv_lhs => rw [add_comm]
-      rfl }
+      conv_lhs => rw [add_comm] }
 
 end HomologicalComplex
 
@@ -54,8 +53,12 @@ def opFunctor : (HomotopyCategory C c)ᵒᵖ ⥤ HomotopyCategory Cᵒᵖ c.symm
 
 def quotientOpFunctor :
     (quotient C c).op ⋙ opFunctor ≅ HomologicalComplex.opFunctor ⋙ quotient Cᵒᵖ c.symm :=
-  NatIso.ofComponents (fun X => eqToIso (by rfl)) fun X Y f => by dsimp;
-    simpa only [Category.comp_id, Category.id_comp]
+  CategoryTheory.NatIso.ofComponents (app := fun X => eqToIso (by rfl))
+    (naturality := fun {X Y} f => by
+      -- Porting note: unfold the definition of `opFunctor` and use the lemma for lifts through quotients
+      dsimp [opFunctor]
+      erw [CategoryTheory.Quotient.lift_map_functor_map]
+      simp)
 
 def unopFunctor : (HomotopyCategory Cᵒᵖ c)ᵒᵖ ⥤ HomotopyCategory C c.symm :=
   Functor.leftOp
@@ -70,20 +73,25 @@ def unopFunctor : (HomotopyCategory Cᵒᵖ c)ᵒᵖ ⥤ HomotopyCategory C c.sy
       exact
         Nonempty.intro
           { hom := fun i j => (H.hom j i).unop
-            zero' := fun i j hij => by rw [H.zero j i hij, unop_zero]
+            zero := fun i j hij => by dsimp only; rw [H.zero j i hij, unop_zero]
             comm := fun i => by
               apply Quiver.Hom.op_inj
               simp only [HomologicalComplex.unopFunctor_map_f, op_add, Quiver.Hom.op_unop,
                 Quiver.Hom.unop_op, H.comm i]
-              conv_lhs =>
-                congr
-                rw [add_comm]
-              congr 2 })
+              first
+                | simpa using congrArg Quiver.Hom.op (H.comm i)
+                | simpa [dNext, prevD] using congrArg Quiver.Hom.op (H.comm i)
+                | (unfold dNext prevD at *; simp_all [op_add])
+                | (abel_nf; congr 2) })
 
 def quotientUnopFunctor :
     (quotient Cᵒᵖ c).op ⋙ unopFunctor ≅ HomologicalComplex.unopFunctor ⋙ quotient C c.symm :=
-  NatIso.ofComponents (fun X => eqToIso (by rfl)) fun X Y f => by dsimp;
-    simpa only [Category.comp_id, Category.id_comp]
+  CategoryTheory.NatIso.ofComponents (app := fun X => eqToIso (by rfl))
+    (naturality := fun {X Y} f => by
+      -- Porting note: unfold the definition of `opFunctor` and use the lemma for lifts through quotients
+      dsimp [unopFunctor]
+      erw [CategoryTheory.Quotient.lift_map_functor_map]
+      simp)
 
 end HomotopyCategory
 
