@@ -7,7 +7,14 @@ import LiquidTensorExperiment.Prop819.StrictComplexIso
 
 noncomputable section
 
+open CategoryTheory
+
 universe u
+
+-- Porting note: Lean 4 does not see the `0` of `(forget SemiNormedGroupCat).obj A` (the
+-- underlying type of an object), so we provide it explicitly.
+instance instZeroForgetObj (A : SemiNormedGroupCat.{u}) : Zero ((forget SemiNormedGroupCat).obj A) :=
+  inferInstanceAs (Zero A)
 
 variable (C D : CochainComplex SemiNormedGroupCat.{u} ℕ)
 
@@ -21,14 +28,15 @@ open scoped NNReal
 
 theorem cmpl_exact_of_exact (ε : ℝ≥0) (hε : 0 < ε)
     (cond :
-      ∀ (n : ℕ) (f : C.pt (n + 1)) (hf : C.d (n + 1) (n + 2) f = 0),
-        ∃ g : C.pt n, C.d _ _ g = f ∧ ‖g‖₊ ≤ ‖f‖₊)
-    (n : ℕ) (f : (cmpl C).pt (n + 1)) (hf : (cmpl C).d _ (n + 2) f = 0) :
-    ∃ g : (cmpl C).pt n, (cmpl C).d _ _ g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊ :=
+      ∀ (n : ℕ) (f : C.X (n + 1)) (hf : C.d (n + 1) (n + 2) f = 0),
+        ∃ g : C.X n, C.d _ _ g = f ∧ ‖g‖₊ ≤ ‖f‖₊)
+    (n : ℕ) (f : (cmpl C).X (n + 1)) (hf : (cmpl C).d _ (n + 2) f = 0) :
+    ∃ g : (cmpl C).X n, (cmpl C).d _ _ g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊ :=
   by
   have :=
+    -- Porting note: the Lean 3 placeholders `_` become side goals (`?_`), as in Lean 3
     @controlled_exactness (C.X (n + 1)) (C.X n) (C.X (n + 2)) _ _ _ (C.d _ _) 1 zero_lt_one 1
-      (C.d _ _) _ _ ε hε f _
+      (C.d _ _) ?_ ?_ ε hε f ?_
   · rcases this with ⟨g, hg1, hg2⟩
     exact ⟨g, hg1, hg2⟩
   · intro g hg
@@ -50,7 +58,7 @@ theorem cmpl_exact_of_exact (ε : ℝ≥0) (hε : 0 < ε)
     exact hf
 
 theorem injective_of_strictIso (F : StrictIso C D)
-    (cond : ∀ (f : C.pt 0) (hf : C.d 0 1 f = 0), f = 0) (f : D.pt 0) (hf : D.d 0 1 f = 0) : f = 0 :=
+    (cond : ∀ (f : C.X 0) (hf : C.d 0 1 f = 0), f = 0) (f : D.X 0) (hf : D.d 0 1 f = 0) : f = 0 :=
   by
   let FF := (HomologicalComplex.eval _ _ 0).mapIso F.iso
   have : f = (FF.inv ≫ FF.hom) f := by rw [FF.inv_hom_id]; simp
@@ -67,10 +75,10 @@ theorem injective_of_strictIso (F : StrictIso C D)
 
 theorem exact_of_strictIso (F : StrictIso C D) (ε : ℝ≥0) (hε : 0 < ε)
     (cond :
-      ∀ (n : ℕ) (f : C.pt (n + 1)) (hf : C.d _ (n + 2) f = 0),
-        ∃ g : C.pt n, C.d _ _ g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊)
-    (n : ℕ) (f : D.pt (n + 1)) (hf : D.d _ (n + 2) f = 0) :
-    ∃ g : D.pt n, D.d _ _ g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊ :=
+      ∀ (n : ℕ) (f : C.X (n + 1)) (hf : C.d _ (n + 2) f = 0),
+        ∃ g : C.X n, C.d _ _ g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊)
+    (n : ℕ) (f : D.X (n + 1)) (hf : D.d _ (n + 2) f = 0) :
+    ∃ g : D.X n, D.d _ _ g = f ∧ ‖g‖₊ ≤ (1 + ε) * ‖f‖₊ :=
   by
   specialize cond n (((HomologicalComplex.eval _ _ (n + 1)).mapIso F.iso).inv f) _
   · dsimp [HomologicalComplex.eval]

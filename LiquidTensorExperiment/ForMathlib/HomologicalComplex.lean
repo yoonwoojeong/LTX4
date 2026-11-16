@@ -37,13 +37,13 @@ variable {C}
 variable (A : ChainComplex (ShortExactSequence C) ℕ)
 
 instance fstSnd_mono (n : ℕ) : Mono (((fstSnd C).app A).f n) :=
-  (A.pt n).mono'
+  (A.X n).mono'
 
 instance sndTrd_epi (n : ℕ) : Epi (((sndTrd C).app A).f n) :=
-  (A.pt n).epi'
+  (A.X n).epi'
 
 theorem fstSnd_trd_exact (n : ℕ) : Exact (((fstSnd C).app A).f n) (((sndTrd C).app A).f n) :=
-  (A.pt n).exact'
+  (A.X n).exact'
 
 end HomologicalComplex
 

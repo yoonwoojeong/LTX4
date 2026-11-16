@@ -69,22 +69,23 @@ namespace Hom
 variable {C₁ C₂ : CochainComplex 𝓐 ℕ} {A₁ A₂ : 𝓐} {d₁ : A₁ ⟶ C₁.X 0} {d₂ : A₂ ⟶ C₂.X 0}
   (h₁ : d₁ ≫ C₁.d 0 1 = 0) (h₂ : d₂ ≫ C₂.d 0 1 = 0) (f : A₁ ⟶ A₂) (g : C₁ ⟶ C₂)
 
-def Cons.f : ∀ i : ℕ, (C₁.cons A₁ d₁ h₁).pt i ⟶ (C₂.cons A₂ d₂ h₂).pt i
+-- Porting note: Lean 3 `cons.f`; renamed because the last name component `f` clashes with the
+-- section variable `f` in Lean 4.
+def Cons.fn : ∀ i : ℕ, (C₁.cons A₁ d₁ h₁).X i ⟶ (C₂.cons A₂ d₂ h₂).X i
   | 0 => f
   | i + 1 => g.f i
 
 theorem Cons.comm (w : f ≫ d₂ = d₁ ≫ g.f 0) :
     ∀ i j : ℕ,
       (ComplexShape.up ℕ).Rel i j →
-        Cons.f h₁ h₂ f g i ≫ (C₂.cons A₂ d₂ h₂).d i j =
-          (C₁.cons A₁ d₁ h₁).d i j ≫ Cons.f h₁ h₂ f g j
+        Cons.fn h₁ h₂ f g i ≫ (C₂.cons A₂ d₂ h₂).d i j =
+          (C₁.cons A₁ d₁ h₁).d i j ≫ Cons.fn h₁ h₂ f g j
   | 0, 1, rfl => w
   | i + 1, _, rfl => g.comm i (i + 1)
 
-def cons (w : f ≫ d₂ = d₁ ≫ g.f 0) : C₁.cons A₁ d₁ h₁ ⟶ C₂.cons A₂ d₂ h₂
-    where
-  f := Cons.f h₁ h₂ f g
-  comm' := Cons.comm h₁ h₂ f g w
+def cons (w : f ≫ d₂ = d₁ ≫ g.f 0) : C₁.cons A₁ d₁ h₁ ⟶ C₂.cons A₂ d₂ h₂ :=
+  { f := Cons.fn h₁ h₂ f g
+    comm' := Cons.comm h₁ h₂ f g w }
 
 section SimpLemmas
 

@@ -29,10 +29,10 @@ theorem strictIso_inv {A B : SemiNormedGroupCat} (f : A ≅ B) [SemiNormedGroupC
 end SemiNormedGroupCat
 
 structure StrictIso (C D : CochainComplex SemiNormedGroupCat ℕ) where
-  Iso : C ≅ D
+  iso : C ≅ D
   [isStrict : ∀ i : ℕ, SemiNormedGroupCat.StrictIso <| (HomologicalComplex.eval _ _ i).mapIso iso]
 
 instance (C D : CochainComplex SemiNormedGroupCat ℕ) (f : StrictIso C D) (n : ℕ) :
-    SemiNormedGroupCat.StrictIso ((HomologicalComplex.eval _ _ n).mapIso f.Iso) :=
+    SemiNormedGroupCat.StrictIso ((HomologicalComplex.eval _ _ n).mapIso f.iso) :=
   f.isStrict _
 
