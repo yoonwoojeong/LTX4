@@ -118,13 +118,14 @@ noncomputable def preservesHomologyOfExact (i : ι) :
     refine'
       homology'IsoCokernelLift _ _ _ ≪≫
         cokernel.mapArrowIso _ _ (Arrow.isoMk _ _ _) ≪≫
-          (PreservesCokernel.iso _ _).symm ≪≫ F.map_iso (homology'IsoCokernelLift _ _ _).symm
-    · exact iso.refl _
+          (PreservesCokernel.iso _ _).symm ≪≫ F.mapIso (homology'IsoCokernelLift _ _ _).symm
+    · exact Iso.refl _
     · refine' kernel.mapArrowIso _ _ (Arrow.isoMk _ _ _) ≪≫ (PreservesKernel.iso _ _).symm
-      · exact iso.refl _
-      · exact iso.refl _
-      · dsimp; rw [Category.id_comp, F.map_homological_complex_d_from, Category.comp_id]
-    · dsimp; rw [← Category.assoc, Iso.eq_comp_inv]; ext; simp [F.map_homological_complex_d_to]
+      · exact Iso.refl _
+      · exact Iso.refl _
+      · dsimp
+        simp [HomologicalComplex.dFrom, CategoryTheory.Functor.mapHomologicalComplex_obj_d]
+    · dsimp; rw [← Category.assoc, Iso.eq_comp_inv]; ext; simp [HomologicalComplex.dTo, CategoryTheory.Functor.mapHomologicalComplex_obj_d]
   · intro X Y f; apply homology'.hom_from_ext
     simp only [CategoryTheory.Limits.kernel.mapArrowIso_hom, CategoryTheory.Functor.mapIso_inv,
       CategoryTheory.Functor.mapHomologicalComplex_map_f, HomologicalComplex.Hom.sqFrom_right,

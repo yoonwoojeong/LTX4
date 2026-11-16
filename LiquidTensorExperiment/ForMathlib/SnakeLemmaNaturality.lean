@@ -4,9 +4,9 @@ import LiquidTensorExperiment.ForMathlib.SnakeLemma
 
 namespace CategoryTheory
 
-local notation x "⟶[" D "]" y => D.map (SnakeDiagram.hom x y)
 
 namespace SnakeLemma
+
 
 open CategoryTheory.Limits
 
@@ -29,7 +29,7 @@ theorem aux1 (hF : IsSnakeInput F) (hG : IsSnakeInput G) :
 
 @[reassoc]
 theorem aux2 (hF : IsSnakeInput F) (hG : IsSnakeInput G) :
-    kernel.lift ((1, 2)⟶[G](2, 2)) (kernel.ι ((1, 2)⟶[F](2, 2)) ≫ η.app (1, 2))
+    kernel.lift (((G).map (SnakeDiagram.hom (1, 2) (2, 2)))) (kernel.ι (((F).map (SnakeDiagram.hom (1, 2) (2, 2)))) ≫ η.app (1, 2))
           (by simp only [Category.assoc, ← η.naturality, kernel.condition_assoc, zero_comp]) ≫
         inv hG.cokernelToTopRightKernelToRightKernel =
       inv hF.cokernelToTopRightKernelToRightKernel ≫
@@ -40,7 +40,7 @@ theorem aux2 (hF : IsSnakeInput F) (hG : IsSnakeInput G) :
           (by
             dsimp [IsSnakeInput.toTopRightKernel]
             simp only [← Category.assoc]; let t := _; change t ≫ _ = _
-            have ht : t = η.app _ ≫ kernel.lift ((1, 1)⟶[G](2, 2)) ((1, 0)⟶[G](1, 1)) _ := by
+            have ht : t = η.app _ ≫ kernel.lift (((G).map (SnakeDiagram.hom (1, 1) (2, 2)))) (((G).map (SnakeDiagram.hom (1, 0) (1, 1)))) _ := by
               apply equalizer.hom_ext; simp
             rw [ht, Category.assoc, cokernel.condition, comp_zero]) :=
   by
@@ -57,12 +57,12 @@ theorem aux2 (hF : IsSnakeInput F) (hG : IsSnakeInput G) :
 theorem aux3 (hF : IsSnakeInput F) (hG : IsSnakeInput G) :
     kernel.lift hG.bottomLeftCokernelTo
           (kernel.ι hF.bottomLeftCokernelTo ≫
-            cokernel.desc ((1, 0)⟶[F](2, 1)) (η.app (2, 1) ≫ cokernel.π ((1, 0)⟶[G](2, 1)))
+            cokernel.desc (((F).map (SnakeDiagram.hom (1, 0) (2, 1)))) (η.app (2, 1) ≫ cokernel.π (((G).map (SnakeDiagram.hom (1, 0) (2, 1)))))
               (by simp only [Category.assoc, η.naturality_assoc, cokernel.condition, comp_zero]))
           (by
             dsimp [IsSnakeInput.bottomLeftCokernelTo]
             simp only [Category.assoc]; let t := _; change _ ≫ t = _
-            have ht : t = cokernel.desc ((1, 0)⟶[F](2, 1)) ((2, 1)⟶[F](2, 2)) _ ≫ η.app _ := by
+            have ht : t = cokernel.desc (((F).map (SnakeDiagram.hom (1, 0) (2, 1)))) (((F).map (SnakeDiagram.hom (2, 1) (2, 2)))) _ ≫ η.app _ := by
               apply coequalizer.hom_ext; simp
             rw [ht, kernel.condition_assoc, zero_comp]) ≫
         inv hG.leftCokernelToKernelBottomLeftCokernelTo =
@@ -104,7 +104,7 @@ theorem δ_natural (hF : IsSnakeInput F) (hG : IsSnakeInput G) :
   rotate_left 2
   · dsimp only [IsSnakeInput.bottomLeftCokernelTo]; simp only [Category.assoc]
     let t := _; change _ ≫ t = _
-    have ht : t = cokernel.desc ((1, 0)⟶[F](2, 1)) ((2, 1)⟶[F](2, 2)) _ ≫ η.app _ :=
+    have ht : t = cokernel.desc (((F).map (SnakeDiagram.hom (1, 0) (2, 1)))) (((F).map (SnakeDiagram.hom (2, 1) (2, 2)))) _ ≫ η.app _ :=
       by
       apply coequalizer.hom_ext
       simp only [cokernel.π_desc_assoc, Category.assoc, cokernel.π_desc, NatTrans.naturality]
