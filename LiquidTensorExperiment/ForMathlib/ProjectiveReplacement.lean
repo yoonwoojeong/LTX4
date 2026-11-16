@@ -1,0 +1,910 @@
+import Mathlib.CategoryTheory.Abelian.Projective
+import LiquidTensorExperiment.ForMathlib.HomologicalComplexShift
+import Mathlib.Tactic.Linarith
+import Mathlib.Algebra.Homology.QuasiIso
+import Mathlib.Algebra.Homology.Homotopy
+import LiquidTensorExperiment.ForMathlib.AbelianCategory
+
+#align_import for_mathlib.projective_replacement
+
+open CategoryTheory CategoryTheory.Limits
+
+open scoped ZeroObject
+
+section ZeroObject
+
+variable {V : Type _} [Category V] [HasZeroMorphisms V]
+
+-- Porting note: `lemma` with data is a `def` in Lean 4
+noncomputable def splitEpiOfIsZero {X Y : V} (f : X ⟶ Y) (h : IsZero Y) : SplitEpi f :=
+  ⟨0, by simp [(IsZero.iff_id_eq_zero _).mp h]⟩
+
+theorem epi_of_isZero {X Y : V} (f : X ⟶ Y) (h : IsZero Y) : Epi f :=
+  SplitEpi.epi (splitEpiOfIsZero f h)
+
+-- Porting note: `lemma` with data is a `def` in Lean 4
+noncomputable def splitMonoOfIsZero {X Y : V} (f : X ⟶ Y) (h : IsZero X) : SplitMono f :=
+  ⟨0, by simp [(IsZero.iff_id_eq_zero _).mp h]⟩
+
+theorem mono_of_isZero_object {X Y : V} (f : X ⟶ Y) (h : IsZero X) : Mono f :=
+  SplitMono.mono (splitMonoOfIsZero f h)
+
+theorem isIso_of_isZero {X Y : V} (f : X ⟶ Y) (h₁ : IsZero X) (h₂ : IsZero Y) : IsIso f :=
+  by
+  use 0
+  rw [(IsZero.iff_id_eq_zero _).mp h₁, (IsZero.iff_id_eq_zero _).mp h₂]
+  constructor <;> simp
+
+end ZeroObject
+
+variable {V : Type _} [Category V] [Abelian V] [EnoughProjectives V] (X : CochainComplex V ℤ)
+
+variable (a : ℤ) (H : ∀ (i) (h : a ≤ i), IsZero (X.X i))
+
+theorem comp_eqToHom_hEq_iff {C : Type _} [Category C] {X X' Y Y' Y'' : C} (f : X ⟶ Y)
+    (f' : X' ⟶ Y') (e : Y = Y'') : HEq (f ≫ eqToHom e) f' ↔ HEq f f' := by
+  subst e
+  erw [Category.comp_id]
+
+theorem eqToHom_comp_hEq_iff {C : Type _} [Category C] {X X' Y Y' X'' : C} (f : X ⟶ Y)
+    (f' : X' ⟶ Y') (e : X'' = X) : HEq (eqToHom e ≫ f) f' ↔ HEq f f' := by
+  subst e
+  erw [Category.id_comp]
+
+theorem hEq_eqToHom_comp_iff {C : Type _} [Category C] {X X' Y Y' X'' : C} (f : X ⟶ Y)
+    (f' : X' ⟶ Y') (e : X'' = X') : HEq f (eqToHom e ≫ f') ↔ HEq f f' := by
+  subst e
+  erw [Category.id_comp]
+
+theorem hEq_comp_eqToHom_iff {C : Type _} [Category C] {X X' Y Y' Y'' : C} (f : X ⟶ Y)
+    (f' : X' ⟶ Y') (e : Y' = Y'') : HEq f (f' ≫ eqToHom e) ↔ HEq f f' := by
+  subst e
+  erw [Category.comp_id]
+
+namespace CategoryTheory.Projective
+
+-- Porting note: Lean 3 `include H`; `H` is not used in the body, so we bind it explicitly
+noncomputable def replacementAux (H : ∀ (i) (h : a ≤ i), IsZero (X.X i)) : ∀ n : ℕ, Σ f : Arrow V, f.left ⟶ X.X (a - n)
+  | 0 => ⟨⟨0, 0, 0⟩, 0⟩
+  | n + 1 =>
+    ⟨⟨over
+          (pullback (X.d (a - n - 1) (a - n))
+            (kernel.ι (replacementAux H n).1.hom ≫ (replacementAux H n).2)),
+        (replacementAux H n).1.left, π _ ≫ pullback.snd ≫ kernel.ι _⟩,
+      π _ ≫ pullback.fst ≫ (X.xEqToIso (by norm_num; exact sub_sub _ _ _)).hom⟩
+
+theorem replacementAux_right_eq (n : ℕ) :
+    (replacementAux X a H (n + 1)).1.right = (replacementAux X a H n).1.left := by
+  simp only [replacementAux]; exact rfl
+
+theorem replacementAux_hom_eq (n : ℕ) :
+    (replacementAux X a H (n + 1)).1.hom =
+      eqToHom (by simp only [replacementAux]; exact rfl) ≫
+        π
+            (pullback (X.d (a - n - 1) (a - n))
+              (kernel.ι (replacementAux X a H n).1.hom ≫ (replacementAux X a H n).2)) ≫
+          pullback.snd ≫
+            kernel.ι (replacementAux X a H n).1.hom ≫
+              eqToHom (by simp only [replacementAux]; exact rfl) :=
+  by simp only [replacementAux]; erw [Category.id_comp, Category.comp_id]
+
+theorem replacementAux_snd_comm (n : ℕ) :
+    (replacementAux X a H (n + 1)).1.hom ≫
+        eqToHom (replacementAux_right_eq X a H n) ≫ (replacementAux X a H n).2 =
+      (replacementAux X a H (n + 1)).2 ≫ X.d _ _ :=
+  by
+  rw [CategoryTheory.Projective.replacementAux_hom_eq]
+  simp only [Category.id_comp, CategoryTheory.eqToHom_refl, Category.assoc, CategoryTheory.eqToHom_trans_assoc]
+  simp only [replacementAux]
+  rw [← pullback.condition]
+  erw [Category.assoc, Category.assoc, HomologicalComplex.xEqToIso_d]
+
+noncomputable def replacement : CochainComplex V ℤ
+    where
+  X i := if a < i then 0 else (replacementAux X a H ((a - i).natAbs + 1)).1.right
+  d i j :=
+    if h₁ : i + 1 = j then
+      if h₂ : j > a then 0
+      else
+        eqToHom
+            (by
+              -- Porting note: `dsimp only` to beta reduce the goal
+              dsimp only
+              rw [if_neg, CategoryTheory.Projective.replacementAux_right_eq, Functor.id_obj]
+              subst h₁
+              suffices (a - i).natAbs = (a - (i + 1)).natAbs + 1 by rw [this]
+              apply Int.ofNat.inj
+              norm_num [← Int.abs_eq_natAbs]
+              rw [abs_eq_self.mpr _, abs_eq_self.mpr _]
+              all_goals linarith) ≫
+          (replacementAux X a H ((a - j).natAbs + 1)).fst.hom ≫ eqToHom (if_neg h₂).symm
+    else 0
+  shape _ _ e := dif_neg e
+  d_comp_d' := by
+    rintro i j k (rfl : i + 1 = j) (rfl : i + 1 + 1 = k)
+    simp only [dif_pos, dif_ctx_congr]
+    by_cases h : i + 1 + 1 > a
+    · rw [dif_pos h, comp_zero]
+    rw [dif_neg h, dif_neg]
+    rw [← Category.assoc, ← Category.assoc, ← IsIso.eq_comp_inv]
+    simp only [Category.assoc, CategoryTheory.eqToHom_trans_assoc]
+    rw [← IsIso.eq_inv_comp, zero_comp, comp_zero, CategoryTheory.Projective.replacementAux_hom_eq]
+    simp only [Category.assoc, CategoryTheory.eqToHom_trans_assoc]
+    -- Porting note: `iterate 3 convert comp_zero` and the `convert`/`congr` steps do not work well in
+    -- Lean 4, so the vanishing of the kernel composite is proved by an auxiliary statement
+    have this : (a - (i + 1)).natAbs = (a - (i + 1 + 1)).natAbs + 1 := by
+      apply Int.ofNat.inj
+      norm_num [← Int.abs_eq_natAbs]
+      rw [abs_eq_self.mpr _, abs_eq_self.mpr _]
+      all_goals linarith
+    have key : ∀ (k m : ℕ) (e : k = m + 1)
+        (e' : (replacementAux X a H k).fst.left = (replacementAux X a H (m + 1)).fst.left),
+        kernel.ι (replacementAux X a H k).fst.hom ≫ eqToHom e' ≫
+          (replacementAux X a H (m + 1)).fst.hom = 0 := by
+      intro k m e e'
+      subst e
+      simp
+    have h0 : ∀ e', kernel.ι (replacementAux X a H (a - (i + 1)).natAbs).fst.hom ≫ eqToHom e' ≫
+        (replacementAux X a H ((a - (i + 1 + 1)).natAbs + 1)).fst.hom = 0 :=
+      fun e' => key _ _ this e'
+    simp only [h0, comp_zero]
+    linarith
+
+noncomputable def replacement.hom : replacement X a H ⟶ X
+    where
+  f i :=
+    if h : a < i then 0
+    else
+      eqToHom (if_neg h) ≫
+        eqToHom (by rw [CategoryTheory.Projective.replacementAux_right_eq]) ≫
+          (replacementAux X a H (a - i).natAbs).snd ≫
+            (X.xEqToIso
+                (by
+                  rw [← Int.abs_eq_natAbs, sub_eq_iff_eq_add, ← sub_eq_iff_eq_add', eq_comm,
+                    abs_eq_self]
+                  linarith)).hom
+  comm' := by
+    rintro i j (rfl : i + 1 = j)
+    -- Porting note: `dsimp only` to beta reduce the goal
+    dsimp only
+    split_ifs with h'
+    · rw [zero_comp, comp_zero]
+    · exfalso; linarith
+    · rename_i h
+      rw [comp_zero]; apply (H _ (le_of_lt h)).eq_of_tgt
+    · rename_i h
+      dsimp only [replacement]
+      rw [dif_pos rfl, dif_neg h]
+      simp only [← Category.assoc, CategoryTheory.eqToHom_trans_assoc]
+      rw [← IsIso.comp_inv_eq]
+      simp only [HomologicalComplex.x_d_eq_to_iso, HomologicalComplex.xEqToIso_inv, Category.assoc,
+        HomologicalComplex.xEqToIso_d, CategoryTheory.eqToHom_trans, IsIso.Iso.inv_hom]
+      rw [← IsIso.inv_comp_eq, CategoryTheory.inv_eqToHom, CategoryTheory.eqToHom_trans_assoc]
+      refine' Eq.trans _ (CategoryTheory.Projective.replacementAux_snd_comm X a H _).symm
+      suffices (a - (i + 1)).natAbs + 1 = (a - i).natAbs by
+        rw [← heq_iff_eq]
+        apply (eqToHom_comp_hEq_iff _ _ _).mpr
+        rw [this]
+      apply Int.ofNat.inj
+      norm_num [← Int.abs_eq_natAbs]
+      rw [abs_eq_self.mpr _, abs_eq_self.mpr _]
+      all_goals linarith
+
+-- Porting note: `V` is already implicit
+variable {A B C : V} (f : A ⟶ B) (g : B ⟶ C) (w : f ≫ g = 0)
+
+variable {A' B' C' : V} {f' : A' ⟶ B'} {g' : B' ⟶ C'} (w' : f' ≫ g' = 0)
+
+variable (α : Arrow.mk f ⟶ Arrow.mk f') (β : Arrow.mk g ⟶ Arrow.mk g')
+
+variable (p : α.right = β.left)
+
+instance : Epi (homology'.π f g w) := by delta homology'.π; infer_instance
+
+instance : StrongEpi (factorThruImage f) :=
+  strongEpi_factorThruImage_of_strongEpiMonoFactorisation <|
+    Classical.choice <| HasStrongEpiMonoFactorisations.has_fac f
+
+instance : Epi (factorThruImage f ≫ (imageSubobjectIso f).inv) :=
+  epi_comp _ _
+
+instance : Mono (homology'.ι f g w) := by delta homology'.ι; infer_instance
+
+@[reassoc (attr := simp)]
+theorem π_cokernelIsoOfEq {f₁ f₂ : A ⟶ B} (e : f₁ = f₂) :
+    cokernel.π f₁ ≫ (cokernelIsoOfEq e).hom = cokernel.π f₂ := by
+  subst e
+  erw [HasColimit.isoOfNatIso_ι_hom]
+  exact Category.id_comp _
+
+@[reassoc (attr := simp)]
+theorem Homology.π_iso_cokernel_lift_hom :
+    homology'.π f g w ≫ (homology'IsoCokernelLift f g w).hom =
+      (kernelSubobjectIso _).hom ≫ cokernel.π _ :=
+  by
+  simp only [Limits.cokernelEpiComp_inv, Iso.symm_hom, homology'IsoCokernelLift, Iso.trans_hom]
+  erw [homology'.π_desc_assoc]
+  simp only [cokernel.π_desc_assoc, Category.assoc, Iso.cancel_iso_hom_left, π_cokernelIsoOfEq]
+
+@[reassoc (attr := simp)]
+theorem Homology.π'_ι : homology'.π' f g w ≫ homology'.ι f g w = kernel.ι g ≫ cokernel.π f := by
+  delta homology'.π' homology'.ι homology'IsoKernelDesc; simp
+
+@[reassoc (attr := simp)]
+theorem Homology.π_ι :
+    homology'.π f g w ≫ homology'.ι f g w = (kernelSubobject _).arrow ≫ cokernel.π _ := by
+  rw [← homology'.π'_eq_π, Category.assoc, homology'.π'_ι, CategoryTheory.Limits.kernelSubobject_arrow_assoc]
+
+open scoped Pseudoelement
+
+open CategoryTheory.Abelian
+
+theorem mono_homology'_map_of_pseudoelement
+    (H : ∀ (x : B) (y : A') (h₁ : g x = 0) (h₂ : f' y = α.right x), ∃ z : A, f z = x) :
+    Mono (homology'.map w w' α β p) :=
+  by
+  apply Pseudoelement.mono_of_zero_of_map_zero
+  intro x e
+  obtain ⟨x', rfl⟩ := Pseudoelement.pseudo_surjective_of_epi (homology'.π f g w) x
+  rw [← Pseudoelement.comp_apply, homology'.π_map, Pseudoelement.comp_apply] at e 
+  obtain ⟨y, hy⟩ :=
+    (@Pseudoelement.pseudo_exact_of_exact _ _ _ _ _ _ _ (homology'.π f' g' w') (exact_cokernel _)).2
+      _ e
+  obtain ⟨y', rfl⟩ :=
+    Pseudoelement.pseudo_surjective_of_epi (factorThruImage f' ≫ (CategoryTheory.Limits.imageSubobjectIso _).inv) y
+  obtain ⟨z, e'⟩ :=
+    H ((CategoryTheory.Limits.kernelSubobject g).arrow x') y'
+      (by rw [← Pseudoelement.comp_apply, CategoryTheory.Limits.kernelSubobject_arrow_comp, Pseudoelement.zero_apply])
+      (by simpa [← Pseudoelement.comp_apply, p] using congr_arg (CategoryTheory.Limits.kernelSubobject g').arrow hy)
+  have :
+    f =
+      (factorThruImage f ≫ (CategoryTheory.Limits.imageSubobjectIso _).inv ≫ imageToKernel f g w) ≫
+        (CategoryTheory.Limits.kernelSubobject g).arrow :=
+    by simp
+  rw [this, Pseudoelement.comp_apply] at e' 
+  have := Pseudoelement.pseudo_injective_of_mono _ e'; subst this
+  simp [← Pseudoelement.comp_apply]
+
+theorem mono_homology'_map_of_epi_pullback_lift
+    (H :
+      Epi
+        (pullback.lift _ _ (show α.left ≫ f' = kernel.lift g f w ≫ kernel.ι _ ≫ α.right by simp))) :
+    Mono (homology'.map w w' α β p) :=
+  by
+  apply CategoryTheory.Projective.mono_homology'_map_of_pseudoelement
+  intro x y e₁ e₂
+  obtain ⟨x', rfl⟩ := (@Pseudoelement.pseudo_exact_of_exact _ _ _ _ _ _ _ _ exact_kernel_ι).2 x e₁
+  rw [← Pseudoelement.comp_apply] at e₂ 
+  obtain ⟨z, rfl, rfl⟩ := Pseudoelement.pseudo_pullback e₂
+  -- Porting note: Lean 3 `@@` (instance-explicit) replaced by `haveI`
+  haveI := H
+  obtain ⟨z', rfl⟩ := Pseudoelement.pseudo_surjective_of_epi
+      (pullback.lift _ _ (show α.left ≫ f' = kernel.lift g f w ≫ kernel.ι _ ≫ α.right by simp)) z
+  use z'
+  simp [← Pseudoelement.comp_apply]
+
+theorem epi_homology'_map_of_pseudoelement
+    (H :
+      ∀ (x : B') (h : g' x = 0), ∃ y : B, g y = 0 ∧ (cokernel.π f') (α.right y) = cokernel.π f' x) :
+    Epi (homology'.map w w' α β p) :=
+  by
+  apply Pseudoelement.epi_of_pseudo_surjective
+  intro x
+  obtain ⟨x', rfl⟩ := Pseudoelement.pseudo_surjective_of_epi (homology'.π f' g' w') x
+  obtain ⟨y, e₁, e₂⟩ :=
+    H ((CategoryTheory.Limits.kernelSubobject g').arrow x')
+      (by rw [← Pseudoelement.comp_apply, CategoryTheory.Limits.kernelSubobject_arrow_comp, Pseudoelement.zero_apply])
+  obtain ⟨y', rfl⟩ :=
+    (@Pseudoelement.pseudo_exact_of_exact _ _ _ _ _ _ _ _ exact_kernelSubobject_arrow).2 y e₁
+  use homology'.π f g w y'
+  apply Pseudoelement.pseudo_injective_of_mono (homology'.ι f' g' w')
+  rw [← Pseudoelement.comp_apply, ← Pseudoelement.comp_apply, homology'.π_map_assoc]
+  simpa [← Pseudoelement.comp_apply, p] using e₂
+
+attribute [local instance] epi_comp mono_comp
+
+noncomputable def pullbackCompMonoIso {X Y Z Z' : V} (f : X ⟶ Z) (g : Y ⟶ Z) (h : Z ⟶ Z') [Mono h] :
+    pullback (f ≫ h) (g ≫ h) ≅ pullback f g :=
+  limit.isoLimitCone ⟨_, pullbackIsPullbackOfCompMono f g h⟩
+
+@[reassoc (attr := simp)]
+theorem pullbackCompMonoIso_fst {X Y Z Z' : V} (f : X ⟶ Z) (g : Y ⟶ Z) (h : Z ⟶ Z') [Mono h] :
+    (pullbackCompMonoIso f g h).hom ≫ pullback.fst = pullback.fst :=
+  limit.isoLimitCone_hom_π _ WalkingCospan.left
+
+theorem kernel_ι_replacementAux_eq_zero (i : ℕ) :
+    kernel.ι (replacementAux X a H i).fst.hom ≫
+        (replacementAux X a H i).snd ≫ X.d (a - i) (a - i + 1) =
+      0 :=
+  by
+  cases' i with i
+  · dsimp [replacementAux]; simp
+  · have : a - i.succ + 1 = a - i := by norm_num [sub_add]
+    rw [this, ← CategoryTheory.Projective.replacementAux_snd_comm, kernel.condition_assoc, zero_comp]
+
+instance replacement_kernel_map_epi (i : ℕ) :
+    Epi
+      (kernel.lift (X.d (a - i) (a - i + 1))
+        (kernel.ι (replacementAux X a H i).fst.hom ≫ (replacementAux X a H i).snd)
+        (by rw [Category.assoc, kernel_ι_replacementAux_eq_zero])) :=
+  by
+  cases' i with i
+  · apply epi_of_isZero
+    refine' CategoryTheory.Limits.isZero_of_mono (kernel.ι _) _
+    · apply H; simp
+  · apply Pseudoelement.epi_of_pseudo_surjective
+    intro x
+    -- Porting note: the side goal of `pseudo_pullback` is proved first, as a `have`
+    have hc : X.d (a - i - 1) (a - i)
+        ((X.xEqToIso (by norm_num [sub_sub])).hom (kernel.ι (X.d _ _) x)) =
+        (kernel.ι (replacementAux X a H i).fst.hom ≫ (replacementAux X a H i).snd)
+          (0 : Pseudoelement (kernel (replacementAux X a H i).fst.hom)) := by
+      simp only [← Pseudoelement.comp_apply, Category.assoc, HomologicalComplex.xEqToIso_d,
+        Pseudoelement.apply_zero]
+      have e : a - (i : ℤ) = a - ((Nat.succ i : ℕ) : ℤ) + 1 := by push_cast; ring
+      rw [e, kernel.condition, Pseudoelement.zero_apply]
+    obtain ⟨y, h₁, h₂⟩ := Pseudoelement.pseudo_pullback hc
+    obtain ⟨z, rfl⟩ := Pseudoelement.pseudo_surjective_of_epi (CategoryTheory.Projective.π _) y
+    apply_fun kernel.ι (replacementAux X a H i).fst.hom at h₂ 
+    simp only [← Pseudoelement.comp_apply, Category.assoc, Pseudoelement.apply_zero] at h₂ 
+    obtain ⟨w, rfl⟩ := (@Pseudoelement.pseudo_exact_of_exact _ _ _ _ _ _ _ _ exact_kernel_ι).2 z h₂
+    dsimp [replacementAux]
+    use w
+    simp only [← Pseudoelement.comp_apply] at h₁ 
+    apply
+      Pseudoelement.pseudo_injective_of_mono
+        (kernel.ι (X.d (a - ↑(i + 1)) (a - ↑(i + 1) + 1)) ≫ (HomologicalComplex.xEqToIso X _).hom)
+    refine' Eq.trans _ h₁
+    simp only [← Pseudoelement.comp_apply, Category.assoc]
+    congr 1
+    refine' (kernel.lift_ι_assoc _ _ _ _).trans _
+    simpa
+
+instance (i : ℕ) : Epi (replacementAux X a H i).snd :=
+  by
+  cases' i with i <;> dsimp [replacementAux]
+  · apply epi_of_isZero; apply H; simp
+  · -- Porting note: `apply_with epi_comp { instances := ff }` replaced by explicit `refine`
+    refine @epi_comp _ _ _ _ _ _ inferInstance _ ?_
+    refine @epi_comp _ _ _ _ _ _ ?_ _ inferInstance
+    let e :
+      pullback (X.d (a - i - 1) (a - i))
+          (kernel.ι (replacementAux X a H i).fst.hom ≫ (replacementAux X a H i).snd) ≅
+        pullback (kernel.lift (X.d (a - i) (a - i + 1)) _ _) (kernel.lift _ _ _) :=
+      by
+      refine'
+        pullback.congrHom (kernel.lift_ι _ _ (X.d_comp_d _ _ _)).symm (kernel.lift_ι _ _ _).symm ≪≫
+          CategoryTheory.Projective.pullbackCompMonoIso _ _ (kernel.ι _)
+      rw [Category.assoc, kernel_ι_replacementAux_eq_zero]
+    have : e.hom ≫ pullback.fst = pullback.fst := by simp
+    refine' (eq_iff_iff.mp (congr_arg Epi this)).mp _
+    infer_instance
+
+noncomputable def homologyFunctorObjIso (X) (i : ℤ) :
+    (homology'Functor V (ComplexShape.up ℤ) i).obj X ≅
+      homology' _ _ (X.d_comp_d (i - 1) i (i + 1)) :=
+  homology'.mapIso _ _
+    (Arrow.isoMk (X.xPrevIso (sub_add_cancel _ _)) (Iso.refl _) (by dsimp; simp [← X.dTo_eq]))
+    (Arrow.isoMk (Iso.refl _) (X.xNextIso rfl) (by dsimp; simp)) (by dsimp)
+
+theorem homology'Functor_map_iso {X Y : CochainComplex V ℤ} (f : X ⟶ Y) (i : ℤ) :
+    (homology'Functor V (ComplexShape.up ℤ) i).map f =
+      (homologyFunctorObjIso X i).hom ≫
+        homology'.map _ _ (Arrow.homMk (f.comm _ _)) (Arrow.homMk (f.comm _ _)) rfl ≫
+          (homologyFunctorObjIso Y i).inv :=
+  by
+  delta CategoryTheory.Projective.homologyFunctorObjIso homology'.mapIso
+  simp only [homology'Functor_map, homology'.map_comp]
+  congr <;> ext <;> dsimp
+  · rw [HomologicalComplex.Hom.prev_eq]
+  · simp only [Category.comp_id, Category.id_comp]
+  · simp only [Category.comp_id, Category.id_comp]
+  · rw [HomologicalComplex.Hom.next_eq]
+
+theorem mono_homology'Functor_of_pseudoelement (i : ℤ) {X Y : CochainComplex V ℤ} (f : X ⟶ Y)
+    (H :
+      ∀ (x : X.X i) (y : Y.X (i - 1)),
+        X.d i (i + 1) x = 0 → Y.d (i - 1) i y = f.f i x → ∃ z : X.X (i - 1), X.d (i - 1) i z = x) :
+    Mono ((homology'Functor V (ComplexShape.up ℤ) i).map f) :=
+  by
+  haveI :=
+    CategoryTheory.Projective.mono_homology'_map_of_pseudoelement _ _ (X.d_comp_d (i - 1) i (i + 1))
+      (Y.d_comp_d (i - 1) i (i + 1)) (Arrow.homMk (f.comm _ _)) (Arrow.homMk (f.comm _ _)) rfl H
+  rw [CategoryTheory.Projective.homology'Functor_map_iso]
+  infer_instance
+
+attribute [local instance] Pseudoelement.setoid
+
+theorem Pseudoelement.id_apply {X : V} (x : X) : @CoeFun.coe _ _ Pseudoelement.homToFun (𝟙 X) x = x :=
+  by
+  -- Porting note: `Quot.inductionOn` replaced by `Quotient.inductionOn`
+  refine Quotient.inductionOn x (fun a => ?_)
+  change Quot.mk _ (Over.mk (a.hom ≫ 𝟙 X)) = Quot.mk _ a
+  erw [Category.comp_id]
+  rcases a with ⟨_, ⟨⟨⟩⟩, _⟩
+  congr
+
+theorem replacementAux_comp_eq_zero (i : ℕ) :
+    (replacementAux X a H (i + 1)).fst.hom ≫
+        eqToHom (by dsimp [replacementAux]) ≫ (replacementAux X a H i).fst.hom =
+      0 :=
+  by
+  dsimp [replacementAux]
+  simp only [Category.assoc, Category.id_comp]
+  -- Porting note: the `refine'`/`congr` steps replaced by `simp`
+  simp
+
+noncomputable def replacementHomologyMap (i : ℕ) :
+    homology' _ _ ((Category.assoc _ _ _).trans (replacementAux_comp_eq_zero X a H (i + 1))) ⟶
+      homology' _ _ (X.d_comp_d (a - (i + 1 : ℕ) - 1) (a - (i + 1 : ℕ)) (a - i)) :=
+  by
+  -- Porting note: the first arrow morphism is built first, so that the `HasImageMap` instance can be found
+  have h1 := (CategoryTheory.Projective.replacementAux_snd_comm X a H (i + 1)).symm.trans
+    (Category.assoc _ _ _).symm
+  have hai : a - ↑(i + 2) = a - ↑(i + 1) - 1 := by push_cast; ring
+  rw [← X.xEqToIso_d hai, ← Category.assoc] at h1
+  have h2 := (CategoryTheory.Projective.replacementAux_snd_comm X a H i).symm
+  let α : Arrow.mk ((replacementAux X a H (i + 1 + 1)).fst.hom ≫
+      eqToHom (by dsimp [replacementAux])) ⟶ Arrow.mk (X.d (a - ↑(i + 1) - 1) (a - ↑(i + 1))) :=
+    Arrow.homMk h1
+  let β : Arrow.mk (replacementAux X a H (i + 1)).fst.hom ⟶ Arrow.mk (X.d (a - ↑(i + 1)) (a - ↑i)) :=
+    Arrow.homMk h2
+  exact homology'.map _ _ α β rfl
+
+-- Porting note: the terms involved are large, so more heartbeats are needed in Lean 4
+set_option maxHeartbeats 1000000 in
+instance (i : ℕ) : Mono (replacementHomologyMap X a H i) :=
+  by
+  -- Porting note: `delta` needed to expose `homology'.map`
+  delta replacementHomologyMap
+  apply CategoryTheory.Projective.mono_homology'_map_of_epi_pullback_lift
+  dsimp [replacementAux]
+  -- Porting note: `convert` is very slow here, so we use an explicit auxiliary statement
+  have key : ∀ {S T : V} (u v : S ⟶ T), u = v → Epi v → Epi u := fun u v h _ => h ▸ ‹Epi v›
+  refine key _ (Projective.π _) ?_ inferInstance
+  apply pullback.hom_ext
+  ·
+    simpa only [Category.comp_id, Category.assoc, Arrow.homMk_left, X.xEqToIso_trans,
+      X.xEqToIso_refl, pullback.lift_fst]
+  · refine' (cancel_mono (kernel.ι _)).mp _
+    simp only [Category.comp_id, Category.assoc, Arrow.homMk_left, kernel.lift_ι,
+      X.xEqToIso_trans, pullback.lift_snd, X.xEqToIso_refl]
+
+theorem comp_left_epi_iff {V : Type _} [Category V] {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) [Epi f] :
+    Epi (f ≫ g) ↔ Epi g :=
+  ⟨fun h => by haveI := h; exact epi_of_epi f g, fun h => by haveI := h; exact epi_comp f g⟩
+
+theorem comp_right_epi_iff {V : Type _} [Category V] {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) [IsIso g] :
+    Epi (f ≫ g) ↔ Epi f :=
+  ⟨fun h => by haveI := h; simpa using epi_comp (f ≫ g) (inv g), fun h => by haveI := h; exact epi_comp f g⟩
+
+instance replacement_kernel_map_epi' (i : ℕ) :
+    Epi
+      (kernel.lift (X.d (a - (i + 1)) (a - i))
+        (kernel.ι (replacementAux X a H (i + 1)).fst.hom ≫ (replacementAux X a H (i + 1)).snd)
+        (by
+          rw [Category.assoc]
+          -- Porting note: `convert ... <;> norm_num [sub_add]` replaced by an explicit rewrite
+          have e : a - (i : ℤ) = a - ((i + 1 : ℕ) : ℤ) + 1 := by push_cast; ring
+          rw [e]
+          exact kernel_ι_replacementAux_eq_zero X a H (i + 1))) :=
+  by
+  -- Porting note: `convert` replaced by the explicit equation of the indices
+  have e : a - (i : ℤ) = a - ((i + 1 : ℕ) : ℤ) + 1 := by push_cast; ring
+  have := Projective.replacement_kernel_map_epi X a H (i + 1)
+  have key : ∀ (b : ℤ) (hb : b = a - ((i + 1 : ℕ) : ℤ) + 1)
+      (h0 : (kernel.ι (replacementAux X a H (i + 1)).fst.hom ≫ (replacementAux X a H (i + 1)).snd) ≫
+        X.d (a - ((i + 1 : ℕ) : ℤ)) b = 0),
+      Epi (kernel.lift (X.d (a - ((i + 1 : ℕ) : ℤ)) b)
+        (kernel.ι (replacementAux X a H (i + 1)).fst.hom ≫ (replacementAux X a H (i + 1)).snd) h0) := by
+    intro b hb h0
+    subst hb
+    exact this
+  exact key _ e _
+
+set_option maxHeartbeats 1000000 in
+instance (i : ℕ) : Epi (replacementHomologyMap X a H i) :=
+  by
+  -- Porting note: `delta` needed to expose `homology'.map`; `apply_with ... { instances := ff }`
+  -- replaced by explicit `refine`s
+  delta replacementHomologyMap
+  refine @epi_of_epi _ _ _ _ _ (homology'.π _ _ _) _ ?_
+  erw [homology'.π_map]
+  refine @epi_comp _ _ _ _ _ _ ?_ _ inferInstance
+  rw [← comp_left_epi_iff (CategoryTheory.Limits.kernelSubobjectIso _).inv, ←
+    comp_right_epi_iff _ (CategoryTheory.Limits.kernelSubobjectIso _).hom]
+  convert Projective.replacement_kernel_map_epi' X a H _ using 1
+  refine' (cancel_mono (kernel.ι _)).mp _
+  simp only [CategoryTheory.Limits.kernelSubobject_arrow'_assoc, Category.assoc, CategoryTheory.Limits.kernelSubobjectMap_arrow,
+    CategoryTheory.Limits.kernelSubobject_arrow, Arrow.homMk_left]
+  erw [kernel.lift_ι]
+
+instance (i : ℕ) : IsIso (replacementHomologyMap X a H i) :=
+  isIso_of_mono_of_epi _
+
+theorem replacementAux_eq_of_eq (i j : ℕ) (e : i + 1 = j) :
+    (replacementAux X a H j).1.right = (replacementAux X a H i).1.left :=
+  by
+  subst e
+  dsimp [replacementAux]
+
+theorem replacementAux_fst_hom_congr (i j : ℕ) (e : i = j) :
+    HEq (replacementAux X a H i).1.hom (replacementAux X a H j).1.hom := by
+  subst e
+  rfl
+
+theorem replacementAux_snd_congr (i j : ℕ) (e : i = j) :
+    HEq (replacementAux X a H i).2 (replacementAux X a H j).2 := by
+  subst e
+  rfl
+
+-- Porting note: auxiliary lemma replacing the Lean 3 `congr' 1` in `replacement_homology_eq`
+theorem homology'_congr_heq {A B C A' B' C' : V} {f : A ⟶ B} {g : B ⟶ C} {f' : A' ⟶ B'}
+    {g' : B' ⟶ C'} (w : f ≫ g = 0) (w' : f' ≫ g' = 0) (hA : A = A') (hB : B = B') (hC : C = C')
+    (hf : HEq f f') (hg : HEq g g') : homology' f g w = homology' f' g' w' := by
+  subst hA hB hC
+  cases hf
+  cases hg
+  rfl
+
+theorem replacement_homology'_eq (i : ℕ) :
+    homology' _ _ ((replacement X a H).d_comp_d (a - ↑(i + 1) - 1) (a - ↑(i + 1)) (a - i)) =
+      homology' _ _
+        -- Porting note: Lean 3's auto-generated `replacement_homology_map._proof_4`
+        ((Category.assoc _ _ _).trans (replacementAux_comp_eq_zero X a H (i + 1))) :=
+  by
+  dsimp only [replacement]
+  have e₁ : a - (↑i + 1) - 1 + 1 = a - (↑i + 1) := by norm_num [sub_add]
+  have e₂ : a - (↑i + 1) + 1 = a - ↑i := by norm_num [sub_add]
+  have e₃ : ¬a < a - (↑i + 1) - 1 := by simp only [tsub_le_iff_right, not_lt]; linarith
+  have e₄ : ¬a - (↑i + 1) > a := by simp only [gt_iff_lt, tsub_le_iff_right, not_lt]; linarith
+  have e₅ : ¬a - i > a := by simp only [gt_iff_lt, tsub_le_iff_right, not_lt]; linarith
+  have e₆ : (a - (a - (↑i + 1))).natAbs = i + 1 := by
+    rw [← sub_add, sub_self, zero_add]
+    exact Int.natAbs_ofNat (i + 1)
+  have e₇ : (a - (a - (↑i + 1) - 1)).natAbs = i + 1 + 1 := by
+    rw [sub_sub, ← sub_add, sub_self, zero_add]
+    exact Int.natAbs_ofNat (i + 1 + 1)
+  have e₈ : (a - (a - i)).natAbs = i := by norm_num
+  simp only [Nat.cast_add, Nat.cast_one, sub_add_cancel, eq_self_iff_true, gt_iff_lt, dif_pos,
+    not_lt, sub_le_self_iff, Nat.cast_nonneg, dif_neg, CategoryTheory.eqToHom_refl, Category.comp_id]
+  simp only [dif_pos e₁, dif_pos e₂, dif_neg e₄, dif_neg e₅]
+  -- Porting note: the equations below are restated with the casts `((i + 1 : ℕ) : ℤ)` that appear in the goals
+  have e₃' : ¬a < a - ((i + 1 : ℕ) : ℤ) - 1 := by push_cast; linarith
+  have e₄' : ¬a - ((i + 1 : ℕ) : ℤ) > a := by push_cast; linarith
+  have e₆' : (a - (a - ((i + 1 : ℕ) : ℤ))).natAbs = i + 1 := by
+    have : a - (a - ((i + 1 : ℕ) : ℤ)) = ((i + 1 : ℕ) : ℤ) := by ring
+    rw [this]
+    exact Int.natAbs_ofNat _
+  have e₇' : (a - (a - ((i + 1 : ℕ) : ℤ) - 1)).natAbs = i + 1 + 1 := by
+    have : a - (a - ((i + 1 : ℕ) : ℤ) - 1) = ((i + 1 + 1 : ℕ) : ℤ) := by push_cast; ring
+    rw [this]
+    exact Int.natAbs_ofNat _
+  have e₈' : (a - (a - (i : ℤ))).natAbs = i := by
+    have : a - (a - (i : ℤ)) = (i : ℤ) := by ring
+    rw [this]
+    exact Int.natAbs_ofNat _
+  have e₅' : ¬a < a - (i : ℤ) := by linarith
+  -- Porting note: `congr 1` in Lean 4 produces many more goals than in Lean 3, so we use `homology'_congr_heq`
+  refine homology'_congr_heq _ _ ?_ ?_ ?_ ?_ ?_
+  · rw [if_neg e₃']
+    exact replacementAux_eq_of_eq X a H (i + 1 + 1) _ (by rw [e₇'])
+  · rw [if_neg e₄']
+    exact replacementAux_eq_of_eq X a H (i + 1) _ (by rw [e₆'])
+  · rw [if_neg e₅', e₈']
+    rfl
+  · rw [eqToHom_comp_hEq_iff, comp_eqToHom_hEq_iff]
+    exact replacementAux_fst_hom_congr X a H _ _ (by rw [e₆'])
+  · rw [eqToHom_comp_hEq_iff, comp_eqToHom_hEq_iff]
+    exact replacementAux_fst_hom_congr X a H _ _ (by rw [e₈'])
+
+-- Porting note: auxiliary lemma replacing the Lean 3 `congr' 3` in `replacement_hom_homology_iso`
+theorem homology'_map_heq {A B C A' B' C' A₂ B₂ C₂ A₂' B₂' C₂' : V} {f : A ⟶ B} {g : B ⟶ C}
+    {f' : A' ⟶ B'} {g' : B' ⟶ C'} {f₂ : A₂ ⟶ B₂} {g₂ : B₂ ⟶ C₂} {f₂' : A₂' ⟶ B₂'}
+    {g₂' : B₂' ⟶ C₂'} {w : f ≫ g = 0} {w' : f' ≫ g' = 0} {w₂ : f₂ ≫ g₂ = 0}
+    {w₂' : f₂' ≫ g₂' = 0} {α : Arrow.mk f ⟶ Arrow.mk f'} {β : Arrow.mk g ⟶ Arrow.mk g'}
+    {α₂ : Arrow.mk f₂ ⟶ Arrow.mk f₂'} {β₂ : Arrow.mk g₂ ⟶ Arrow.mk g₂'} {p : α.right = β.left}
+    {p₂ : α₂.right = β₂.left} (hA : A = A₂) (hB : B = B₂) (hC : C = C₂) (hA' : A' = A₂')
+    (hB' : B' = B₂') (hC' : C' = C₂') (hf : HEq f f₂) (hg : HEq g g₂) (hf' : HEq f' f₂')
+    (hg' : HEq g' g₂') (hαl : HEq α.left α₂.left) (hαr : HEq α.right α₂.right)
+    (hβl : HEq β.left β₂.left) (hβr : HEq β.right β₂.right) :
+    HEq (homology'.map w w' α β p) (homology'.map w₂ w₂' α₂ β₂ p₂) := by
+  subst hA hB hC hA' hB' hC'
+  cases hf
+  cases hg
+  cases hf'
+  cases hg'
+  have hα : α = α₂ := Arrow.hom_ext _ _ (eq_of_heq hαl) (eq_of_heq hαr)
+  have hβ : β = β₂ := Arrow.hom_ext _ _ (eq_of_heq hβl) (eq_of_heq hβr)
+  subst hα hβ
+  rfl
+
+-- Porting note: auxiliary lemma (the Lean 3 proof used `delta` and `erw` on all goals at once)
+theorem xEqToIso_hom_eq' {ι : Type _} {c : ComplexShape ι} (Y : HomologicalComplex V c) {i j : ι}
+    (h : i = j) : (Y.xEqToIso h).hom = eqToHom (congr_arg Y.X h) :=
+  rfl
+
+-- Porting note: auxiliary lemma used in `replacement_hom_homology'_iso`
+theorem replacement_hom_f_heq (j : ℤ) (n : ℕ) (hj : ¬a < j) (hn : (a - j).natAbs = n) :
+    HEq ((replacement.hom X a H).f j) (replacementAux X a H n).snd := by
+  subst hn
+  dsimp only [replacement.hom]
+  rw [dif_neg hj, xEqToIso_hom_eq', eqToHom_comp_hEq_iff, eqToHom_comp_hEq_iff,
+    comp_eqToHom_hEq_iff]
+
+-- Porting note: the indices of `d_comp_d` and `comm`, which Lean 3 inferred by unification with the
+-- right hand side, are given explicitly
+theorem replacement_hom_homology'_iso (i : ℕ) :
+    homology'.map
+        ((replacement X a H).d_comp_d (a - ((i + 1 : ℕ) : ℤ) - 1) (a - ((i + 1 : ℕ) : ℤ)) (a - i))
+        (X.d_comp_d (a - ((i + 1 : ℕ) : ℤ) - 1) (a - ((i + 1 : ℕ) : ℤ)) (a - i))
+        (Arrow.homMk ((replacement.hom X a H).comm (a - ((i + 1 : ℕ) : ℤ) - 1) (a - ((i + 1 : ℕ) : ℤ))))
+        (Arrow.homMk ((replacement.hom X a H).comm (a - ((i + 1 : ℕ) : ℤ)) (a - i))) rfl =
+      eqToHom (replacement_homology'_eq X a H i) ≫ replacementHomologyMap X a H i :=
+  by
+  rw [← heq_iff_eq, hEq_eqToHom_comp_iff]
+  delta CategoryTheory.Projective.replacementHomologyMap
+  dsimp [replacement]
+  have e₃' : ¬a < a - ((i + 1 : ℕ) : ℤ) - 1 := by push_cast; linarith
+  have e₄' : ¬a - ((i + 1 : ℕ) : ℤ) > a := by push_cast; linarith
+  have e₅' : ¬a < a - (i : ℤ) := by linarith
+  have e₅'' : ¬a - (i : ℤ) > a := by linarith
+  have e₆' : (a - (a - ((i + 1 : ℕ) : ℤ))).natAbs = i + 1 := by
+    have : a - (a - ((i + 1 : ℕ) : ℤ)) = ((i + 1 : ℕ) : ℤ) := by ring
+    rw [this]
+    exact Int.natAbs_ofNat _
+  have e₇' : (a - (a - ((i + 1 : ℕ) : ℤ) - 1)).natAbs = i + 1 + 1 := by
+    have : a - (a - ((i + 1 : ℕ) : ℤ) - 1) = ((i + 1 + 1 : ℕ) : ℤ) := by push_cast; ring
+    rw [this]
+    exact Int.natAbs_ofNat _
+  have e₈' : (a - (a - (i : ℤ))).natAbs = i := by
+    have : a - (a - (i : ℤ)) = (i : ℤ) := by ring
+    rw [this]
+    exact Int.natAbs_ofNat _
+  have e₁' : a - ((i + 1 : ℕ) : ℤ) - 1 + 1 = a - ((i + 1 : ℕ) : ℤ) := by ring
+  have e₂' : a - ((i + 1 : ℕ) : ℤ) + 1 = a - (i : ℤ) := by push_cast; ring
+  refine homology'_map_heq ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_ ?_
+  · rw [if_neg e₃']
+    exact replacementAux_eq_of_eq X a H (i + 1 + 1) _ (by rw [e₇'])
+  · rw [if_neg e₄']
+    exact replacementAux_eq_of_eq X a H (i + 1) _ (by rw [e₆'])
+  · rw [if_neg e₅', e₈']
+  · rfl
+  · rfl
+  · rfl
+  · rw [dif_pos e₁', dif_neg e₄', eqToHom_comp_hEq_iff, comp_eqToHom_hEq_iff, Category.comp_id]
+    exact replacementAux_fst_hom_congr X a H _ _ (by rw [e₆'])
+  · rw [dif_pos e₂', dif_neg e₅'', eqToHom_comp_hEq_iff, comp_eqToHom_hEq_iff]
+    exact replacementAux_fst_hom_congr X a H _ _ (by rw [e₈'])
+  · exact HEq.rfl
+  · exact HEq.rfl
+  · refine (replacement_hom_f_heq X a H _ (i + 1 + 1) e₃' e₇').trans ?_
+    exact (hEq_comp_eqToHom_iff _ _ (congr_arg X.X
+      (show a - ((i + 1 + 1 : ℕ) : ℤ) = a - ((i + 1 : ℕ) : ℤ) - 1 by push_cast; ring))).mpr HEq.rfl
+  · exact replacement_hom_f_heq X a H _ (i + 1) (by simpa using e₄') e₆'
+  · exact replacement_hom_f_heq X a H _ (i + 1) (by simpa using e₄') e₆'
+  · refine (replacement_hom_f_heq X a H _ i e₅' e₈').trans ?_
+    exact heq_of_eq (Category.id_comp _).symm
+
+theorem homology'Functor_map_iso' {X Y : CochainComplex V ℤ} (f : X ⟶ Y) (i j k : ℤ)
+    (e₁ : i + 1 = j) (e₂ : j + 1 = k) :
+    (homology'Functor V (ComplexShape.up ℤ) j).map f =
+      (homologyFunctorObjIso X _).hom ≫
+        (eqToHom <| by
+          have e₁ : i = j - 1 := by simp [← e₁]
+          substs e₁ e₂
+          rfl) ≫
+          homology'.map (X.d_comp_d i j k) (Y.d_comp_d i j k) (Arrow.homMk (f.comm i j))
+              (Arrow.homMk (f.comm j k)) rfl ≫
+            (eqToHom <| by
+          have e₁ : i = j - 1 := by simp [← e₁]
+          substs e₁ e₂
+          rfl) ≫
+              (homologyFunctorObjIso Y _).inv :=
+  by
+  have e₁ : i = j - 1 := by simp [← e₁]
+  substs e₁ e₂
+  erw [Category.id_comp, Category.id_comp]
+  rw [CategoryTheory.Projective.homology'Functor_map_iso]
+
+theorem homology_isZero_of_bounded (i : ℤ) (e : a ≤ i) :
+    IsZero ((homology'Functor V (ComplexShape.up ℤ) i).obj X) :=
+  by
+  apply CategoryTheory.Limits.isZero_of_mono (homology'IsoCokernelImageToKernel' _ _ _).hom
+  apply CategoryTheory.Limits.isZero_of_epi (cokernel.π _)
+  apply CategoryTheory.Limits.isZero_of_mono (kernel.ι _)
+  apply H i e
+  all_goals infer_instance
+
+theorem replacement_is_projective (i : ℤ) : Projective ((replacement X a H).X i) :=
+  by
+  dsimp [replacement]
+  split_ifs
+  · infer_instance
+  · dsimp [replacementAux]
+    induction (a - i).natAbs <;> dsimp [replacementAux] <;> infer_instance
+
+instance (i : ℤ) : Epi ((replacement.hom X a H).f i) :=
+  by
+  dsimp [replacement.hom]
+  split_ifs with h
+  · apply epi_of_isZero; apply H; exact le_of_lt h
+  · infer_instance
+
+theorem replacement_is_bounded : ∀ (i) (h : a ≤ i), IsZero ((replacement X a H).X i) :=
+  by
+  intro i h
+  dsimp [replacement]
+  split_ifs
+  · exact isZero_zero _
+  · have : a = i := by linarith
+    subst this
+    rw [sub_self, Int.natAbs_zero]
+    dsimp [replacementAux]
+    exact isZero_zero _
+
+instance : QuasiIso' (replacement.hom X a H) :=
+  by
+  constructor
+  intro i
+  rw [← sub_add_cancel i a]
+  induction' i - a with i i
+  · apply isIso_of_isZero
+    exact CategoryTheory.Projective.homology_isZero_of_bounded _ a (replacement_is_bounded X a H) _ (by simp)
+    exact CategoryTheory.Projective.homology_isZero_of_bounded _ a H _ (by simp)
+  · rw [show Int.negSucc i + a = a - ↑(i + 1) by
+      rw [add_comm]
+      rfl]
+    -- Porting note: the side conditions are given first, so that instance search is not stuck on metavariables
+    rw [CategoryTheory.Projective.homology'Functor_map_iso' _ (a - ↑(i + 1) - 1) (a - ↑(i + 1))
+      (a - i) (sub_add_cancel _ _) (by push_cast; ring)]
+    rw [CategoryTheory.Projective.replacement_hom_homology'_iso X a H i]
+    haveI : IsIso (replacementHomologyMap X a H i) := inferInstance
+    infer_instance
+
+@[simps]
+-- Porting note: `_root_` is needed so the name is `CochainComplex.asNatChainComplex`
+def _root_.CochainComplex.asNatChainComplex (X : CochainComplex V ℤ) (a : ℤ) : ChainComplex V ℕ
+    where
+  X i := X.X (a - i)
+  d i j := X.d _ _
+  shape i j r := by
+    refine' X.shape _ _ fun e => r _
+    dsimp at e ⊢
+    -- Porting note: `Int.ofNat.inj` replaced by `exact_mod_cast`
+    have h : (i : ℤ) = j + 1 := by linarith
+    exact_mod_cast h.symm
+  d_comp_d' i j k _ _ := X.d_comp_d _ _ _
+
+@[simps]
+def _root_.CochainComplex.toNatChainComplex (a : ℤ) : CochainComplex V ℤ ⥤ ChainComplex V ℕ
+    where
+  obj X := X.asNatChainComplex a
+  map {X Y} f := { f := fun i => f.f _ }
+
+theorem isZero_iff_iso_zero (X : V) : IsZero X ↔ Nonempty (X ≅ 0) :=
+  ⟨fun e => ⟨e.isoZero⟩, fun ⟨e⟩ => isZero_of_iso_of_zero (isZero_zero _) e.symm⟩
+
+theorem Preadditive.exact_iff_homology'_isZero {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    Exact f g ↔ ∃ w, IsZero (homology' f g w) :=
+  by
+  rw [Preadditive.exact_iff_homology'_zero]
+  simp_rw [CategoryTheory.Projective.isZero_iff_iso_zero]
+
+noncomputable def nullHomotopicOfProjectiveToAcyclicAux {X Y : CochainComplex V ℤ} (f : X ⟶ Y)
+    (a : ℤ) (h₁ : ∀ i, Projective (X.X i)) (h₂ : ∀ i, a ≤ i → IsZero (X.X i))
+    (h₃ : ∀ i, IsZero ((homology'Functor _ _ i).obj Y)) :
+    Homotopy ((CochainComplex.toNatChainComplex a).map f) 0 :=
+  by
+  have h₄ : ∀ i, a ≤ i → f.f i = 0 := by intro i e; apply (h₂ i e).eq_of_src
+  fapply Homotopy.mkInductive _ 0
+  · dsimp; rw [zero_comp]; apply h₄; push_cast; linarith
+  all_goals dsimp
+  · have := f.comm (a - (0 + 1)) a
+    rw [h₄ _ (le_of_eq rfl), comp_zero] at this 
+    refine' Projective.factorThru (kernel.lift _ _ this) _
+    exact kernel.lift _ _ (Y.d_comp_d _ _ _)
+    · apply (config := { instances := false }) kernel.lift.epi
+      rw [Preadditive.exact_iff_homology'_isZero]
+      refine'
+        ⟨Y.d_comp_d _ _ _, is_zero_of_iso_of_zero (h₃ (a - (0 + 1))) (homology_iso _ _ _ _ _ _)⟩
+      all_goals dsimp; abel
+  · rw [comp_zero]; conv_rhs => rw [zero_add]
+    slice_rhs 2 3 => erw [← kernel.lift_ι _ _ (Y.d_comp_d (a - (0 + 1 + 1)) (a - (0 + 1)) a)]
+    erw [← Category.assoc, Projective.factorThru_comp, kernel.lift_ι]; rfl
+  · rintro n ⟨g₁, g₂, e⟩; dsimp only
+    have :
+      X.d (a - (n + 1 + 1)) (a - (n + 1)) ≫
+          (f.f (a - (↑n + 1)) - g₂ ≫ Y.d (a - (↑n + 1 + 1)) (a - (↑n + 1))) =
+        0 :=
+      by rw [← sub_eq_iff_eq_add] at e ; erw [e, X.d_comp_d_assoc, zero_comp]
+    rw [Preadditive.comp_sub, ← f.comm, ← Category.assoc, ← Preadditive.sub_comp] at this 
+    fconstructor
+    · refine' Projective.factorThru (kernel.lift _ _ this) _
+      exact kernel.lift _ _ (Y.d_comp_d _ _ _)
+      apply (config := { instances := false }) kernel.lift.epi
+      rw [Preadditive.exact_iff_homology'_isZero]
+      refine' ⟨Y.d_comp_d _ _ _, is_zero_of_iso_of_zero (h₃ _) (homology_iso _ _ _ _ _ _)⟩
+      all_goals dsimp; push_cast; abel
+    · rw [← sub_eq_iff_eq_add']
+      slice_rhs 2 3 =>
+        erw [← kernel.lift_ι (Y.d (a - (n + 1 + 1)) (a - (n + 1))) _ (Y.d_comp_d _ _ _)]
+      erw [← Category.assoc, Projective.factorThru_comp, kernel.lift_ι]; rfl
+
+noncomputable def nullHomotopicOfProjectiveToAcyclic {X Y : CochainComplex V ℤ} (f : X ⟶ Y) (a : ℤ)
+    (h₁ : ∀ i, Projective (X.X i)) (h₂ : ∀ i, a ≤ i → IsZero (X.X i))
+    (h₃ : ∀ i, IsZero ((homology'Functor _ _ i).obj Y)) : Homotopy f 0
+    where
+  hom i j :=
+    if h : i ≤ a ∧ j ≤ a then
+      by
+      refine'
+        (X.xEqToIso _).hom ≫
+          (CategoryTheory.Projective.nullHomotopicOfProjectiveToAcyclicAux f a h₁ h₂ h₃).hom (a - i).natAbs
+              (a - j).natAbs ≫
+            (Y.xEqToIso _).hom
+      swap; symm
+      all_goals
+        rw [← Int.abs_eq_natAbs, eq_sub_iff_add_eq, ← eq_sub_iff_add_eq', abs_eq_self]
+        cases h; rwa [sub_nonneg]
+    else 0
+  zero' := by
+    intro i j e
+    split_ifs
+    · cases h
+      rw [(CategoryTheory.Projective.nullHomotopicOfProjectiveToAcyclicAux f a h₁ h₂ h₃).zero, zero_comp, comp_zero]
+      intro e'; apply e
+      dsimp at e' ⊢
+      apply_fun (coe : ℕ → ℤ) at e' 
+      rw [Int.ofNat_add, ← Int.abs_eq_natAbs, ← Int.abs_eq_natAbs, abs_eq_self.mpr _,
+        abs_eq_self.mpr _, Int.ofNat_one, sub_add, sub_right_inj] at e' 
+      rw [← e', sub_add_cancel]
+      all_goals rwa [sub_nonneg]
+    · rfl
+  comm := by
+    intro i
+    rw [dNext_eq _ (show (ComplexShape.up ℤ).Rel i (i + 1) from rfl),
+      prevD_eq _ (show (ComplexShape.up ℤ).Rel (i - 1) i from sub_add_cancel _ _)]
+    have e₁ : i + 1 ≤ a ∧ i ≤ a ↔ i + 1 ≤ a := by rw [and_iff_left_iff_imp]; intro e; linarith
+    have e₂ : i ≤ a ∧ i ≤ a + 1 ↔ i ≤ a := by rw [and_iff_left_iff_imp]; intro e; linarith
+    simp only [tsub_le_iff_right, HomologicalComplex.zero_f_apply, add_zero, e₁, e₂]
+    by_cases H₁ : a ≤ i; · apply (h₂ _ H₁).eq_of_src
+    replace H₁ : i + 1 ≤ a; · linarith only [H₁]
+    have H₂ : i ≤ a := by linarith only [H₁]
+    rw [dif_pos H₁, dif_pos H₂]
+    have e : a - (a - i).natAbs = i :=
+      by
+      rw [← Int.abs_eq_natAbs, abs_eq_self.mpr _, ← sub_add, sub_self, zero_add]
+      rwa [sub_nonneg]
+    rw [← cancel_mono (Y.xEqToIso e.symm).hom, ← cancel_epi (X.xEqToIso e).hom]
+    have := (CategoryTheory.Projective.nullHomotopicOfProjectiveToAcyclicAux f a h₁ h₂ h₃).comm (a - i).natAbs
+    dsimp [fromNext, toPrev] at this ⊢
+    simp only [HomologicalComplex.x_d_eq_to_iso_assoc, Category.comp_id, add_zero,
+      HomologicalComplex.x_d_eq_to_iso, Category.id_comp, HomologicalComplex.xEqToIso_d_assoc,
+      HomologicalComplex.xEqToIso_trans_assoc, Preadditive.comp_add, Category.assoc,
+      HomologicalComplex.xEqToIso_d, HomologicalComplex.xEqToIso_trans,
+      HomologicalComplex.xEqToIso_f_assoc, HomologicalComplex.xEqToIso_refl,
+      Preadditive.add_comp] at this ⊢
+    rw [this]; clear this
+    delta HomologicalComplex.dFrom HomologicalComplex.dTo CochainComplex.asNatChainComplex
+    dsimp only
+    have aux₁ : (ComplexShape.down ℕ).next (a - i).natAbs = (a - (i + 1)).natAbs :=
+      by
+      apply ComplexShape.next_eq'
+      show (a - (i + 1)).natAbs + 1 = (a - i).natAbs
+      zify
+      rw [← Int.abs_eq_natAbs, abs_eq_self.mpr _, ← Int.abs_eq_natAbs, abs_eq_self.mpr _]
+      · ring
+      all_goals linarith only [H₁, H₂]
+    have aux₂ : (ComplexShape.down ℕ).prev (a - i).natAbs = (a - (i - 1)).natAbs :=
+      by
+      apply ComplexShape.prev_eq'
+      show (a - i).natAbs + 1 = (a - (i - 1)).natAbs
+      zify
+      rw [← Int.abs_eq_natAbs, abs_eq_self.mpr _, ← Int.abs_eq_natAbs, abs_eq_self.mpr _]
+      · ring
+      all_goals linarith only [H₁, H₂]
+    rw [← aux₁, ← aux₂]
+
+end CategoryTheory.Projective
+

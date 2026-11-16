@@ -1,0 +1,73 @@
+import Mathlib.CategoryTheory.Sites.Sheaf
+
+#align_import for_mathlib.presieve
+
+open CategoryTheory Opposite
+
+universe w v u v' u'
+
+variable {C : Type u} [Category.{v} C]
+
+-- Porting note: `noncomputable theory` moved before the first namespace so that the
+-- `end`s match
+noncomputable section
+
+namespace CategoryTheory.Presieve
+
+theorem mem_ofArrows_iff {ι} {B Y} (X : ι → C) (f : ∀ i, X i ⟶ B) (g : Y ⟶ B) :
+    ofArrows X f g ↔ ∃ (i : ι) (hi : Y = X i), g = eqToHom hi ≫ f i :=
+  by
+  constructor
+  · rintro ⟨i⟩
+    use i, rfl
+    simp
+  · rintro ⟨i, rfl, rfl⟩
+    simp [ofArrows.mk i]
+
+def indexOfArrows {ι} {B Y} {X : ι → C} {f : ∀ i, X i ⟶ B} {g : Y ⟶ B} (h : ofArrows X f g) : ι :=
+  ((mem_ofArrows_iff X f g).mp h).choose
+
+theorem eq_obj_ofArrows {ι} {B Y} {X : ι → C} {f : ∀ i, X i ⟶ B} {g : Y ⟶ B} (h : ofArrows X f g) :
+    Y = X (indexOfArrows h) :=
+  ((mem_ofArrows_iff X f g).mp h).choose_spec.choose
+
+@[simp]
+theorem eq_hom_ofArrows {ι} {B Y} {X : ι → C} {f : ∀ i, X i ⟶ B} {g : Y ⟶ B} (h : ofArrows X f g) :
+    eqToHom (eq_obj_ofArrows h) ≫ f _ = g :=
+  ((mem_ofArrows_iff X f g).mp h).choose_spec.choose_spec.symm
+
+def mkFamilyOfElementsOfArrows {ι} {B} (X : ι → C) (f : ∀ i, X i ⟶ B) (F : Cᵒᵖ ⥤ Type w)
+    (x : ∀ i, F.obj (op (X i))) : (ofArrows X f).FamilyOfElements F := fun Y f hf =>
+  F.map (eqToHom <| eq_obj_ofArrows hf).op (x <| indexOfArrows hf)
+
+theorem mkFamilyOfElementsOfArrows_compatible {ι} {B} (X : ι → C) (f : ∀ i, X i ⟶ B)
+    (F : Cᵒᵖ ⥤ Type w) (x : ∀ i, F.obj (op (X i)))
+    (hx :
+      ∀ (i j : ι) (Z) (g₁ : Z ⟶ X i) (g₂ : Z ⟶ X j),
+        g₁ ≫ f _ = g₂ ≫ f _ → F.map g₁.op (x _) = F.map g₂.op (x _)) :
+    (mkFamilyOfElementsOfArrows X f F x).Compatible :=
+  by
+  intro X Y Z g₁ g₂ f₁ f₂ h₁ h₂ h
+  dsimp [CategoryTheory.Presieve.mkFamilyOfElementsOfArrows]
+  specialize
+    hx (CategoryTheory.Presieve.indexOfArrows h₁) (CategoryTheory.Presieve.indexOfArrows h₂) Z (g₁ ≫ eqToHom (CategoryTheory.Presieve.eq_obj_ofArrows h₁))
+      (g₂ ≫ eqToHom (CategoryTheory.Presieve.eq_obj_ofArrows h₂)) (by simpa)
+  convert hx using 1 <;> simp
+
+theorem mkFamilyOfElementsOfArrows_eval {ι} {B} (X : ι → C) (f : ∀ i, X i ⟶ B) (F : Cᵒᵖ ⥤ Type w)
+    (x : ∀ i, F.obj (op (X i)))
+    (hx :
+      ∀ (i j : ι) (Z) (g₁ : Z ⟶ X i) (g₂ : Z ⟶ X j),
+        g₁ ≫ f _ = g₂ ≫ f _ → F.map g₁.op (x _) = F.map g₂.op (x _))
+    (i : ι) : (mkFamilyOfElementsOfArrows X f F x) (f i) (Presieve.ofArrows.mk i) = x i :=
+  by
+  -- Porting note: the `rotate`/`fapply` proof was rewritten with explicit arguments
+  have h0 : ofArrows X f (f i) := Presieve.ofArrows.mk i
+  have : X i = X (indexOfArrows h0) := eq_obj_ofArrows (g := f i) h0
+  dsimp [CategoryTheory.Presieve.mkFamilyOfElementsOfArrows]
+  have hx' := hx i (indexOfArrows h0) (X i) (𝟙 _) (eqToHom this) (by simp)
+  simp at hx'
+  simpa using hx'.symm
+
+end CategoryTheory.Presieve
+

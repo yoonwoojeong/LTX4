@@ -1,0 +1,83 @@
+import Mathlib.AlgebraicTopology.SimplicialObject
+
+#align_import for_mathlib.simplicial.iso
+
+open Opposite CategoryTheory CategoryTheory.Limits
+
+open SimplexCategory
+
+universe v u
+
+namespace CategoryTheory
+
+namespace Comma
+
+universe v₁ v₂ v₃ u₁ u₂ u₃
+
+variable {A : Type u₁} [Category.{v₁} A]
+
+variable {B : Type u₂} [Category.{v₂} B]
+
+variable {T : Type u₃} [Category.{v₃} T]
+
+variable {L : A ⥤ T} {R : B ⥤ T}
+
+variable {X Y : Comma L R} (f : X ⟶ Y)
+
+theorem isIso_of [IsIso f.left] [IsIso f.right] : IsIso f :=
+  {
+    out :=
+      ⟨{  left := inv f.left
+          right := inv f.right
+          w := by
+            simp only [IsIso.eq_comp_inv, Functor.map_inv, CommaMorphism.w, IsIso.inv_comp_eq,
+              Category.assoc] },
+        by constructor <;> ext <;> dsimp <;> simp only [IsIso.hom_inv_id, IsIso.inv_hom_id]⟩ }
+
+end Comma
+
+namespace SimplicialObject
+
+variable {C : Type u} [Category.{v} C]
+
+section
+
+variable {X Y : SimplicialObject C} (f : X ⟶ Y)
+
+theorem isIso_of [hf : ∀ n, IsIso (f.app n)] : IsIso f :=
+  {
+    out :=
+      by
+      -- Porting note: the naturality proof is given inline, since `_` placeholders do not
+      -- create new goals in Lean 4
+      let g : Y ⟶ X :=
+        { app := fun n => inv (f.app n)
+          naturality := fun m n φ => by
+            simp only [IsIso.inv_hom_id_assoc, NatTrans.naturality, IsIso.comp_inv_eq,
+              Category.assoc] }
+      refine' ⟨g, _, _⟩
+      -- Porting note: Lean 3's recursive `ext` is replaced by explicit steps
+      · apply NatTrans.ext
+        funext n
+        exact IsIso.hom_inv_id (f.app n)
+      · apply NatTrans.ext
+        funext n
+        exact IsIso.inv_hom_id (f.app n) }
+
+end
+
+attribute [local instance] CategoryTheory.SimplicialObject.isIso_of
+
+namespace Augmented
+
+variable {X Y : Augmented C} (f : X ⟶ Y)
+
+theorem isIso_of [∀ n, IsIso (f.left.app n)] [IsIso f.right] : IsIso f :=
+  CategoryTheory.Comma.isIso_of _
+
+end Augmented
+
+end SimplicialObject
+
+end CategoryTheory
+

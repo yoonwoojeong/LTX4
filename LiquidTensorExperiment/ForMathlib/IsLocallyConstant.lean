@@ -1,0 +1,52 @@
+import Mathlib.Topology.Separation
+import Mathlib.Topology.LocallyConstant.Basic
+import Mathlib.Topology.DiscreteQuotient
+import Mathlib.Data.Setoid.Partition
+
+#align_import for_mathlib.is_locally_constant
+
+noncomputable section
+
+variable {X : Type _} [TopologicalSpace X]
+
+open Set
+
+section
+
+variable {Y : Type _}
+
+theorem isLocallyConstant_iff_clopen_fibers {f : X → Y} :
+    IsLocallyConstant f ↔ ∀ y, IsClopen (f ⁻¹' {y}) :=
+  ⟨fun h y => h.isClopen_fiber y, fun h s =>
+    by
+    rw [← Set.biUnion_of_singleton s, Set.preimage_iUnion₂]
+    exact isOpen_biUnion fun x _ => (h x).1⟩
+
+end
+
+section
+
+variable {Y : Type _}
+
+def IndexedPartition.discreteQuotient {ι : Type _} {s : ι → Set X} (h_part : IndexedPartition s)
+    (h_cl : ∀ i, IsClopen <| s i) : DiscreteQuotient X
+    where
+  toSetoid := h_part.setoid
+  -- Porting note: the Lean 3 field `clopen` is `isOpen_setOf_rel` in mathlib4 (only openness is
+  -- required).
+  isOpen_setOf_rel := by
+    intro x
+    rw [h_part.class_of]
+    exact (h_cl _).1
+
+variable {ι : Type _} {s : ι → Set X} (h_cl : ∀ i, IsClopen <| s i) (h_part : IndexedPartition s)
+
+def IndexedPartition.discreteQuotientEquiv : ι ≃ h_part.discreteQuotient h_cl :=
+  h_part.equivQuotient
+
+theorem IndexedPartition.discreteQuotient_fiber (x : h_part.discreteQuotient h_cl) :
+    (h_part.discreteQuotient h_cl).proj ⁻¹' {x} = s ((h_part.discreteQuotientEquiv h_cl).symm x) :=
+  h_part.proj_fiber _
+
+end
+
