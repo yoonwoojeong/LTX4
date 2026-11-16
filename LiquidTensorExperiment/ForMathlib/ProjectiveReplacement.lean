@@ -755,26 +755,29 @@ instance : QuasiIso' (replacement.hom X a H) :=
   · rw [show Int.negSucc i + a = a - ↑(i + 1) by
       rw [add_comm]
       rfl]
-    rw [CategoryTheory.Projective.homology'Functor_map_iso' _ (a - ↑(i + 1) - 1) (a - ↑(i + 1)) (a - i)]
-    · rw [CategoryTheory.Projective.replacement_hom_homology'_iso X a H i]
-      haveI : IsIso (replacementHomologyMap X a H i) := inferInstance
-      infer_instance
-    · norm_num
-    · norm_num [sub_add]
+    -- Porting note: the side conditions are given first, so that instance search is not stuck on metavariables
+    rw [CategoryTheory.Projective.homology'Functor_map_iso' _ (a - ↑(i + 1) - 1) (a - ↑(i + 1))
+      (a - i) (sub_add_cancel _ _) (by push_cast; ring)]
+    rw [CategoryTheory.Projective.replacement_hom_homology'_iso X a H i]
+    haveI : IsIso (replacementHomologyMap X a H i) := inferInstance
     infer_instance
 
 @[simps]
-def CochainComplex.asNatChainComplex (X : CochainComplex V ℤ) (a : ℤ) : ChainComplex V ℕ
+-- Porting note: `_root_` is needed so the name is `CochainComplex.asNatChainComplex`
+def _root_.CochainComplex.asNatChainComplex (X : CochainComplex V ℤ) (a : ℤ) : ChainComplex V ℕ
     where
   X i := X.X (a - i)
   d i j := X.d _ _
   shape i j r := by
-    refine' X.shape _ _ fun e => r _; dsimp at e ⊢
-    apply Int.ofNat.inj; push_cast; linarith
+    refine' X.shape _ _ fun e => r _
+    dsimp at e ⊢
+    -- Porting note: `Int.ofNat.inj` replaced by `exact_mod_cast`
+    have h : (i : ℤ) = j + 1 := by linarith
+    exact_mod_cast h.symm
   d_comp_d' i j k _ _ := X.d_comp_d _ _ _
 
 @[simps]
-def CochainComplex.toNatChainComplex (a : ℤ) : CochainComplex V ℤ ⥤ ChainComplex V ℕ
+def _root_.CochainComplex.toNatChainComplex (a : ℤ) : CochainComplex V ℤ ⥤ ChainComplex V ℕ
     where
   obj X := X.asNatChainComplex a
   map {X Y} f := { f := fun i => f.f _ }
